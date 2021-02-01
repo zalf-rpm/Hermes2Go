@@ -1,0 +1,79 @@
+# DateDEshort ddmmyy <- default format(old)
+# DateDElong ddmmyyyy
+# DateENshort mmddyy
+# DateENlong mmddyyyy
+# short format "ddmmyy", e.g. 24.01.95 -> "ddmmyy" requires input as 240195, you need to set the century devision year "DivideCentury", e.g. 1950 -> 50
+# long format "ddmmyyyy", e.g. 24.01.2066  requires input as 24012066
+Dateformat: DateENlong
+# ground water is read from either 'soilfile' or 'polygonfile
+GroundWaterFrom: soilfile
+#0 = hermes # 1 = csv
+ResultFileFormat: 0
+# (optional) result file extensions (default RES, csv)
+ResultFileExt: "RES"
+# Output intervall (days) (0=no time serie)
+OutputIntervall: 1
+# Init.values general(1),field(2), Polygon(3)
+InitSelection: 3
+# soil profile file name (without projectname)
+SoilFile: soil
+# weather file name template/pattern
+WeatherFile: '%s.csv'
+# Weather file format (0=separator(, ; \t), 1 year per file ) (1=separator(, ; \t), multiple years per file)
+WeatherFileSeperator: 1
+# Weather scenario folder
+WeatherFolder: "historical"
+# weather root directory without scenario folder or filename
+WeatherRootFolder: "./weather/"
+# weather none value, default -99.9
+WeatherNoneValue: 999.9
+# number of header lines (min = 1, with column names)
+WeatherNumHeader: 2
+# correction precipitation (0= no, 1 = yes, requires <project>/Weather/preco.txt)
+CorrectionPrecipitation: 0
+# ETpot method(1=Haude, 2=Turc-Wendling, 3=Penman-Monteith, 4=ET Gras Priestley Taylor, 5=from file)
+ETpot: 3
+# Distance to coast (km)
+CoastDistance: 300
+#CO2method(1=Nonhebel,2=Hoffmann,3=Mitchell)
+CO2method: 2
+# CO2 concentration (ppm)
+CO2concentration: 360
+# CO2 Stomata influence (1=on/0= off)
+CO2StomataInfluence: 1
+# Starting year of simulation (YYYY)
+StartYear: 1980
+# End date of simulation (DDMMYYYY)
+EndDate: "12312010"
+# Date for annual output
+AnnualOutputDate: "1031"
+# Latitude
+Latitude: 52.52
+# Altitude - height (can be overwritten weather file)
+Altitude: 0
+# Depth for leaching/seepage calculation (dm)
+LeachingDepth: 15
+# Mineralisable proportion of organic matter
+OrganicMatterMineralProportion: 0.13
+# N-Deposition (annual kg/ha)
+NDeposition: 20
+# Name of Polygon resp. grid file
+PolygonGridFileName: poly
+# fertilization scenario (fertilization in %)
+Fertilization: 100
+# virtual date for fertilizer prediction; '------' for no prediction
+VirtualDateFertilizerPrediction: '--------'
+# not used on long date format - Year to divide 20. and 21. Century (YY)
+DivideCentury: 60
+# kc factor for bare soil
+KcFactorBareSoil: 0.4
+# annual average temperature (Degree Celsius)
+AnnualAverageTemperature: 8.7
+# automatic sowing/harvest (0=no, 1 = yes)
+AutoSowingHarvest: 0
+# automatic fertilization (0=no, 1=on demand)
+AutoFertilization: 0
+# automatic irrigation (0=no, 1= on demand)
+AutoIrrigation: 0
+# automatic harvest (0=no, 1= on demand)
+AutoHarvest: 0

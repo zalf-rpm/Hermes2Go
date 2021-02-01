@@ -1,0 +1,1 @@
+.\hermestogo.exe -module batch -logoutput -batch all_muencheberg_batch.txt

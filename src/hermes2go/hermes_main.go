@@ -1,4 +1,4 @@
-package hermes
+package main
 
 import (
 	"bufio"
