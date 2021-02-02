@@ -178,14 +178,14 @@ func (c *OutputConfig) WriteHeader(file *Fout, formatType OutputFileFormat) erro
 // NewDefaultOutputConfigYearly create yearly hermes output configuration
 func NewDefaultOutputConfigYearly(g *GlobalVarsMain) OutputConfig {
 	dataColumns := []OutputDataColum{
-		OutputDataColum{
+		{
 			FormatStr:     "%8s",
 			DataAlignment: leftAlignment,
 			Width:         10,
 			VarName:       "AKTUELL",
 			valueRef:      &g.AKTUELL,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: rightAlignment,
 			Width:         4,
@@ -193,7 +193,7 @@ func NewDefaultOutputConfigYearly(g *GlobalVarsMain) OutputConfig {
 			VarName:       "VERDUNST",
 			valueRef:      &g.VERDUNST,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: rightAlignment,
 			Width:         4,
@@ -201,7 +201,7 @@ func NewDefaultOutputConfigYearly(g *GlobalVarsMain) OutputConfig {
 			VarName:       "PFTRANS",
 			valueRef:      &g.PFTRANS,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: rightAlignment,
 			Width:         4,
@@ -209,84 +209,84 @@ func NewDefaultOutputConfigYearly(g *GlobalVarsMain) OutputConfig {
 			VarName:       "TRAY",
 			valueRef:      &g.TRAY,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: rightAlignment,
 			Width:         4,
 			VarName:       "PerY",
 			valueRef:      &g.PerY,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "SWCY1",
 			valueRef:      &g.SWCY1,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "SWCY2",
 			valueRef:      &g.SWCY2,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%s",
 			DataAlignment: leftAlignment,
 			Width:         6,
 			VarName:       "NA",
 			valueRef:      "n.a.",
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%06.1f",
 			DataAlignment: leftAlignment,
 			Width:         7,
 			VarName:       "OUTSUM",
 			valueRef:      &g.OUTSUM,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%07.1f",
 			DataAlignment: rightAlignment,
 			Width:         7,
 			VarName:       "MINSUM",
 			valueRef:      &g.MINSUM,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%07.3f",
 			DataAlignment: rightAlignment,
 			Width:         7,
 			VarName:       "CUMDENIT",
 			valueRef:      &g.CUMDENIT,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%s",
 			DataAlignment: leftAlignment,
 			Width:         7,
 			VarName:       "NA",
 			valueRef:      "n.a.",
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%07.f",
 			DataAlignment: leftAlignment,
 			Width:         7,
 			VarName:       "SOC1",
 			valueRef:      &g.SOC1,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%s",
 			DataAlignment: leftAlignment,
 			Width:         7,
 			VarName:       "NA",
 			valueRef:      "n.a.",
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%s",
 			DataAlignment: leftAlignment,
 			Width:         21,
 			VarName:       "POLYD",
 			valueRef:      &g.POLYD,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%s",
 			DataAlignment: leftAlignment,
 			Width:         11,
@@ -295,134 +295,134 @@ func NewDefaultOutputConfigYearly(g *GlobalVarsMain) OutputConfig {
 		},
 	}
 	headlines := map[int][]OutHeaderColum{
-		1: []OutHeaderColum{
-			OutHeaderColum{
+		1: {
+			{
 				Text:            "date",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "ETcy",
 				ColumnAlignment: rightAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "ETaY",
 				ColumnAlignment: rightAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "TraY",
 				ColumnAlignment: rightAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "PerY",
 				ColumnAlignment: rightAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "SWCY1",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "SWCY2",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "Runoff",
 				ColumnAlignment: rightAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "NleaY",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "MINY",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "DENY",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "VOLAT",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "SOC1",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "SOC2",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "code",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "Error",
 				ColumnAlignment: leftAlignment,
 			},
 		},
-		2: []OutHeaderColum{
-			OutHeaderColum{
+		2: {
+			{
 				Text:            "mm",
 				ColumnAlignment: centerAlignment,
 				ColStart:        2,
 			},
-			OutHeaderColum{
+			{
 				Text:            "mm",
 				ColumnAlignment: centerAlignment,
 				ColStart:        3,
 			},
-			OutHeaderColum{
+			{
 				Text:            "mm",
 				ColumnAlignment: centerAlignment,
 				ColStart:        4,
 			},
-			OutHeaderColum{
+			{
 				Text:            "mm",
 				ColumnAlignment: centerAlignment,
 				ColStart:        5,
 			},
-			OutHeaderColum{
+			{
 				Text:            "mm",
 				ColumnAlignment: centerAlignment,
 				ColStart:        6,
 			},
-			OutHeaderColum{
+			{
 				Text:            "mm",
 				ColumnAlignment: centerAlignment,
 				ColStart:        7,
 			},
-			OutHeaderColum{
+			{
 				Text:            "mm",
 				ColumnAlignment: centerAlignment,
 				ColStart:        8,
 			},
-			OutHeaderColum{
+			{
 				Text:            "kg N/ha",
 				ColumnAlignment: centerAlignment,
 				ColStart:        9,
 			},
-			OutHeaderColum{
+			{
 				Text:            "kg N/ha",
 				ColumnAlignment: centerAlignment,
 				ColStart:        10,
 			},
-			OutHeaderColum{
+			{
 				Text:            "kg N/ha",
 				ColumnAlignment: centerAlignment,
 				ColStart:        11,
 			},
-			OutHeaderColum{
+			{
 				Text:            "kg N/ha",
 				ColumnAlignment: centerAlignment,
 				ColStart:        12,
 			},
-			OutHeaderColum{
+			{
 				Text:            "kg C/ha",
 				ColumnAlignment: centerAlignment,
 				ColStart:        13,
 			},
-			OutHeaderColum{
+			{
 				Text:            "kg C/ha",
 				ColumnAlignment: centerAlignment,
 				ColStart:        14,
@@ -461,84 +461,84 @@ func NewDefaultOutputConfigYearly(g *GlobalVarsMain) OutputConfig {
 // NewDefaultCropOutputConfig create crop output configuration
 func NewDefaultCropOutputConfig(c *CropOutputVars) OutputConfig {
 	dataColumns := []OutputDataColum{
-		OutputDataColum{
+		{
 			FormatStr:     "%s",
 			DataAlignment: leftAlignment,
 			Width:         12,
 			VarName:       "SowDate",
 			valueRef:      &c.SowDate,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%3d",
 			DataAlignment: leftAlignment,
 			Width:         4,
 			VarName:       "SowDOY",
 			valueRef:      &c.SowDOY,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%3d",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "EmergDOY",
 			valueRef:      &c.EmergDOY,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%3d",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "AnthDOY",
 			valueRef:      &c.AnthDOY,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%3d",
 			DataAlignment: leftAlignment,
 			Width:         3,
 			VarName:       "MatDOY",
 			valueRef:      &c.MatDOY,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%4d",
 			DataAlignment: leftAlignment,
 			Width:         4,
 			VarName:       "HarvestYear",
 			valueRef:      &c.HarvestYear,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%3d",
 			DataAlignment: leftAlignment,
 			Width:         4,
 			VarName:       "HarvestDOY",
 			valueRef:      &c.HarvestDOY,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%3s",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "Crop",
 			valueRef:      &c.Crop,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.f",
 			DataAlignment: leftAlignment,
 			Width:         6,
 			VarName:       "Yield",
 			valueRef:      &c.Yield,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.f",
 			DataAlignment: leftAlignment,
 			Width:         7,
 			VarName:       "Biomass",
 			valueRef:      &c.Biomass,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "Roots",
 			valueRef:      &c.Roots,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.1f",
 			DataAlignment: leftAlignment,
 			Width:         6,
@@ -546,35 +546,35 @@ func NewDefaultCropOutputConfig(c *CropOutputVars) OutputConfig {
 			valueRef:      &c.LAImax,
 		},
 
-		OutputDataColum{
+		{
 			FormatStr:     "%05.1f",
 			DataAlignment: leftAlignment,
 			Width:         7,
 			VarName:       "Nfertil",
 			valueRef:      &c.Nfertil,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "Irrig",
 			valueRef:      &c.Irrig,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.1f",
 			DataAlignment: leftAlignment,
 			Width:         8,
 			VarName:       "Nuptake",
 			valueRef:      &c.Nuptake,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.1f",
 			DataAlignment: leftAlignment,
 			Width:         7,
 			VarName:       "Nagb",
 			valueRef:      &c.Nagb,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         4,
@@ -582,7 +582,7 @@ func NewDefaultCropOutputConfig(c *CropOutputVars) OutputConfig {
 			VarName:       "ETcG",
 			valueRef:      &c.ETcG,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         4,
@@ -590,7 +590,7 @@ func NewDefaultCropOutputConfig(c *CropOutputVars) OutputConfig {
 			VarName:       "ETaG",
 			valueRef:      &c.ETaG,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         4,
@@ -598,7 +598,7 @@ func NewDefaultCropOutputConfig(c *CropOutputVars) OutputConfig {
 			VarName:       "TraG",
 			valueRef:      &c.TraG,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%06.1f",
 			DataAlignment: leftAlignment,
 			Width:         6,
@@ -606,42 +606,42 @@ func NewDefaultCropOutputConfig(c *CropOutputVars) OutputConfig {
 			valueRef:      &c.PerG,
 		},
 
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "SWCS1",
 			valueRef:      &c.SWCS1,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "SWCS2",
 			valueRef:      &c.SWCS2,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "SWCA1",
 			valueRef:      &c.SWCA1,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "SWCA2",
 			valueRef:      &c.SWCA2,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "SWCM1",
 			valueRef:      &c.SWCM1,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
@@ -649,28 +649,28 @@ func NewDefaultCropOutputConfig(c *CropOutputVars) OutputConfig {
 			valueRef:      &c.SWCM2,
 		},
 
-		OutputDataColum{
+		{
 			FormatStr:     "%05.f",
 			DataAlignment: leftAlignment,
 			Width:         7,
 			VarName:       "SoilN1",
 			valueRef:      &c.SoilN1,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%s",
 			DataAlignment: leftAlignment,
 			Width:         7,
 			VarName:       "NA",
 			valueRef:      "n.a.",
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         7,
 			VarName:       "Nmin1",
 			valueRef:      &c.Nmin1,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         7,
@@ -678,56 +678,56 @@ func NewDefaultCropOutputConfig(c *CropOutputVars) OutputConfig {
 			valueRef:      &c.Nmin2,
 		},
 
-		OutputDataColum{
+		{
 			FormatStr:     "%05.1f",
 			DataAlignment: leftAlignment,
 			Width:         7,
 			VarName:       "NLeaG",
 			valueRef:      &c.NLeaG,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%5.3f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "TRRel",
 			valueRef:      &c.TRRel,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%5.3f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "Reduk",
 			valueRef:      &c.Reduk,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%03.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "DryD1",
 			valueRef:      &c.DryD1,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%03.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "DryD2",
 			valueRef:      &c.DryD2,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         8,
 			VarName:       "Nresid",
 			valueRef:      &c.Nresid,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%s",
 			DataAlignment: leftAlignment,
 			Width:         10,
 			VarName:       "Orgdat",
 			valueRef:      &c.Orgdat,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%3s",
 			DataAlignment: rightAlignment,
 			Width:         4,
@@ -735,14 +735,14 @@ func NewDefaultCropOutputConfig(c *CropOutputVars) OutputConfig {
 			valueRef:      &c.Type,
 		},
 
-		OutputDataColum{
+		{
 			FormatStr:     "%05.1f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "OrgN",
 			valueRef:      &c.OrgN,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%s",
 			DataAlignment: leftAlignment,
 			Width:         12,
@@ -750,14 +750,14 @@ func NewDefaultCropOutputConfig(c *CropOutputVars) OutputConfig {
 			valueRef:      &c.NDat1,
 		},
 
-		OutputDataColum{
+		{
 			FormatStr:     "%05.1f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "N1",
 			valueRef:      &c.N1,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%s",
 			DataAlignment: leftAlignment,
 			Width:         12,
@@ -765,42 +765,42 @@ func NewDefaultCropOutputConfig(c *CropOutputVars) OutputConfig {
 			valueRef:      &c.Ndat2,
 		},
 
-		OutputDataColum{
+		{
 			FormatStr:     "%05.1f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "N2",
 			valueRef:      &c.N2,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%s",
 			DataAlignment: leftAlignment,
 			Width:         12,
 			VarName:       "Ndat3",
 			valueRef:      &c.Ndat3,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.1f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "N3",
 			valueRef:      &c.N3,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%s",
 			DataAlignment: centerAlignment,
 			Width:         12,
 			VarName:       "Tdat",
 			valueRef:      &c.Tdat,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%s",
 			DataAlignment: centerAlignment,
 			Width:         35,
 			VarName:       "Code",
 			valueRef:      &c.Code,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%s",
 			DataAlignment: centerAlignment,
 			Width:         10,
@@ -809,339 +809,339 @@ func NewDefaultCropOutputConfig(c *CropOutputVars) OutputConfig {
 		},
 	}
 	headlines := map[int][]OutHeaderColum{
-		1: []OutHeaderColum{
-			OutHeaderColum{
+		1: {
+			{
 				Text:            "date",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "DOY",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "DOY",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "DOY",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "DOY",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "Year",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "DOY",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "crop",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "yield",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "biomass",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "roots",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "LAImax",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "Nfertil",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "irrig",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "N-uptake",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "Nagb",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "ETcG",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "ETaG",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "TraG",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "PerG",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "SWCS1",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "SWCS2",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "SWCA1",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "SWCA2",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "SWCM1",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "SWCM2",
 				ColumnAlignment: leftAlignment,
 			},
 
-			OutHeaderColum{
+			{
 				Text:            "soilN1",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "soilN2",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "Nmin1",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "Nmin2",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "NLeaG",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "TRRel",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "Reduk",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "DryD1",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "DryD2",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "Nresid",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "Orgdat",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "Type",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "OrgN",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "NDat1",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "N1",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "Ndat2",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "N2",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "Ndat3",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "N3",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "T_dat",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "code",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "Error",
 				ColumnAlignment: leftAlignment,
 			},
 		},
-		2: []OutHeaderColum{
-			OutHeaderColum{
+		2: {
+			{
 				Text:            "sowing",
 				ColumnAlignment: leftAlignment,
 				ColStart:        1,
 			},
-			OutHeaderColum{
+			{
 				Text:            "emerg",
 				ColumnAlignment: leftAlignment,
 				ColStart:        3,
 			},
-			OutHeaderColum{
+			{
 				Text:            "anth",
 				ColumnAlignment: leftAlignment,
 				ColStart:        4,
 			},
-			OutHeaderColum{
+			{
 				Text:            "mat",
 				ColumnAlignment: leftAlignment,
 				ColStart:        5,
 			},
-			OutHeaderColum{
+			{
 				Text:            "harvest",
 				ColumnAlignment: leftAlignment,
 				ColStart:        6,
 				ColEnd:          7,
 			},
-			OutHeaderColum{
+			{
 				Text:            "kg/ha",
 				ColumnAlignment: leftAlignment,
 				ColStart:        9,
 			},
-			OutHeaderColum{
+			{
 				Text:            "kg/ha",
 				ColumnAlignment: leftAlignment,
 				ColStart:        10,
 			},
-			OutHeaderColum{
+			{
 				Text:            "kg/ha",
 				ColumnAlignment: leftAlignment,
 				ColStart:        11,
 			},
-			OutHeaderColum{
+			{
 				Text:            "kg N/ha",
 				ColumnAlignment: leftAlignment,
 				ColStart:        13,
 			},
-			OutHeaderColum{
+			{
 				Text:            "mm",
 				ColumnAlignment: leftAlignment,
 				ColStart:        14,
 			},
-			OutHeaderColum{
+			{
 				Text:            "kg N/ha",
 				ColumnAlignment: leftAlignment,
 				ColStart:        15,
 			},
-			OutHeaderColum{
+			{
 				Text:            "kg N/ha",
 				ColumnAlignment: leftAlignment,
 				ColStart:        16,
 			},
-			OutHeaderColum{
+			{
 				Text:            "mm",
 				ColumnAlignment: leftAlignment,
 				ColStart:        17,
 			},
-			OutHeaderColum{
+			{
 				Text:            "mm",
 				ColumnAlignment: leftAlignment,
 				ColStart:        18,
 			},
-			OutHeaderColum{
+			{
 				Text:            "mm",
 				ColumnAlignment: leftAlignment,
 				ColStart:        19,
 			},
-			OutHeaderColum{
+			{
 				Text:            "mm",
 				ColumnAlignment: leftAlignment,
 				ColStart:        20,
 			},
-			OutHeaderColum{
+			{
 				Text:            "mm",
 				ColumnAlignment: leftAlignment,
 				ColStart:        21,
 			},
-			OutHeaderColum{
+			{
 				Text:            "mm",
 				ColumnAlignment: leftAlignment,
 				ColStart:        22,
 			},
-			OutHeaderColum{
+			{
 				Text:            "mm",
 				ColumnAlignment: leftAlignment,
 				ColStart:        23,
 			},
-			OutHeaderColum{
+			{
 				Text:            "mm",
 				ColumnAlignment: leftAlignment,
 				ColStart:        24,
 			},
-			OutHeaderColum{
+			{
 				Text:            "mm",
 				ColumnAlignment: leftAlignment,
 				ColStart:        25,
 			},
-			OutHeaderColum{
+			{
 				Text:            "mm",
 				ColumnAlignment: leftAlignment,
 				ColStart:        26,
 			},
-			OutHeaderColum{
+			{
 				Text:            "kg N/ha",
 				ColumnAlignment: leftAlignment,
 				ColStart:        27,
 			},
-			OutHeaderColum{
+			{
 				Text:            "kg N/ha",
 				ColumnAlignment: leftAlignment,
 				ColStart:        28,
 			},
-			OutHeaderColum{
+			{
 				Text:            "kg N/ha",
 				ColumnAlignment: leftAlignment,
 				ColStart:        29,
 			},
-			OutHeaderColum{
+			{
 				Text:            "kg N/ha",
 				ColumnAlignment: leftAlignment,
 				ColStart:        30,
 			},
-			OutHeaderColum{
+			{
 				Text:            "kg N/ha",
 				ColumnAlignment: leftAlignment,
 				ColStart:        31,
 			},
-			OutHeaderColum{
+			{
 				Text:            "kg N/ha",
 				ColumnAlignment: leftAlignment,
 				ColStart:        36,
@@ -1179,14 +1179,14 @@ func NewDefaultCropOutputConfig(c *CropOutputVars) OutputConfig {
 // NewDefaultDailyOutputConfig create daily output configuration
 func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 	dataColumns := []OutputDataColum{
-		OutputDataColum{
+		{
 			FormatStr:     "%s",
 			DataAlignment: leftAlignment,
 			Width:         10,
 			VarName:       "AKTUELL",
 			valueRef:      &g.AKTUELL,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.1f",
 			DataAlignment: leftAlignment,
 			Width:         4,
@@ -1196,7 +1196,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarIndex2:     0,
 			valueRef:      &g.WG,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.1f",
 			DataAlignment: leftAlignment,
 			Width:         4,
@@ -1206,7 +1206,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarIndex2:     1,
 			valueRef:      &g.WG,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.1f",
 			DataAlignment: leftAlignment,
 			Width:         4,
@@ -1216,7 +1216,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarIndex2:     2,
 			valueRef:      &g.WG,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.1f",
 			DataAlignment: leftAlignment,
 			Width:         4,
@@ -1226,7 +1226,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarIndex2:     3,
 			valueRef:      &g.WG,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.1f",
 			DataAlignment: leftAlignment,
 			Width:         4,
@@ -1236,7 +1236,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarIndex2:     4,
 			valueRef:      &g.WG,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.1f",
 			DataAlignment: leftAlignment,
 			Width:         4,
@@ -1246,7 +1246,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarIndex2:     5,
 			valueRef:      &g.WG,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.1f",
 			DataAlignment: leftAlignment,
 			Width:         4,
@@ -1256,7 +1256,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarIndex2:     6,
 			valueRef:      &g.WG,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.1f",
 			DataAlignment: leftAlignment,
 			Width:         4,
@@ -1266,7 +1266,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarIndex2:     7,
 			valueRef:      &g.WG,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.1f",
 			DataAlignment: leftAlignment,
 			Width:         4,
@@ -1277,7 +1277,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			valueRef:      &g.WG,
 		},
 
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         4,
@@ -1285,7 +1285,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarIndex1:     0,
 			valueRef:      &g.C1,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         4,
@@ -1293,7 +1293,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarIndex1:     1,
 			valueRef:      &g.C1,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         4,
@@ -1301,7 +1301,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarIndex1:     2,
 			valueRef:      &g.C1,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         4,
@@ -1309,7 +1309,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarIndex1:     3,
 			valueRef:      &g.C1,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         4,
@@ -1317,7 +1317,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarIndex1:     4,
 			valueRef:      &g.C1,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         4,
@@ -1325,7 +1325,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarIndex1:     5,
 			valueRef:      &g.C1,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         4,
@@ -1333,7 +1333,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarIndex1:     6,
 			valueRef:      &g.C1,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         4,
@@ -1341,7 +1341,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarIndex1:     7,
 			valueRef:      &g.C1,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         4,
@@ -1349,70 +1349,70 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarIndex1:     8,
 			valueRef:      &g.C1,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         4,
 			VarName:       "Nmin9to20",
 			valueRef:      &g.Nmin9to20,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "PESUM",
 			valueRef:      &g.PESUM,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "OUTSUM",
 			valueRef:      &g.OUTSUM,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "SickerDaily",
 			valueRef:      &g.SickerDaily,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.1f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "CUMDENIT",
 			valueRef:      &g.CUMDENIT,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "OBMAS",
 			valueRef:      &g.OBMAS,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "MINSUM",
 			valueRef:      &g.MINSUM,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.1f",
 			DataAlignment: leftAlignment,
 			Width:         6,
 			VarName:       "HARVEST",
 			valueRef:      &g.HARVEST,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         4,
 			VarName:       "PHYLLO",
 			valueRef:      &g.PHYLLO,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
@@ -1420,7 +1420,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarIndex1:     0,
 			valueRef:      &g.WORG,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
@@ -1428,7 +1428,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarIndex1:     1,
 			valueRef:      &g.WORG,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
@@ -1436,7 +1436,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarIndex1:     2,
 			valueRef:      &g.WORG,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
@@ -1444,7 +1444,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarIndex1:     3,
 			valueRef:      &g.WORG,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
@@ -1452,63 +1452,63 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarIndex1:     4,
 			valueRef:      &g.WORG,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.f",
 			DataAlignment: leftAlignment,
 			Width:         4,
 			VarName:       "ASPOO",
 			valueRef:      &g.ASPOO,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.2f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "LAI",
 			valueRef:      &g.LAI,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%5.3f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "GEHMIN",
 			valueRef:      &g.GEHMIN,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%5.3f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "GEHMAX",
 			valueRef:      &g.GEHMAX,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%4.f",
 			DataAlignment: leftAlignment,
 			Width:         4,
 			VarName:       "NAOSAKT",
 			valueRef:      &g.NAOSAKT,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%2d",
 			DataAlignment: leftAlignment,
 			Width:         2,
 			VarName:       "WURZ",
 			valueRef:      &g.WURZ,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%2.f",
 			DataAlignment: leftAlignment,
 			Width:         3,
 			VarName:       "INTWICK.Num",
 			valueRef:      &g.INTWICK.Num,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%06.2f",
 			DataAlignment: leftAlignment,
 			Width:         6,
 			VarName:       "BLATTSUM",
 			valueRef:      &g.BLATTSUM,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.1f",
 			DataAlignment: leftAlignment,
 			Width:         5,
@@ -1516,21 +1516,21 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			valueRef:      &g.NFOSAKT,
 		},
 
-		OutputDataColum{
+		{
 			FormatStr:     "%06.1f",
 			DataAlignment: leftAlignment,
 			Width:         6,
 			VarName:       "SumMINAOS",
 			valueRef:      &g.SumMINAOS,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.1f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "SumMINFOS",
 			valueRef:      &g.SumMINFOS,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%5.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
@@ -1538,7 +1538,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarName:       "VERDUNST",
 			valueRef:      &g.VERDUNST,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%5.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
@@ -1546,84 +1546,84 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarName:       "PFTRANS",
 			valueRef:      &g.PFTRANS,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.2f",
 			DataAlignment: leftAlignment,
 			Width:         4,
 			VarName:       "TRREL",
 			valueRef:      &g.TRREL,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%04.2f",
 			DataAlignment: leftAlignment,
 			Width:         7,
 			VarName:       "REDUK",
 			valueRef:      &g.REDUK,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%s",
 			DataAlignment: leftAlignment,
 			Width:         7,
 			VarName:       "NA",
 			valueRef:      "n.a.",
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%s",
 			DataAlignment: leftAlignment,
 			Width:         7,
 			VarName:       "NA",
 			valueRef:      "n.a.",
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "ASPOO",
 			valueRef:      &g.ASPOO,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%4.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "DRAISUM",
 			valueRef:      &g.DRAISUM,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%6.f",
 			DataAlignment: leftAlignment,
 			Width:         6,
 			VarName:       "DRAINLOSS",
 			valueRef:      &g.DRAINLOSS,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%06.4f",
 			DataAlignment: leftAlignment,
 			Width:         6,
 			VarName:       "GEHOB",
 			valueRef:      &g.GEHOB,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "NFIXSUM",
 			valueRef:      &g.NFIXSUM,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "NAOSAKT",
 			valueRef:      &g.NAOSAKT,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%05.f",
 			DataAlignment: leftAlignment,
 			Width:         5,
 			VarName:       "NFOSAKT",
 			valueRef:      &g.NFOSAKT,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%+05.1f",
 			DataAlignment: rightAlignment,
 			Width:         7,
@@ -1631,7 +1631,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarName:       "AvgTSoil",
 			valueRef:      &g.AvgTSoil,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%+05.1f",
 			DataAlignment: leftAlignment,
 			Width:         6,
@@ -1639,7 +1639,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 			VarName:       "TD",
 			valueRef:      &g.TD,
 		},
-		OutputDataColum{
+		{
 			FormatStr:     "%s",
 			DataAlignment: leftAlignment,
 			Width:         10,
@@ -1648,231 +1648,231 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 		},
 	}
 	headlines := map[int][]OutHeaderColum{
-		1: []OutHeaderColum{
-			OutHeaderColum{
+		1: {
+			{
 				Text:            "Date",
 				ColumnAlignment: leftAlignment,
 				ColStart:        1,
 				ColEnd:          1,
 			},
-			OutHeaderColum{
+			{
 				Text:            "water contents",
 				ColumnAlignment: centerAlignment,
 				ColStart:        2,
 				ColEnd:          10,
 			},
-			OutHeaderColum{
+			{
 				Text:            "-Nmin-content-",
 				ColumnAlignment: centerAlignment,
 				ColStart:        11,
 				ColEnd:          20,
 			},
-			OutHeaderColum{
+			{
 				Text:            "N crp",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "Nleac",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "perco",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "denit",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "agDM",
 				ColumnAlignment: centerAlignment,
 				ColStart:        25,
 			},
-			OutHeaderColum{
+			{
 				Text:            "miner",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "yield",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "Phyl",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "ORG1",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "ORG2",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "ORG3",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "ORG4",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "ORG5",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "ASPO",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "LAI",
 				ColumnAlignment: leftAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "ghmin",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "ghmax",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "NAOS",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "rt",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "stg",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "leave",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "NFOS",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "MAOS",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "MFOS",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "ETP",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "ETA",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "TREL",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "REDUK",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "GPHOT",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "MAINT",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "ASPOO",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "Wdrai",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "NDrain",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "Nagrb",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "Nfix",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "AOSAK",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "FOSAK",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "TS15",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "TS50",
 				ColumnAlignment: centerAlignment,
 			},
-			OutHeaderColum{
+			{
 				Text:            "Error",
 				ColumnAlignment: leftAlignment,
 			},
 		},
-		2: []OutHeaderColum{
-			OutHeaderColum{
+		2: {
+			{
 				Text:              " Vol% ",
 				ColumnAlignment:   centerAlignment,
 				ColStart:          2,
 				ColEnd:            10,
 				FillWithCharacter: "-",
 			},
-			OutHeaderColum{
+			{
 				Text:              " kg N/ha ",
 				ColumnAlignment:   centerAlignment,
 				ColStart:          11,
 				ColEnd:            20,
 				FillWithCharacter: "-",
 			},
-			OutHeaderColum{
+			{
 				Text:              " kg/ha ",
 				ColumnAlignment:   centerAlignment,
 				ColStart:          21,
 				ColEnd:            22,
 				FillWithCharacter: "-",
 			},
-			OutHeaderColum{
+			{
 				Text:              "mm",
 				ColumnAlignment:   centerAlignment,
 				ColStart:          23,
 				ColEnd:            23,
 				FillWithCharacter: " ",
 			},
-			OutHeaderColum{
+			{
 				Text:              "----",
 				ColumnAlignment:   leftAlignment,
 				ColStart:          24,
 				ColEnd:            24,
 				FillWithCharacter: " ",
 			},
-			OutHeaderColum{
+			{
 				Text:              "kg/ha",
 				ColumnAlignment:   leftAlignment,
 				ColStart:          25,
 				ColEnd:            25,
 				FillWithCharacter: " ",
 			},
-			OutHeaderColum{
+			{
 				Text:              "--",
 				ColumnAlignment:   leftAlignment,
 				ColStart:          26,
@@ -1880,105 +1880,105 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 				FillWithCharacter: " ",
 			},
 		},
-		3: []OutHeaderColum{
-			OutHeaderColum{
+		3: {
+			{
 				Text:            "0_1",
 				ColumnAlignment: centerAlignment,
 				ColStart:        2,
 			},
-			OutHeaderColum{
+			{
 				Text:            "1_2",
 				ColumnAlignment: centerAlignment,
 				ColStart:        3,
 			},
-			OutHeaderColum{
+			{
 				Text:            "2_3",
 				ColumnAlignment: centerAlignment,
 				ColStart:        4,
 			},
-			OutHeaderColum{
+			{
 				Text:            "3_4",
 				ColumnAlignment: centerAlignment,
 				ColStart:        5,
 			},
-			OutHeaderColum{
+			{
 				Text:            "4_5",
 				ColumnAlignment: centerAlignment,
 				ColStart:        6,
 			},
-			OutHeaderColum{
+			{
 				Text:            "5_6",
 				ColumnAlignment: centerAlignment,
 				ColStart:        7,
 			},
-			OutHeaderColum{
+			{
 				Text:            "6_7",
 				ColumnAlignment: centerAlignment,
 				ColStart:        8,
 			},
-			OutHeaderColum{
+			{
 				Text:            "7_8",
 				ColumnAlignment: centerAlignment,
 				ColStart:        9,
 			},
-			OutHeaderColum{
+			{
 				Text:            "8_9",
 				ColumnAlignment: centerAlignment,
 				ColStart:        10,
 			},
-			OutHeaderColum{
+			{
 				Text:            "0_1",
 				ColumnAlignment: centerAlignment,
 				ColStart:        11,
 			},
-			OutHeaderColum{
+			{
 				Text:            "1_2",
 				ColumnAlignment: centerAlignment,
 				ColStart:        12,
 			},
-			OutHeaderColum{
+			{
 				Text:            "2_3",
 				ColumnAlignment: centerAlignment,
 				ColStart:        13,
 			},
-			OutHeaderColum{
+			{
 				Text:            "3_4",
 				ColumnAlignment: centerAlignment,
 				ColStart:        14,
 			},
-			OutHeaderColum{
+			{
 				Text:            "4_5",
 				ColumnAlignment: centerAlignment,
 				ColStart:        15,
 			},
-			OutHeaderColum{
+			{
 				Text:            "5_6",
 				ColumnAlignment: centerAlignment,
 				ColStart:        16,
 			},
-			OutHeaderColum{
+			{
 				Text:            "6_7",
 				ColumnAlignment: centerAlignment,
 				ColStart:        17,
 			},
-			OutHeaderColum{
+			{
 				Text:            "7_8",
 				ColumnAlignment: centerAlignment,
 				ColStart:        18,
 			},
-			OutHeaderColum{
+			{
 				Text:            "8_9",
 				ColumnAlignment: centerAlignment,
 				ColStart:        19,
 			},
-			OutHeaderColum{
+			{
 				Text:            "9_20",
 				ColumnAlignment: centerAlignment,
 				ColStart:        20,
 			},
 		},
-		4: []OutHeaderColum{
-			OutHeaderColum{
+		4: {
+			{
 				Text:              "_",
 				ColumnAlignment:   leftAlignment,
 				ColStart:          1,
