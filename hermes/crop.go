@@ -563,7 +563,9 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 						g.LAIMAX = g.LAI
 					}
 				}
-				if i+1 < 4 {
+				if i+1 == 1 {
+					//  Fluss abgestorbener Wurzeln in org. Pools (inaktiviert)
+				} else if i+1 < 4 {
 					g.NFOS[0] = g.NFOS[0] + 0.7*0.8*l.DGORG[i]*GEHALT*g.DT.Num
 					g.NAOS[0] = g.NAOS[0] + 0.7*0.2*l.DGORG[i]*GEHALT*g.DT.Num
 					g.PESUM = g.PESUM - 0.7*l.DGORG[i]*GEHALT*g.DT.Num
