@@ -3,10 +3,10 @@ FROM golang:1.14.15-alpine3.13 AS build-env
 
 RUN apk update && apk add --no-cache binutils git curl unzip tar
 
-WORKDIR /go/src/github.com/zalf-rpm
-RUN git clone https://github.com/zalf-rpm/Hermes2Go.git
+ENV WORKDIR /go/src/github.com/zalf-rpm/Hermes2Go
+WORKDIR ${WORKDIR}
+COPY . ${WORKDIR}
 
-WORKDIR /go/src/github.com/zalf-rpm/Hermes2Go
 RUN git describe --always --long > /version.txt
 WORKDIR /go/src/github.com/zalf-rpm/Hermes2Go/src/hermes2go
 RUN go get gopkg.in/yaml.v2 
