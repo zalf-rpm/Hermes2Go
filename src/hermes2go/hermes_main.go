@@ -16,6 +16,7 @@ import (
 
 // allowed number of concurrent Operations (should be number of processor units)
 var concurrentOperations uint16 = 10
+var version = "undefined"
 
 func main() {
 	start := time.Now()
@@ -128,6 +129,8 @@ func main() {
 			writeLogoutput = true
 		} else if arg == "-locid" && i+1 < len(argsWithoutProg) {
 			locID = argsWithoutProg[i+1]
+		} else if arg == "-v" {
+			fmt.Println("Version: ", version)
 		} else {
 			otherArgs = append(otherArgs, arg)
 		}
