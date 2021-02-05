@@ -61,14 +61,15 @@ type GlobalVarsMain struct {
 	NFOS            [21]float64 // Nitrogen in fast decomposable fraction (kg N ha-1)
 	W, WMIN, PORGES [21]float64
 	NAKT            float64
-	ETMETH          int
-	INIWAHL         int
+	ETMETH          int // evapo transpiration methode selection
+	PTF             int // pedotransfer function methode selection
+	INIWAHL         int // initial field values setup selection
 	DUNGSZEN        float64
 	AZHO            int         // number of layer in soil profile (Anzahl Horizonte des Bodenprofils)
 	WURZMAX         int         // effective root depth in profile (effektive Wurzeltiefe des Profils)
 	DRAIDEP         int         // drainage depth (Tiefe der Drainung)
 	DRAIFAK         float64     // part of drainage water in soakage (Anteil des Drainwassers am Sickerwasseranfakk (fraction))
-	UKT             [11]int     //(0:10)
+	UKT             [11]int     //(0:10) layer depth (in dm)
 	BART            [10]string  // soil type by KA5(Bodenkundlichen Kartieranleitung 5. Auflage) (special spelling convertions)
 	LD              [10]int     // bulk density KA5 (1-5) (Lagerungsdichtestufe nach KA5 (1-5))
 	BULK            [10]float64 `yaml:"-"` // avarage bulk density (Zuweisung mittlere Lagerungsdichte von LD(I) (g/cm^3))
@@ -92,13 +93,13 @@ type GlobalVarsMain struct {
 	WRED            float64
 	PROP            float64
 	NORMFK          [10]float64
-	FELDW           [10]float64
-	CAPPAR          int // not used
-	BD              [21]float64
-	WNOR            [21]float64
-	SAND            [21]float64
-	SILT            [21]float64
-	CLAY            [21]float64
+	FELDW           [10]float64 // water content at field capacity (cm^3/cm^3)
+	CAPPAR          int         // used to check if hydrological parameters need to be recalulated on changing ground water
+	BD              [21]float64 // bulk density
+	WNOR            [21]float64 // water content at field capacity uncorrected (cm^3/cm^3)
+	SAND            [21]float64 // sand in %
+	SILT            [21]float64 // silt(schluf) in %
+	CLAY            [21]float64 // clay(ton) in %
 	NALTOS          float64
 	BREG            []float64
 	BRKZ            []float64

@@ -31,7 +31,7 @@ type InputSharedVars struct {
 }
 
 // Input modul for reading soil data, crop rotation, cultivation data (Fertilization, tillage) of fields and ploygon units
-func Input(scanner *bufio.Scanner, local *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, soilID string) error {
+func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, soilID string) error {
 	//! ------Modul zum Einlesen von Boden-, Fruchtfolge und Bewirtschaftungsdaten (Duengung, Bodenbearbeitung) von Feldern und Polygonen ---------
 	var ERNT, SAT string
 	var DGDAT [70]string
@@ -53,7 +53,7 @@ func Input(scanner *bufio.Scanner, local *InputSharedVars, g *GlobalVarsMain, hP
 	for scanner.Scan() {
 		wa := scanner.Text()
 		punr := int(ValAsInt(wa[0:5], "none", wa))
-		local.FLAEID = wa[0:5] + "    "
+		l.FLAEID = wa[0:5] + "    "
 		if punr == g.SLNR {
 			if g.GROUNDWATERFROM == Polygonfile {
 				g.GRHI = int(ValAsInt(wa[20:22], "none", wa))
@@ -63,8 +63,8 @@ func Input(scanner *bufio.Scanner, local *InputSharedVars, g *GlobalVarsMain, hP
 				g.AMPL = g.GRLO - g.GRHI
 			}
 
-			g.PKT = wa[10:19]                                // Feld_ID / Field_ID
-			local.IRRIGAT = ValAsBool(wa[26:27], "none", wa) // irrigation on/off 1/0
+			g.PKT = wa[10:19]                            // Feld_ID / Field_ID
+			l.IRRIGAT = ValAsBool(wa[26:27], "none", wa) // irrigation on/off 1/0
 
 			// ! ++++++++++++++++++++++ Einlesen der Bodenkartiereinheit (Boden-ID) +++++++++++++++++++++++++++++
 			// ! INPUTS:
@@ -133,6 +133,7 @@ func Input(scanner *bufio.Scanner, local *InputSharedVars, g *GlobalVarsMain, hP
 						}
 						// C-content soil class specific in %
 						g.CGEHALT[i] = ValAsFloat(bodenLine[4:8], "none", bodenLine)
+						// C/N ratio
 						CNRATIO[i] = ValAsFloat(bodenLine[21:24], "none", bodenLine)
 						if CNRATIO[i] == 0 {
 							CNRATIO[i] = 10
@@ -140,34 +141,41 @@ func Input(scanner *bufio.Scanner, local *InputSharedVars, g *GlobalVarsMain, hP
 						if i == 0 {
 							g.CNRAT1 = CNRATIO[i]
 						}
-						local.NGEHALT[i] = g.CGEHALT[i] / CNRATIO[i]
+						l.NGEHALT[i] = g.CGEHALT[i] / CNRATIO[i]
 						g.HUMUS[i] = g.CGEHALT[i] * 1.72 / 100
 						g.STEIN[i] = ValAsFloat(bodenLine[18:20], "none", bodenLine) / 100
+						// Field capacity
 						value, err := strconv.ParseFloat(bodenLine[40:42], 64)
 						if err == nil {
 							g.FKA[i] = value
 						}
+						// wilting point
 						value, err = strconv.ParseFloat(bodenLine[43:45], 64)
 						if err == nil {
 							g.WP[i] = value
 						}
+						// general pore volume
 						value, err = strconv.ParseFloat(bodenLine[46:48], 64)
 						if err == nil {
 							g.GPV[i] = value
 						}
+						// sand in %
 						value, err = strconv.ParseFloat(bodenLine[49:51], 64)
 						if err == nil {
-							local.SSAND[i] = value
+							l.SSAND[i] = value
 						}
+						// silt in %
 						value, err = strconv.ParseFloat(bodenLine[52:54], 64)
 						if err == nil {
-							local.SLUF[i] = value
+							l.SLUF[i] = value
 						}
+						// clay in %
 						value, err = strconv.ParseFloat(bodenLine[55:57], 64)
 						if err == nil {
-							local.TON[i] = value
+							l.TON[i] = value
 						}
 						if i+1 < g.AZHO {
+							// scan next line in soil profile
 							bodenLine = LineInut(scannerSoilFile)
 						}
 					}
@@ -200,37 +208,96 @@ func Input(scanner *bufio.Scanner, local *InputSharedVars, g *GlobalVarsMain, hP
 
 			for L := 1; L <= g.AZHO; L++ {
 				lindex := L - 1
-				BDART := Hydro(L, g, local, hPath)
+				BDART := Hydro(L, g, l, hPath)
 				if g.FELDW[lindex] == 0 {
 					g.FELDW[lindex] = g.FELDW[lindex-1]
 				}
+				// for every 10 cm in this layer
 				for LT := g.UKT[L-1] + 1; LT <= g.UKT[L]; LT++ {
 					LTindex := LT - 1
-					if g.FKA[lindex] > 0 {
-						g.CAPPAR = 1
-						if LT < g.N+1 {
-							g.BD[LTindex] = g.BULK[lindex]
-							g.W[LTindex] = g.FKA[lindex] / 100
-							g.WMIN[LTindex] = g.WP[lindex] / 100
-							g.PORGES[LTindex] = g.GPV[lindex] / 100
-							g.WNOR[LTindex] = g.FKA[lindex] / 100
-							if BDART[0] == 'S' {
-								g.WRED = g.WP[lindex] + 0.6*(g.FKA[lindex]-g.WP[lindex])
-							} else {
-								g.WRED = g.WP[lindex] + 0.66*(g.FKA[lindex]-g.WP[lindex])
+					if g.PTF == 0 {
+						if g.FKA[lindex] > 0 {
+							g.CAPPAR = 1
+							if LT < g.N+1 {
+								g.BD[LTindex] = g.BULK[lindex]
+								g.W[LTindex] = g.FKA[lindex] / 100
+								g.WMIN[LTindex] = g.WP[lindex] / 100
+								g.PORGES[LTindex] = g.GPV[lindex] / 100
+								g.WNOR[LTindex] = g.FKA[lindex] / 100
+
+								if BDART[0] == 'S' { // if main soil component is sand
+									g.WRED = g.WP[lindex] + 0.6*(g.FKA[lindex]-g.WP[lindex])
+								} else {
+									g.WRED = g.WP[lindex] + 0.66*(g.FKA[lindex]-g.WP[lindex])
+								}
+							}
+						} else {
+							g.CAPPAR = 0
+							if LT < g.N+1 {
+								g.BD[LTindex] = g.BULK[lindex]
+								g.W[LTindex] = g.FELDW[lindex] * (1 - g.STEIN[lindex])
+								g.WMIN[LTindex] = g.LIM[lindex] * (1 - g.STEIN[lindex])
+								g.PORGES[LTindex] = g.PRGES[lindex] * (1 - g.STEIN[lindex])
+								g.WNOR[LTindex] = g.NORMFK[lindex] * (1 - g.STEIN[lindex])
+								g.SAND[LTindex] = l.SSAND[lindex]
+								g.SILT[LTindex] = l.SLUF[lindex]
+								g.CLAY[LTindex] = l.TON[lindex]
 							}
 						}
 					} else {
-						g.CAPPAR = 0
+						g.CAPPAR = 1
 						if LT < g.N+1 {
+							// check if sand, silt, clay are valid
+							soilSum := l.TON[lindex] + l.SLUF[lindex] + l.SSAND[lindex]
+							if soilSum > 103 || soilSum < 97 { // rounding issue
+								return fmt.Errorf("Sand: %f, Silt: %f, Clay: %f does not sum up to 100 percent", l.SSAND[lindex], l.SLUF[lindex], l.TON[lindex])
+							}
+							if l.TON[lindex] == 0 {
+								return fmt.Errorf("Clay content is 0")
+							}
+							if l.SLUF[lindex] == 0 {
+								return fmt.Errorf("Silt content is 0")
+							}
+							if l.SSAND[lindex] == 0 {
+								return fmt.Errorf("Sand content is 0")
+							}
+							if g.PTF == 1 {
+								// PTF by Toth 2015
+								fk := 0.2449 - 0.1887*(1/(g.CGEHALT[lindex]+1)) + 0.004527*l.TON[lindex] + 0.001535*l.SLUF[lindex] + 0.001442*l.SLUF[lindex]*(1/(g.CGEHALT[lindex]+1)) - 0.0000511*l.SLUF[lindex]*l.TON[lindex] + 0.0008676*l.TON[lindex]*(1/(g.CGEHALT[lindex]+1))
+								g.W[LTindex] = fk
+								pwp := 0.09878 + 0.002127*l.TON[lindex] - 0.0008366*l.SLUF[lindex] - 0.0767*(1/(g.CGEHALT[lindex]+1)) + 0.00003853*l.SLUF[lindex]*l.TON[lindex] + 0.00233*l.SLUF[lindex]*(1/(g.CGEHALT[lindex]+1)) + 0.0009498*l.SLUF[lindex]*(1/(g.CGEHALT[lindex]+1))
+								g.WMIN[LTindex] = pwp
+							} else if g.PTF == 2 {
+								// PTF by Batjes for pF 2.5
+								g.W[LTindex] = (0.46*l.TON[lindex] + 0.3045*l.SLUF[lindex] + 2.0703*g.CGEHALT[lindex]) / 100
+								g.WMIN[LTindex] = (0.3624*l.TON[lindex] + 0.117*l.SLUF[lindex] + 1.6054*g.CGEHALT[lindex]) / 100
+							} else if g.PTF == 3 {
+								// PTF by Batjes for pF 1.7
+								g.W[LTindex] = (0.6681*l.TON[lindex] + 0.2614*l.SLUF[lindex] + 2.215*g.CGEHALT[lindex]) / 100
+								g.WMIN[LTindex] = (0.3624*l.TON[lindex] + 0.117*l.SLUF[lindex] + 1.6054*g.CGEHALT[lindex]) / 100
+							} else if g.PTF == 4 {
+								// PTF by Rawls et al. 2003 for pF 2.5
+								ix := -0.837531 + 0.430183*g.CGEHALT[lindex]
+								ix2 := math.Pow(ix, 2)
+								ix3 := math.Pow(ix, 3)
+								yps := -1.40744 + 0.0661969*l.TON[lindex]
+								yps2 := math.Pow(yps, 2)
+								yps3 := math.Pow(yps, 3)
+								zet := -1.51866 + 0.0393284*l.SSAND[lindex]
+								zet2 := math.Pow(zet, 2)
+								zet3 := math.Pow(zet, 3)
+
+								g.W[LTindex] = (29.7528 + 10.3544*(0.0461615+0.290955*ix-0.0496845*ix2+0.00704802*ix3+0.269101*yps-0.176528*ix*yps+0.0543138*ix2*yps+0.1982*yps2-0.060699*yps3-0.320249*zet-0.0111693*ix2*zet+0.14104*yps*zet+0.0657345*ix*yps*zet-0.102026*yps2*zet-0.04012*zet2+0.160838*ix*zet2-0.121392*yps*zet2-0.061667*zet3)) / 100
+								g.WMIN[LTindex] = (14.2568 + 7.36318*(0.06865+0.108713*ix-0.0157225*ix2+0.00102805*ix3+0.886569*yps-0.223581*ix*yps+0.0126379*ix2*yps+0.0135266*ix*yps2-0.0334434*yps3-0.0535182*zet-0.0354271*ix*zet-0.00261313*ix2*zet-0.154563*yps*zet-0.0160219*ix*yps*zet-0.0400606*yps2*zet-0.104875*zet2*0.0159857*ix*zet2-0.0671656*yps*zet2-0.0260699*zet3)) / 100
+							}
+							g.PORGES[LTindex] = g.GPV[lindex] / 100
 							g.BD[LTindex] = g.BULK[lindex]
-							g.W[LTindex] = g.FELDW[lindex] * (1 - g.STEIN[lindex])
-							g.WMIN[LTindex] = g.LIM[lindex] * (1 - g.STEIN[lindex])
-							g.PORGES[LTindex] = g.PRGES[lindex] * (1 - g.STEIN[lindex])
-							g.WNOR[LTindex] = g.NORMFK[lindex] * (1 - g.STEIN[lindex])
-							g.SAND[LTindex] = local.SSAND[lindex]
-							g.SILT[LTindex] = local.SLUF[lindex]
-							g.CLAY[LTindex] = local.TON[lindex]
+							g.WNOR[LTindex] = g.W[LTindex]
+							if BDART[0] == 'S' { // if main soil component is sand
+								g.WRED = (g.WMIN[LTindex] + 0.6*(g.W[LTindex]-g.WMIN[LTindex])) * 100
+							} else {
+								g.WRED = (g.WMIN[LTindex] + 0.66*(g.W[LTindex]-g.WMIN[LTindex])) * 100
+							}
 						}
 					}
 				}
@@ -256,8 +323,8 @@ func Input(scanner *bufio.Scanner, local *InputSharedVars, g *GlobalVarsMain, hP
 				// ! ZTBR(ANBREG)              = Tag der Massnahme in ZEIT Einheit (ab 1.1.1900)
 				// ! -------------------------------------------------------------------------------
 
-				local.ANZBREG = 0
-				if local.IRRIGAT {
+				l.ANZBREG = 0
+				if l.IRRIGAT {
 					Bereg := hPath.irrigation
 					_, scannerIrrFile, _ := Open(&FileDescriptior{FilePath: Bereg, FileDescription: "irrigation file", UseFilePool: true})
 					LineInut(scannerIrrFile)
@@ -268,15 +335,15 @@ func Input(scanner *bufio.Scanner, local *InputSharedVars, g *GlobalVarsMain, hP
 						SCHLAG := readN(SLAG, 9)
 						if SCHLAG == g.PKT {
 							for ok := true; ok; ok = SCHLAG == g.PKT {
-								local.ANZBREG++
-								g.BREG[local.ANZBREG-1] = ValAsFloat(SLAGtoken[1], Bereg, SLAG)
-								g.BRKZ[local.ANZBREG-1] = ValAsFloat(SLAGtoken[2], Bereg, SLAG)
+								l.ANZBREG++
+								g.BREG[l.ANZBREG-1] = ValAsFloat(SLAGtoken[1], Bereg, SLAG)
+								g.BRKZ[l.ANZBREG-1] = ValAsFloat(SLAGtoken[2], Bereg, SLAG)
 								BREGDAT := SLAGtoken[3]
-								_, g.ZTBR[local.ANZBREG-1] = g.Datum(BREGDAT)
+								_, g.ZTBR[l.ANZBREG-1] = g.Datum(BREGDAT)
 
 								///!warning may Beginn not yet initialized
-								if g.ZTBR[local.ANZBREG-1] < g.BEGINN {
-									local.ANZBREG--
+								if g.ZTBR[l.ANZBREG-1] < g.BEGINN {
+									l.ANZBREG--
 								}
 								SLAG = LineInut(scannerIrrFile)
 								SLAGtoken = Explode(SLAG, []rune{' '})
@@ -284,13 +351,13 @@ func Input(scanner *bufio.Scanner, local *InputSharedVars, g *GlobalVarsMain, hP
 							}
 						}
 					}
-					for i := local.ANZBREG; i < 500; i++ {
+					for i := l.ANZBREG; i < 500; i++ {
 						g.ZTBR[i] = 0
 						g.BREG[i] = 0
 						g.BRKZ[i] = 0
 					}
 				} else {
-					local.ANZBREG = 0
+					l.ANZBREG = 0
 					for i := 0; i < 500; i++ {
 						g.ZTBR[i] = 0
 						g.BREG[i] = 0
@@ -410,10 +477,10 @@ func Input(scanner *bufio.Scanner, local *InputSharedVars, g *GlobalVarsMain, hP
 											g.NDEM1[SLFINDindex] = ValAsFloat(crpman[94:97], autfil, crpman)
 											if g.ODU[SLFINDindex] == 1 {
 												g.DGART[SLFINDindex] = crpman[143:146]
-												local.DGMG[SLFINDindex] = ValAsFloat(crpman[149:152], autfil, crpman)
+												l.DGMG[SLFINDindex] = ValAsFloat(crpman[149:152], autfil, crpman)
 												g.ORGTIME[SLFINDindex] = crpman[156:157]
 												g.ORGDOY[SLFINDindex] = int(ValAsInt(crpman[157:159], autfil, crpman))
-												dueng(SLFINDindex, g, local, hPath)
+												dueng(SLFINDindex, g, l, hPath)
 											} else {
 												g.ORGTIME[SLFINDindex] = "0"
 												g.ORGDOY[SLFINDindex] = 0
@@ -457,10 +524,10 @@ func Input(scanner *bufio.Scanner, local *InputSharedVars, g *GlobalVarsMain, hP
 									if crpman[0:3] == g.FRUCHT[SLFINDindex] {
 										if g.ODU[SLFINDindex] == 1 {
 											g.DGART[SLFINDindex] = crpman[143:146]
-											local.DGMG[SLFINDindex] = ValAsFloat(crpman[149:152], autfil, crpman)
+											l.DGMG[SLFINDindex] = ValAsFloat(crpman[149:152], autfil, crpman)
 											g.ORGTIME[SLFINDindex] = crpman[156:157]
 											g.ORGDOY[SLFINDindex] = int(ValAsInt(crpman[157:159], autfil, crpman))
-											dueng(SLFIND, g, local, hPath)
+											dueng(SLFIND, g, l, hPath)
 										} else {
 											g.ORGTIME[SLFINDindex] = "0"
 											g.ORGDOY[SLFINDindex] = 0
@@ -529,7 +596,7 @@ func Input(scanner *bufio.Scanner, local *InputSharedVars, g *GlobalVarsMain, hP
 			} else if g.INIWAHL == 2 {
 				Fident = g.PKT
 			} else if g.INIWAHL == 3 {
-				Fident = local.FLAEID
+				Fident = l.FLAEID
 			}
 			LineInut(scannerObserv)
 			g.NMESS = 0
@@ -540,9 +607,9 @@ func Input(scanner *bufio.Scanner, local *InputSharedVars, g *GlobalVarsMain, hP
 				if SCHLAG == Fident {
 					for ok := true; ok; ok = SCHLAG == Fident {
 						g.NMESS++
-						local.MK[g.NMESS-1] = OBSERtoken[1]
+						l.MK[g.NMESS-1] = OBSERtoken[1]
 						if g.NMESS == 1 {
-							g.MES[g.NMESS-1] = local.MK[g.NMESS-1]
+							g.MES[g.NMESS-1] = l.MK[g.NMESS-1]
 							_, g.MESS[g.NMESS-1] = g.Datum(g.MES[g.NMESS-1])
 
 							//! +++++++++++++++ Ueberschreiben des Erntedatums der Vorfrucht aus der Rotationsdatei ++++++++++++++++++++
@@ -559,15 +626,15 @@ func Input(scanner *bufio.Scanner, local *InputSharedVars, g *GlobalVarsMain, hP
 								}
 							}
 
-							local.KONZ1 = ValAsFloat(OBSERtoken[2], obs, OBSER)
-							local.KONZ3 = ValAsFloat(OBSERtoken[3], obs, OBSER)
-							local.KONZ4 = ValAsFloat(OBSERtoken[4], obs, OBSER)
+							l.KONZ1 = ValAsFloat(OBSERtoken[2], obs, OBSER)
+							l.KONZ3 = ValAsFloat(OBSERtoken[3], obs, OBSER)
+							l.KONZ4 = ValAsFloat(OBSERtoken[4], obs, OBSER)
 							if len(OBSERtoken) > 9 {
-								local.KONZ5 = ValAsFloat(OBSERtoken[9], obs, OBSER)
-								local.KONZ6 = ValAsFloat(OBSERtoken[10], obs, OBSER)
-								local.KONZ7 = ValAsFloat(OBSERtoken[11], obs, OBSER)
+								l.KONZ5 = ValAsFloat(OBSERtoken[9], obs, OBSER)
+								l.KONZ6 = ValAsFloat(OBSERtoken[10], obs, OBSER)
+								l.KONZ7 = ValAsFloat(OBSERtoken[11], obs, OBSER)
 							}
-							local.Jstr = OBSERtoken[5]
+							l.Jstr = OBSERtoken[5]
 							winit[0] = ValAsFloat(OBSERtoken[6], obs, OBSER)
 							winit[1] = ValAsFloat(OBSERtoken[7], obs, OBSER)
 							winit[2] = ValAsFloat(OBSERtoken[8], obs, OBSER)
@@ -581,41 +648,41 @@ func Input(scanner *bufio.Scanner, local *InputSharedVars, g *GlobalVarsMain, hP
 								for zi := 1; zi <= g.N; zi++ {
 									ziIndex := zi - 1
 									if zi < 4 {
-										if local.Jstr == "3" {
+										if l.Jstr == "3" {
 											g.WG[g.NMESS+1][ziIndex] = winit[0]
-										} else if local.Jstr == "2" {
+										} else if l.Jstr == "2" {
 											g.WG[g.NMESS+1][ziIndex] = winit[0] * 1.4
 										} else {
 											g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[0]
 										}
 									} else if zi > 3 && zi < 7 {
-										if local.Jstr == "3" {
+										if l.Jstr == "3" {
 											g.WG[g.NMESS+1][ziIndex] = winit[1]
-										} else if local.Jstr == "2" {
+										} else if l.Jstr == "2" {
 											g.WG[g.NMESS+1][ziIndex] = winit[1] * 1.5
 										} else {
 											g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[1]
 										}
 									} else if zi > 6 && zi < 10 {
-										if local.Jstr == "3" {
+										if l.Jstr == "3" {
 											g.WG[g.NMESS+1][ziIndex] = winit[2]
-										} else if local.Jstr == "2" {
+										} else if l.Jstr == "2" {
 											g.WG[g.NMESS+1][ziIndex] = winit[2] * 1.6
 										} else {
 											g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[2]
 										}
 									} else if zi > 9 && zi < 13 {
-										if local.Jstr == "3" {
+										if l.Jstr == "3" {
 											g.WG[g.NMESS+1][ziIndex] = winit[3]
-										} else if local.Jstr == "2" {
+										} else if l.Jstr == "2" {
 											g.WG[g.NMESS+1][ziIndex] = winit[3] * 1.6
 										} else {
 											g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[3]
 										}
 									} else if zi > 12 && zi < 16 {
-										if local.Jstr == "3" {
+										if l.Jstr == "3" {
 											g.WG[g.NMESS+1][ziIndex] = winit[4]
-										} else if local.Jstr == "2" {
+										} else if l.Jstr == "2" {
 											g.WG[g.NMESS+1][ziIndex] = winit[4] * 1.6
 										} else {
 											g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[4]
@@ -626,20 +693,20 @@ func Input(scanner *bufio.Scanner, local *InputSharedVars, g *GlobalVarsMain, hP
 								}
 								g.WG[g.NMESS+1][g.N] = g.WG[g.NMESS+1][g.N-1]
 								if g.NMESS == 1 {
-									if local.Jstr == "3" {
+									if l.Jstr == "3" {
 										g.WNZ[0] = (winit[0] + winit[1] + winit[2]) * 300
-									} else if local.Jstr == "2" {
+									} else if l.Jstr == "2" {
 										g.WNZ[0] = (winit[0]*1.4 + winit[1]*1.5 + winit[2]*1.6) * 300
 									} else {
 										g.WNZ[0] = (g.WG[2][0] + g.WG[2][1] + g.WG[2][2] + g.WG[2][3] + g.WG[2][4] + g.WG[2][5] + g.WG[2][6] + g.WG[2][7] + g.WG[2][8]) * 100
 									}
 								}
-								g.KNZ1[0] = local.KONZ1
-								g.KNZ2[0] = local.KONZ3
-								g.KNZ3[0] = local.KONZ4
-								g.KNZ4[0] = local.KONZ5
-								g.KNZ5[0] = local.KONZ6
-								g.KNZ6[0] = local.KONZ7
+								g.KNZ1[0] = l.KONZ1
+								g.KNZ2[0] = l.KONZ3
+								g.KNZ3[0] = l.KONZ4
+								g.KNZ4[0] = l.KONZ5
+								g.KNZ5[0] = l.KONZ6
+								g.KNZ6[0] = l.KONZ7
 								for i := 1; i <= g.N; i++ {
 									iIndex := i - 1
 									if i < 4 {
@@ -729,7 +796,7 @@ func Input(scanner *bufio.Scanner, local *InputSharedVars, g *GlobalVarsMain, hP
 							NDu++
 							NDuindex := NDu - 1
 							DGDAT[NDuindex] = fertilizerToken[3]
-							local.DGMG[NDuindex] = ValAsFloat(fertilizerToken[1], dun, FERTI) * g.DUNGSZEN
+							l.DGMG[NDuindex] = ValAsFloat(fertilizerToken[1], dun, FERTI) * g.DUNGSZEN
 							g.DGART[NDuindex] = fertilizerToken[2]
 							_, valztdg := g.Datum(DGDAT[NDuindex])
 							g.ZTDG[NDuindex] = valztdg
@@ -748,13 +815,13 @@ func Input(scanner *bufio.Scanner, local *InputSharedVars, g *GlobalVarsMain, hP
 					}
 				}
 				for i := 1; i < NDu; i++ {
-					dueng(i, g, local, hPath)
+					dueng(i, g, l, hPath)
 				}
 			}
 			break
 		}
 	}
-	potmin(g, local)
+	potmin(g, l)
 	return nil
 }
 
@@ -1019,7 +1086,7 @@ func Hydro(las1 int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFilePath
 
 // residi loads potential mineralization from previous crops
 func residi(g *GlobalVarsMain, hPath *HFilePath) {
-	//    ! ******  Mineralisationspotentiale aus Vorfruchtresiduen
+	//   Mineralisationspotentiale aus Vorfruchtresiduen
 	// "CROP_N.TXT"
 	cropN := hPath.cropn
 	_, scanner, _ := Open(&FileDescriptior{FilePath: cropN, UseFilePool: true})

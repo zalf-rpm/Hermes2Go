@@ -33,6 +33,8 @@ WeatherNumHeader: 2
 CorrectionPrecipitation: 0
 # ETpot method(1=Haude, 2=Turc-Wendling, 3=Penman-Monteith, 4=ET Gras Priestley Taylor, 5=from file)
 ETpot: 3
+# PTF pedo transfer function (0 = none (from file), 1 = Toth 2015, 2 = Batjes for pF 2.5, 3 = Batjes for pF 1.7, 4 = Rawls et al. 2003 for pF 2.5 )
+PTF: 0
 # Distance to coast (km)
 CoastDistance: 300
 #CO2method(1=Nonhebel,2=Hoffmann,3=Mitchell)

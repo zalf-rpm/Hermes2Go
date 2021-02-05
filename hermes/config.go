@@ -33,6 +33,7 @@ type config struct {
 	WeatherNumHeader                int             `yaml:"WeatherNumHeader"`                // number of header lines (min = 1, with column names)
 	CorrectionPrecipitation         FeatureSwitch   `yaml:"CorrectionPrecipitation"`         // correction precipitation (0= no, 1 = yes)
 	ETpot                           int             `yaml:"ETpot"`                           // ETpot method(1=Haude,2=Turc-Wendling,3 Penman-Monteith)
+	PTF                             int             `yaml:"PTF"`                             // PTF pedo transfer function (0 = none (from file), 1 = Toth 2015, 2 = Batjes for pF 2.5, 3 = Batjes for pF 1.7, 4 = Rawls et al. 2003 for pF 2.5 )
 	CoastDistance                   float64         `yaml:"CoastDistance"`                   // Distance to coast (km)
 	CO2method                       int             `yaml:"CO2method"`                       // CO2method(1=Nonhebel,2=Hoffmann,3=Mitchell)
 	CO2concentration                float64         `yaml:"CO2concentration"`                // CO2 concentration (ppm)
@@ -101,6 +102,7 @@ func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) c
 	g.AUTOFERT = bool(hconfig.AutoFertilization)
 	g.AUTOIRRI = bool(hconfig.AutoIrrigation)
 	g.AUTOHAR = bool(hconfig.AutoHarvest)
+	g.PTF = hconfig.PTF
 	if len(hconfig.WeatherFolder) == 0 {
 		hconfig.WeatherFolder = "Weather"
 	}
@@ -194,6 +196,7 @@ func newDefaultConfig() config {
 		WeatherNumHeader:                2,
 		CorrectionPrecipitation:         false,
 		ETpot:                           3,
+		PTF:                             0,
 		CoastDistance:                   300,
 		CO2method:                       2,
 		CO2concentration:                360,
