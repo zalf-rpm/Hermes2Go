@@ -39,6 +39,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			g.NFOS[0] = g.NFOS[0] + g.NSAS[g.NDG.Index]
 			g.NAOS[0] = g.NAOS[0] + g.NLAS[g.NDG.Index]
 			g.DSUMM = g.DSUMM + g.NDIR[g.NDG.Index] //! Summe miner. Duengung
+			g.NFERTSIM = g.NFERTSIM + g.NDIR[g.NDG.Index]
 			g.NDG.Inc()
 		}
 		//! ---------------------------------------------------------------------------------------------------------------
