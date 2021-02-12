@@ -101,9 +101,9 @@ type GlobalVarsMain struct {
 	SILT            [21]float64 // silt(schluf) in %
 	CLAY            [21]float64 // clay(ton) in %
 	NALTOS          float64
-	BREG            []float64
-	BRKZ            []float64
-	ZTBR            []int
+	BREG            []float64 // irrigation amount (in mm)
+	BRKZ            []float64 // N-Concentration in irrigation water (in ppm)
+	ZTBR            []int     // irrigation time (timestamp since 1900)
 	BEGINN          int
 	ENDE            int
 	FRUCHT          [300]string
