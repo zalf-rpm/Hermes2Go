@@ -280,6 +280,42 @@ DataColumns:
   Width: 6
   VariableName: TD
   VarIndex1: 5
+- Format: '%05.2f'
+  DataAlignment: left
+  Width: 10
+  VariableName: IRRISIM
+- Format: '%05.2f'
+  DataAlignment: left
+  Width: 10
+  VariableName: TEMPdaily     
+- Format: '%05.2f'
+  DataAlignment: left
+  Width: 10
+  VariableName: TMINdaily     
+- Format: '%05.2f'
+  DataAlignment: left
+  Width: 10
+  VariableName: TMAXdaily     
+- Format: '%05.2f'
+  DataAlignment: left
+  Width: 10
+  VariableName: RHdaily       
+- Format: '%05.2f'
+  DataAlignment: left
+  Width: 10
+  VariableName: RADdaily      
+- Format: '%05.2f'
+  DataAlignment: left
+  Width: 10
+  VariableName: WINDdaily     
+- Format: '%05.2f'
+  DataAlignment: left
+  Width: 10
+  VariableName: REGENdaily    
+- Format: '%05.2f'
+  DataAlignment: left
+  Width: 10
+  VariableName: EffectiveIRRIG
 - Format: '%s'
   DataAlignment: left
   Width: 10
@@ -496,11 +532,29 @@ Headlines:
     StartColumn: 59
     EndColumn: 59
     FillCharacter: ' '
-  - ColumnName: Error
-    TextAlignment: left
+  - ColumnName: IRRIG
+    TextAlignment: center
     StartColumn: 60
     EndColumn: 60
     FillCharacter: ' '
+  - ColumnName: TEMPdaily     
+    TextAlignment: center
+  - ColumnName: TMINdaily     
+    TextAlignment: center
+  - ColumnName: TMAXdaily     
+    TextAlignment: center
+  - ColumnName: RHdaily       
+    TextAlignment: center
+  - ColumnName: RADdaily      
+    TextAlignment: center
+  - ColumnName: WINDdaily     
+    TextAlignment: center
+  - ColumnName: REGENdaily    
+    TextAlignment: center
+  - ColumnName: EffIRRIG
+    TextAlignment: left
+  - ColumnName: Error
+    TextAlignment: left
   2:
   - ColumnName: ' Vol% '
     TextAlignment: center

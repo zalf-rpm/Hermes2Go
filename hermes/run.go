@@ -301,6 +301,16 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 					LoadYear(&g, &bbbShared, 1900+g.J)
 				}
 			}
+			// set weather input data as daily output
+			g.TEMPdaily = g.TEMP[g.TAG.Index]
+			g.TMINdaily = g.TMIN[g.TAG.Index]
+			g.TMAXdaily = g.TMAX[g.TAG.Index]
+			g.RHdaily = g.RH[g.TAG.Index]
+			g.RADdaily = g.RAD[g.TAG.Index]
+			g.WINDdaily = g.WIND[g.TAG.Index]
+			g.REGENdaily = g.REGEN[g.TAG.Index]
+			g.EffectiveIRRIG = 0
+
 			g.REGENSUM = g.REGENSUM + g.REGEN[g.TAG.Index]*10*g.DT.Num
 			if g.TEMP[g.TAG.Index] > g.TJBAS[g.AKF.Index] {
 				g.TJAHRSUM = g.TJAHRSUM + g.TEMP[g.TAG.Index]*g.DT.Num
@@ -380,7 +390,8 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			// -------------------------------------------------------------------------------------------------------------------
 			// *************** BEREGNUNG ZU REGEN ADDIEREN *****************
 			if ZEIT == g.ZTBR[g.NBR-1] {
-				g.REGEN[g.TAG.Index] = g.REGEN[g.TAG.Index] + g.BREG[g.NBR-1]/10
+				g.EffectiveIRRIG = g.BREG[g.NBR-1] / 10
+				g.REGEN[g.TAG.Index] = g.REGEN[g.TAG.Index] + g.EffectiveIRRIG
 				g.C1[0] = g.C1[0] + g.BRKZ[g.NBR-1]*g.BREG[g.NBR-1]*0.01
 				g.NBR++
 			}

@@ -354,6 +354,15 @@ type GlobalVarsMain struct {
 	SumMINFOS   float64 // sum MINFOS
 	AvgTSoil    float64 // average TD soil temperature upper 2 layers
 
+	TEMPdaily      float64 // temperatur avg at current day
+	TMINdaily      float64 // temperatur min at current day
+	TMAXdaily      float64 // temperatur max at current day
+	RHdaily        float64 // relative humidity at current day
+	RADdaily       float64 // GlobalRadiation at current day (from input)
+	WINDdaily      float64 // WIND at current day
+	REGENdaily     float64 // REGEN at current day without irrigation
+	EffectiveIRRIG float64 // irrigation that is added to general precipitation REGEN
+
 	DRflowsum    float64
 	Ndrflow      float64
 	Nleach       float64
