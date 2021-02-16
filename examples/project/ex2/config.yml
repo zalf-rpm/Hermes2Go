@@ -17,8 +17,8 @@ OutputIntervall: 1
 InitSelection: 3
 # soil profile file name (without projectname)
 SoilFile: soil
-# weather file name template/pattern
-WeatherFile: '%s.csv'
+# weather file name template/pattern, %s will be replaced with fcode
+WeatherFile: '%s109_120.csv'
 # Weather file format (0=separator(, ; \t), 1 year per file ) (1=separator(, ; \t), multiple years per file)
 WeatherFileFormat: 1
 # Weather scenario folder
