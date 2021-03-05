@@ -440,8 +440,6 @@ func ReadWeatherCZ(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDat
 		high := Explode(heights, []rune{',', ';'})
 		s.ALTITUDE = ValAsFloat(high[0], VWDAT, heights)
 		s.hasALTITUDE = true
-		s.WINDHI = 10
-		s.hasWINDHI = true
 	} else {
 		// skip other header lines
 		for i := 1; i < driConfig.WeatherNumHeader; i++ {
