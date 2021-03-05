@@ -60,7 +60,9 @@ func main() {
 			scanner := bufio.NewScanner(file)
 			for scanner.Scan() {
 				line := scanner.Text()
-				configLines = append(configLines, line)
+				if len(line) > 0 {
+					configLines = append(configLines, line)
+				}
 			}
 			if err := scanner.Err(); err != nil {
 				log.Fatal(err)
