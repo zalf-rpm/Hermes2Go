@@ -26,7 +26,7 @@ type config struct {
 	InitSelection                   int             `yaml:"InitSelection"`                   // Init.values general(1),field(2), Polygon(3)
 	SoilFile                        string          `yaml:"SoilFile"`                        // soil profile file name (without projectname)
 	WeatherFile                     string          `yaml:"WeatherFile"`                     // weather file name template (without projectname)
-	WeatherFileFormat               int             `yaml:"WeatherFileFormat"`               // Weather file format (0=separator(, ; \t), 1 year per file ) (1=separator(, ; \t), multiple years per file)
+	WeatherFileFormat               int             `yaml:"WeatherFileFormat"`               // Weather file format (0=separator(, ; \t), 1 year per file ) (1=separator(, ; \t), multiple years per file, (1=separator(, ; \t ' '), cz format, multiple years per file)
 	WeatherFolder                   string          `yaml:"WeatherFolder"`                   // Weather scenario folder
 	WeatherRootFolder               string          `yaml:"WeatherRootFolder"`               // weather root directory without scenario folder or filename
 	WeatherNoneValue                float64         `yaml:"WeatherNoneValue"`                // weather none value, default -99.9

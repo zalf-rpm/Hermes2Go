@@ -21,6 +21,9 @@ import (
 // altitude  							m			(optional)
 // CO2 concentration 					ppm			(optional)
 
+// BaseCO2 default co2 value (in 2000)
+const BaseCO2 = 360.0
+
 // WeatherDataShared all weather split in years
 type WeatherDataShared struct {
 	JAR      []int
@@ -36,7 +39,7 @@ type WeatherDataShared struct {
 	ETNULL   [][366]float64 // evapo transpiration ET0					mm
 	WINDHI   float64        // measurment height for wind				m
 	ALTITUDE float64        // altidude 								m
-	CO2KONZ  float64        // CO2 concentration 						ppm
+	CO2KONZ  []float64      // CO2 concentration 						ppm
 
 	maxYearDays []int // days in each year (365 or 366)
 	// flags for optional parameters (if true the corresponting arrays contain valid values)
@@ -50,7 +53,8 @@ type WeatherDataShared struct {
 
 // NewWeatherDataShared returns a new WeatherDataShared struct
 func NewWeatherDataShared(years int) WeatherDataShared {
-	return WeatherDataShared{
+
+	s := WeatherDataShared{
 		JAR:         make([]int, years),
 		TMP:         make([][366]float64, years),
 		TMI:         make([][366]float64, years),
@@ -62,15 +66,24 @@ func NewWeatherDataShared(years int) WeatherDataShared {
 		VERD:        make([][366]float64, years),
 		SUND:        make([][366]float64, years),
 		ETNULL:      make([][366]float64, years),
+		CO2KONZ:     make([]float64, years),
 		WINDHI:      2,
 		ALTITUDE:    0,
-		CO2KONZ:     360,
 		maxYearDays: make([]int, years),
 		hasWINDHI:   false,
 		hasALTITUDE: false,
 		hasCO2KONZ:  false,
 		hasVERD:     false,
 		hasETNULL:   false,
+	}
+	s.fillCO2Value(BaseCO2)
+	return s
+}
+
+func (s *WeatherDataShared) fillCO2Value(co2 float64) {
+	years := len(s.CO2KONZ)
+	for y := 0; y < years; y++ {
+		s.CO2KONZ[y] = co2
 	}
 }
 
@@ -120,7 +133,9 @@ func WetterK(VWDAT string, year int, g *GlobalVarsMain, s *WeatherDataShared, hP
 		s.hasWINDHI = true
 
 		if len(high) > 2 && high[2][0] != '-' {
-			s.CO2KONZ = ValAsFloat(high[2], VWDAT, high[2])
+
+			baseCO2 := ValAsFloat(high[2], VWDAT, high[2])
+			s.fillCO2Value(baseCO2)
 			s.hasCO2KONZ = true
 		}
 	} else {
@@ -232,6 +247,7 @@ type Header int
 
 const (
 	isodate Header = iota
+	doydate
 	tmin
 	tavg
 	tmax
@@ -239,26 +255,35 @@ const (
 	globrad
 	wind
 	relhumid
+	co2
 )
 
-var headerNames = [...]string{
-	"iso-date",
-	"tmin",
-	"tavg",
-	"tmax",
-	"precip",
-	"globrad",
-	"wind",
-	"relhumid",
+var headerNames = map[string]Header{
+	"iso-date": isodate,
+	"tmin":     tmin,
+	"tavg":     tavg,
+	"tmax":     tmax,
+	"precip":   precip,
+	"globrad":  globrad,
+	"wind":     wind,
+	"relhumid": relhumid,
+	"@YYYYJJJ": doydate,
+	"RAD":      globrad,
+	"TMAX":     tmax,
+	"TMIN":     tmin,
+	"RH":       relhumid,
+	"WIND":     wind,
+	"PREC":     precip,
+	"CO2":      co2,
 }
 
 func readHeader(line string) map[Header]int {
-	tokens := Explode(line, []rune{',', ';', '\t'})
+	tokens := Explode(line, []rune{',', ';', '\t', ' '})
 	headers := make(map[Header]int)
-	for h, header := range headerNames {
+	for kHeader, vHeader := range headerNames {
 		for i, token := range tokens {
-			if token == header {
-				headers[Header(h)] = i
+			if token == kHeader {
+				headers[vHeader] = i
 				break
 			}
 		}
@@ -300,7 +325,8 @@ func ReadWeatherCSV(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDa
 		s.hasWINDHI = true
 
 		if len(high) > 2 && high[2][0] != '-' {
-			s.CO2KONZ = ValAsFloat(high[2], VWDAT, high[2])
+			baseCO2 := ValAsFloat(high[2], VWDAT, high[2])
+			s.fillCO2Value(baseCO2)
 			s.hasCO2KONZ = true
 		}
 	} else {
@@ -384,6 +410,127 @@ func ReadWeatherCSV(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDa
 	return nil
 }
 
+// ReadWeatherCZ read weather file (cz format)
+func ReadWeatherCZ(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDataShared, hPath *HFilePath, driConfig *config) error {
+
+	// read pre correction file for precipitation
+	CORRK, err := readPreco(g, hPath)
+	if err != nil {
+		return err
+	}
+	// open weather file with multible years
+	vwDatfile, scanner, err := Open(&FileDescriptior{
+		FilePath:        VWDAT,
+		FileDescription: "weather file",
+		debugOut:        g.DEBUGCHANNEL,
+		logID:           g.LOGID,
+		ContinueOnError: true})
+	if scanner == nil || vwDatfile == nil {
+		return fmt.Errorf("Failed to load file: %s! %v", VWDAT, err)
+	}
+	defer vwDatfile.Close()
+
+	line := LineInut(scanner)
+	h := readHeader(line)
+	//@YYYYJJJ     RAD    TMAX    TMIN      RH    WIND    PREC     CO2
+
+	// if header consists of 3 lines (1. column names, 2. global values)
+	if driConfig.WeatherNumHeader == 2 {
+		heights := LineInut(scanner)
+		high := Explode(heights, []rune{',', ';'})
+		s.ALTITUDE = ValAsFloat(high[0], VWDAT, heights)
+		s.hasALTITUDE = true
+		s.WINDHI = 10
+		s.hasWINDHI = true
+	} else {
+		// skip other header lines
+		for i := 1; i < driConfig.WeatherNumHeader; i++ {
+			LineInut(scanner)
+		}
+	}
+
+	T := 0
+	yrz := 0
+	first := true
+	currentCO2 := BaseCO2
+	for scanner.Scan() {
+		line := scanner.Text()
+		T++
+		tokens := Explode(line, []rune{',', ';', '\t', ' '})
+
+		type weatherdate struct {
+			wind     float64
+			precip   float64
+			globrad  float64
+			tmax     float64
+			tmin     float64
+			tavg     float64
+			relhumid float64
+			datetime time.Time
+		}
+		var d weatherdate
+		err := make([]error, 8)
+		doydate := tokens[h[doydate]]
+		//time = yyyydoy
+		d.datetime, err[7] = time.Parse("2006002", doydate)
+		// skip years before start year
+		if d.datetime.Year() < startyear {
+			continue
+		}
+		d.wind, err[0] = strconv.ParseFloat(tokens[h[wind]], 10)
+		d.precip, err[1] = strconv.ParseFloat(tokens[h[precip]], 10)
+		d.globrad, err[2] = strconv.ParseFloat(tokens[h[globrad]], 10)
+		d.tmax, err[3] = strconv.ParseFloat(tokens[h[tmax]], 10)
+		d.tmin, err[4] = strconv.ParseFloat(tokens[h[tmin]], 10)
+		d.relhumid, err[6] = strconv.ParseFloat(tokens[h[relhumid]], 10)
+
+		if len(tokens) > h[co2] {
+			currentCO2, err[5] = strconv.ParseFloat(tokens[h[co2]], 10)
+		}
+		anyError := func(list []error) error {
+			for _, b := range list {
+				if b != nil {
+					return fmt.Errorf("%s Failed to parse file: %s, error :%v", g.LOGID, VWDAT, b)
+				}
+			}
+			return nil
+		}(err)
+		if anyError != nil {
+			return anyError
+		}
+		d.tavg = (d.tmax + d.tmin) / 2
+
+		if first {
+			// failsave if the first date is not 1.Jan
+			first = false
+			T = d.datetime.YearDay()
+			yrz = 1
+		} else if d.datetime.Day() == 1 && d.datetime.Month() == time.January {
+			T = 1
+			yrz = yrz + 1
+		}
+		if d.datetime.YearDay() != T {
+			return fmt.Errorf("%s Failed to parse file: %s, error: missing days", g.LOGID, VWDAT)
+		}
+		s.JAR[yrz-1] = d.datetime.Year()
+		s.TMP[yrz-1][T-1] = d.tavg
+		s.TMI[yrz-1][T-1] = d.tmin
+		s.TMA[yrz-1][T-1] = d.tmax
+		s.RELF[yrz-1][T-1] = d.relhumid
+		s.RADI[yrz-1][T-1] = d.globrad
+		s.WIN[yrz-1][T-1] = d.wind
+		s.REG[yrz-1][T-1] = d.precip
+		s.CO2KONZ[yrz-1] = currentCO2
+		s.hasCO2KONZ = true
+		s.maxYearDays[yrz-1] = T
+	}
+	s.replaceMissingValues(yrz, driConfig.WeatherNoneValue)
+	// apply value changes
+	s.transformWeatherData(yrz, CORRK[:])
+
+	return nil
+}
+
 func (s *WeatherDataShared) transformWeatherData(yrz int, corr corrArr) {
 	for y := 0; y < yrz; y++ {
 		T := s.maxYearDays[y]
@@ -394,6 +541,7 @@ func (s *WeatherDataShared) transformWeatherData(yrz int, corr corrArr) {
 			// correction of precipitation (turn on/off in config)
 			// correction of rain in standard-Hellmann-Rainwater measurement in 1m height to what arrives on the ground.
 			// Which is in average 10% higher caused by drift due to wind
+			// if turned off, all 'cor' values will be 1
 			s.REG[y][index] = s.REG[y][index] / 10 * cor
 
 			// transform global radiation to PAR(photosynthetic active radiation), which is 50% of Global radiation.
@@ -491,7 +639,7 @@ func LoadYear(g *GlobalVarsMain, s *WeatherDataShared, year int) error {
 				g.WINDHI = s.WINDHI
 			}
 			if s.hasCO2KONZ {
-				g.CO2KONZ = s.CO2KONZ
+				g.CO2KONZ = s.CO2KONZ[yearIdx]
 			}
 			if s.hasALTITUDE {
 				g.ALTI = s.ALTITUDE

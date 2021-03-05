@@ -218,6 +218,15 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			bbbShared = NewWeatherDataShared(1)
 			WetterK(VWDAT, 1900+g.J, &g, &bbbShared, &herPath, &driConfig)
 			LoadYear(&g, &bbbShared, 1900+g.J)
+		} else if driConfig.WeatherFileFormat == 2 {
+			yearEnde, _, _ := KalenderDate(g.ENDE)
+			years := yearEnde - g.ANJAHR + 1
+			bbbShared = NewWeatherDataShared(years)
+			err = ReadWeatherCZ(VWDATstr, g.ANJAHR, &g, &bbbShared, &herPath, &driConfig)
+			if err != nil {
+				return err
+			}
+			LoadYear(&g, &bbbShared, 1900+g.J)
 		}
 
 		Init(&g)
