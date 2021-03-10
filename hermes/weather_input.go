@@ -393,6 +393,10 @@ func ReadWeatherCSV(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDa
 		if d.datetime.YearDay() != T {
 			return fmt.Errorf("%s Failed to parse file: %s, error: missing days", g.LOGID, VWDAT)
 		}
+		if yrz > len(s.JAR) {
+			yrz--
+			break
+		}
 		s.JAR[yrz-1] = d.datetime.Year()
 		s.TMP[yrz-1][T-1] = d.tavg
 		s.TMI[yrz-1][T-1] = d.tmin
@@ -475,6 +479,9 @@ func ReadWeatherCZ(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDat
 		if d.datetime.Year() < startyear {
 			continue
 		}
+		if d.datetime.Year() < startyear {
+			continue
+		}
 		d.wind, err[0] = strconv.ParseFloat(tokens[h[wind]], 10)
 		d.precip, err[1] = strconv.ParseFloat(tokens[h[precip]], 10)
 		d.globrad, err[2] = strconv.ParseFloat(tokens[h[globrad]], 10)
@@ -509,6 +516,10 @@ func ReadWeatherCZ(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDat
 		}
 		if d.datetime.YearDay() != T {
 			return fmt.Errorf("%s Failed to parse file: %s, error: missing days", g.LOGID, VWDAT)
+		}
+		if yrz > len(s.JAR) {
+			yrz--
+			break
 		}
 		s.JAR[yrz-1] = d.datetime.Year()
 		s.TMP[yrz-1][T-1] = d.tavg

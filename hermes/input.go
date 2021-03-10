@@ -34,7 +34,6 @@ type InputSharedVars struct {
 func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, soilID string) error {
 	//! ------Modul zum Einlesen von Boden-, Fruchtfolge und Bewirtschaftungsdaten (Duengung, Bodenbearbeitung) von Feldern und Polygonen ---------
 	var ERNT, SAT string
-	var DGDAT [70]string
 	var winit [6]float64
 	var CNRATIO [10]float64
 
@@ -795,10 +794,10 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 							//Field_ID(0)  N(1)   Frt(2) date(3)
 							NDu++
 							NDuindex := NDu - 1
-							DGDAT[NDuindex] = fertilizerToken[3]
+							DGDAT := fertilizerToken[3]
 							l.DGMG[NDuindex] = ValAsFloat(fertilizerToken[1], dun, FERTI) * g.DUNGSZEN
 							g.DGART[NDuindex] = fertilizerToken[2]
-							_, valztdg := g.Datum(DGDAT[NDuindex])
+							_, valztdg := g.Datum(DGDAT)
 							g.ZTDG[NDuindex] = valztdg
 							if g.ZTDG[NDuindex] < g.BEGINN {
 								NDu--
