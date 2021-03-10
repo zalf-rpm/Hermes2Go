@@ -59,7 +59,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		output.SowDate = g.Kalender(zeit)
 		output.SowDOY = g.TAG.Index + 1
 
-		PARANAM := hPath.GetParanam(g.FRUCHT[g.AKF.Index])
+		PARANAM := hPath.GetParanam(g.FRUCHT[g.AKF.Index], g.CVARIETY[g.AKF.Index])
 		g.TRRELSUM = 0
 		g.REDUKSUM = 0
 		g.ETAG = 0

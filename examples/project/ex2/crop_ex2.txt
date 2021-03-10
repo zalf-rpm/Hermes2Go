@@ -1,4 +1,4 @@
-Field_ID    crp  sowing harvst Rex yld autorg comment
+Field_ID    crp  sowing harvst Rex yld autorg variety comment
 SOYSM1    SM  05151980 09311980 080 050 0 
 SOYSM1    SOY 05151981 09311981 000 000 0 
 SOYSM1    SM  05151982 09311982 000 000 0 

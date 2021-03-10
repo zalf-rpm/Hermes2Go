@@ -107,6 +107,7 @@ type GlobalVarsMain struct {
 	BEGINN          int
 	ENDE            int
 	FRUCHT          [300]string
+	CVARIETY        [300]string
 	SAAT            [300]int
 	JN              [300]float64
 	ERNTE           [300]int

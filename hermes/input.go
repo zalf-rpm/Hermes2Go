@@ -393,7 +393,9 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 						SLFIND++
 						SLFINDindex := SLFIND - 1
 						g.FRUCHT[SLFINDindex] = RO[10:13]
-
+						if len(ROtoken) > 7 {
+							g.CVARIETY[SLFINDindex] = ROtoken[7]
+						}
 						if SLFIND > 1 {
 							SAT = ROtoken[2]
 						}
