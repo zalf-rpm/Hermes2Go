@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"math"
-	"strconv"
 	"strings"
 )
 
@@ -144,32 +143,33 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 						g.HUMUS[i] = g.CGEHALT[i] * 1.72 / 100
 						g.STEIN[i] = ValAsFloat(bodenLine[18:20], "none", bodenLine) / 100
 						// Field capacity
-						value, err := strconv.ParseFloat(bodenLine[40:42], 64)
+
+						value, err := TryValAsFloat(bodenLine[40:42])
 						if err == nil {
 							g.FKA[i] = value
 						}
 						// wilting point
-						value, err = strconv.ParseFloat(bodenLine[43:45], 64)
+						value, err = TryValAsFloat(bodenLine[43:45])
 						if err == nil {
 							g.WP[i] = value
 						}
 						// general pore volume
-						value, err = strconv.ParseFloat(bodenLine[46:48], 64)
+						value, err = TryValAsFloat(bodenLine[46:48])
 						if err == nil {
 							g.GPV[i] = value
 						}
 						// sand in %
-						value, err = strconv.ParseFloat(bodenLine[49:51], 64)
+						value, err = TryValAsFloat(bodenLine[49:51])
 						if err == nil {
 							l.SSAND[i] = value
 						}
 						// silt in %
-						value, err = strconv.ParseFloat(bodenLine[52:54], 64)
+						value, err = TryValAsFloat(bodenLine[52:54])
 						if err == nil {
 							l.SLUF[i] = value
 						}
 						// clay in %
-						value, err = strconv.ParseFloat(bodenLine[55:57], 64)
+						value, err = TryValAsFloat(bodenLine[55:57])
 						if err == nil {
 							l.TON[i] = value
 						}

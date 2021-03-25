@@ -36,6 +36,13 @@ func ValAsFloat(toParse, filename, line string) float64 {
 	return value
 }
 
+// TryValAsFloat parse text into float
+func TryValAsFloat(toParse string) (float64, error) {
+	noSpaces := strings.TrimSpace(toParse)
+	value, err := strconv.ParseFloat(noSpaces, 64)
+	return value, err
+}
+
 // ValAsBool parse text into bool
 func ValAsBool(toParse, filename, line string) bool {
 	noSpaces := strings.TrimSpace(toParse)
