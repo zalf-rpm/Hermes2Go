@@ -60,7 +60,7 @@ type config struct {
 }
 
 func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) config {
-	hconfig := newDefaultConfig()
+	hconfig := NewDefaultConfig()
 	// if config files exists, read it into hconfig
 	if _, err := os.Stat(hp.config); err == nil {
 		byteData := HermesFilePool.Get(&FileDescriptior{FilePath: hp.config, ContinueOnError: true, UseFilePool: true})
@@ -70,7 +70,7 @@ func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) c
 		}
 	} else {
 		// no config exist, generate default config (if project is not fitting default setup, execution will fail)
-		hconfig = newDefaultConfig()
+		hconfig = NewDefaultConfig()
 	}
 	err := commandlineOverride(argValues, &hconfig)
 	if err != nil {
@@ -180,7 +180,8 @@ func WriteYamlConfig(filename string, structIn interface{}) {
 	}
 }
 
-func newDefaultConfig() config {
+//NewDefaultConfig creates a config file with default setup
+func NewDefaultConfig() config {
 	return config{
 		Dateformat:                      DateDElong,
 		GroundWaterFrom:                 Soilfile,

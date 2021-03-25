@@ -41,7 +41,7 @@ type WeatherDataShared struct {
 	ALTITUDE float64        // altidude 								m
 	CO2KONZ  []float64      // CO2 concentration 						ppm
 
-	maxYearDays []int // days in each year (365 or 366)
+	MaxYearDays []int // days in each year (365 or 366)
 	// flags for optional parameters (if true the corresponting arrays contain valid values)
 	hasWINDHI   bool
 	hasALTITUDE bool
@@ -69,7 +69,7 @@ func NewWeatherDataShared(years int) WeatherDataShared {
 		CO2KONZ:     make([]float64, years),
 		WINDHI:      2,
 		ALTITUDE:    0,
-		maxYearDays: make([]int, years),
+		MaxYearDays: make([]int, years),
 		hasWINDHI:   false,
 		hasALTITUDE: false,
 		hasCO2KONZ:  false,
@@ -105,7 +105,7 @@ func (s *WeatherDataShared) fillCO2Value(co2 float64) {
 func WetterK(VWDAT string, year int, g *GlobalVarsMain, s *WeatherDataShared, hPath *HFilePath, driConfig *config) error {
 	//DIM CORRK(12),Wettin$(12),high$(2)
 	var high, Wettin []string
-	CORRK, err := readPreco(g, hPath)
+	CORRK, err := ReadPreco(g, hPath)
 	if err != nil {
 		return err
 	}
@@ -169,7 +169,7 @@ func WetterK(VWDAT string, year int, g *GlobalVarsMain, s *WeatherDataShared, hP
 		s.hasSUND = true
 		s.RADI[0][Tindex] = ValAsFloat(Wettin[8], VWDAT, WETTER)
 		s.REG[0][Tindex] = ValAsFloat(Wettin[9], VWDAT, WETTER)
-		s.maxYearDays[0] = T
+		s.MaxYearDays[0] = T
 	}
 
 	s.replaceMissingValues(1, driConfig.WeatherNoneValue)
@@ -212,8 +212,8 @@ func (CORRK corrArr) getCorrValue(T int) float64 {
 	return cor
 }
 
-// readPreco reads the pre correction file for precipitaion
-func readPreco(g *GlobalVarsMain, hPath *HFilePath) ([12]float64, error) {
+// ReadPreco reads the pre correction file for precipitaion
+func ReadPreco(g *GlobalVarsMain, hPath *HFilePath) ([12]float64, error) {
 	var CORRK [12]float64
 	if g.PRECO {
 		PRECORR := hPath.precorr
@@ -295,7 +295,7 @@ func readHeader(line string) map[Header]int {
 func ReadWeatherCSV(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDataShared, hPath *HFilePath, driConfig *config) error {
 
 	// read pre correction file for precipitation
-	CORRK, err := readPreco(g, hPath)
+	CORRK, err := ReadPreco(g, hPath)
 	if err != nil {
 		return err
 	}
@@ -405,7 +405,7 @@ func ReadWeatherCSV(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDa
 		s.RADI[yrz-1][T-1] = d.globrad
 		s.WIN[yrz-1][T-1] = d.wind
 		s.REG[yrz-1][T-1] = d.precip
-		s.maxYearDays[yrz-1] = T
+		s.MaxYearDays[yrz-1] = T
 	}
 	s.replaceMissingValues(yrz, driConfig.WeatherNoneValue)
 	// apply value changes
@@ -418,7 +418,7 @@ func ReadWeatherCSV(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDa
 func ReadWeatherCZ(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDataShared, hPath *HFilePath, driConfig *config) error {
 
 	// read pre correction file for precipitation
-	CORRK, err := readPreco(g, hPath)
+	CORRK, err := ReadPreco(g, hPath)
 	if err != nil {
 		return err
 	}
@@ -531,7 +531,7 @@ func ReadWeatherCZ(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDat
 		s.REG[yrz-1][T-1] = d.precip
 		s.CO2KONZ[yrz-1] = currentCO2
 		s.hasCO2KONZ = true
-		s.maxYearDays[yrz-1] = T
+		s.MaxYearDays[yrz-1] = T
 	}
 	s.replaceMissingValues(yrz, driConfig.WeatherNoneValue)
 	// apply value changes
@@ -542,7 +542,7 @@ func ReadWeatherCZ(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDat
 
 func (s *WeatherDataShared) transformWeatherData(yrz int, corr corrArr) {
 	for y := 0; y < yrz; y++ {
-		T := s.maxYearDays[y]
+		T := s.MaxYearDays[y]
 		for index := 0; index < T; index++ {
 			cor := corr.getCorrValue(index + 1)
 			// water model for rivers calculates in cm, so mm is transformed to cm by dividing by 10
@@ -569,7 +569,7 @@ func (s *WeatherDataShared) replaceMissingValues(yrz int, noneValue float64) {
 	prevIndex, prevYear := -1, -1
 	nextIndex, nextYear := -1, -1
 	for y := 0; y < yrz; y++ {
-		T := s.maxYearDays[y]
+		T := s.MaxYearDays[y]
 
 		for index := 0; index < T; index++ {
 
@@ -584,7 +584,7 @@ func (s *WeatherDataShared) replaceMissingValues(yrz int, noneValue float64) {
 				}
 			}
 			if prevIndex < 0 && y > 0 {
-				prevIndex = s.maxYearDays[y-1] - 1
+				prevIndex = s.MaxYearDays[y-1] - 1
 				prevYear = prevYear - 1
 			}
 
@@ -631,9 +631,9 @@ func (s *WeatherDataShared) replaceMissingValues(yrz int, noneValue float64) {
 // LoadYear loads weather data from WeatherDataShared of a given year into global GlobalVarsMain
 func LoadYear(g *GlobalVarsMain, s *WeatherDataShared, year int) error {
 
-	loadedYears := len(s.maxYearDays)
+	loadedYears := len(s.MaxYearDays)
 	for yearIdx := 0; yearIdx < loadedYears; yearIdx++ {
-		days := s.maxYearDays[yearIdx]
+		days := s.MaxYearDays[yearIdx]
 		if s.JAR[yearIdx] == year {
 			for Tidx := 0; Tidx < days; Tidx++ {
 				g.TEMP[Tidx] = s.TMP[yearIdx][Tidx]

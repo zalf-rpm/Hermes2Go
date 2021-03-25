@@ -93,7 +93,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 
 		if _, err := os.Stat(herPath.config); err != nil {
 			fmt.Println("Generate config", herPath.config)
-			WriteYamlConfig(herPath.config, newDefaultConfig())
+			WriteYamlConfig(herPath.config, NewDefaultConfig())
 		}
 
 		g.SLNR = int(ValAsInt(g.SNAM, "none", g.SNAM))
