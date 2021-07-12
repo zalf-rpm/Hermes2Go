@@ -477,7 +477,7 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 										if g.AUTOFERT {
 											g.NDEM1[SLFINDindex] = ValAsFloat(crpman[94:97], autfil, crpman)
 											if g.ODU[SLFINDindex] == 1 {
-												g.DGART[SLFINDindex] = crpman[143:146]
+												g.DGART[SLFINDindex] = strings.Trim(crpman[143:146], " ")
 												l.DGMG[SLFINDindex] = ValAsFloat(crpman[149:152], autfil, crpman)
 												g.ORGTIME[SLFINDindex] = crpman[156:157]
 												g.ORGDOY[SLFINDindex] = int(ValAsInt(crpman[157:159], autfil, crpman))
@@ -524,7 +524,7 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 									crpman := autoScanner.Text()
 									if crpman[0:3] == g.FRUCHT[SLFINDindex] {
 										if g.ODU[SLFINDindex] == 1 {
-											g.DGART[SLFINDindex] = crpman[143:146]
+											g.DGART[SLFINDindex] = strings.Trim(crpman[143:146], " ")
 											l.DGMG[SLFINDindex] = ValAsFloat(crpman[149:152], autfil, crpman)
 											g.ORGTIME[SLFINDindex] = crpman[156:157]
 											g.ORGDOY[SLFINDindex] = int(ValAsInt(crpman[157:159], autfil, crpman))
@@ -1170,14 +1170,14 @@ func dueng(i int, g *GlobalVarsMain, l *InputSharedVars, hPath *HFilePath) {
 	_, scanner, _ := Open(&FileDescriptior{FilePath: dungfile, FileDescription: "fertilization file", UseFilePool: true})
 	for scanner.Scan() {
 		du := scanner.Text()
-		if du[0:3] == g.DGART[i] {
-			l.NORG[i] = ValAsFloat(du[4:9], dungfile, du)
-			VOL := ValAsFloat(du[31:34], dungfile, du)
-
-			g.NDIR[i] = l.DGMG[i] * l.NORG[i] * ValAsFloat(du[10:14], dungfile, du)
-			g.NDIR[i] = g.NDIR[i] - g.NDIR[i]*ValAsFloat(du[25:29], dungfile, du)*VOL
-			g.NSAS[i] = (l.DGMG[i]*l.NORG[i] - g.NDIR[i]) * ValAsFloat(du[15:19], dungfile, du)
-			g.NLAS[i] = (l.DGMG[i]*l.NORG[i] - g.NDIR[i]) * ValAsFloat(du[20:24], dungfile, du)
+		token := strings.Fields(du)
+		if token[0] == g.DGART[i] {
+			l.NORG[i] = ValAsFloat(token[1], dungfile, du)                                     //Ntot
+			VOL := ValAsFloat(token[6], dungfile, du)                                          // Loss
+			g.NDIR[i] = l.DGMG[i] * l.NORG[i] * ValAsFloat(token[2], dungfile, du)             // NDIR
+			g.NDIR[i] = g.NDIR[i] - g.NDIR[i]*ValAsFloat(token[5], dungfile, du)*VOL           // NH4
+			g.NSAS[i] = (l.DGMG[i]*l.NORG[i] - g.NDIR[i]) * ValAsFloat(token[3], dungfile, du) // Nfst
+			g.NLAS[i] = (l.DGMG[i]*l.NORG[i] - g.NDIR[i]) * ValAsFloat(token[4], dungfile, du) // Nslo
 		}
 	}
 }
