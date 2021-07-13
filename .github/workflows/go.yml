@@ -35,9 +35,8 @@ jobs:
         GOPATH: /home/runner/work/Hermes2Go/Hermes2Go/go
     
     - name: Build
-      working-directory: /home/runner/work/Hermes2Go/Hermes2Go/go/src/github.com/zalf-rpm/Hermes2Go
       run: |
-       go build -v src/hermes2go
+       go build -v github.com/zalf-rpm/Hermes2Go/src/hermes2go
       env:
         GOPATH: /home/runner/work/Hermes2Go/Hermes2Go/go
 
