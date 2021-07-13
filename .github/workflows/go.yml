@@ -28,6 +28,8 @@ jobs:
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
     
     - name: Build
+      env: 
+        GOPROXY: "https://proxy.golang.org"
       run: go build -v ./src/hermes2go
 
       
