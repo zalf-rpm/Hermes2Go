@@ -11,10 +11,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Add $GOPATH/bin to $PATH
+    - name: build env
       run: |
-          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"  
-          
+          mkdir -p /home/runner/go/src/github.com/zalf-rpm
+          cd go/src/github.com/zalf-rpm
+      
     - uses: actions/checkout@v2
 
     - name: Set up Go
@@ -29,8 +30,9 @@ jobs:
         
     
     - name: Build
+      working-directory: /home/runner/go/src/github.com/Hermes2Go/src/hermes2go
       run: |
-       go build -v ./src/hermes2go
+       go build -v 
        
 
       
