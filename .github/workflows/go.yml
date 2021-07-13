@@ -28,7 +28,9 @@ jobs:
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
     
     - name: Build
-      run: cd ./src/hermes2go | go build -v 
+      run: pwd 
+       | cd src/hermes2go
+       | go build -v 
 
       
 
