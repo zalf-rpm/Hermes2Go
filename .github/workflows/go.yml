@@ -22,6 +22,10 @@ jobs:
       run: |
         go version
         go get -u gopkg.in/yaml.v2 
+        
+    - name: Add $GOPATH/bin to $PATH
+      run: |
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
     
     - name: Build
       run: go build -v ./src/hermes2go
