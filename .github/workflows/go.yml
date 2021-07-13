@@ -29,9 +29,8 @@ jobs:
         
     
     - name: Build
-      working-directory: /home/runner/go/src/github.com/Hermes2Go/src/hermes2go
       run: |
-       go build -v 
+       go build -v ./src/hermes2go
        
 
       
