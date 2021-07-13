@@ -16,8 +16,15 @@ jobs:
       with:
         go-version: 1.15    
         
+    - name: Debug
+      run: |
+        pwd
+        echo ${GOPATH}
+        echo ${GOROOT}
+        
     - uses: actions/checkout@v2
       with:
+        fetch-depth: 1
         path: go/src/github.com/zalf-rpm/Hermes2Go
 
     - name: Install dependencies
@@ -29,7 +36,7 @@ jobs:
     
     - name: Build
       run: |
-       go build -v src/hermes2go
+       go build -v Hermes2Go/src/hermes2go
       env:
         GOPATH: /home/runner/work/Hermes2Go/go
 
