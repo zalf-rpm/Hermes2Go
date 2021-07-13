@@ -14,7 +14,7 @@ jobs:
     - name: build env
       run: |
           mkdir -p /home/runner/go/src/github.com/zalf-rpm
-          cd go/src/github.com/zalf-rpm
+          cd /home/runner/go/src/github.com/zalf-rpm
       
     - uses: actions/checkout@v2
 
