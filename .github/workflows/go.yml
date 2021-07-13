@@ -11,6 +11,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - name: Add $GOPATH/bin to $PATH
+      run: |
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"  
+          
     - uses: actions/checkout@v2
 
     - name: Set up Go
@@ -23,14 +27,12 @@ jobs:
         go version
         go get -u gopkg.in/yaml.v2 
         
-    - name: Add $GOPATH/bin to $PATH
-      run: |
-          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
     
     - name: Build
       working-directory: /home/runner/go/src/github.com/Hermes2Go/src/hermes2go
       run: |
        go build -v 
+       
 
       
 
