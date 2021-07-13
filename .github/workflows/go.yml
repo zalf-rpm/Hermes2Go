@@ -11,29 +11,27 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: build env
-      run: |
-          mkdir -p /home/runner/go/src/github.com/zalf-rpm
-          cd /home/runner/go/src/github.com/zalf-rpm
-      
-    - uses: actions/checkout@v2
-
     - name: Set up Go
       uses: actions/setup-go@v2
       with:
-        go-version: 1.15
+        go-version: 1.15    
+        
+    - uses: actions/checkout@v2
+      with:
+        path: go/src/github.com/zalf-rpm/Hermes2Go
 
     - name: Install dependencies
       run: |
         go version
         go get -u gopkg.in/yaml.v2 
-        
+      env:
+        GOPATH: /home/runner/work/Hermes2Go/go
     
     - name: Build
-      working-directory: /home/runner/go/src/github.com/Hermes2Go/src/hermes2go
       run: |
-       go build -v 
-       
+       go build -v ./src/hermes2go
+      env:
+        GOPATH: /home/runner/work/Hermes2Go/go
 
       
 
