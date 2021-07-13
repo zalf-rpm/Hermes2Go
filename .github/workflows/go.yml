@@ -29,7 +29,7 @@ jobs:
     
     - name: Build
       run: |
-       go build -v ./src/hermes2go
+       go build -v src/hermes2go
       env:
         GOPATH: /home/runner/work/Hermes2Go/go
 
