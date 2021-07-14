@@ -249,16 +249,16 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 							// check if sand, silt, clay are valid
 							soilSum := l.TON[lindex] + l.SLUF[lindex] + l.SSAND[lindex]
 							if soilSum > 103 || soilSum < 97 { // rounding issue
-								return fmt.Errorf("Sand: %f, Silt: %f, Clay: %f does not sum up to 100 percent", l.SSAND[lindex], l.SLUF[lindex], l.TON[lindex])
+								return fmt.Errorf("sand: %f, Silt: %f, Clay: %f does not sum up to 100 percent", l.SSAND[lindex], l.SLUF[lindex], l.TON[lindex])
 							}
 							if l.TON[lindex] == 0 {
-								return fmt.Errorf("Clay content is 0")
+								return fmt.Errorf("clay content is 0")
 							}
 							if l.SLUF[lindex] == 0 {
-								return fmt.Errorf("Silt content is 0")
+								return fmt.Errorf("silt content is 0")
 							}
 							if l.SSAND[lindex] == 0 {
-								return fmt.Errorf("Sand content is 0")
+								return fmt.Errorf("sand content is 0")
 							}
 							if g.PTF == 1 {
 								// PTF by Toth 2015
@@ -614,13 +614,13 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 							_, g.MESS[g.NMESS-1] = g.Datum(g.MES[g.NMESS-1])
 
 							//! +++++++++++++++ Ueberschreiben des Erntedatums der Vorfrucht aus der Rotationsdatei ++++++++++++++++++++
-							if g.AUTOHAR {
-								// commentented out by Christians newest version
-								// var ERNDAT int
-								// ERNDAT, gloInput.ERNTE[0] = Datum(gloInput.MES[gloInput.NMESS-1], gloInput.CENT)
-								// gloInput.ITAG = ERNDAT
-								// gloInput.BEGINN = gloInput.ERNTE[0]
-							}
+							//if g.AUTOHAR {
+							// commentented out by Christians newest version
+							// var ERNDAT int
+							// ERNDAT, gloInput.ERNTE[0] = Datum(gloInput.MES[gloInput.NMESS-1], gloInput.CENT)
+							// gloInput.ITAG = ERNDAT
+							// gloInput.BEGINN = gloInput.ERNTE[0]
+							//}
 							if g.AUTOFERT {
 								if g.ORGTIME[0] == "H" {
 									g.ZTDG[0] = g.ERNTE[0] + 1

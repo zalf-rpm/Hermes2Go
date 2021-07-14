@@ -45,10 +45,10 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			}
 		}
 		if _, hasProject := argValues["project"]; !hasProject {
-			return fmt.Errorf("Arguments requrired: project=<projectfolder> plotNr=<polygon/plot/schlag>")
+			return fmt.Errorf("arguments requrired: project=<projectfolder> plotNr=<polygon/plot/schlag>")
 		}
 		if _, hasPlotNr := argValues["plotNr"]; !hasPlotNr {
-			return fmt.Errorf("Arguments requrired: project=<projectfolder> plotNr=<polygon/plot/schlag>")
+			return fmt.Errorf("arguments requrired: project=<projectfolder> plotNr=<polygon/plot/schlag>")
 		}
 		fileExtension := "txt"
 
@@ -406,7 +406,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			}
 			FSCS := 0.0
 			ZSR := 1.0
-			WDT = g.DT.Num
+			//WDT = g.DT.Num
 			for I := 1; I <= g.N; I++ {
 				index := I - 1
 				FSC := (g.W[index] - g.WG[0][index]) * g.DZ.Num

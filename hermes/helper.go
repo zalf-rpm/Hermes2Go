@@ -9,7 +9,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"unicode/utf8"
 
 	"gopkg.in/yaml.v2"
 )
@@ -293,22 +292,22 @@ func KalenderDate(MASDAT int) (year, month, day int) {
 	return year, month, day
 }
 
-func leftAlignmentFormat(numberOfRunes int, input string) (outStr string) {
-	lenStr := utf8.RuneCountInString(input)
-	var builder strings.Builder
-	if numberOfRunes > lenStr {
-		numSpaces := numberOfRunes - lenStr
-		builder.Grow(len(input) + numSpaces)
-		builder.WriteString(input)
-		for runeIndex := 0; runeIndex < numSpaces; runeIndex++ {
-			builder.WriteByte(' ')
-		}
-		outStr = builder.String()
-	} else {
-		outStr = input
-	}
-	return outStr
-}
+// func leftAlignmentFormat(numberOfRunes int, input string) (outStr string) {
+// 	lenStr := utf8.RuneCountInString(input)
+// 	var builder strings.Builder
+// 	if numberOfRunes > lenStr {
+// 		numSpaces := numberOfRunes - lenStr
+// 		builder.Grow(len(input) + numSpaces)
+// 		builder.WriteString(input)
+// 		for runeIndex := 0; runeIndex < numSpaces; runeIndex++ {
+// 			builder.WriteByte(' ')
+// 		}
+// 		outStr = builder.String()
+// 	} else {
+// 		outStr = input
+// 	}
+// 	return outStr
+// }
 
 // AskDirectory returns the current directory
 func AskDirectory() string {
@@ -395,7 +394,7 @@ func min(val1, val2 int) int {
 	return val2
 }
 
-type printToLimitFunc func(int)
+//type printToLimitFunc func(int)
 
 // printToLimit provides println debug output for the first n occurences
 func (g *GlobalVarsMain) printToLimit(n int) func(int, interface{}) {
@@ -422,7 +421,8 @@ func printError(logID, errorMsg string, out, logout chan<- string) {
 	}
 }
 
-func dumpStructToFile(filename string, global *GlobalVarsMain) {
+//DumpStructToFile debug dump global variables to a file
+func DumpStructToFile(filename string, global *GlobalVarsMain) {
 
 	file := OpenResultFile(filename, false)
 	defer file.Close()

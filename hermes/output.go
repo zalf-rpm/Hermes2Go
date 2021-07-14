@@ -71,12 +71,12 @@ func progout(NAPP int, ABZEIT int, g *GlobalVarsMain, hPath *HFilePath) {
 		}
 		// NEXT Z
 	}
-	// LET WASS1 = WASS1/3
-	WASS1 = WASS1 / 3
-	// LET WASS2 = WASS2/3
-	WASS2 = WASS2 / 3
-	// LET WASS3 = WASS3/3
-	WASS3 = WASS3 / 3
+	// // LET WASS1 = WASS1/3
+	// WASS1 = WASS1 / 3
+	// // LET WASS2 = WASS2/3
+	// WASS2 = WASS2 / 3
+	// // LET WASS3 = WASS3/3
+	// WASS3 = WASS3 / 3
 	// let prognodat$ = Progdat$(1:2) & "." & progdat$(3:4) & "." & progdat$(5:6)
 	//prognodat := g.PROGDAT[0:2] + "." + g.PROGDAT[2:4] + "." + g.PROGDAT[4:]
 	_, masdat := g.Datum(g.PROGDAT)

@@ -117,7 +117,7 @@ func WetterK(VWDAT string, year int, g *GlobalVarsMain, s *WeatherDataShared, hP
 		logID:           g.LOGID,
 		ContinueOnError: true})
 	if scanner == nil || vwDatfile == nil {
-		return fmt.Errorf("Failed to load file: %s! %v", VWDAT, err)
+		return fmt.Errorf("failed to load file: %s! %v", VWDAT, err)
 	}
 	defer vwDatfile.Close()
 
@@ -225,7 +225,7 @@ func ReadPreco(g *GlobalVarsMain, hPath *HFilePath) ([12]float64, error) {
 			logID:           g.LOGID,
 			ContinueOnError: true})
 		if scanner == nil {
-			return CORRK, fmt.Errorf("Failed to load file: %s! %v", PRECORR, err)
+			return CORRK, fmt.Errorf("failed to load file: %s! %v", PRECORR, err)
 		}
 		LineInut(scanner) // skip headline
 		for scanner.Scan() {
@@ -307,7 +307,7 @@ func ReadWeatherCSV(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDa
 		logID:           g.LOGID,
 		ContinueOnError: true})
 	if scanner == nil || vwDatfile == nil {
-		return fmt.Errorf("Failed to load file: %s! %v", VWDAT, err)
+		return fmt.Errorf("failed to load file: %s! %v", VWDAT, err)
 	}
 	defer vwDatfile.Close()
 
@@ -430,7 +430,7 @@ func ReadWeatherCZ(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDat
 		logID:           g.LOGID,
 		ContinueOnError: true})
 	if scanner == nil || vwDatfile == nil {
-		return fmt.Errorf("Failed to load file: %s! %v", VWDAT, err)
+		return fmt.Errorf("failed to load file: %s! %v", VWDAT, err)
 	}
 	defer vwDatfile.Close()
 
@@ -657,5 +657,5 @@ func LoadYear(g *GlobalVarsMain, s *WeatherDataShared, year int) error {
 			return nil
 		}
 	}
-	return fmt.Errorf(`Requested year (%d) was not loaded: loaded years %d - %d `, year, s.JAR[0], s.JAR[loadedYears-1])
+	return fmt.Errorf(`requested year (%d) was not loaded: loaded years %d - %d `, year, s.JAR[0], s.JAR[loadedYears-1])
 }

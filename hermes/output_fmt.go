@@ -2056,7 +2056,7 @@ func LoadHermesOutputConfig(path string, g interface{}) (OutputConfig, error) {
 				col.ColStart = lastColIndex + 1
 			}
 			if outConfig.Headlines[i][idxCol].ColStart < lastColIndex {
-				return outConfig, fmt.Errorf("Out of order column index :%s", col.Text)
+				return outConfig, fmt.Errorf("out of order column index :%s", col.Text)
 			}
 			lastColIndex = col.ColStart
 			if col.ColEnd == 0 {
@@ -2263,7 +2263,7 @@ func (l *OutputLine) writeCSVString(file *Fout, seperatorRune rune) error {
 func (l *OutputLine) writeHermesString(file *Fout, c *OutputConfig) error {
 	var err error
 	if c.numDataColumns != l.counter {
-		return fmt.Errorf("Number of output columns: %d does not match counted values: %d", c.numDataColumns, l.counter)
+		return fmt.Errorf("number of output columns: %d does not match counted values: %d", c.numDataColumns, l.counter)
 	}
 	for i, line := range l.format {
 		column := c.DataColumns[i]
