@@ -193,7 +193,8 @@ type GlobalVarsMain struct {
 	MINTMP        float64
 	RSTOM         float64
 	LAI           float64 // Leaf area index
-	WURZ          int
+	WURZ          int     // root in max soil layer
+	ROOTINGDEPTH  float64 // rooting depth
 	VERDUNST      float64
 	FLUSS0        float64
 	WUDICH        [21]float64
@@ -214,70 +215,74 @@ type GlobalVarsMain struct {
 	ET0           float64
 	PE            [21]float64
 	MAXAMAX       float64
-	WUMAXPF       float64
-	WUFKT         int
-	NGEFKT        int
-	YORGAN        int
-	YIFAK         float64
-	NRKOM         int
-	DAUERKULT     rune
-	LEGUM         rune
-	DOUBLE        int //day of  double ridge stage / Doppelringstadium
-	ASIP          int
-	BLUET         int
-	REIF          int
-	ENDPRO        int // TODO: obsolete?
-	PHYLLO        float64
-	VERNTAGE      float64
-	SUM           [10]float64
-	PRO           [10][5]float64
-	DEAD          [10][5]float64
-	TROOTSUM      float64 `yaml:"-"`
-	GEHOB         float64
-	WUGEH         float64
-	WORG          [5]float64
-	WDORG         [10]float64
-	MAIRT         [10]float64
-	TSUM          [10]float64
-	BAS           [10]float64
-	VSCHWELL      [10]float64
-	DAYL          [10]float64
-	DLBAS         [10]float64
-	DRYSWELL      [10]float64
-	LAIFKT        [10]float64
-	WGMAX         [10]float64
-	OBMAS         float64
-	ASPOO         float64 // Assimilation pool in crops
-	WUMAS         float64
-	PESUM         float64
-	LURED         float64
-	DOPP          string // obsolete? Kalender date of double ridge stage / Doppelringstadium
-	P1, P2        int
-	SUMAE         float64
-	AEHR          string
-	BLUEH         string
-	REIFE         string
-	GEHMAX        float64
-	GEHMIN        float64
-	DUNGBED       float64
-	DEFDAT        int
-	ENDSTADIUM    DevelopmentStage
-	DIFFSUM       float64
-	MASSUM        float64
-	DN            [21]float64
-	YIELD         float64 //Grain yield (only for cereals) (kg ha-1)
-	AUFNASUM      float64
-	NDRAINTAG     float64 `yaml:"-"`
-	CUMDENIT      float64
-	AUFNA         [131]float64 //(0:130)
-	SIC           [131]float64 //(0:130)
-	AUS           [131]float64 // (0:130)
-	MINA          float64      // TODO: obsolete
-	PLANA         float64
-	OUTA          float64 // TODO: obsolete?
-	NAPPDAT       string
-	PROGDAT       string
-	SLNAM         string // not assigned
+	WUMAXPF       float64 // crop specific rooting depth
+	VELOC         float64 // root depth increase in mm/C°
+	//WUFKT         int
+	NGEFKT     int
+	RGA        float64 // value for NGEFKT = 5
+	RGB        float64 // value for NGEFKT = 5
+	SubOrgan   int     // organ number for WORG in NGEFKT = 5
+	YORGAN     int
+	YIFAK      float64
+	NRKOM      int
+	DAUERKULT  rune
+	LEGUM      rune
+	DOUBLE     int //day of  double ridge stage / Doppelringstadium
+	ASIP       int
+	BLUET      int
+	REIF       int
+	ENDPRO     int     // TODO: obsolete?
+	PHYLLO     float64 // culmulative development relevant temperature sum (°C days)
+	VERNTAGE   float64
+	SUM        [10]float64 //development relevant temperature sum in state INTWICK
+	PRO        [10][5]float64
+	DEAD       [10][5]float64
+	TROOTSUM   float64 `yaml:"-"`
+	GEHOB      float64
+	WUGEH      float64
+	WORG       [5]float64
+	WDORG      [10]float64
+	MAIRT      [10]float64
+	TSUM       [10]float64 //Temperature sum for development stage I (°C days)
+	BAS        [10]float64
+	VSCHWELL   [10]float64
+	DAYL       [10]float64
+	DLBAS      [10]float64
+	DRYSWELL   [10]float64
+	LAIFKT     [10]float64
+	WGMAX      [10]float64
+	OBMAS      float64
+	ASPOO      float64 // Assimilation pool in crops
+	WUMAS      float64
+	PESUM      float64
+	LURED      float64
+	DOPP       string // obsolete? Kalender date of double ridge stage / Doppelringstadium
+	P1, P2     int
+	SUMAE      float64
+	AEHR       string
+	BLUEH      string
+	REIFE      string
+	GEHMAX     float64
+	GEHMIN     float64
+	DUNGBED    float64
+	DEFDAT     int
+	ENDSTADIUM DevelopmentStage
+	DIFFSUM    float64
+	MASSUM     float64
+	DN         [21]float64
+	YIELD      float64 //Grain yield (only for cereals) (kg ha-1)
+	AUFNASUM   float64
+	NDRAINTAG  float64 `yaml:"-"`
+	CUMDENIT   float64
+	AUFNA      [131]float64 //(0:130)
+	SIC        [131]float64 //(0:130)
+	AUS        [131]float64 // (0:130)
+	MINA       float64      // TODO: obsolete
+	PLANA      float64
+	OUTA       float64 // TODO: obsolete?
+	NAPPDAT    string
+	PROGDAT    string
+	SLNAM      string // not assigned
 	// new
 	TJBAS     [300]float64
 	IRRST1    [300]float64

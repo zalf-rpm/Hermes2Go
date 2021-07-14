@@ -1,6 +1,7 @@
 package hermes
 
 import (
+	"log"
 	"math"
 	"strings"
 )
@@ -91,11 +92,54 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		// Pflanzenspezifische effektive Durchwurzelungstiefe (dm)
 		g.WUMAXPF = ValAsFloat(LINE02[65:], PARANAM, LINE02)
 		LINE03 := LineInut(scanner)
+
+		// selection root distribution function over depth (actually only 1 available)
+		// replace no. of root function by: root depth increase in mm/C°....
+		//variable: RTVELOC -> Parameter VELOC= RTVELOC/200
+		RTVELOC := ValAsFloat(LINE03[65:], PARANAM, LINE03)
+		g.VELOC = RTVELOC / 200
+		//TODO: Default value to all files
+
 		// Auswahl Wurzeltiefenfunktion (nur 1 verfügbar)
-		g.WUFKT = int(ValAsInt(LINE03[65:], PARANAM, LINE03))
+		//g.WUFKT = int(ValAsInt(LINE03[65:], PARANAM, LINE03))
+
 		LINE04 := LineInut(scanner)
 		// crop N-content function no. (critical and max. N-contents)....
 		g.NGEFKT = int(ValAsInt(LINE04[65:], PARANAM, LINE04))
+
+		// crop N-content function no. (critical and max. N-contents)....
+		// simplify functions and reading two parameters for function 5: RGA and RGB and
+		// if (S0 = no additional below ground organ and which additional organ to
+		// those included in OBMAS (e.g. beet = S4 =Worg[3]) should be included in the N function
+		// N-Gehaltsfunktion Nr.  a=4.90 b=0.45 below gr. organ org=S4 ..
+
+		if g.NGEFKT == 5 {
+			// TODO: setup default
+			line04Token := strings.Fields(LINE04)
+			for _, token := range line04Token {
+				if strings.HasPrefix(token, "a=") {
+					subToken := strings.Split(token, "=")
+					g.RGA = ValAsFloat(subToken[1], PARANAM, LINE04)
+				}
+				if strings.HasPrefix(token, "b=") {
+					subToken := strings.Split(token, "=")
+					g.RGB = ValAsFloat(subToken[1], PARANAM, LINE04)
+				}
+				if strings.HasPrefix(token, "org=") {
+					subToken := strings.Split(token, "=")
+					if subToken[1] == "S0" {
+						g.SubOrgan = 4
+					} else {
+						g.SubOrgan = int(ValAsInt(subToken[1], PARANAM, LINE04))
+						if g.SubOrgan > 5 || g.SubOrgan < 1 {
+							log.Fatalf("Error: parsing crop organ! File: %s \n   Line: %s \n", PARANAM, LINE04)
+							return
+						}
+					}
+				}
+			}
+		}
+
 		LINE05 := LineInut(scanner)
 		//above ground organs (numbers of compartiments increasing order)
 		l.Progip1 = LINE05[65:]
@@ -446,14 +490,29 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 				g.GEHMAX = 0.0285 + 0.0403*math.Exp(-0.26*(g.OBMAS+g.WORG[3])/1000)
 				g.GEHMIN = 0.0135 + 0.0403*math.Exp(-0.26*(g.OBMAS+g.WORG[3])/1000)
 			}
+			// } else if g.NGEFKT == 5 {
+
 		} else if g.NGEFKT == 5 {
-			if (g.OBMAS + g.WORG[3]) < 1100 {
-				g.GEHMAX = 0.06
-				g.GEHMIN = 0.045
-			} else {
-				g.GEHMAX = 0.06 * math.Pow(((g.OBMAS+g.WORG[3])/1000), 0.5294)
-				g.GEHMIN = 0.046694 * math.Pow(((g.OBMAS+g.WORG[3])/1000), 0.5294)
+			// new variables RGA and RGB read from line N-content function
+			org := 0.0
+			if g.SubOrgan > 0 {
+				org = g.WORG[g.SubOrgan-1]
 			}
+			if (g.OBMAS + org) < 1100 {
+				g.GEHMAX = 0.06
+				g.GEHMIN = g.RGA
+			} else {
+				g.GEHMAX = 0.06 * math.Pow(((g.OBMAS+org)/1000), g.RGB)
+				g.GEHMIN = g.RGA * math.Pow(((g.OBMAS+org)/1000), g.RGB)
+			}
+
+			// if (g.OBMAS + g.WORG[3]) < 1100 {
+			// 	g.GEHMAX = 0.06
+			// 	g.GEHMIN = 0.045
+			// } else {
+			// 	g.GEHMAX = 0.06 * math.Pow(((g.OBMAS+g.WORG[3])/1000), 0.5294)
+			// 	g.GEHMIN = 0.046694 * math.Pow(((g.OBMAS+g.WORG[3])/1000), 0.5294)
+			// }
 		} else if g.NGEFKT == 6 {
 			if g.PHYLLO < 400 {
 				g.GEHMIN = .0415
@@ -651,6 +710,10 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 	if WURM < 1 {
 		WURM = 1
 	}
+	// new Qrez TODO: use new root funtion
+	_, rootingDepth, _ := root(g.VELOC, g.PHYLLO, g.N)
+	g.ROOTINGDEPTH = rootingDepth
+
 	var Qrez float64
 	if g.FRUCHT[g.AKF.Index] == "ORF" || g.FRUCHT[g.AKF.Index] == "ORH" || g.FRUCHT[g.AKF.Index] == "WRA" || g.FRUCHT[g.AKF.Index] == "ZR " {
 		Qrez = math.Pow((0.081476 + math.Exp(-.004*(g.PHYLLO+g.SUM[0]+185.))), 1.8)
@@ -671,6 +734,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 	if Qrez < 4.5/float64(WURM*g.DZ.Index) {
 		Qrez = 4.5 / float64(WURM*g.DZ.Index)
 	}
+
 	g.WURZ = int(4.5 / Qrez / g.DZ.Num)
 	//! Annahme: Wurzelradius nimmt mit der Tiefe ab
 	for i := 1; i <= g.WURZ; i++ {
@@ -1007,6 +1071,27 @@ func radia(g *GlobalVarsMain, l *CropSharedVars, zeit int) (DLE, DLP, GPHOT, MAI
 		GPHOT = MAINT
 	}
 	return DLE, DLP, GPHOT, MAINT
+}
+
+func root(veloc, tempsum float64, numberOfLayer int) (qrez, rootingDepth float64, culRootPercPerLayer []float64) {
+	// Qrez = MAX( (0.081476+math.Exp((-Veloc*(A3+Tsumbase)))^1.8;0.0409)
+	// Veloc = increase root depth(cm/°C) / 200
+	// Tsumbase = LOG(0.35^(1/1.8)-0.081476;EXP(-Veloc))
+	//
+	// rooting depth = 4.5/Qrez
+	// cumulative percentage until layer I (column H-S) = (1-EXP(-QREZ*lower boundary(I)))*100
+
+	Tsumbase := math.Log(math.Pow(0.35, 1/1.8)-0.081476) / math.Log(math.Exp(-veloc))
+	qrez = math.Max(math.Pow((0.081476+math.Exp(-veloc*(tempsum+Tsumbase))), 1.8), 0.0409)
+
+	rootingDepth = 4.5 / qrez
+	// cumulative percentage until layer I (column H-S) = (1-EXP(-QREZ*lower boundary(I)))*100
+	culRootPercPerLayer = make([]float64, numberOfLayer)
+	for i := 1; i <= numberOfLayer; i++ {
+		culRootPercPerLayer[i-1] = (1 - math.Exp((-1.0)*qrez*(float64(i)*10))) * 100
+	}
+
+	return qrez, rootingDepth, culRootPercPerLayer
 }
 
 func vern(l *CropSharedVars, g *GlobalVarsMain) {
