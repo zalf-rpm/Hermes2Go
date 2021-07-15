@@ -127,14 +127,10 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 				}
 				if strings.HasPrefix(token, "org=") {
 					subToken := strings.Split(token, "=")
-					if subToken[1] == "S0" {
-						g.SubOrgan = 4
-					} else {
-						g.SubOrgan = int(ValAsInt(subToken[1], PARANAM, LINE04))
-						if g.SubOrgan > 5 || g.SubOrgan < 1 {
-							log.Fatalf("Error: parsing crop organ! File: %s \n   Line: %s \n", PARANAM, LINE04)
-							return
-						}
+					g.SubOrgan = int(ValAsInt(subToken[1][1:], PARANAM, LINE04))
+					if g.SubOrgan > 5 {
+						log.Fatalf("Error: parsing crop organ! File: %s \n   Line: %s \n", PARANAM, LINE04)
+						return
 					}
 				}
 			}
@@ -711,7 +707,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		WURM = 1
 	}
 	// new Qrez TODO: use new root funtion
-	_, rootingDepth, _ := root(g.VELOC, g.PHYLLO, g.N)
+	newQrez, rootingDepth, _ := root(g.VELOC, g.PHYLLO+g.SUM[0], g.N)
 	g.ROOTINGDEPTH = rootingDepth
 
 	var Qrez float64
@@ -734,6 +730,15 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 	if Qrez < 4.5/float64(WURM*g.DZ.Index) {
 		Qrez = 4.5 / float64(WURM*g.DZ.Index)
 	}
+	if newQrez < 4.5/float64(WURM*g.DZ.Index) {
+		newQrez = 4.5 / float64(WURM*g.DZ.Index)
+	}
+	if newQrez > .35 {
+		newQrez = .35
+	}
+	// if math.Abs(Qrez-newQrez) > 0.007 {
+	// 	fmt.Println(g.FRUCHT[g.AKF.Index], Qrez, newQrez, g.VELOC, g.PHYLLO, g.SUM[0], g.PHYLLO+g.SUM[0])
+	// }
 
 	g.WURZ = int(4.5 / Qrez / g.DZ.Num)
 	//! Annahme: Wurzelradius nimmt mit der Tiefe ab

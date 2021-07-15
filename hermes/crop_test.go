@@ -39,9 +39,9 @@ func Test_root(t *testing.T) {
 		wantCulRootPercPerLayer []float64
 	}
 	testfiles := map[string]float64{
-		"./test_data/root_func_oilseed_rape.csv": 0.004,
-		"./test_data/root_func_wheat.csv":        0.0035,
-		"./test_data/root_func_gras.csv":         0.002787,
+		"./test_data/root_func_oilseed_rape.csv": 0.004,    // 0,8
+		"./test_data/root_func_wheat.csv":        0.0035,   // 0,7
+		"./test_data/root_func_gras.csv":         0.002787, // 0,5574
 	}
 	tests := make([]test, 0, 2152)
 	for testfile, veloc := range testfiles {
