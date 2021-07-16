@@ -14,12 +14,12 @@ const epsilon = 0.00001
 func nearEqual(a, b float64) bool {
 	return math.Abs(a-b) <= epsilon
 }
-func nearEqualArray(a, b []float64) bool {
-	if len(a) != len(b) {
+func nearEqualArray(is, want []float64) bool {
+	if len(is) > len(want) {
 		return false
 	}
-	for i := range a {
-		if !nearEqual(a[i], b[i]) {
+	for i := range is {
+		if !nearEqual(is[i], want[i]) {
 			return false
 		}
 	}
@@ -27,9 +27,9 @@ func nearEqualArray(a, b []float64) bool {
 }
 func Test_root(t *testing.T) {
 	type args struct {
-		veloc         float64
-		tempsum       float64
-		numberOfLayer int
+		veloc   float64
+		tempsum float64
+		dz      float64
 	}
 	type test struct {
 		name                    string
@@ -77,9 +77,9 @@ func Test_root(t *testing.T) {
 			tests = append(tests, test{
 				name: testfile + strconv.Itoa(int(tempsum)),
 				args: args{
-					veloc:         veloc,
-					tempsum:       tempsum,
-					numberOfLayer: numberOfLayer,
+					veloc:   veloc,
+					tempsum: tempsum,
+					dz:      10,
 				},
 				wantQrez:                wantQrez,
 				wantRootingDepth:        wantRootingDepth,
@@ -90,15 +90,17 @@ func Test_root(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotQrez, gotRootingDepth, gotCulRootPercPerLayer := root(tt.args.veloc, tt.args.tempsum, tt.args.numberOfLayer)
+			gotQrez, gotRootingDepth, gotCulRootPercPerLayer := root(tt.args.veloc, tt.args.tempsum, tt.args.dz)
 			if !nearEqual(gotQrez, tt.wantQrez) {
 				t.Errorf("root() gotQrez = %v, want %v", gotQrez, tt.wantQrez)
 			}
 			if !nearEqual(gotRootingDepth, tt.wantRootingDepth) {
 				t.Errorf("root() gotRootingDepth = %v, want %v", gotRootingDepth, tt.wantRootingDepth)
 			}
-			if !nearEqualArray(gotCulRootPercPerLayer, tt.wantCulRootPercPerLayer) {
-				t.Errorf("root() gotCulRootPercPerLayer = %v, want %v", gotCulRootPercPerLayer, tt.wantCulRootPercPerLayer)
+			if len(tt.wantCulRootPercPerLayer) > 0 {
+				if !nearEqualArray(gotCulRootPercPerLayer, tt.wantCulRootPercPerLayer) {
+					t.Errorf("root() gotCulRootPercPerLayer = %v, want %v", gotCulRootPercPerLayer, tt.wantCulRootPercPerLayer)
+				}
 			}
 		})
 	}

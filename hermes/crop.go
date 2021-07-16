@@ -53,8 +53,9 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 	// ! REDUK                     = Stickstoffstressfaktor (0-1)
 	// ! Pflanzenparameter siehe Einleseliste unten
 
-	var WULAEN float64
-	var MASS, D, DIFF, WULAE2, FL, WULAE, WRAD [20]float64
+	//var WULAEN float64
+	var MASS, D, DIFF [20]float64
+	//WULAE2, FL, WULAE, WRAD [20]float64
 	//! ------------------------- Einlesen der Parameter für neue Frucht bei deren Aussaat ------------------
 	if zeit == g.SAAT[g.AKF.Index] {
 		output.SowDate = g.Kalender(zeit)
@@ -269,7 +270,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 
 		g.WUMAS = g.WORG[0]
 		// Berechnung Wurzellänge aus Wurzelmasse
-		WULAEN = (g.WUMAS * 100000 * 100.0 / 7.0) / (math.Pow(0.015, 2.0) * math.Pi)
+		//WULAEN = (g.WUMAS * 100000 * 100.0 / 7.0) / (math.Pow(0.015, 2.0) * math.Pi)
 		if g.FRUCHT[g.AKF.Index] == "ZR " || g.FRUCHT[g.AKF.Index] == "K  " {
 			g.PESUM = (g.OBMAS*g.GEHOB + (g.WUMAS+g.WORG[3])*g.WUGEH)
 		} else {
@@ -699,49 +700,43 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 	//---------------------------------------------------------------
 	//------ Berechnung der Wurzeldichte (-laenge/Dichte Boden) -----
 	//---------------------------------------------------------------
-	WURM := int(math.Round(float64(g.WURZMAX) * (g.WUMAXPF / 11.)))
-	if WURM > g.N {
-		WURM = g.N
+	WURM := math.Round(float64(g.WURZMAX) * (g.WUMAXPF / 11.))
+	if WURM > float64(g.N) {
+		WURM = float64(g.N)
 	}
 	if WURM < 1 {
 		WURM = 1
 	}
 	// new Qrez TODO: use new root funtion
-	newQrez, rootingDepth, _ := root(g.VELOC, g.PHYLLO+g.SUM[0], g.N)
+	Qrez, rootingDepth, _ := root(g.VELOC, g.PHYLLO+g.SUM[0], g.DZ.Num)
 	g.ROOTINGDEPTH = rootingDepth
 
-	var Qrez float64
-	if g.FRUCHT[g.AKF.Index] == "ORF" || g.FRUCHT[g.AKF.Index] == "ORH" || g.FRUCHT[g.AKF.Index] == "WRA" || g.FRUCHT[g.AKF.Index] == "ZR " {
-		Qrez = math.Pow((0.081476 + math.Exp(-.004*(g.PHYLLO+g.SUM[0]+185.))), 1.8)
-	} else if g.FRUCHT[g.AKF.Index] == "SM " || g.FRUCHT[g.AKF.Index] == "K  " {
-		Qrez = math.Pow((0.081476 + math.Exp(-.0035*(g.PHYLLO+g.SUM[0]+211.))), 1.8)
-	} else if g.FRUCHT[g.AKF.Index] == "GR " && g.AKF.Num > 2 {
-		Qrez = math.Pow((0.081476 + math.Exp(-.002787*(math.Max(g.PHYLLO+g.SUM[0], 1500)))), 1.8)
-	} else if g.FRUCHT[g.AKF.Index] == "AA " && g.AKF.Num > 2 {
-		Qrez = math.Pow((0.081476 + math.Exp(-.002787*(math.Max(g.PHYLLO+g.SUM[0], 1500)))), 1.8)
-	} else if g.FRUCHT[g.AKF.Index] == "CLU" && g.AKF.Num > 2 {
-		Qrez = math.Pow((0.081476 + math.Exp(-.002787*(math.Max(g.PHYLLO+g.SUM[0], 1500)))), 1.8)
-	} else {
-		Qrez = math.Pow((0.081476 + math.Exp(-.002787*(g.PHYLLO+g.SUM[0]+265.))), 1.8)
-	}
+	//var Qrez float64
+	// if g.FRUCHT[g.AKF.Index] == "ORF" || g.FRUCHT[g.AKF.Index] == "ORH" || g.FRUCHT[g.AKF.Index] == "WRA" || g.FRUCHT[g.AKF.Index] == "ZR " {
+	// 	Qrez = math.Pow((0.081476 + math.Exp(-.004*(g.PHYLLO+g.SUM[0]+185.))), 1.8)
+	// } else if g.FRUCHT[g.AKF.Index] == "SM " || g.FRUCHT[g.AKF.Index] == "K  " {
+	// 	Qrez = math.Pow((0.081476 + math.Exp(-.0035*(g.PHYLLO+g.SUM[0]+211.))), 1.8)
+	// } else if g.FRUCHT[g.AKF.Index] == "GR " && g.AKF.Num > 2 {
+	// 	Qrez = math.Pow((0.081476 + math.Exp(-.002787*(math.Max(g.PHYLLO+g.SUM[0], 1500)))), 1.8)
+	// } else if g.FRUCHT[g.AKF.Index] == "AA " && g.AKF.Num > 2 {
+	// 	Qrez = math.Pow((0.081476 + math.Exp(-.002787*(math.Max(g.PHYLLO+g.SUM[0], 1500)))), 1.8)
+	// } else if g.FRUCHT[g.AKF.Index] == "CLU" && g.AKF.Num > 2 {
+	// 	Qrez = math.Pow((0.081476 + math.Exp(-.002787*(math.Max(g.PHYLLO+g.SUM[0], 1500)))), 1.8)
+	// } else {
+	// 	Qrez = math.Pow((0.081476 + math.Exp(-.002787*(g.PHYLLO+g.SUM[0]+265.))), 1.8)
+	// }
 	if Qrez > .35 {
 		Qrez = .35
 	}
-	if Qrez < 4.5/float64(WURM*g.DZ.Index) {
-		Qrez = 4.5 / float64(WURM*g.DZ.Index)
+	if Qrez < 4.5/(WURM*g.DZ.Num) {
+		Qrez = 4.5 / (WURM * g.DZ.Num)
 	}
-	if newQrez < 4.5/float64(WURM*g.DZ.Index) {
-		newQrez = 4.5 / float64(WURM*g.DZ.Index)
-	}
-	if newQrez > .35 {
-		newQrez = .35
-	}
-	// if math.Abs(Qrez-newQrez) > 0.007 {
-	// 	fmt.Println(g.FRUCHT[g.AKF.Index], Qrez, newQrez, g.VELOC, g.PHYLLO, g.SUM[0], g.PHYLLO+g.SUM[0])
-	// }
 
-	g.WURZ = int(4.5 / Qrez / g.DZ.Num)
-	//! Annahme: Wurzelradius nimmt mit der Tiefe ab
+	// root layer depth
+	g.WURZ = int(rootingDepth / g.DZ.Num)
+	// assumption: root radius decreases with depth: radius (cm)  RRAD(I) =  .02 - I*.001,
+	// WRAD root radius
+	WRAD := make([]float64, g.WURZ)
 	for i := 1; i <= g.WURZ; i++ {
 		if g.FRUCHT[g.AKF.Index] == "ZR " || g.FRUCHT[g.AKF.Index] == "K  " {
 			WRAD[i-1] = .01
@@ -749,30 +744,39 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			WRAD[i-1] = .02 - float64(i)*.001
 		}
 	}
+	//to estimate root surface and root length density per layer you need to convert root dry matter to fresh weight and scale from ha to cm^3:
+	//dry matter content fresh root 7%, density fesh roo 1 gr/cm^3
+	// root fresh mass
+	rFreshWeight := make([]float64, g.WURZ)
+	// root density
+	rDense := make([]float64, g.WURZ)
+	// root surface
+	rSurface := make([]float64, g.WURZ)
 	for i := 1; i <= g.WURZ; i++ {
 		index := i - 1
-		Tiefe := float64(i * g.DZ.Index)
-		WULAE[index] = (g.WUMAS * (1 - math.Exp(-Qrez*Tiefe)) / 100000 * 100 / 7)
+		Tiefe := float64(i) * g.DZ.Num
+		//Root fresh mass
+		rFreshWeight[index] = (g.WUMAS * (1 - math.Exp(-Qrez*Tiefe)) / 100000 * 100 / 7)
 		if i > 1 {
-			WULAE2[index] = math.Abs(WULAE[index]-WULAE[index-1]) / (math.Pow(WRAD[index], 2) * math.Pi) / g.DZ.Num
+			rDense[index] = math.Abs(rFreshWeight[index]-rFreshWeight[index-1]) / (math.Pow(WRAD[index], 2) * math.Pi) / g.DZ.Num
 		} else {
-			WULAE2[index] = math.Abs(WULAE[index]) / (math.Pow(WRAD[index], 2) * math.Pi) / g.DZ.Num
+			rDense[index] = math.Abs(rFreshWeight[index]) / (math.Pow(WRAD[index], 2) * math.Pi) / g.DZ.Num
 		}
 
-		// Wulae(i) = Wurzellaenge von 0 bis Tiefe i
-		// -------------------------------------------------------------
-		// ------ Wurzeldichte /Volumen Boden -(cm/cm^3) ---------------
-		// -------------------------------------------------------------
-		g.WUDICH[index] = WULAE2[index]
+		// rFreshWeight(i) = g/cm^2 from 0 to lower boundary of layer I
+		//
+		//  Root density /Volume soil
+		// 	cm root/cm^3 soil
+		g.WUDICH[index] = rDense[index]
 		// ------------------------------------------------------------
-		// ---------- Wurzelflaeche / dzmitt(i) * cm^3 Boden ----------
+		// ---------- root area cm^2/cm^3 ----------
 		// ------------------------------------------------------------
-		FL[index] = g.WUDICH[index] * WRAD[index] * 2 * math.Pi
+		rSurface[index] = g.WUDICH[index] * WRAD[index] * 2 * math.Pi
 	}
-	WULAEN = 0
+	WULAEN := 0.0
 	for i := 0; i < g.WURZ; i++ {
 		// ---------------  WURZELLÄNGE in cm/cm^2 -----------------------
-		WULAEN = WULAEN + WULAE2[i]*g.DZ.Num
+		WULAEN = WULAEN + g.WUDICH[i]*g.DZ.Num
 	}
 	for i := 0; i < 3; i++ {
 		g.NFOS[i] = g.NFOS[i] + 0.5*WUMM/3
@@ -1078,21 +1082,23 @@ func radia(g *GlobalVarsMain, l *CropSharedVars, zeit int) (DLE, DLP, GPHOT, MAI
 	return DLE, DLP, GPHOT, MAINT
 }
 
-func root(veloc, tempsum float64, numberOfLayer int) (qrez, rootingDepth float64, culRootPercPerLayer []float64) {
+func root(veloc, tempsum, dz float64) (qrez, rootingDepth float64, culRootPercPerLayer []float64) {
 	// Qrez = MAX( (0.081476+math.Exp((-Veloc*(A3+Tsumbase)))^1.8;0.0409)
 	// Veloc = increase root depth(cm/°C) / 200
 	// Tsumbase = LOG(0.35^(1/1.8)-0.081476;EXP(-Veloc))
 	//
 	// rooting depth = 4.5/Qrez
-	// cumulative percentage until layer I (column H-S) = (1-EXP(-QREZ*lower boundary(I)))*100
+	// cumulative percentage until layer I (column H-S) = (1-EXP(-QREZ*ry(I)lower bounda))*100
 
 	Tsumbase := math.Log(math.Pow(0.35, 1/1.8)-0.081476) / math.Log(math.Exp(-veloc))
 	qrez = math.Max(math.Pow((0.081476+math.Exp(-veloc*(tempsum+Tsumbase))), 1.8), 0.0409)
 
 	rootingDepth = 4.5 / qrez
+	rootLayer := int(rootingDepth / dz) // WURZ
+
 	// cumulative percentage until layer I (column H-S) = (1-EXP(-QREZ*lower boundary(I)))*100
-	culRootPercPerLayer = make([]float64, numberOfLayer)
-	for i := 1; i <= numberOfLayer; i++ {
+	culRootPercPerLayer = make([]float64, rootLayer)
+	for i := 1; i <= rootLayer; i++ {
 		culRootPercPerLayer[i-1] = (1 - math.Exp((-1.0)*qrez*(float64(i)*10))) * 100
 	}
 
