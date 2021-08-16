@@ -362,13 +362,13 @@ func ReadWeatherCSV(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDa
 		if d.datetime.Year() < startyear {
 			continue
 		}
-		d.wind, err[0] = strconv.ParseFloat(tokens[h[wind]], 10)
-		d.precip, err[1] = strconv.ParseFloat(tokens[h[precip]], 10)
-		d.globrad, err[2] = strconv.ParseFloat(tokens[h[globrad]], 10)
-		d.tmax, err[3] = strconv.ParseFloat(tokens[h[tmax]], 10)
-		d.tmin, err[4] = strconv.ParseFloat(tokens[h[tmin]], 10)
-		d.tavg, err[5] = strconv.ParseFloat(tokens[h[tavg]], 10)
-		d.relhumid, err[6] = strconv.ParseFloat(tokens[h[relhumid]], 10)
+		d.wind, err[0] = strconv.ParseFloat(tokens[h[wind]], 64)
+		d.precip, err[1] = strconv.ParseFloat(tokens[h[precip]], 64)
+		d.globrad, err[2] = strconv.ParseFloat(tokens[h[globrad]], 64)
+		d.tmax, err[3] = strconv.ParseFloat(tokens[h[tmax]], 64)
+		d.tmin, err[4] = strconv.ParseFloat(tokens[h[tmin]], 64)
+		d.tavg, err[5] = strconv.ParseFloat(tokens[h[tavg]], 64)
+		d.relhumid, err[6] = strconv.ParseFloat(tokens[h[relhumid]], 64)
 
 		anyError := func(list []error) error {
 			for _, b := range list {
@@ -482,15 +482,15 @@ func ReadWeatherCZ(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDat
 		if d.datetime.Year() < startyear {
 			continue
 		}
-		d.wind, err[0] = strconv.ParseFloat(tokens[h[wind]], 10)
-		d.precip, err[1] = strconv.ParseFloat(tokens[h[precip]], 10)
-		d.globrad, err[2] = strconv.ParseFloat(tokens[h[globrad]], 10)
-		d.tmax, err[3] = strconv.ParseFloat(tokens[h[tmax]], 10)
-		d.tmin, err[4] = strconv.ParseFloat(tokens[h[tmin]], 10)
-		d.relhumid, err[6] = strconv.ParseFloat(tokens[h[relhumid]], 10)
+		d.wind, err[0] = strconv.ParseFloat(tokens[h[wind]], 64)
+		d.precip, err[1] = strconv.ParseFloat(tokens[h[precip]], 64)
+		d.globrad, err[2] = strconv.ParseFloat(tokens[h[globrad]], 64)
+		d.tmax, err[3] = strconv.ParseFloat(tokens[h[tmax]], 64)
+		d.tmin, err[4] = strconv.ParseFloat(tokens[h[tmin]], 64)
+		d.relhumid, err[6] = strconv.ParseFloat(tokens[h[relhumid]], 64)
 
 		if len(tokens) > h[co2] {
-			currentCO2, err[5] = strconv.ParseFloat(tokens[h[co2]], 10)
+			currentCO2, err[5] = strconv.ParseFloat(tokens[h[co2]], 64)
 		}
 		anyError := func(list []error) error {
 			for _, b := range list {

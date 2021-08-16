@@ -145,7 +145,7 @@ func progout(NAPP int, ABZEIT int, g *GlobalVarsMain, hPath *HFilePath) {
 			g.ENDSTADIUM = invalidState
 			// !LET ENDSTADIUM$ = "user break"
 			// LET DUNG1 = DUNGBED*1.18
-			DUNG1 = g.DUNGBED * 1.18
+			//DUNG1 = g.DUNGBED * 1.18
 			// LET DUNG2 = 0
 			DUNG2 = 0
 			// LET NAPPDAT2$ = "--------"
@@ -198,7 +198,7 @@ func progout(NAPP int, ABZEIT int, g *GlobalVarsMain, hPath *HFilePath) {
 					fmt.Printf("|   Empfohlene Duengung  %03d kg N/ha   bis spaetestens %s          |\n", int(g.DUNGBED*1.18), g.NAPPDAT)
 					// !PRINT USING "|   recommended dosis   ### kg N/ha   by latest    ##########           |":DUNGBED*1.18,NAPPDAT$
 					// LET DUNG1 = DUNGBED*1.18
-					DUNG1 = g.DUNGBED * 1.18
+					// DUNG1 = g.DUNGBED * 1.18 //never use
 					// LET DUNG2 = 0
 					DUNG2 = 0
 					// LET NAPPDAT2$ = "--------"
