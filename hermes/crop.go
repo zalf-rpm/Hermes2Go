@@ -1133,7 +1133,9 @@ func vern(l *CropSharedVars, g *GlobalVarsMain) {
 	if verschwell >= 1 {
 		l.FV = (g.VERNTAGE - verschwell) / (g.VSCHWELL[g.INTWICK.Index] - verschwell)
 		if l.FV < 0 {
-			l.FV = 0.0
+			l.FV = 0
+		} else if l.FV > 1 {
+			l.FV = 1
 		}
 	} else {
 		l.FV = 1
