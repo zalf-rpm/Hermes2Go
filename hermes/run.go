@@ -366,7 +366,8 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 					if ZEIT > g.SAAT[g.AKF.Index] {
 						if g.INTWICK.Num >= g.IRRST1[g.AKF.Index] && g.INTWICK.Num < g.IRRST2[g.AKF.Index]+1 {
 							NFKSUM, DEFZSUM := 0.0, 0.0
-							for I := 1; I <= int(g.IRRDEP[g.AKF.Index]); I++ {
+							maxdepth := min(g.WURZMAX, int(g.IRRDEP[g.AKF.Index]))
+							for I := 1; I <= maxdepth; I++ {
 								index := I - 1
 								var NFK, DEFZ float64
 								if I == 1 {
@@ -386,7 +387,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 								NFKSUM = NFKSUM + NFK
 								DEFZSUM = DEFZSUM + DEFZ
 							}
-							NFK50 := NFKSUM / g.IRRDEP[g.AKF.Index]
+							NFK50 := NFKSUM / float64(maxdepth)
 							if NFK50 < g.IRRLOW[g.AKF.Index] && (g.REGEN[g.TAG.Index+1]+g.REGEN[g.TAG.Index+2]) < 0.9 {
 
 								g.setIrrigation(ZEIT, g.NBR-1, math.Min(DEFZSUM*0.9, g.IRRMAX[g.AKF.Index]))
