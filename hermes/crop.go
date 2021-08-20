@@ -708,8 +708,8 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		WURM = 1
 	}
 	// new Qrez TODO: use new root funtion
-	Qrez, rootingDepth, _ := root(g.VELOC, g.PHYLLO+g.SUM[0], g.DZ.Num)
-	g.ROOTINGDEPTH = rootingDepth
+	Qrez, potentialRootingDepth, _ := root(g.VELOC, g.PHYLLO+g.SUM[0], g.DZ.Num)
+	g.POTROOTINGDEPTH = potentialRootingDepth
 
 	//var Qrez float64
 	// if g.FRUCHT[g.AKF.Index] == "ORF" || g.FRUCHT[g.AKF.Index] == "ORH" || g.FRUCHT[g.AKF.Index] == "WRA" || g.FRUCHT[g.AKF.Index] == "ZR " {
@@ -728,12 +728,14 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 	if Qrez > .35 {
 		Qrez = .35
 	}
+	// make sure rooting depth is not deeper than WURZMAX in soil
 	if Qrez < 4.5/(WURM*g.DZ.Num) {
 		Qrez = 4.5 / (WURM * g.DZ.Num)
 	}
 
-	// root layer depth
-	g.WURZ = int(rootingDepth / g.DZ.Num)
+	// root layer depth. adapted to WURZMAX
+	g.WURZ = int(4.5 / Qrez / g.DZ.Num)
+
 	// assumption: root radius decreases with depth: radius (cm)  RRAD(I) =  .02 - I*.001,
 	// WRAD root radius
 	WRAD := make([]float64, g.WURZ)
@@ -1082,7 +1084,7 @@ func radia(g *GlobalVarsMain, l *CropSharedVars, zeit int) (DLE, DLP, GPHOT, MAI
 	return DLE, DLP, GPHOT, MAINT
 }
 
-func root(veloc, tempsum, dz float64) (qrez, rootingDepth float64, culRootPercPerLayer []float64) {
+func root(veloc, tempsum, dz float64) (qrez, potentialRootingDepth float64, culRootPercPerLayer []float64) {
 	// Qrez = MAX( (0.081476+math.Exp((-Veloc*(A3+Tsumbase)))^1.8;0.0409)
 	// Veloc = increase root depth(cm/°C) / 200
 	// Tsumbase = LOG(0.35^(1/1.8)-0.081476;EXP(-Veloc))
@@ -1093,8 +1095,8 @@ func root(veloc, tempsum, dz float64) (qrez, rootingDepth float64, culRootPercPe
 	Tsumbase := math.Log(math.Pow(0.35, 1/1.8)-0.081476) / math.Log(math.Exp(-veloc))
 	qrez = math.Max(math.Pow((0.081476+math.Exp(-veloc*(tempsum+Tsumbase))), 1.8), 0.0409)
 
-	rootingDepth = 4.5 / qrez
-	rootLayer := int(rootingDepth / dz) // WURZ
+	potentialRootingDepth = 4.5 / qrez
+	rootLayer := int(potentialRootingDepth / dz) // WURZ
 
 	// cumulative percentage until layer I (column H-S) = (1-EXP(-QREZ*lower boundary(I)))*100
 	culRootPercPerLayer = make([]float64, rootLayer)
@@ -1102,7 +1104,7 @@ func root(veloc, tempsum, dz float64) (qrez, rootingDepth float64, culRootPercPe
 		culRootPercPerLayer[i-1] = (1 - math.Exp((-1.0)*qrez*(float64(i)*10))) * 100
 	}
 
-	return qrez, rootingDepth, culRootPercPerLayer
+	return qrez, potentialRootingDepth, culRootPercPerLayer
 }
 
 func vern(l *CropSharedVars, g *GlobalVarsMain) {
