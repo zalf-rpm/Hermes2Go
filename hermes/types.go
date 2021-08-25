@@ -148,8 +148,8 @@ type GlobalVarsMain struct {
 	SUND            [367]float64 // Sun shine hours, required if RAD is 0
 	RAD             [367]float64 // photosynthetic active radiation
 	ALBEDO          float64
-	FEU             int `yaml:"-"`
-	C1              [21]float64
+	FEU             int         `yaml:"-"`
+	C1              [21]float64 // Nitrogen content N-min
 	NAOS            [21]float64 // Nitrogen in slowly decomposable pool (kg N ha-1)
 	MINAOS          [4]float64  //  should be size of N
 	MINFOS          [4]float64  // should be size of N
@@ -213,7 +213,7 @@ type GlobalVarsMain struct {
 	PFTRANS         float64
 	INFILT          float64
 	ET0             float64
-	PE              [21]float64
+	PE              [21]float64 // N-uptake of crop in soil layer Z (kg N/ha)
 	MAXAMAX         float64
 	WUMAXPF         float64 // crop specific rooting depth
 	VELOC           float64 // root depth increase in mm/C°
