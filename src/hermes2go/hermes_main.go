@@ -77,9 +77,9 @@ func main() {
 			dir := argsWithoutProg[i+1]
 			if strings.HasPrefix(dir, "~") {
 				usr, _ := user.Current()
-				dir := usr.HomeDir
+				homedir := usr.HomeDir
 				dir = strings.TrimPrefix(dir, "~")
-				dir = filepath.Join(dir, dir)
+				dir = filepath.Join(homedir, dir)
 			}
 			workingDir = dir
 			i++
@@ -133,6 +133,12 @@ func main() {
 			locID = argsWithoutProg[i+1]
 		} else if arg == "-v" {
 			fmt.Println("Version: ", version)
+		} else if arg == "-rpc" && i+1 < len(argsWithoutProg) {
+			address := argsWithoutProg[i+1]
+			rpcService, err := hermes.NewRPCService(address)
+			if err == nil {
+				hermes.HermesRPCService = rpcService
+			}
 		} else {
 			otherArgs = append(otherArgs, arg)
 		}

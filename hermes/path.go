@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/rpc"
 	"os"
 	"path"
 	"strconv"
@@ -14,6 +15,7 @@ import (
 
 // HermesFilePool file pool for shared files
 var HermesFilePool FilePool
+var HermesRPCService RPCService
 
 // Modfil default module filename
 const Modfil = "modinp.txt"
@@ -231,4 +233,27 @@ func (f *Fout) Close() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
+
+type RPCService struct {
+	address string // "localhost:8081"
+	client  *rpc.Client
+}
+
+func NewRPCService(address string) (RPCService, error) {
+
+	client, err := rpc.Dial("tcp", address)
+	if err != nil {
+		return RPCService{}, err
+	}
+	return RPCService{address: address, client: client}, nil
+}
+
+func (rs *RPCService) Send(g *GlobalVarsMain) error {
+	if rs.client != nil {
+		if err := rs.client.Call("RPCHandler.DumpGlobalVar", g, nil); err != nil {
+			return fmt.Errorf("DumpGlobalVar %+v", err)
+		}
+	}
+	return nil
 }
