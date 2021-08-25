@@ -130,7 +130,6 @@ func commandlineOverride(argValues map[string]string, hconfig *config) error {
 			f := v.FieldByName(argKey)
 			if f.IsValid() {
 				if f.CanSet() {
-					// change value of N
 					if f.Kind() == reflect.Float64 {
 						newRefVal, err := strconv.ParseFloat(argVal, 64)
 						if err != nil {
@@ -141,7 +140,6 @@ func commandlineOverride(argValues map[string]string, hconfig *config) error {
 						}
 					}
 
-					// change value of N
 					if f.Kind() == reflect.Int {
 						newRefVal, err := strconv.ParseInt(argVal, 10, 64)
 						if err != nil {
