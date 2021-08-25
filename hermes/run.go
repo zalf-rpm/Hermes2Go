@@ -402,7 +402,10 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			if ZEIT == g.ZTBR[g.NBR-1] {
 				g.EffectiveIRRIG = g.BREG[g.NBR-1] / 10
 				g.REGEN[g.TAG.Index] = g.REGEN[g.TAG.Index] + g.EffectiveIRRIG
-				g.C1[0] = g.C1[0] + g.BRKZ[g.NBR-1]*g.BREG[g.NBR-1]*0.01
+				nConcetrationInWater := g.BRKZ[g.NBR-1] * g.BREG[g.NBR-1] * 0.01
+				if nConcetrationInWater > 0 {
+					g.C1[0] = g.C1[0] + nConcetrationInWater
+				}
 				g.NBR++
 			}
 			FSCS := 0.0

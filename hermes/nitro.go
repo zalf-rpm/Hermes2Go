@@ -571,7 +571,11 @@ func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			}
 			g.PESUM = g.PESUM + g.PE[z]
 			g.AUFNASUM = g.AUFNASUM + g.PE[z]
-			g.C1[z] = g.C1[z] - g.PE[z]
+			if g.C1[z]-g.PE[z] < 0 {
+				g.C1[z] = 0
+			} else {
+				g.C1[z] = g.C1[z] - g.PE[z]
+			}
 		}
 		Carray[z+1] = (g.C1[z] + g.DN[z]*wdt/2) / (g.WG[0][z] * g.DZ.Num * 100)
 	}
@@ -623,8 +627,21 @@ func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 	}
 	g.DRAINLOSS = g.DRAINLOSS + g.QDRAIN*Carray[g.DRAIDEP]/g.DZ.Num*100*g.DZ.Num
 
+	g.C1NotStable = ""
 	for z := 0; z < g.N; z++ {
-		g.C1[z] = (Carray[z+1]*g.WG[0][z] + l.DISP[z] - l.KONV[z]) * g.DZ.Num * 100
+		cKonz := (Carray[z+1]*g.WG[0][z] + l.DISP[z] - l.KONV[z]) * g.DZ.Num * 100
+
+		if cKonz < 0 {
+			g.C1[z] = 0
+			// C1 may be below 0 because of rounding issues, set it to 0
+			// if C1 is significat below zero, there might be an instabily in the calculations
+			if cKonz < g.C1stabilityVal {
+				g.C1NotStable = "C1 unstable"
+				g.C1NotStableErr = "C1 unstable"
+			}
+		} else {
+			g.C1[z] = cKonz
+		}
 	}
 	if g.Q1[g.OUTN] > 0 {
 		if g.OUTN < g.N {
@@ -646,16 +663,9 @@ func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			}
 		}
 	}
-	g.C1NotStable = ""
 	for z := 0; z < g.N; z++ {
 		g.C1[z] = g.C1[z] + g.DN[z]*wdt/2
 
-		// C1 may be below 0 because of rounding issues, set it to 0
-		// if C1 is significat below zero, there might be an instabily in the calculations
-		if g.C1[z] < g.C1stabilityVal {
-			g.C1NotStable = "C1 unstable"
-			g.C1NotStableErr = "C1 unstable"
-		}
 		if g.C1[z] < 0 {
 			g.C1[z] = 0
 		}
