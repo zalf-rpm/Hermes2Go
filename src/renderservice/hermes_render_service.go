@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"math"
 	"net"
 	"net/http"
 	"net/rpc"
+	"os"
 	"sort"
 	"sync"
 
@@ -106,7 +108,13 @@ func httpserver(w http.ResponseWriter, _ *http.Request) {
 		lineMultiV(keys, dates),
 		lineMultiWDTCalc(keys, dates),
 	)
+
 	page.Render(w)
+	f, err := os.Create("last_run.html")
+	if err != nil {
+		panic(err)
+	}
+	page.Render(io.MultiWriter(f))
 
 }
 
@@ -199,7 +207,7 @@ func generateWdtCalcItems(keys []int) [][]opts.LineData {
 
 		// try a test with Monica variante and Fluss0
 		pri := g.FLUSS0 * g.DZ.Num
-		items[2] = append(items[2], opts.LineData{Value: pri})
+		items[2] = append(items[2], opts.LineData{Value: g.FLUSS0})
 		ZSR2 := 1.0
 		timeStepFactorCurrentLayer := 1.0
 		if -5.0 <= pri && pri <= 5.0 && ZSR2 > 1.0 {
