@@ -249,10 +249,46 @@ func NewRPCService(address string) (RPCService, error) {
 	return RPCService{address: address, client: client}, nil
 }
 
-func (rs *RPCService) Send(g *GlobalVarsMain) error {
+type TransferEnvGlobal struct {
+	Global GlobalVarsMain
+	Zeit   int
+	Wdt    float64
+	Step   int
+}
+
+type TransferEnvNitro struct {
+	Nitro NitroSharedVars
+	Zeit  int
+	Wdt   float64
+	Step  int
+}
+
+func (rs *RPCService) SendGV(g *GlobalVarsMain, zeit int, wdt float64, step int) error {
 	if rs.client != nil {
-		if err := rs.client.Call("RPCHandler.DumpGlobalVar", g, nil); err != nil {
+		glob := TransferEnvGlobal{
+			Global: *g,
+			Zeit:   zeit,
+			Wdt:    wdt,
+			Step:   step,
+		}
+		if err := rs.client.Call("RPCHandler.DumpGlobalVar", glob, nil); err != nil {
 			return fmt.Errorf("DumpGlobalVar %+v", err)
+		}
+	}
+	return nil
+}
+
+func (rs *RPCService) SendNV(n *NitroSharedVars, zeit int, wdt float64, step int) error {
+	if rs.client != nil {
+		nitro := TransferEnvNitro{
+			Nitro: *n,
+			Zeit:  zeit,
+			Wdt:   wdt,
+			Step:  step,
+		}
+
+		if err := rs.client.Call("RPCHandler.DumpNitroVar", nitro, nil); err != nil {
+			return fmt.Errorf("DumpNitroVar %+v", err)
 		}
 	}
 	return nil

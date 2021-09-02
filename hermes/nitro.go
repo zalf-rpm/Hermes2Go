@@ -1,6 +1,7 @@
 package hermes
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -71,6 +72,9 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 							ln.DOMENG1 = g.NSAS[g.AKF.Index] + g.NLAS[g.AKF.Index] + g.NDIR[g.AKF.Index]
 							ln.DUNGART = g.DGART[g.AKF.Index]
 							g.C1[0] = g.C1[0] + g.NDIR[g.AKF.Index] //! Summe miner. Duengung
+							if g.C1[0] < 0 {
+								g.C1[0] = 0
+							}
 						}
 					}
 
@@ -206,6 +210,9 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 					g.MINFOS[z] = nmifosum / mixtief
 					g.MINAOS[z] = nmiaosum / mixtief
 					g.C1[z] = CSUM / mixtief
+					if g.C1[0] < 0 {
+						g.C1[0] = 0
+					}
 				}
 			}
 		}
@@ -578,6 +585,9 @@ func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			}
 		}
 		Carray[z+1] = (g.C1[z] + g.DN[z]*wdt/2) / (g.WG[0][z] * g.DZ.Num * 100)
+		if Carray[z+1] < 0 {
+			Carray[z+1] = 0
+		}
 	}
 	// --------------------- Verlagerung nach unten ---------------------
 	g.Q1[0] = g.FLUSS0 * wdt
@@ -643,6 +653,14 @@ func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			g.C1[z] = cKonz
 		}
 	}
+	// this part will only be triggerd if a RPC service was connected at start
+	if err := HermesRPCService.SendGV(g, zeit, wdt, subd); err != nil {
+		fmt.Println(err)
+	}
+	if err := HermesRPCService.SendNV(l, zeit, wdt, subd); err != nil {
+		fmt.Println(err)
+	}
+
 	if g.Q1[g.OUTN] > 0 {
 		if g.OUTN < g.N {
 			g.OUTSUM = g.OUTSUM + g.Q1[g.OUTN]*Carray[g.OUTN]/g.DZ.Num*100*g.DZ.Num + l.DB[g.OUTN-1]*(Carray[g.OUTN]-Carray[g.OUTN+1])/math.Pow(g.DZ.Num, 2)*100*g.DZ.Num
