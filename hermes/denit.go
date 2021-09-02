@@ -22,6 +22,9 @@ func Denitr(g *GlobalVarsMain, thetasatFromPorges bool) {
 	}
 	thetarel := thetaOb30 / thetasat
 	nitratOb30 := g.C1[0] + g.C1[1] + g.C1[2]
+	// if nitratOb30 > 0 {
+	// 	x := []float64{g.C1[0] / nitratOb30, g.C1[1] / nitratOb30, g.C1[2] / nitratOb30}
+
 	tempOb30 := (g.TSOIL[0][0] + g.TSOIL[0][1] + g.TSOIL[0][2] + g.TSOIL[0][3]) / 4
 	if tempOb30 < 0 {
 		tempOb30 = 0
@@ -43,10 +46,20 @@ func Denitr(g *GlobalVarsMain, thetasatFromPorges bool) {
 	DENIT := michment * Ftheta * Ftemp
 	DENIT = DENIT / 1000
 	// !   /* Denitrifizierte N von Nitrat Pool wegnehmen                    */
+	// for z := 0; z < 3; z++ {
+	// 	if x[z] > 0 {
+	// 		g.C1[z] = g.C1[z] - DENIT*x[z]
+	// 		if g.C1[z] < 0 {
+	// 			g.C1[z] = 0
+	// 		}
+	// 	}
+	// }
 	g.C1[0] = g.C1[0] - DENIT/3
 	g.C1[1] = g.C1[1] - DENIT/3
 	g.C1[2] = g.C1[2] - DENIT/3
+
 	g.CUMDENIT = g.CUMDENIT + DENIT
+	//}
 }
 
 //Denitmo Denitrification for marsh land soils

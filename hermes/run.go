@@ -420,11 +420,35 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 
 			for I := 1; I <= g.N; I++ {
 				index := I - 1
+
 				if g.REGEN[g.TAG.Index]-FSCSUM[index] > g.W[index]*g.DZ.Num/3 {
 					ZSR = math.Max(ZSR, (g.REGEN[g.TAG.Index]-FSCSUM[index])/(g.W[index]*g.DZ.Num/3))
 				}
 			}
 			WDT = 1 / math.Ceil(ZSR)
+
+			// // from MONICA
+			// minTimeStepFactor := 1.0
+			// for i := 0; i < g.N; i++ {
+			// 	pri := 0.0
+			// 	if i == g.N-1 {
+			// 		pri = soilColumn.vs_FluxAtLowerBoundary * g.DZ.Num //[mm]
+			// 	} else {
+			// 		pri = soilColumn[i+1].vs_SoilWaterFlux * g.DZ.Num //[mm]
+			// 	}
+			// 	// Variable time step in case of high water fluxes to ensure stable numerics
+			// 	timeStepFactorCurrentLayer := minTimeStepFactor
+			// 	if -5.0 <= pri && pri <= 5.0 && minTimeStepFactor > 1.0 {
+			// 		timeStepFactorCurrentLayer = 1.0
+			// 	} else if (-10.0 <= pri && pri < -5.0) || (5.0 < pri && pri <= 10.0) {
+			// 		timeStepFactorCurrentLayer = 0.5
+			// 	} else if (-15.0 <= pri && pri < -10.0) || (10.0 < pri && pri <= 15.0) {
+			// 		timeStepFactorCurrentLayer = 0.25
+			// 	} else if pri < -15.0 || pri > 15.0 {
+			// 		timeStepFactorCurrentLayer = 0.125
+			// 	}
+			// 	minTimeStepFactor = math.Min(minTimeStepFactor, timeStepFactorCurrentLayer)
+			// }
 
 			// ***** ADDITION DER N-DEPOSITION ZUR OBERSTEN SCHICHT *****
 			g.C1[0] = g.C1[0] + g.DEPOS/365*g.DT.Num
