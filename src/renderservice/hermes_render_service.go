@@ -27,7 +27,7 @@ import (
 
 func main() {
 	StartRPCHandler()
-
+	Kalender = hermes.KalenderConverter(hermes.DateDEshort, ".")
 	http.HandleFunc("/", httpserver)
 	http.ListenAndServe(":8081", nil)
 }
@@ -40,6 +40,7 @@ type RPCHandler struct {
 }
 
 var globalHandler *RPCHandler
+var Kalender hermes.KalenderConverterFunc
 
 // StartRPCHandler start RPC handler in another go routine
 func StartRPCHandler() {
@@ -96,17 +97,17 @@ func httpserver(w http.ResponseWriter, _ *http.Request) {
 
 	page := components.NewPage()
 	keys := extractSortedKeys()
-	Kalender := hermes.KalenderConverter(hermes.DateDEshort, ".")
 	dates := keysAsDate(Kalender, keys)
+	errKeys := generateErrorItems(keys)
 
 	page.AddCharts(
-		lineMultiC1(keys, dates),
-		lineMultiQ1(keys, dates),
-		lineMultiDISP(keys, dates),
-		lineMultiKONV(keys, dates),
-		lineMultiDB(keys, dates),
-		lineMultiV(keys, dates),
-		lineMultiWDTCalc(keys, dates),
+		lineMultiC1(keys, errKeys, dates),
+		lineMultiQ1(keys, errKeys, dates),
+		lineMultiDISP(keys, errKeys, dates),
+		lineMultiKONV(keys, errKeys, dates),
+		lineMultiDB(keys, errKeys, dates),
+		lineMultiV(keys, errKeys, dates),
+		lineMultiWDTCalc(keys, errKeys, dates),
 	)
 
 	page.Render(w)
@@ -208,9 +209,9 @@ func generateWdtCalcItems(keys []int) [][]opts.LineData {
 		// try a test with Monica variante and Fluss0
 		pri := g.FLUSS0 * g.DZ.Num
 		items[2] = append(items[2], opts.LineData{Value: g.FLUSS0})
-		ZSR2 := 1.0
+		wdt := 1.0
 		timeStepFactorCurrentLayer := 1.0
-		if -5.0 <= pri && pri <= 5.0 && ZSR2 > 1.0 {
+		if -5.0 <= pri && pri <= 5.0 && wdt > 1.0 {
 			timeStepFactorCurrentLayer = 1.0
 		} else if (-10.0 <= pri && pri < -5.0) || (5.0 < pri && pri <= 10.0) {
 			timeStepFactorCurrentLayer = 0.5
@@ -219,8 +220,8 @@ func generateWdtCalcItems(keys []int) [][]opts.LineData {
 		} else if pri < -15.0 || pri > 15.0 {
 			timeStepFactorCurrentLayer = 0.125
 		}
-		ZSR2 = math.Min(ZSR2, timeStepFactorCurrentLayer)
-		items[3] = append(items[3], opts.LineData{Value: ZSR2})
+		wdt = math.Min(wdt, timeStepFactorCurrentLayer)
+		items[3] = append(items[3], opts.LineData{Value: wdt})
 
 	}
 	globalHandler.mux.Unlock()
@@ -276,22 +277,50 @@ func makeMultiLine(title string) *charts.Line {
 	return line
 }
 
-func lineMultiC1(keys []int, dates []string) *charts.Line {
+func lineMultiC1(keys, errKeys []int, dates []string) *charts.Line {
 	line := makeMultiLine("Nmin Content")
 
 	line.SetXAxis(dates).
-		AddSeries("C1 Schicht 1", generateC1Items(keys, 0)).
+		AddSeries("C1 Schicht 1", generateC1Items(keys, 0), errorMarker(errKeys, 60)).
 		AddSeries("C1 Schicht 2", generateC1Items(keys, 1)).
 		AddSeries("C1 Schicht 3", generateC1Items(keys, 2))
 	return line
 }
+func errorMarker(errKeys []int, offset float64) charts.SeriesOpts {
+	dates := keysAsDate(Kalender, errKeys)
 
-func lineMultiQ1(keys []int, dates []string) *charts.Line {
+	marker := make([]opts.MarkPointNameCoordItem, 0, len(dates))
+	for _, date := range dates {
+		marker = append(marker, opts.MarkPointNameCoordItem{
+			Name:       "err",
+			Coordinate: []interface{}{date, offset},
+			Label:      &opts.Label{Show: true, Color: "white", Position: "inside", Formatter: "{b}"},
+		})
+	}
+	options := charts.WithMarkPointNameCoordItemOpts(marker...)
+
+	return options
+}
+
+func generateErrorItems(keys []int) []int {
+	globalHandler.mux.Lock()
+	listOfErrors := []int{}
+	for _, key := range keys {
+		tag := globalHandler.receivedDumps[key].Global.C1NotStable
+		if len(tag) > 0 {
+			listOfErrors = append(listOfErrors, key)
+		}
+	}
+	globalHandler.mux.Unlock()
+	return listOfErrors
+}
+
+func lineMultiQ1(keys, errKeys []int, dates []string) *charts.Line {
 	line := makeMultiLine("Q1 Fluss durch Untergrenze")
 
 	line.SetXAxis(dates)
 	line.AddSeries("Regen ", generateRegenItems(keys))
-	line.AddSeries("Q1 Schicht 0", generateQ1Items(keys, 0))
+	line.AddSeries("Q1 Schicht 0", generateQ1Items(keys, 0), errorMarker(errKeys, 9))
 	line.AddSeries("Q1 Schicht 1", generateQ1Items(keys, 1))
 	line.AddSeries("Q1 Schicht 2", generateQ1Items(keys, 2))
 	line.AddSeries("Q1 Schicht 3", generateQ1Items(keys, 3))
@@ -299,54 +328,54 @@ func lineMultiQ1(keys []int, dates []string) *charts.Line {
 	return line
 }
 
-func lineMultiDISP(keys []int, dates []string) *charts.Line {
+func lineMultiDISP(keys, errKeys []int, dates []string) *charts.Line {
 	line := makeMultiLine("Dispersion")
 
 	line.SetXAxis(dates).
-		AddSeries("DISP 1", generateDISPItems(keys, 0)).
+		AddSeries("DISP 1", generateDISPItems(keys, 0), errorMarker(errKeys, 0.035)).
 		AddSeries("DISP 2", generateDISPItems(keys, 1)).
 		AddSeries("DISP 3", generateDISPItems(keys, 2))
 	return line
 }
 
-func lineMultiKONV(keys []int, dates []string) *charts.Line {
+func lineMultiKONV(keys, errKeys []int, dates []string) *charts.Line {
 	line := makeMultiLine("Konvection")
 
 	line.SetXAxis(dates).
-		AddSeries("KONV 1", generateKONVItems(keys, 0)).
+		AddSeries("KONV 1", generateKONVItems(keys, 0), errorMarker(errKeys, 0.025)).
 		AddSeries("KONV 2", generateKONVItems(keys, 1)).
 		AddSeries("KONV 3", generateKONVItems(keys, 2))
 	return line
 }
 
-func lineMultiDB(keys []int, dates []string) *charts.Line {
+func lineMultiDB(keys, errKeys []int, dates []string) *charts.Line {
 	line := makeMultiLine("DB")
 
 	line.SetXAxis(dates).
-		AddSeries("DB 1", generateDBItems(keys, 0)).
+		AddSeries("DB 1", generateDBItems(keys, 0), errorMarker(errKeys, 23)).
 		AddSeries("DB 2", generateDBItems(keys, 1)).
 		AddSeries("DB 3", generateDBItems(keys, 2))
 	return line
 }
 
-func lineMultiV(keys []int, dates []string) *charts.Line {
+func lineMultiV(keys, errKeys []int, dates []string) *charts.Line {
 	line := makeMultiLine("Porenwassergeschwindigkeit")
 
 	line.SetXAxis(dates).
-		AddSeries("V 1", generateVItems(keys, 0)).
+		AddSeries("V 1", generateVItems(keys, 0), errorMarker(errKeys, 1)).
 		AddSeries("V 2", generateVItems(keys, 1)).
 		AddSeries("V 3", generateVItems(keys, 2))
 	return line
 }
 
-func lineMultiWDTCalc(keys []int, dates []string) *charts.Line {
+func lineMultiWDTCalc(keys, errKeys []int, dates []string) *charts.Line {
 	line := makeMultiLine("Zeitschritt Berechnung")
 
 	linesContent := generateWdtCalcItems(keys)
 
 	line.SetXAxis(dates)
 	line.AddSeries("regen", linesContent[0])
-	line.AddSeries("wdt", linesContent[1])
+	line.AddSeries("wdt", linesContent[1], errorMarker(errKeys, 1))
 	line.AddSeries("Fluss0", linesContent[2])
 	line.AddSeries("wdt Fluss0/Monica", linesContent[3])
 	//AddSeries("Q1 Schicht 0", generateQ1Items(keys, 0))
