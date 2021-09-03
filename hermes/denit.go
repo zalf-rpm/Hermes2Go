@@ -54,12 +54,33 @@ func Denitr(g *GlobalVarsMain, thetasatFromPorges bool) {
 	// 		}
 	// 	}
 	// }
+
+	//Let MaxN2O = 0.63
+	MaxN2O := 0.63
+	//LET FO = 1 - 2.05 * Max(0,Thetarel-0.62)
+	FO := 1 - 2.05*math.Max(0, thetarel-0.62)
+	//Let DNO = (0.44 + 0.0015*3)/3
+	DNO := (0.44 + 0.0015*3) / 3
+	//Let FN = Min(DNO*nitratOb30*0.667,(0.44+0.0015 * 0.67*nitratOB30))
+	FN := math.Min(DNO*nitratOb30*0.667, (0.44 + 0.0015*0.67*nitratOb30))
+	//IF FN > 1 then Let FN = 1
+	if FN > 1 {
+		FN = 1
+	}
+	//Let FN2Oden = FN*FO * MaxN2O
+	FN2Oden := FN * FO * MaxN2O
+	//Let N2Oden = Denit * FN2Oden
+	N2Oden := DENIT * FN2Oden
+	//Let N2Odencum = N2Odencum + N2Oden
+	g.N2Odencum = g.N2Odencum + N2Oden
+
 	g.C1[0] = g.C1[0] - DENIT/3
 	g.C1[1] = g.C1[1] - DENIT/3
 	g.C1[2] = g.C1[2] - DENIT/3
 
 	g.CUMDENIT = g.CUMDENIT + DENIT
 	//}
+
 }
 
 //Denitmo Denitrification for marsh land soils
@@ -115,6 +136,30 @@ func Denitmo(g *GlobalVarsMain) {
 	Ftemp3 := 1 - math.Exp(-1*math.Pow((tempOb90/Tkrt), 4.6))
 	Denit3 := michment3 * Ftheta3 * Ftemp3
 	Denit3 = Denit3 / 1000 // (kg/ha)
+
+	//! new for N2O from denitrification ! acc. to Bessou et al. 2010
+	MaxN2O := 0.63
+	FO1 := 1 - 2.05*math.Max(0, thetarel1-0.62)
+	FO2 := 1 - 2.05*math.Max(0, thetarel2-0.62)
+	FO3 := 1 - 2.05*math.Max(0, thetarel3-0.62)
+	DNO := (0.44 + 0.0015*3) / 3
+	FN1 := math.Min(DNO*nitratOb30*0.667, (0.44 + 0.0015*0.67*nitratOb30))
+	FN2 := math.Min(DNO*nitratOb60*0.667, (0.44 + 0.0015*0.67*nitratOb60))
+	FN3 := math.Min(DNO*nitratOb90*0.667, (0.44 + 0.0015*0.67*nitratOb90))
+	if FN1 > 1 {
+		FN1 = 1
+	}
+	if FN2 > 1 {
+		FN2 = 1
+	}
+	if FN3 > 1 {
+		FN3 = 1
+	}
+	FN2Oden1 := FN1 * FO1 * MaxN2O
+	FN2Oden2 := FN2 * FO2 * MaxN2O
+	FN2Oden3 := FN3 * FO3 * MaxN2O
+	N2Oden := Denit1*FN2Oden1 + Denit2*FN2Oden2 + Denit3*FN2Oden3
+	g.N2Odencum = g.N2Odencum + N2Oden
 
 	// !   /* Denitrifizierte N von Nitrat Pool wegnehmen                    */
 	g.C1[0] = g.C1[0] - Denit1/3

@@ -23,13 +23,14 @@ type NitroBBBSharedVars struct {
 
 // NitroSharedVars shared variables for this module
 type NitroSharedVars struct {
-	DUMS [4]float64
-	D    [21]float64
-	V    [21]float64
-	KONV [21]float64
-	DISP [21]float64
-	DB   [21]float64
-	DM   [21]float64
+	DUMS    [4]float64
+	D       [21]float64
+	V       [21]float64
+	KONV    [21]float64
+	DISP    [21]float64
+	DB      [21]float64
+	DM      [21]float64
+	DNH4UMS [4]float64
 }
 
 // Nitro ...
@@ -41,6 +42,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			g.NAOS[0] = g.NAOS[0] + g.NLAS[g.NDG.Index]
 			g.DSUMM = g.DSUMM + g.NDIR[g.NDG.Index] //! Summe miner. Duengung
 			g.NFERTSIM = g.NFERTSIM + g.NDIR[g.NDG.Index]
+			g.NH4Sum = g.NH4Sum + g.NH4N[g.NDG.Index] // Summe min. Ammoniakalische Düngung
 			g.NDG.Inc()
 		}
 		//! ---------------------------------------------------------------------------------------------------------------
@@ -461,13 +463,16 @@ func mineral(wdt float64, subd int, g *GlobalVarsMain, l *NitroSharedVars) {
 	//! MINAOS(Z)                 = bereits mineralisierter langsamer N-Pool in Z (kg N/ha)
 	//! MINFOS(Z)                 = bereits mineralisierter schneller N-Pool in Z (kg N/ha)
 	//! DSUMM                     = Summe der mineralischen Düngung (kg N/ha)
+	//! NH4SUM                    = Summe ammoniakalischer N in Dünger
 	//! UMS                       = Summe des bereits gelösten mineralischen N (kg N/ha)
+	//! NH4UMS                    = Summe des nitrifizierten Nicht-Nitratanteils des mineralischen Düngers (kg N/ha)
+
 	//! ----------------------------------------------------------------------------------------------------------
 	var DTOTALN, DMINFOS, MIRED [4]float64
 
 	//---------------------  Mineralisation  --------------------
-	num := float64(g.IZM) / g.DZ.Num
-	for z := 1; z <= int(num); z++ {
+	num := g.IZM / g.DZ.Index
+	for z := 1; z <= num; z++ {
 		zIndex := z - 1
 		TEMPBO := (g.TD[z] + g.TD[z-1]) / 2
 		// --------- Berechnung Mineralisationskoeffizienten ---------
@@ -510,14 +515,24 @@ func mineral(wdt float64, subd int, g *GlobalVarsMain, l *NitroSharedVars) {
 			g.NFOS[zIndex] = g.NFOS[zIndex] - DMINFOS[zIndex]
 			if z == 1 {
 				l.DUMS[zIndex] = KTD * MIRED[zIndex] * (g.DSUMM - g.UMS)
+				l.DNH4UMS[zIndex] = KTD * MIRED[zIndex] * (g.NH4Sum - g.NH4UMS) //!Nitrifikation pro Zeitschritt (kg N/ha)
+
 			} else {
 				l.DUMS[zIndex] = 0
+				l.DNH4UMS[zIndex] = 0
+
 			}
+			FN2oNit := (0.4*(g.WG[0][zIndex]/g.PORGES[zIndex]) - 1.04) / (g.WG[0][zIndex]/g.PORGES[zIndex] - 1.04) * 0.0016 //! Faktor N2O aus Nitrifikation
+			N2oNIT := (l.DNH4UMS[zIndex] + DTOTALN[zIndex] + DMINFOS[zIndex]) * FN2oNit                                     //! N2O emission aus Nitrifikation pro Zeitschritt (kg N/ha)
+
 			// Mineralisationssumme => Quellterm ( dn(z) )
-			g.DN[zIndex] = DTOTALN[zIndex] + DMINFOS[zIndex] + l.DUMS[zIndex]
+			g.DN[zIndex] = DTOTALN[zIndex] + DMINFOS[zIndex] + l.DUMS[zIndex] - N2oNIT
+
 			g.MINAOS[zIndex] = g.MINAOS[zIndex] + DTOTALN[zIndex]
 			g.MINFOS[zIndex] = g.MINFOS[zIndex] + DMINFOS[zIndex]
 			g.UMS = g.UMS + l.DUMS[zIndex]
+			g.NH4UMS = g.NH4UMS + l.DNH4UMS[zIndex]
+			g.N2onitsum = g.N2onitsum + N2oNIT
 			g.MINSUM = g.MINSUM + g.DN[zIndex] - l.DUMS[zIndex]
 		} else {
 			if z == 1 {
@@ -536,12 +551,21 @@ func mineral(wdt float64, subd int, g *GlobalVarsMain, l *NitroSharedVars) {
 				if MIRED[zIndex] < 0 {
 					MIRED[zIndex] = 0
 				}
-				l.DUMS[zIndex] = .4 * MIRED[zIndex] * (g.DSUMM - g.UMS)
+				l.DUMS[zIndex] = 0.4 * MIRED[zIndex] * (g.DSUMM - g.UMS)
+				l.DNH4UMS[zIndex] = 0.4 * MIRED[zIndex] * (g.NH4Sum - g.NH4UMS) //!Nitrifikation pro Zeitschritt (kg N/ha)
+
 			} else {
 				l.DUMS[zIndex] = 0
+				l.DNH4UMS[zIndex] = 0
 			}
 			g.UMS = g.UMS + l.DUMS[zIndex]
-			g.DN[zIndex] = l.DUMS[zIndex]
+
+			g.NH4UMS = g.NH4UMS + l.DNH4UMS[zIndex]
+			FN2oNit := (0.4*(g.WG[0][zIndex]/g.PORGES[zIndex]) - 1.04) / (g.WG[0][zIndex]/g.PORGES[zIndex] - 1.04) * 0.0016 //! Faktor N2O aus Nitrifikation
+			N2ONIT := l.DNH4UMS[zIndex] * FN2oNit                                                                           //! N2O emission aus Nitrifikation pro Zeitschritt (kg N/ha)
+			g.N2onitsum = g.N2onitsum + N2ONIT
+
+			g.DN[zIndex] = l.DUMS[zIndex] - N2ONIT
 		}
 	}
 }

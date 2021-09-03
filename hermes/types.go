@@ -134,6 +134,7 @@ type GlobalVarsMain struct {
 	EINTE    [201]int //(0:200)
 	DGART    [300]string
 	NDIR     [300]float64
+	NH4N     [300]float64 // not NH4 fertilizer ( nicht Nitrat-N in Dünger)
 	NSAS     [300]float64
 	NLAS     [300]float64
 	TSOIL    [2][22]float64 //(0:1,0:21)
@@ -276,15 +277,18 @@ type GlobalVarsMain struct {
 	AUFNASUM   float64
 	NDRAINTAG  float64 `yaml:"-"`
 	CUMDENIT   float64
-	AUFNA      [131]float64 //(0:130)
-	SIC        [131]float64 //(0:130)
-	AUS        [131]float64 // (0:130)
-	MINA       float64      // TODO: obsolete
-	PLANA      float64
-	OUTA       float64 // TODO: obsolete?
-	NAPPDAT    string
-	PROGDAT    string
-	SLNAM      string // not assigned
+
+	N2Odencum float64
+
+	AUFNA   [131]float64 //(0:130)
+	SIC     [131]float64 //(0:130)
+	AUS     [131]float64 // (0:130)
+	MINA    float64      // TODO: obsolete
+	PLANA   float64
+	OUTA    float64 // TODO: obsolete?
+	NAPPDAT string
+	PROGDAT string
+	SLNAM   string // not assigned
 	// new
 	TJBAS     [300]float64
 	IRRST1    [300]float64
@@ -346,6 +350,9 @@ type GlobalVarsMain struct {
 	KNZ6      [100]float64
 	NLEAG     float64
 	NFERTSIM  float64
+	NH4Sum    float64
+	NH4UMS    float64
+	N2onitsum float64
 	AKTUELL   string // current Date string
 
 	// output parameters

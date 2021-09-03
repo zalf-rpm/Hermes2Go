@@ -1175,6 +1175,7 @@ func dueng(i int, g *GlobalVarsMain, l *InputSharedVars, hPath *HFilePath) {
 			l.NORG[i] = ValAsFloat(token[1], dungfile, du)                                     //Ntot
 			VOL := ValAsFloat(token[6], dungfile, du)                                          // Loss
 			g.NDIR[i] = l.DGMG[i] * l.NORG[i] * ValAsFloat(token[2], dungfile, du)             // NDIR
+			g.NH4N[i] = g.NDIR[i] * ValAsFloat(token[5], dungfile, du) * (1 - VOL)             // Neu: nicht Nitrat-N in Dünger NH4N
 			g.NDIR[i] = g.NDIR[i] - g.NDIR[i]*ValAsFloat(token[5], dungfile, du)*VOL           // NH4
 			g.NSAS[i] = (l.DGMG[i]*l.NORG[i] - g.NDIR[i]) * ValAsFloat(token[3], dungfile, du) // Nfst
 			g.NLAS[i] = (l.DGMG[i]*l.NORG[i] - g.NDIR[i]) * ValAsFloat(token[4], dungfile, du) // Nslo
