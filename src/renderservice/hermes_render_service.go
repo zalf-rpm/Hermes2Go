@@ -39,6 +39,7 @@ func main() {
 type RPCHandler struct {
 	receivedDumps      map[int]hermes.TransferEnvGlobal // GlobalVarsMain - global vars
 	receivedNitroDumps map[int]hermes.TransferEnvNitro  // NitroSharedVars - local Nitro vars
+	wdtDumps           map[int]hermes.TransferEnvWdt    // wdt calc dump
 	mux                sync.Mutex
 }
 
@@ -56,6 +57,7 @@ func StartRPCHandler() {
 	globalHandler = &RPCHandler{
 		receivedDumps:      make(map[int]hermes.TransferEnvGlobal, 11000),
 		receivedNitroDumps: make(map[int]hermes.TransferEnvNitro, 11000),
+		wdtDumps:           make(map[int]hermes.TransferEnvWdt, 11000),
 		mux:                sync.Mutex{},
 	}
 	err = rpc.Register(globalHandler)
@@ -94,6 +96,14 @@ func (rh *RPCHandler) DumpNitroVar(payload hermes.TransferEnvNitro, reply *strin
 	rh.mux.Unlock()
 	return nil
 }
+func (rh *RPCHandler) DumpWdtCalc(payload hermes.TransferEnvWdt, reply *string) error {
+	id := payload.Zeit
+	rh.mux.Lock()
+	rh.wdtDumps[id] = payload
+	rh.mux.Unlock()
+	return nil
+
+}
 
 // c1debughttpserver for web interface, to render the stuff that has been recieved
 func c1debughttpserver(w http.ResponseWriter, _ *http.Request) {
@@ -111,6 +121,7 @@ func c1debughttpserver(w http.ResponseWriter, _ *http.Request) {
 		lineMultiDB(keys, errKeys, dates),
 		lineMultiV(keys, errKeys, dates),
 		lineMultiWDTCalc(keys, errKeys, dates),
+		lineMultiWDT(),
 	)
 
 	page.Render(w)
@@ -221,6 +232,62 @@ func generateVItems(keys []int, index int) []opts.LineData {
 		val := globalHandler.receivedNitroDumps[key].Nitro.V[index]
 		items = append(items, opts.LineData{Value: val})
 	}
+	globalHandler.mux.Unlock()
+	return items
+}
+
+func generateWdtVisItems(keys []int) map[string][]opts.LineData {
+	globalHandler.mux.Lock()
+
+	items := map[string][]opts.LineData{}
+
+	items["regen"] = make([]opts.LineData, 0, len(keys))
+	items["wdt calc"] = make([]opts.LineData, 0, len(keys))
+	items["W"] = make([]opts.LineData, 0, len(keys))
+	items["WG1"] = make([]opts.LineData, 0, len(keys))
+	items["WG2"] = make([]opts.LineData, 0, len(keys))
+	items["WG3"] = make([]opts.LineData, 0, len(keys))
+	items["FSCSUM1"] = make([]opts.LineData, 0, len(keys))
+	items["FSCSUM2"] = make([]opts.LineData, 0, len(keys))
+	items["FSCSUM3"] = make([]opts.LineData, 0, len(keys))
+
+	var FSCSUM [20]float64
+	for _, key := range keys {
+
+		N := globalHandler.wdtDumps[key].N
+		WG := globalHandler.wdtDumps[key].WG
+		W := globalHandler.wdtDumps[key].W
+		DZ := globalHandler.wdtDumps[key].DZ
+		REGEN := globalHandler.wdtDumps[key].REGEN
+		FSCS := 0.0
+		ZSR := 1.0
+		//WDT = g.DT.Num
+		for I := 1; I <= N; I++ {
+			index := I - 1
+			FSC := (W[index] - WG[0][index]) * DZ
+			FSCS = FSCS + FSC
+			FSCSUM[index] = FSCS
+		}
+
+		for I := 1; I <= N; I++ {
+			index := I - 1
+
+			if REGEN-FSCSUM[index] > W[index]*DZ/3 {
+				ZSR = math.Max(ZSR, (REGEN-FSCSUM[index])/(W[index]*DZ/3))
+			}
+		}
+		calcWDT := 1 / math.Ceil(ZSR)
+		items["wdt calc"] = append(items["wdt calc"], opts.LineData{Value: calcWDT})
+		items["W"] = append(items["W"], opts.LineData{Value: W[0] * DZ})
+		items["WG1"] = append(items["WG1"], opts.LineData{Value: WG[1][0] * DZ})
+		items["WG2"] = append(items["WG2"], opts.LineData{Value: WG[1][1] * DZ})
+		items["WG3"] = append(items["WG3"], opts.LineData{Value: WG[1][2] * DZ})
+		items["FSCSUM1"] = append(items["FSCSUM1"], opts.LineData{Value: FSCSUM[0]})
+		items["FSCSUM2"] = append(items["FSCSUM2"], opts.LineData{Value: FSCSUM[1]})
+		items["FSCSUM3"] = append(items["FSCSUM3"], opts.LineData{Value: FSCSUM[2]})
+		items["regen"] = append(items["regen"], opts.LineData{Value: REGEN})
+	}
+
 	globalHandler.mux.Unlock()
 	return items
 }
@@ -411,6 +478,30 @@ func lineMultiWDTCalc(keys, errKeys []int, dates []string) *charts.Line {
 	line.AddSeries("Fluss0", linesContent[2])
 	line.AddSeries("wdt Fluss0/Monica", linesContent[3])
 	//AddSeries("Q1 Schicht 0", generateQ1Items(keys, 0))
+
+	return line
+}
+func lineMultiWDT() *charts.Line {
+	line := makeMultiLine("Zeitschritt Berechnung Details")
+
+	globalHandler.mux.Lock()
+	keys := make([]int, 0, len(globalHandler.receivedDumps))
+	for k := range globalHandler.wdtDumps {
+		keys = append(keys, k)
+	}
+	globalHandler.mux.Unlock()
+	sort.Ints(keys)
+
+	dates := make([]string, 0, len(keys))
+	for _, key := range keys {
+		dates = append(dates, Kalender(key))
+	}
+	linesContent := generateWdtVisItems(keys)
+
+	line.SetXAxis(dates)
+	for entry, value := range linesContent {
+		line.AddSeries(entry, value)
+	}
 
 	return line
 }

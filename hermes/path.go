@@ -263,6 +263,35 @@ type TransferEnvNitro struct {
 	Step  int
 }
 
+type TransferEnvWdt struct {
+	Zeit  int
+	WDT   float64
+	N     int
+	WG    [3][21]float64
+	W     [21]float64
+	DZ    float64
+	REGEN float64
+}
+
+func (rs *RPCService) SendWdt(g *GlobalVarsMain, zeit int, wdt float64) error {
+	if rs.client != nil {
+		wdtData := TransferEnvWdt{
+			Zeit:  zeit,
+			WDT:   wdt,
+			N:     g.N,
+			WG:    g.WG,
+			W:     g.W,
+			DZ:    g.DZ.Num,
+			REGEN: g.REGEN[g.TAG.Index],
+		}
+		if err := rs.client.Call("RPCHandler.DumpWdtCalc", wdtData, nil); err != nil {
+			return fmt.Errorf("DumpWdtCalc %+v", err)
+		}
+	}
+
+	return nil
+}
+
 func (rs *RPCService) SendGV(g *GlobalVarsMain, zeit int, wdt float64, step int) error {
 	if rs.client != nil {
 		glob := TransferEnvGlobal{

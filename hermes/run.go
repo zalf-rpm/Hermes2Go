@@ -413,7 +413,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			//WDT = g.DT.Num
 			for I := 1; I <= g.N; I++ {
 				index := I - 1
-				FSC := (g.W[index] - g.WG[0][index]) * g.DZ.Num
+				FSC := (g.W[index] - g.WG[1][index]) * g.DZ.Num
 				FSCS = FSCS + FSC
 				FSCSUM[index] = FSCS
 			}
@@ -426,6 +426,8 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				}
 			}
 			WDT = 1 / math.Ceil(ZSR)
+
+			HermesRPCService.SendWdt(&g, ZEIT, WDT)
 
 			// // from MONICA
 			// minTimeStepFactor := 1.0
