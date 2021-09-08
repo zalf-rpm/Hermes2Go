@@ -408,26 +408,26 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				}
 				g.NBR++
 			}
-			FSCS := 0.0
-			ZSR := 1.0
-			//WDT = g.DT.Num
-			for I := 1; I <= g.N; I++ {
-				index := I - 1
-				FSC := (g.W[index] - g.WG[1][index]) * g.DZ.Num
-				FSCS = FSCS + FSC
-				FSCSUM[index] = FSCS
-			}
+			// FSCS := 0.0
+			// ZSR := 1.0
+			// //WDT = g.DT.Num
+			// for I := 1; I <= g.N; I++ {
+			// 	index := I - 1
+			// 	FSC := (g.W[index] - g.WG[1][index]) * g.DZ.Num
+			// 	FSCS = FSCS + FSC
+			// 	FSCSUM[index] = FSCS
+			// }
 
-			for I := 1; I <= g.N; I++ {
-				index := I - 1
+			// for I := 1; I <= g.N; I++ {
+			// 	index := I - 1
 
-				if g.REGEN[g.TAG.Index]-FSCSUM[index] > g.W[index]*g.DZ.Num/3 {
-					ZSR = math.Max(ZSR, (g.REGEN[g.TAG.Index]-FSCSUM[index])/(g.W[index]*g.DZ.Num/3))
-				}
-			}
-			WDT = 1 / math.Ceil(ZSR)
+			// 	if g.REGEN[g.TAG.Index]-FSCSUM[index] > g.W[index]*g.DZ.Num/3 {
+			// 		ZSR = math.Max(ZSR, (g.REGEN[g.TAG.Index]-FSCSUM[index])/(g.W[index]*g.DZ.Num/3))
+			// 	}
+			// }
+			// WDT = 1 / math.Ceil(ZSR)
 
-			HermesRPCService.SendWdt(&g, ZEIT, WDT)
+			// HermesRPCService.SendWdt(&g, ZEIT, WDT)
 
 			// // from MONICA
 			// minTimeStepFactor := 1.0
@@ -476,6 +476,27 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			}
 
 			Evatra(&hermesWaterVar, &g, &herPath, ZEIT)
+
+			FSCS := 0.0
+			ZSR := 1.0
+
+			for I := 1; I <= g.N; I++ {
+				index := I - 1
+				FSC := (g.W[index] - g.WG[0][index]) * g.DZ.Num
+				FSCS = FSCS + FSC
+				FSCSUM[index] = FSCS
+			}
+
+			for I := 1; I <= g.N; I++ {
+				index := I - 1
+
+				if g.REGEN[g.TAG.Index]-FSCSUM[index] > g.W[index]*g.DZ.Num/3 {
+					ZSR = math.Max(ZSR, (g.REGEN[g.TAG.Index]-FSCSUM[index])/(g.W[index]*g.DZ.Num/3))
+				}
+			}
+			WDT = 1 / math.Ceil(ZSR)
+
+			HermesRPCService.SendWdt(&g, ZEIT, WDT)
 
 			//CALL SOILTEMP(#7)
 			Soiltemp(&g)
