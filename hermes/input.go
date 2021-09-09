@@ -99,6 +99,7 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 				bodenLine := scannerSoilFile.Text()
 				boden := bodenLine[0:3] // SID - first 3 character
 				if boden == sid {
+					g.SoilID = sid
 					bofind = true
 					g.AZHO = int(ValAsInt(bodenLine[35:37], "none", bodenLine))
 					g.WURZMAX = int(ValAsInt(bodenLine[32:34], "none", bodenLine))

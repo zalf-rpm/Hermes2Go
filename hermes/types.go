@@ -354,6 +354,7 @@ type GlobalVarsMain struct {
 	NH4UMS    float64
 	N2onitsum float64
 	AKTUELL   string // current Date string
+	SoilID    string
 
 	// output parameters
 	PerY        float64 // accumulated output
