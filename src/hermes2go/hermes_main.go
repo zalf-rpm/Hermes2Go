@@ -131,8 +131,9 @@ func main() {
 			writeLogoutput = true
 		} else if arg == "-locid" && i+1 < len(argsWithoutProg) {
 			locID = argsWithoutProg[i+1]
-		} else if arg == "-v" {
+		} else if arg == "-v" || arg == "-version" {
 			fmt.Println("Version: ", version)
+			return
 		} else if arg == "-rpc" && i+1 < len(argsWithoutProg) {
 			address := argsWithoutProg[i+1]
 			rpcService, err := hermes.NewRPCService(address)
