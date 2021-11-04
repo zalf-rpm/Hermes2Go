@@ -1082,7 +1082,7 @@ func Hydro(las1 int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFilePath
 	}
 	g.FELDW[lIndex] = local.FK[lIndex] + KRR/100
 	g.NORMFK[lIndex] = local.FK[lIndex]
-	g.PRGES[lIndex] = g.PRGES[lIndex] + KRG
+	g.PRGES[lIndex] = g.PRGES[lIndex] + KRG/100
 	return BDART
 }
 
