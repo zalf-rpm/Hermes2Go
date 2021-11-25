@@ -182,7 +182,9 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 					// get total number of 10cm layers from last soil layer
 					g.N = g.UKT[g.AZHO]
 					if g.N > 20 || g.N < 1 {
-						g.DEBUGCHANNEL <- fmt.Sprintf("%s Error: total number of 10cm layers from last soil layer: %d", g.LOGID, g.N)
+						if g.DEBUGCHANNEL != nil {
+							g.DEBUGCHANNEL <- fmt.Sprintf("%s Error: total number of 10cm layers from last soil layer: %d", g.LOGID, g.N)
+						}
 						return fmt.Errorf("%s total number of 10cm layers from last soil layer is %d, should be > 1 and < 20", g.LOGID, g.N)
 					}
 				}
