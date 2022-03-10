@@ -101,7 +101,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		herPath.SetPnam("Y"+g.POLYD+g.SNAM, driConfig.ResultFileExt)
 		OUTINT = driConfig.OutputIntervall
 		herPath.vnam = herPath.outputfolder + "/V" + g.POLYD + g.SNAM + "." + driConfig.ResultFileExt
-		herPath.SetBofile(driConfig.SoilFile)
+		herPath.SetBofile(driConfig.SoilFile, driConfig.SoilFileExtension)
 		if driConfig.CoastDistance > 50 {
 			g.KCOA = 1
 		} else {
@@ -479,6 +479,19 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 
 			FSCS := 0.0
 			ZSR := 1.0
+			// // try a test with Monica variante and Fluss0
+			// pri := math.Abs(g.FLUSS0 * g.DZ.Num)
+			// timeStepFactorCurrentLayer := 1.0
+			// if pri <= 5.0 {
+			// 	timeStepFactorCurrentLayer = 1.0
+			// } else if 5.0 < pri && pri <= 10.0 {
+			// 	timeStepFactorCurrentLayer = 0.5
+			// } else if 10.0 < pri && pri <= 15.0 {
+			// 	timeStepFactorCurrentLayer = 0.25
+			// } else if pri > 15.0 {
+			// 	timeStepFactorCurrentLayer = 0.125
+			// }
+			// ZSR = 1 / timeStepFactorCurrentLayer
 
 			for I := 1; I <= g.N; I++ {
 				index := I - 1
@@ -687,6 +700,8 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				SWCY = 0
 				g.MINSUM = 0
 				g.CUMDENIT = 0
+				g.N2Odencum = 0
+				g.N2onitsum = 0
 			}
 			//  ++++++++++++++++ EINSCHUB VON DUENGERBEDARFSPROGNOSE +++++++++++++++++++++
 			if ZEIT == g.P1 {
