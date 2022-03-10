@@ -25,6 +25,7 @@ type config struct {
 	OutputIntervall                 int             `yaml:"OutputIntervall"`                 // Output intervall (days) (0=no time serie)
 	InitSelection                   int             `yaml:"InitSelection"`                   // Init.values general(1),field(2), Polygon(3)
 	SoilFile                        string          `yaml:"SoilFile"`                        // soil profile file name (without projectname)
+	SoilFileExtension               string          `yaml:"SoilFileExtension"`               // soil file extension (txt = hermes soil, csv = csv table format)
 	WeatherFile                     string          `yaml:"WeatherFile"`                     // weather file name template (without projectname)
 	WeatherFileFormat               int             `yaml:"WeatherFileFormat"`               // Weather file format (0=separator(, ; \t), 1 year per file ) (1=separator(, ; \t), multiple years per file, (1=separator(, ; \t ' '), cz format, multiple years per file)
 	WeatherFolder                   string          `yaml:"WeatherFolder"`                   // Weather scenario folder
@@ -187,6 +188,7 @@ func NewDefaultConfig() config {
 		OutputIntervall:                 0,
 		InitSelection:                   3,
 		SoilFile:                        "soil",
+		SoilFileExtension:               "txt",
 		WeatherFile:                     "%s.csv",
 		WeatherFileFormat:               1,
 		WeatherFolder:                   "Weather",

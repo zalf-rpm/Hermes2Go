@@ -102,7 +102,7 @@ func NewHermesFilePath(root, locid, snam, parameterOverride, resultOverride stri
 		pnamTemplate:           path.Join(out, "%s.%s"),
 		paranamTemplate:        path.Join(parameter, "PARAM.%s"),
 		paranamVarietyTemplate: path.Join(parameter, "PARAM_%s.%s"),
-		bofileTemplate:         path.Join(pathToProject, "%s_"+locid+".txt"),
+		bofileTemplate:         path.Join(pathToProject, "%s_"+locid+".%s"),
 		polnamTemplate:         path.Join(pathToProject, "%s_"+locid+".txt"),
 		vwdatTemplate:          path.Join(pathToProject, "Weather", "%s_"+locid+"."),
 		config:                 path.Join(pathToProject, "config.yml"),
@@ -119,8 +119,8 @@ func (hp *HFilePath) SetPnam(ins, ext string) {
 }
 
 // SetBofile completes bofile filename
-func (hp *HFilePath) SetBofile(ins string) {
-	hp.bofile = fmt.Sprintf(hp.bofileTemplate, strings.TrimSpace(ins))
+func (hp *HFilePath) SetBofile(prefix, extension string) {
+	hp.bofile = fmt.Sprintf(hp.bofileTemplate, strings.TrimSpace(prefix), strings.TrimSpace(extension))
 }
 
 // SetPolnam completes polnam filename

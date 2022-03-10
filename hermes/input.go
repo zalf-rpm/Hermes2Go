@@ -34,7 +34,6 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 	//! ------Modul zum Einlesen von Boden-, Fruchtfolge und Bewirtschaftungsdaten (Duengung, Bodenbearbeitung) von Feldern und Polygonen ---------
 	var ERNT, SAT string
 	var winit [6]float64
-	var CNRATIO [10]float64
 
 	//!  Einleseprogramm für Schlagdaten
 	g.WRED = 0
@@ -91,108 +90,50 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 			if soilID == "" {
 				sid = wa[6:9] // second entry SID in poly file
 			}
-			_, scannerSoilFile, _ := Open(&FileDescriptior{FilePath: hPath.bofile, FileDescription: "soil file", UseFilePool: true})
-			LineInut(scannerSoilFile)
-			bofind := false
+			var currentSoil soilFileData
+			var soilLoadError error
+			groundwaterFormSoilfile := g.GROUNDWATERFROM == Soilfile
 
-			for scannerSoilFile.Scan() {
-				bodenLine := scannerSoilFile.Text()
-				boden := bodenLine[0:3] // SID - first 3 character
-				if boden == sid {
-					g.SoilID = sid
-					bofind = true
-					g.AZHO = int(ValAsInt(bodenLine[35:37], "none", bodenLine))
-					g.WURZMAX = int(ValAsInt(bodenLine[32:34], "none", bodenLine))
-
-					if g.GROUNDWATERFROM == Soilfile {
-						g.GRHI = int(ValAsInt(bodenLine[70:72], "none", bodenLine))
-						g.GRLO = g.GRHI
-						g.GRW = float64(g.GRLO+g.GRHI) / 2
-						g.GW = float64(g.GRLO+g.GRHI) / 2
-						g.AMPL = 0
-					}
-					g.DRAIDEP = int(ValAsInt(bodenLine[62:64], "none", bodenLine))
-					g.DRAIFAK = ValAsFloat(bodenLine[67:70], "none", bodenLine)
-					g.UKT[0] = 0
-					for i := 0; i < g.AZHO; i++ {
-						g.BART[i] = bodenLine[9:12]
-						g.UKT[i+1] = int(ValAsInt(bodenLine[13:15], "none", bodenLine))
-						g.LD[i] = int(ValAsInt(bodenLine[16:17], "none", bodenLine))
-						// read buld density classes (LD = Lagerungsdichte) set bulk density values
-						if g.LD[i] == 1 {
-							g.BULK[i] = 1.1
-						} else if g.LD[i] == 2 {
-							g.BULK[i] = 1.3
-						} else if g.LD[i] == 3 {
-							g.BULK[i] = 1.5
-						} else if g.LD[i] == 4 {
-							g.BULK[i] = 1.7
-						} else if g.LD[i] == 5 {
-							g.BULK[i] = 1.85
-						}
-						// C-content soil class specific in %
-						g.CGEHALT[i] = ValAsFloat(bodenLine[4:8], "none", bodenLine)
-						// C/N ratio
-						CNRATIO[i] = ValAsFloat(bodenLine[21:24], "none", bodenLine)
-						if CNRATIO[i] == 0 {
-							CNRATIO[i] = 10
-						}
-						if i == 0 {
-							g.CNRAT1 = CNRATIO[i]
-						}
-						l.NGEHALT[i] = g.CGEHALT[i] / CNRATIO[i]
-						g.HUMUS[i] = g.CGEHALT[i] * 1.72 / 100
-						g.STEIN[i] = ValAsFloat(bodenLine[18:20], "none", bodenLine) / 100
-						// Field capacity
-
-						value, err := TryValAsFloat(bodenLine[40:42])
-						if err == nil {
-							g.FKA[i] = value
-						}
-						// wilting point
-						value, err = TryValAsFloat(bodenLine[43:45])
-						if err == nil {
-							g.WP[i] = value
-						}
-						// general pore volume
-						value, err = TryValAsFloat(bodenLine[46:48])
-						if err == nil {
-							g.GPV[i] = value
-						}
-						// sand in %
-						value, err = TryValAsFloat(bodenLine[49:51])
-						if err == nil {
-							l.SSAND[i] = value
-						}
-						// silt in %
-						value, err = TryValAsFloat(bodenLine[52:54])
-						if err == nil {
-							l.SLUF[i] = value
-						}
-						// clay in %
-						value, err = TryValAsFloat(bodenLine[55:57])
-						if err == nil {
-							l.TON[i] = value
-						}
-						if i+1 < g.AZHO {
-							// scan next line in soil profile
-							bodenLine = LineInut(scannerSoilFile)
-						}
-					}
-					// get total number of 10cm layers from last soil layer
-					g.N = g.UKT[g.AZHO]
-					if g.N > 20 || g.N < 1 {
-						if g.DEBUGCHANNEL != nil {
-							g.DEBUGCHANNEL <- fmt.Sprintf("%s Error: total number of 10cm layers from last soil layer: %d", g.LOGID, g.N)
-						}
-						return fmt.Errorf("%s total number of 10cm layers from last soil layer is %d, should be > 1 and < 20", g.LOGID, g.N)
-					}
-				}
+			if strings.HasSuffix(hPath.bofile, "csv") {
+				currentSoil, soilLoadError = loadSoilCSV(groundwaterFormSoilfile, g.LOGID, hPath, sid)
+			} else {
+				currentSoil, soilLoadError = loadSoil(groundwaterFormSoilfile, g.LOGID, hPath, sid)
 			}
-			if !bofind {
-				fmt.Printf("Soil %s for plot %v not found", hPath.bofile, g.SLNR)
-				g.BART[1] = "---"
+			if soilLoadError != nil {
+				return soilLoadError
 			}
+
+			g.SoilID = currentSoil.SoilID
+			g.N = currentSoil.N
+			g.AZHO = currentSoil.AZHO
+			g.WURZMAX = currentSoil.WURZMAX
+
+			if currentSoil.useGroundwaterFromSoilfile {
+				g.GRHI = currentSoil.GRHI
+				g.GRLO = currentSoil.GRLO
+				g.GRW = currentSoil.GRW
+				g.GW = currentSoil.GW
+				g.AMPL = currentSoil.AMPL
+			}
+
+			g.DRAIDEP = currentSoil.DRAIDEP
+			g.DRAIFAK = currentSoil.DRAIFAK
+			g.UKT = currentSoil.UKT
+			g.BART = currentSoil.BART
+			g.LD = currentSoil.LD
+			g.BULK = currentSoil.BULK
+			g.CGEHALT = currentSoil.CGEHALT
+			g.CNRAT1 = currentSoil.CNRAT1
+			l.NGEHALT = currentSoil.NGEHALT
+			g.HUMUS = currentSoil.HUMUS
+			g.STEIN = currentSoil.STEIN
+			g.FKA = currentSoil.FKA
+			g.WP = currentSoil.WP
+			g.GPV = currentSoil.GPV
+			l.SSAND = currentSoil.SSAND
+			l.SLUF = currentSoil.SLUF
+			l.TON = currentSoil.TON
+
 			g.DT.SetByIndex(1)
 
 			// ! *************************** Bodenparameter zuweisen ***********************

@@ -74,13 +74,13 @@ type GlobalVarsMain struct {
 	UKT      [11]int     //(0:10) layer depth (in dm)
 	BART     [10]string  // soil type by KA5(Bodenkundlichen Kartieranleitung 5. Auflage) (special spelling convertions)
 	LD       [10]int     // bulk density KA5 (1-5) (Lagerungsdichtestufe nach KA5 (1-5))
-	BULK     [10]float64 `yaml:"-"` // avarage bulk density (Zuweisung mittlere Lagerungsdichte von LD(I) (g/cm^3))
+	BULK     [10]float64 // avarage bulk density (Zuweisung mittlere Lagerungsdichte von LD(I) (g/cm^3))
 	CGEHALT  [10]float64 // C organic content in soil layer (Corg-Gehalt in Horizont I (Gew.%))
 	HUMUS    [21]float64 // humus content in soil layer (Humusgehalt in Hor. I (Gew.%))
 	STEIN    [10]float64 // stone content in soil layer (%)
-	FKA      [10]float64 `yaml:"-"` // water content at field capacity (Wassergehalt bei Feldkapazität) (Vol. %)
-	WP       [10]float64 `yaml:"-"`
-	GPV      [10]float64 `yaml:"-"` // total interstice percentage (Gesamtporenvolumen) (Vol%)
+	FKA      [10]float64 // water content at field capacity (Wassergehalt bei Feldkapazität) (Vol. %)
+	WP       [10]float64
+	GPV      [10]float64 // total interstice percentage (Gesamtporenvolumen) (Vol%)
 	CAPS     [21]float64
 	LIM      [10]float64
 	PRGES    [10]float64
@@ -151,7 +151,7 @@ type GlobalVarsMain struct {
 	SUND            [367]float64 // Sun shine hours, required if RAD is 0
 	RAD             [367]float64 // photosynthetic active radiation
 	ALBEDO          float64
-	FEU             int         `yaml:"-"`
+	FEU             int
 	C1              [21]float64 // Nitrogen content N-min
 	NAOS            [21]float64 // Nitrogen in slowly decomposable pool (kg N ha-1)
 	MINAOS          [4]float64  //  should be size of N
@@ -240,7 +240,7 @@ type GlobalVarsMain struct {
 	SUM        [10]float64 //development relevant temperature sum in state INTWICK
 	PRO        [10][5]float64
 	DEAD       [10][5]float64
-	TROOTSUM   float64 `yaml:"-"`
+	TROOTSUM   float64
 	GEHOB      float64
 	WUGEH      float64
 	WORG       [5]float64
@@ -275,7 +275,7 @@ type GlobalVarsMain struct {
 	DN         [21]float64
 	YIELD      float64 //Grain yield (only for cereals) (kg ha-1)
 	AUFNASUM   float64
-	NDRAINTAG  float64 `yaml:"-"`
+	NDRAINTAG  float64
 	CUMDENIT   float64
 
 	N2Odencum float64
