@@ -3,6 +3,13 @@ package hermes
 import "math"
 
 // CalculateDayLenght calculate day lenght, effective day lenght(DLE, DLP), extra terrestial Radiation
+// DL - day lenght (h)
+// DLE - effective day lenght (h)
+// DLP - effective day lenght (h)
+// EXT - extra terrestrial radiation (MJ m-2)
+// RDN - average photosynthetic active radiation (J m-2)
+// DRC - radiation on a clear day (J m-2)
+// DEC - declination
 func CalculateDayLenght(tag float64, lat float64) (DL, DLE, DLP, EXT, RDN, DRC, DEC float64) {
 
 	// -------- BERECHNUNG VON TAGLAENGE UND EINSTRAHLUNG -----

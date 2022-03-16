@@ -66,14 +66,15 @@ func NewWeatherDataShared(years int) WeatherDataShared {
 		VERD:        make([][366]float64, years),
 		SUND:        make([][366]float64, years),
 		ETNULL:      make([][366]float64, years),
-		CO2KONZ:     make([]float64, years),
 		WINDHI:      2,
 		ALTITUDE:    0,
+		CO2KONZ:     make([]float64, years),
 		MaxYearDays: make([]int, years),
 		hasWINDHI:   false,
 		hasALTITUDE: false,
 		hasCO2KONZ:  false,
 		hasVERD:     false,
+		hasSUND:     false,
 		hasETNULL:   false,
 	}
 	s.fillCO2Value(BaseCO2)
@@ -160,13 +161,13 @@ func WetterK(VWDAT string, year int, g *GlobalVarsMain, s *WeatherDataShared, hP
 		s.TMI[0][Tindex] = ValAsFloat(Wettin[1], VWDAT, WETTER)
 		s.TMA[0][Tindex] = ValAsFloat(Wettin[2], VWDAT, WETTER)
 		s.ETNULL[0][Tindex] = ValAsFloat(Wettin[3], VWDAT, WETTER)
-		s.hasETNULL = true
+		s.hasETNULL = s.hasETNULL || driConfig.WeatherNoneValue != s.ETNULL[0][Tindex]
 		s.RELF[0][Tindex] = ValAsFloat(Wettin[4], VWDAT, WETTER)
 		s.VERD[0][Tindex] = ValAsFloat(Wettin[5], VWDAT, WETTER)
-		s.hasVERD = true
+		s.hasVERD = s.hasVERD || driConfig.WeatherNoneValue != s.VERD[0][Tindex]
 		s.WIN[0][Tindex] = ValAsFloat(Wettin[6], VWDAT, WETTER)
 		s.SUND[0][Tindex] = ValAsFloat(Wettin[7], VWDAT, WETTER)
-		s.hasSUND = true
+		s.hasSUND = s.hasSUND || driConfig.WeatherNoneValue != s.SUND[0][Tindex]
 		s.RADI[0][Tindex] = ValAsFloat(Wettin[8], VWDAT, WETTER)
 		s.REG[0][Tindex] = ValAsFloat(Wettin[9], VWDAT, WETTER)
 		s.MaxYearDays[0] = T
@@ -643,6 +644,15 @@ func LoadYear(g *GlobalVarsMain, s *WeatherDataShared, year int) error {
 				g.RAD[Tidx] = s.RADI[yearIdx][Tidx]
 				g.WIND[Tidx] = s.WIN[yearIdx][Tidx]
 				g.REGEN[Tidx] = s.REG[yearIdx][Tidx]
+				if s.hasSUND {
+					g.SUND[Tidx] = s.SUND[yearIdx][Tidx]
+				}
+				if s.hasVERD {
+					g.VERD[Tidx] = s.VERD[yearIdx][Tidx]
+				}
+				if s.hasETNULL {
+					g.ETNULL[Tidx] = s.ETNULL[yearIdx][Tidx]
+				}
 			}
 			if s.hasWINDHI {
 				g.WINDHI = s.WINDHI
@@ -653,6 +663,7 @@ func LoadYear(g *GlobalVarsMain, s *WeatherDataShared, year int) error {
 			if s.hasALTITUDE {
 				g.ALTI = s.ALTITUDE
 			}
+
 			g.JTAG = days
 			return nil
 		}
