@@ -2,6 +2,7 @@ package hermes
 
 import (
 	"log"
+	"strings"
 )
 
 // DualType for values that have been used as int index and float for calculations
@@ -108,7 +109,7 @@ type GlobalVarsMain struct {
 	ZTBR     []int     // irrigation time (timestamp since 1900)
 	BEGINN   int
 	ENDE     int
-	FRUCHT   [300]string
+	FRUCHT   [300]CropType
 	CVARIETY [300]string
 	SAAT     [300]int
 	JN       [300]float64
@@ -402,6 +403,7 @@ type GlobalVarsMain struct {
 	Datum           DateConverterFunc      `yaml:"-"`
 	Kalender        KalenderConverterFunc  `yaml:"-"`
 	LangTag         LangTagConverterFunc   `yaml:"-"`
+	CropTypeLookup  map[string]CropType    `yaml:"-"`
 }
 
 //CropOutputVars at harvest
@@ -477,6 +479,7 @@ func NewGlobalVarsMain() GlobalVarsMain {
 		ALPH:           40,
 		SATBETA:        2.5,
 		C1stabilityVal: -1.5, // Threashold, when becomes negative C1 an error: must be a value below 0
+		CropTypeLookup: map[string]CropType{},
 	}
 	main.DEBUGOUT = main.printToLimit(100)
 	return main
@@ -497,4 +500,111 @@ func (g *GlobalVarsMain) setIrrigation(zeit, index int, value float64) {
 	}
 	g.BREG[index] = value
 	g.ZTBR[index] = zeit
+}
+
+type CropType int
+
+const (
+	AB  CropType = iota // field bean / Ackerbohne
+	CCM                 // Corn-Cob-Mix / Kolben + Körner
+	GR                  // grass land cut / Grünland Schnittnutzung
+	GRE                 // grass land pasture / Gras. Futter Grünmasse
+	H                   // oat / Hafer
+	OA                  // oat / Hafer
+	K                   // potato / Kartoffeln
+	LUP                 // lupine / Lupinen
+	ORH                 // oil radish / Ölrettich
+	SE                  // mustard catch crop / Senf Zwischenfrucht
+	SG                  // spring barley / Sommergerste
+	SM                  // silage maize / Silomais
+	M                   // maize /Mais
+	SW                  // summer wheat / Sommerweizen
+	TR                  // triticale / Triticale Korn
+	WG                  // winter barley / Wintergerste
+	WR                  // winter rye / Winterroggen
+	WRA                 // winter rapeseed / Winterraps
+	WRC                 // winter rapeseed catch crop / Winterraps Zwischenfrucht
+	WW                  // winter wheat / Winter Weizen
+	ZR                  // sugar beet / Zuckerrüben
+	AA                  // alfalfa / Luzerne
+	OEL                 // oil linseed catch crop / Öllein Zwischenfrucht
+	ERB                 // pea / Felderbse
+	PH                  // phacelia / Phazelie
+	SOY                 // soybean / Soyabohne
+	numSysCrops
+)
+
+var cropTypeLookup = map[string]CropType{
+	"AB":  AB,
+	"CCM": CCM,
+	"GR":  GR,
+	"GRE": GRE,
+	"H":   H,
+	"OA":  OA,
+	"K":   K,
+	"LUP": LUP,
+	"ORH": ORH,
+	"SE":  SE,
+	"SG":  SG,
+	"SM":  SM,
+	"M":   M,
+	"SW":  SW,
+	"TR":  TR,
+	"WG":  WG,
+	"WR":  WR,
+	"WRA": WRA,
+	"WRC": WRC,
+	"WW":  WW,
+	"ZR":  ZR,
+	"AA":  AA,
+	"OEL": OEL,
+	"ERB": ERB,
+	"PH":  PH,
+	"SOY": SOY,
+}
+
+func (g *GlobalVarsMain) ToCropType(s string) CropType {
+	trimSpaces := strings.TrimSpace(s)
+	// check for static crop types
+	if val, ok := cropTypeLookup[trimSpaces]; ok {
+
+		return val
+	}
+	// check for dynamic crop types
+	if val, ok := g.CropTypeLookup[trimSpaces]; ok {
+		return val
+	}
+	// if none is found, add new crop type to dynamic
+	newCropType := numSysCrops + CropType(len(g.CropTypeLookup)) + 1
+	g.CropTypeLookup[trimSpaces] = newCropType
+
+	return newCropType
+}
+
+func (g *GlobalVarsMain) CropTypeToString(c CropType, withSpaces bool) string {
+	// slow
+	addSpaces := func(cT string) string {
+		if withSpaces {
+			newStr := []rune("   ")
+			for i, v := range cT {
+				if i < 3 {
+					newStr[i] = v
+				}
+			}
+			return string(newStr)
+		}
+		return cT
+	}
+	for key, val := range cropTypeLookup {
+		if val == c {
+			return addSpaces(key)
+		}
+	}
+	for key, val := range g.CropTypeLookup {
+		if val == c {
+			return addSpaces(key)
+		}
+	}
+
+	return "undefindeCrop"
 }

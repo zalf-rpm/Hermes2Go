@@ -659,7 +659,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 						nfixP[1] = g.NFIXSUM
 					}
 
-					g.Crop = g.FRUCHT[g.AKF.Index]
+					g.Crop = g.CropTypeToString(g.FRUCHT[g.AKF.Index], true)
 					g.NAbgbio = g.OBMAS * g.GEHOB
 					g.DRflowsum = dRflowsum[1]
 					g.Ndrflow = ndrflow[1]

@@ -61,7 +61,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		output.SowDate = g.Kalender(zeit)
 		output.SowDOY = g.TAG.Index + 1
 
-		PARANAM := hPath.GetParanam(g.FRUCHT[g.AKF.Index], g.CVARIETY[g.AKF.Index])
+		PARANAM := hPath.GetParanam(g.CropTypeToString(g.FRUCHT[g.AKF.Index], false), g.CVARIETY[g.AKF.Index])
 		g.TRRELSUM = 0
 		g.REDUKSUM = 0
 		g.ETAG = 0
@@ -271,7 +271,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		g.WUMAS = g.WORG[0]
 		// Berechnung Wurzellänge aus Wurzelmasse
 		//WULAEN = (g.WUMAS * 100000 * 100.0 / 7.0) / (math.Pow(0.015, 2.0) * math.Pi)
-		if g.FRUCHT[g.AKF.Index] == "ZR " || g.FRUCHT[g.AKF.Index] == "K  " {
+		if g.FRUCHT[g.AKF.Index] == ZR || g.FRUCHT[g.AKF.Index] == K {
 			g.PESUM = (g.OBMAS*g.GEHOB + (g.WUMAS+g.WORG[3])*g.WUGEH)
 		} else {
 			g.PESUM = (g.OBMAS*g.GEHOB + g.WUMAS*g.WUGEH)
@@ -366,13 +366,13 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		// Assimilationspool
 		g.ASPOO = 0
 		// Beruecksichtigung des Proteinziels im Korn für Duengerbedarfsanalyse
-		if g.FRUCHT[g.AKF.Index] == "WW " {
+		if g.FRUCHT[g.AKF.Index] == WW {
 			l.EZIEL = 95
 			l.PROZIEL = 0.0224
-		} else if g.FRUCHT[g.AKF.Index] == "WR " {
+		} else if g.FRUCHT[g.AKF.Index] == WR {
 			l.PROZIEL = 0.0175
 			l.EZIEL = 80
-		} else if g.FRUCHT[g.AKF.Index] == "WG " {
+		} else if g.FRUCHT[g.AKF.Index] == WG {
 			l.PROZIEL = 0.0192
 			l.EZIEL = 80
 		}
@@ -405,7 +405,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 
 		// Entwicklungsbeschleunigung durch Wasser bzw Stickstoffstress (7.11.07 aus Ottawa)
 		var Nprog float64
-		if g.FRUCHT[g.AKF.Index] == "ZR " || g.FRUCHT[g.AKF.Index] == "SM " {
+		if g.FRUCHT[g.AKF.Index] == ZR || g.FRUCHT[g.AKF.Index] == SM {
 			// keine Beschleunigung durch N-Stress
 			Nprog = 1
 		} else {
@@ -452,7 +452,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 				g.GEHMIN = .0415
 				g.GEHMAX = .06
 			} else {
-				if g.FRUCHT[g.AKF.Index] == "WR " || g.FRUCHT[g.AKF.Index] == "SG " {
+				if g.FRUCHT[g.AKF.Index] == WR || g.FRUCHT[g.AKF.Index] == SG {
 					g.GEHMIN = 5.1 * math.Exp(-.00165*g.PHYLLO) / 100
 					g.GEHMAX = 8.0 * math.Exp(-.0017*g.PHYLLO) / 100
 				} else {
@@ -533,7 +533,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			} else {
 				// Korrekturfaktor für Entwicklungsfunktion bei sortenspez. Temperatursummen
 				dvkor := 1 / ((l.tendsum - 200) / (1260 - 200))
-				if g.FRUCHT[g.AKF.Index] == "WR " || g.FRUCHT[g.AKF.Index] == "SG " {
+				if g.FRUCHT[g.AKF.Index] == WR || g.FRUCHT[g.AKF.Index] == SG {
 					g.GEHMIN = 5.1 * math.Exp(-.00165*dvkor*g.PHYLLO) / 100
 					g.GEHMAX = 8.0 * math.Exp(-.0017*dvkor*g.PHYLLO) / 100
 				} else {
@@ -633,7 +633,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 
 			}
 			g.ASPOO = g.ASPOO + GTW*(1.-g.REDUK)
-			if g.FRUCHT[g.AKF.Index] == "ZR " || g.FRUCHT[g.AKF.Index] == "K  " {
+			if g.FRUCHT[g.AKF.Index] == ZR || g.FRUCHT[g.AKF.Index] == K {
 				OBALT = g.OBMAS + g.WORG[3]
 			} else {
 				OBALT = g.OBMAS
@@ -670,7 +670,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 					OBALT = g.WORG[1]
 				}
 			}
-			if g.FRUCHT[g.AKF.Index] == "ZR " || g.FRUCHT[g.AKF.Index] == "K  " {
+			if g.FRUCHT[g.AKF.Index] == ZR || g.FRUCHT[g.AKF.Index] == K {
 				DTGESN = (g.GEHMAX*g.OBMAS + (g.WUMAS+g.WORG[3])*g.WGMAX[g.INTWICK.Index] - g.PESUM) * g.DT.Num
 			} else {
 				DTGESN = (g.GEHMAX*g.OBMAS + g.WUMAS*g.WGMAX[g.INTWICK.Index] - g.PESUM) * g.DT.Num
@@ -740,7 +740,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 	// WRAD root radius
 	WRAD := make([]float64, g.WURZ)
 	for i := 1; i <= g.WURZ; i++ {
-		if g.FRUCHT[g.AKF.Index] == "ZR " || g.FRUCHT[g.AKF.Index] == "K  " {
+		if g.FRUCHT[g.AKF.Index] == ZR || g.FRUCHT[g.AKF.Index] == K {
 			WRAD[i-1] = .01
 		} else {
 			WRAD[i-1] = .02 - float64(i)*.001
@@ -786,11 +786,11 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 	}
 	// Limitieren der maximalen N-Aufnahme auf 26-13*10^-14 mol/cm W./sec
 	var maxup float64
-	if g.FRUCHT[g.AKF.Index] == "ORH" || g.FRUCHT[g.AKF.Index] == "WRA" || g.FRUCHT[g.AKF.Index] == "SE " {
+	if g.FRUCHT[g.AKF.Index] == ORH || g.FRUCHT[g.AKF.Index] == WRA || g.FRUCHT[g.AKF.Index] == SE {
 		maxup = .09145 - .015725*(g.PHYLLO/1300)
-	} else if g.FRUCHT[g.AKF.Index] == "SM " {
+	} else if g.FRUCHT[g.AKF.Index] == SM {
 		maxup = .074 - .01*(g.PHYLLO/l.tendsum)
-	} else if g.FRUCHT[g.AKF.Index] == "ZR " {
+	} else if g.FRUCHT[g.AKF.Index] == ZR {
 		maxup = .05645 - .01*(g.PHYLLO/l.tendsum)
 	} else {
 		maxup = .03145 - .015725*(g.PHYLLO/1300)
@@ -854,7 +854,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 	g.SCHNORR = g.NFIX
 	g.NFIXSUM = g.NFIXSUM + g.NFIX
 	if g.WUMAS > WUMALT {
-		if g.FRUCHT[g.AKF.Index] == "ZR " || g.FRUCHT[g.AKF.Index] == "K  " {
+		if g.FRUCHT[g.AKF.Index] == ZR || g.FRUCHT[g.AKF.Index] == K {
 			if (g.OBMAS - OBALT + g.WUMAS - WUMALT) > 0 {
 				g.WUGEH = (WUMALT*g.WUGEH + ((g.WUMAS - WUMALT) / (g.OBMAS + g.WORG[3] - OBALT + g.WUMAS - WUMALT) * SUMPE)) / g.WUMAS
 			}
@@ -868,7 +868,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			g.WUGEH = 0.005
 		}
 	}
-	if g.FRUCHT[g.AKF.Index] == "ZR " || g.FRUCHT[g.AKF.Index] == "K  " {
+	if g.FRUCHT[g.AKF.Index] == ZR || g.FRUCHT[g.AKF.Index] == K {
 		g.GEHOB = (g.PESUM + SUMPE - g.WUMAS*g.WUGEH) / (g.OBMAS + g.WORG[3])
 		if g.GEHOB*(g.OBMAS+g.WORG[3]) < OBALT*GEHALT {
 			g.WUGEH = (g.PESUM + SUMPE - (g.OBMAS+g.WORG[3])*g.GEHOB) / (g.WUMAS)
@@ -1052,7 +1052,7 @@ func radia(g *GlobalVarsMain, l *CropSharedVars, zeit int) (DLE, DLP, GPHOT, MAI
 	if g.LURED == 1 {
 		vswell = g.DRYSWELL[g.INTWICK.Index]
 	} else {
-		if g.FRUCHT[g.AKF.Index] == "SM " || g.FRUCHT[g.AKF.Index] == "K  " || g.FRUCHT[g.AKF.Index] == "WR " || g.FRUCHT[g.AKF.Index] == "SG " || g.FRUCHT[g.AKF.Index] == "WW " || g.FRUCHT[g.AKF.Index] == "WG " {
+		if g.FRUCHT[g.AKF.Index] == SM || g.FRUCHT[g.AKF.Index] == K || g.FRUCHT[g.AKF.Index] == WR || g.FRUCHT[g.AKF.Index] == SG || g.FRUCHT[g.AKF.Index] == WW || g.FRUCHT[g.AKF.Index] == WG {
 			vswell = 1
 		} else {
 			vswell = 0.8

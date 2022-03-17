@@ -288,7 +288,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			output.MatDOY = g.DEV[5]
 			output.HarvestYear = hyear
 			output.HarvestDOY = g.TAG.Index + 1
-			output.Crop = g.FRUCHT[g.AKF.Index]
+			output.Crop = g.CropTypeToString(g.FRUCHT[g.AKF.Index], true)
 			output.Yield = g.YIELD
 			output.Biomass = g.OBMAS
 			output.Roots = g.WORG[0]
@@ -433,7 +433,9 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 		}
 		pinit(g)
 
-		if g.FRUCHT[g.AKF.Index] != "GRL" && g.FRUCHT[g.AKF.Index] != "GR " && g.FRUCHT[g.AKF.Index] != "AA " {
+		if g.FRUCHT[g.AKF.Index] != GRE &&
+			g.FRUCHT[g.AKF.Index] != GR &&
+			g.FRUCHT[g.AKF.Index] != AA {
 			g.PESUM = 0
 			g.WURZ = 0
 			g.LAI = 0
@@ -731,7 +733,7 @@ func resid(g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath 
 	var KOSTRO, NERNT, NKOPP, NWURA, NFAST float64
 	for scanner.Scan() {
 		CROP := scanner.Text()
-		if CROP[0:3] == g.FRUCHT[g.AKF.Index] {
+		if g.ToCropType(CROP[0:3]) == g.FRUCHT[g.AKF.Index] {
 			//! Korn-Stroh Verhältnis
 			KOSTRO = ValAsFloat(CROP[4:7], CRONAM, CROP)
 			// N im Erntegut (kg N/dt)
@@ -757,7 +759,7 @@ func resid(g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath 
 		}
 	} else if g.JN[g.AKF.Index] == 1 {
 		if g.DAUERKULT == 'D' {
-			if g.FRUCHT[g.AKF.Index] == "AA " {
+			if g.FRUCHT[g.AKF.Index] == AA {
 				DGM = g.PESUM * NWURA * 0.74
 			} else {
 				DGM = g.PESUM * NWURA * 0.2

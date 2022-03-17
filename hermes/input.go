@@ -336,7 +336,7 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 					for ok := true; ok; ok = SCHLAG == g.PKT {
 						SLFIND++
 						SLFINDindex := SLFIND - 1
-						g.FRUCHT[SLFINDindex] = RO[10:13]
+						g.FRUCHT[SLFINDindex] = g.ToCropType(RO[10:13])
 						if len(ROtoken) > 7 {
 							g.CVARIETY[SLFINDindex] = ROtoken[7]
 						}
@@ -371,7 +371,7 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 								LineInut(autoScanner)
 								for autoScanner.Scan() {
 									crpman := autoScanner.Text()
-									if crpman[0:3] == g.FRUCHT[SLFINDindex] {
+									if g.ToCropType(crpman[0:3]) == g.FRUCHT[SLFINDindex] {
 										if g.AUTOMAN {
 											if ValAsInt(crpman[4:8], autfil, crpman) == 0 {
 												SAT = ROtoken[2]
@@ -466,7 +466,7 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 								LineInut(autoScanner)
 								for autoScanner.Scan() {
 									crpman := autoScanner.Text()
-									if crpman[0:3] == g.FRUCHT[SLFINDindex] {
+									if g.ToCropType(crpman[0:3]) == g.FRUCHT[SLFINDindex] {
 										if g.ODU[SLFINDindex] == 1 {
 											g.DGART[SLFINDindex] = strings.Trim(crpman[143:146], " ")
 											l.DGMG[SLFINDindex] = ValAsFloat(crpman[149:152], autfil, crpman)
@@ -494,7 +494,7 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 						ROtoken = Explode(RO, []rune{' '})
 						SCHLAG = readN(RO, 9)
 						if SCHLAG != g.PKT {
-							g.FRUCHT[SLFINDindex+1] = "SM " // TODO: Why hardcoded SM?
+							g.FRUCHT[SLFINDindex+1] = SM // TODO: Why hardcoded SM?
 							g.ERTR[SLFINDindex+1] = 0
 							g.SAAT1[SLFINDindex+1] = g.SAAT[SLFINDindex] + 365
 							g.SAAT2[SLFINDindex+1] = g.SAAT[SLFINDindex] + 365
@@ -515,13 +515,13 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 			// ! ---- Ableitung der Anfangs-Nmin-Verteilung in Abhängigkeit von Vorfrucht -----
 			// Deriving of start-N-min-Distribution in relation to previous crop
 			for m := 1; m <= g.N+1; m++ {
-				if g.FRUCHT[0] == "ZR " {
+				if g.FRUCHT[0] == ZR {
 					g.CN[0][m-1] = 20. * 5 / 10 / (float64(m) + 1)
-				} else if g.FRUCHT[0] == "WRA" || g.FRUCHT[0] == "AB " {
+				} else if g.FRUCHT[0] == WRA || g.FRUCHT[0] == AB {
 					g.CN[0][m-1] = 45. * 5 / 10 / (float64(m) + 1)
-				} else if g.FRUCHT[0] == "CCM" || g.FRUCHT[0] == "M  " || g.FRUCHT[0] == "SM " {
+				} else if g.FRUCHT[0] == CCM || g.FRUCHT[0] == M || g.FRUCHT[0] == SM {
 					g.CN[0][m-1] = 95. * 5 / 10 / (float64(m) + 1)
-				} else if g.FRUCHT[0] == "K  " {
+				} else if g.FRUCHT[0] == K {
 					g.CN[0][m-1] = 50. * 5 / 10 / (float64(m) + 1)
 				} else {
 					g.CN[0][m-1] = 35. * 5 / 10 / (float64(m) + 1)
@@ -1039,7 +1039,7 @@ func residi(g *GlobalVarsMain, hPath *HFilePath) {
 	var KOSTRO, NERNT, NKOPP, NWURA, NFAST float64
 	for scanner.Scan() {
 		CROP := scanner.Text()
-		if CROP[0:3] == g.FRUCHT[g.AKF.Index] {
+		if g.ToCropType(CROP[0:3]) == g.FRUCHT[g.AKF.Index] {
 			KOSTRO = ValAsFloat(CROP[4:7], cropN, CROP)
 			NERNT = ValAsFloat(CROP[13:18], cropN, CROP)
 			NKOPP = ValAsFloat(CROP[25:30], cropN, CROP)
@@ -1097,7 +1097,7 @@ func verdun(gloInput *GlobalVarsMain, hPath *HFilePath) {
 		} else {
 			for scanner.Scan() {
 				HAUF := scanner.Text()
-				if HAUF[0:3] == gloInput.FRUCHT[gloInput.AKF.Index] {
+				if gloInput.ToCropType(HAUF[0:3]) == gloInput.FRUCHT[gloInput.AKF.Index] {
 					for i := 1; i <= 12; i++ {
 						gloInput.FKF[i-1] = ValAsFloat(HAUF[5*i-1:3+5*i], filename, HAUF)
 					}
