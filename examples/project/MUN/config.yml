@@ -13,7 +13,7 @@ WeatherFolder: "MUN"
 WeatherRootFolder: "./weather/"
 WeatherNoneValue: -99
 WeatherNumHeader: 3
-CorrectionPrecipitation: 1
+CorrectionPrecipitation: 0
 ETpot: 3
 CoastDistance: 90
 CO2method: 2
