@@ -1,0 +1,1 @@
+project=MUN WeatherFolder=MUN soilId=001 fcode=NEU plotNr=00001 Altitude=55 Latitude=54.00 poligonID=MUN parameter=./parameter StartYear=2009 EndDate=31052019 resultfolder=MUN_RESULT
