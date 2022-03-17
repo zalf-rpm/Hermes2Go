@@ -420,7 +420,7 @@ func Evatra(l *WaterSharedVars, g *GlobalVarsMain, hPath *HFilePath, zeit int) {
 			if g.WIND[g.TAG.Index] < 0.5 { // fixed lower bound for wind speed to 0.5
 				g.WIND[g.TAG.Index] = 0.5
 			}
-			//    ! ----- Berechnung des Oberfl�chenwiderstands rs mit Stomatawiderstand = 100 s/m (Rsurf)
+			//    ! ----- Berechnung des Oberflächenwiderstands rs mit Stomatawiderstand = 100 s/m (Rsurf)
 			Rsurf := g.RSTOM / 1.44
 			if g.RAD[g.TAG.Index] > 0 {
 				// ! Berechnung der Nettostrahlung aus Globalstrahlung und Sonnenscheindauer

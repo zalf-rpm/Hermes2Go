@@ -134,6 +134,10 @@ func (hp *HFilePath) SetVwdatNoExt(ins string) {
 	hp.vwdatnrm = hp.vwdatNoExt + "nrm"
 }
 
+func (hp *HFilePath) SetPreCorrFolder(folder string) {
+	hp.precorr = path.Join(folder, "preco.txt")
+}
+
 // GetParanam returns the full filename for the choosen fruit
 func (hp *HFilePath) GetParanam(fruit, variety string) string {
 	if len(variety) > 0 {

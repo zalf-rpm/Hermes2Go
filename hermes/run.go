@@ -199,6 +199,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		if err != nil {
 			return err
 		}
+		herPath.SetPreCorrFolder(path.Join(driConfig.WeatherRootFolder, driConfig.WeatherFolder))
 		var bbbShared WeatherDataShared
 		// format multiple years per weather file
 		if driConfig.WeatherFileFormat == 1 {
