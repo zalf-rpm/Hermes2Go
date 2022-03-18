@@ -6,6 +6,8 @@ ResultFileFormat: 0
 OutputIntervall: 1
 InitSelection: 2
 SoilFile: soil
+SoilFileExtension: 'txt'
+CropFileFormat: 'txt'
 WeatherFile: 'MET_%s.'
 WeatherFileFormat: 0
 WeatherFileSeperator: 1

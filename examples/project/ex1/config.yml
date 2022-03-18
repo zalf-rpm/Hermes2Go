@@ -17,6 +17,10 @@ OutputIntervall: 1
 InitSelection: 3
 # soil profile file name (without projectname)
 SoilFile: soil
+#  soil file extension (txt = hermes soil, csv = csv table format)
+SoilFileExtension: 'txt'
+#  crop file format (txt = hermes crop, csv = csv table format)
+CropFileFormat: 'csv'
 # weather file name template/pattern
 WeatherFile: '%s.csv'
 # Weather file format (0=separator(, ; \t), 1 year per file ) (1=separator(, ; \t), multiple years per file)

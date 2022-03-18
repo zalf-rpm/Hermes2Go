@@ -25,6 +25,19 @@ func LineInut(scanner *bufio.Scanner) (line string) {
 	return line
 }
 
+func NextLineInut(idIdx int, scanner *bufio.Scanner, splitFunc func(string) []string) (id string, tokens []string, valid bool) {
+	valid = false
+	if ok := scanner.Scan(); ok {
+		line := scanner.Text()
+		tokens = splitFunc(line)
+		if len(tokens) > idIdx {
+			id = strings.TrimSpace(tokens[idIdx])
+			valid = true
+		}
+	}
+	return id, tokens, valid
+}
+
 // ValAsFloat parse text into float
 func ValAsFloat(toParse, filename, line string) float64 {
 	noSpaces := strings.TrimSpace(toParse)
@@ -89,15 +102,6 @@ func Explode(str string, seperator []rune) (result []string) {
 
 	result = strings.FieldsFunc(str, sR.isRune)
 	return result
-}
-
-// readN read a slice of num or less if len is smaller
-func readN(str string, num int) string {
-	endline := num
-	if lenght := len(str); lenght < endline {
-		endline = lenght
-	}
-	return str[0:endline]
 }
 
 // DateConverterFunc type of DateConverter

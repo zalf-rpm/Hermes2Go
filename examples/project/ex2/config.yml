@@ -19,6 +19,8 @@ InitSelection: 3
 SoilFile: soil
 #  soil file extension (txt = hermes soil, csv = csv table format)
 SoilFileExtension: 'csv'
+#  crop file format (txt = hermes crop, csv = csv table format)
+CropFileFormat: 'txt'
 # weather file name template/pattern, %s will be replaced with fcode
 WeatherFile: '%s109_120.csv'
 # Weather file format (0=separator(, ; \t), 1 year per file ) (1=separator(, ; \t), multiple years per file)

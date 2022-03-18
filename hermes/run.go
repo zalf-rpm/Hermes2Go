@@ -182,7 +182,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		}
 
 		//************ AUFRUFEN DES EINGABE UND UMRECHNUNGSMODULS **************
-		errSoil := Input(scannerPoly2, &herInputVars, &g, &herPath, SOID)
+		errSoil := Input(scannerPoly2, &herInputVars, &g, &herPath, &driConfig, SOID)
 		if errSoil != nil {
 			return errSoil
 		}

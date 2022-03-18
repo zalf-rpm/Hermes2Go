@@ -30,7 +30,7 @@ type InputSharedVars struct {
 }
 
 // Input modul for reading soil data, crop rotation, cultivation data (Fertilization, tillage) of fields and ploygon units
-func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, soilID string) error {
+func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *config, soilID string) error {
 	//! ------Modul zum Einlesen von Boden-, Fruchtfolge und Bewirtschaftungsdaten (Duengung, Bodenbearbeitung) von Feldern und Polygonen ---------
 	var ERNT, SAT string
 	var winit [6]float64
@@ -61,6 +61,7 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 			}
 
 			g.PKT = wa[10:19]                            // Feld_ID / Field_ID
+			g.PKT = strings.TrimSpace(g.PKT)             // remove spaces
 			l.IRRIGAT = ValAsBool(wa[26:27], "none", wa) // irrigation on/off 1/0
 
 			// ! ++++++++++++++++++++++ Einlesen der Bodenkartiereinheit (Boden-ID) +++++++++++++++++++++++++++++
@@ -272,27 +273,22 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 					_, scannerIrrFile, _ := Open(&FileDescriptior{FilePath: Bereg, FileDescription: "irrigation file", UseFilePool: true})
 					LineInut(scannerIrrFile)
 
-					for scannerIrrFile.Scan() {
-						SLAG := scannerIrrFile.Text()
-						SLAGtoken := Explode(SLAG, []rune{' '})
-						SCHLAG := readN(SLAG, 9)
-						if SCHLAG == g.PKT {
-							for ok := true; ok; ok = SCHLAG == g.PKT {
-								l.ANZBREG++
-								g.BREG[l.ANZBREG-1] = ValAsFloat(SLAGtoken[1], Bereg, SLAG)
-								g.BRKZ[l.ANZBREG-1] = ValAsFloat(SLAGtoken[2], Bereg, SLAG)
-								BREGDAT := SLAGtoken[3]
-								_, g.ZTBR[l.ANZBREG-1] = g.Datum(BREGDAT)
+					for SCHLAG, SLAGtoken, ok := NextLineInut(0, scannerIrrFile, strings.Fields); ok; SCHLAG, SLAGtoken, ok = NextLineInut(0, scannerIrrFile, strings.Fields) {
+						valid := true
+						for ok := SCHLAG == g.PKT; ok; ok = SCHLAG == g.PKT && valid {
+							l.ANZBREG++
+							g.BREG[l.ANZBREG-1] = ValAsFloat(SLAGtoken[1], Bereg, SLAGtoken[1])
+							g.BRKZ[l.ANZBREG-1] = ValAsFloat(SLAGtoken[2], Bereg, SLAGtoken[2])
+							BREGDAT := SLAGtoken[3]
+							_, g.ZTBR[l.ANZBREG-1] = g.Datum(BREGDAT)
 
-								///!warning may Beginn not yet initialized
-								if g.ZTBR[l.ANZBREG-1] < g.BEGINN {
-									l.ANZBREG--
-								}
-								SLAG = LineInut(scannerIrrFile)
-								SLAGtoken = Explode(SLAG, []rune{' '})
-								SCHLAG = readN(SLAG, 9)
+							///!warning may Beginn not yet initialized
+							if g.ZTBR[l.ANZBREG-1] < g.BEGINN {
+								l.ANZBREG--
 							}
+							SCHLAG, SLAGtoken, valid = NextLineInut(0, scannerIrrFile, strings.Fields)
 						}
+
 					}
 					for i := l.ANZBREG; i < 500; i++ {
 						g.ZTBR[i] = 0
@@ -325,154 +321,140 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 
 			ROTA := hPath.crop
 			_, scannerRotation, _ := Open(&FileDescriptior{FilePath: ROTA, FileDescription: "rotation file", UseFilePool: true})
-			LineInut(scannerRotation)
+			cropHeader := LineInut(scannerRotation)
+
+			hSchlag := 0
+			hCrop := 1
+			hSow := 2
+			hHarvest := 3
+			hJN := 4
+			hHarvestResidue := 5
+			hOrgDung := 6
+			hVariety := 7
+			splitLine := func(s string) []string {
+				return strings.Fields(s)
+			}
+			if driConfig.CropFileFormat == "csv" {
+				splitLine = func(s string) []string {
+					return strings.Split(s, ",")
+				}
+				headlineTokens := strings.Split(cropHeader, ",")
+				for i, t := range headlineTokens {
+					if t == "Field_ID" {
+						hSchlag = i
+					} else if t == "crop" {
+						hCrop = i
+					} else if t == "sowing" {
+						hSow = i
+					} else if t == "harvest" {
+						hHarvest = i
+					} else if t == "Rex" {
+						hJN = i
+					} else if t == "yld" {
+						hHarvestResidue = i
+					} else if t == "autorg" {
+						hOrgDung = i
+					} else if t == "variety" {
+						hVariety = i
+					}
+				}
+			}
 
 			SLFIND := 0
-			for scannerRotation.Scan() {
-				RO := scannerRotation.Text()
-				ROtoken := Explode(RO, []rune{' '})
-				SCHLAG := readN(RO, 9)
-				if SCHLAG == g.PKT {
-					for ok := true; ok; ok = SCHLAG == g.PKT {
-						SLFIND++
-						SLFINDindex := SLFIND - 1
-						g.FRUCHT[SLFINDindex] = g.ToCropType(RO[10:13])
-						if len(ROtoken) > 7 {
-							g.CVARIETY[SLFINDindex] = ROtoken[7]
-						}
-						if SLFIND > 1 {
-							SAT = ROtoken[2]
-						}
+			for SCHLAG, ROtoken, valid := NextLineInut(hSchlag, scannerRotation, splitLine); valid; SCHLAG, ROtoken, valid = NextLineInut(hSchlag, scannerRotation, splitLine) {
+				for ok := SCHLAG == g.PKT; ok; ok = SCHLAG == g.PKT && valid {
+					SLFIND++
+					SLFINDindex := SLFIND - 1
+					g.FRUCHT[SLFINDindex] = g.ToCropType(ROtoken[hCrop])
+					if len(ROtoken) > hVariety {
+						g.CVARIETY[SLFINDindex] = ROtoken[hVariety]
+					}
+					if SLFIND > 1 {
+						SAT = ROtoken[hSow]
+					}
 
-						ERNT = ROtoken[3]
-						if len(ROtoken) > 6 {
-							g.ODU[SLFINDindex] = ValAsFloat(ROtoken[6], ROTA, RO)
-						} else {
-							g.ODU[SLFINDindex] = 0
-						}
-						if !g.AUTOMAN {
-							if SLFIND > 1 {
-								_, g.SAAT[SLFINDindex] = g.Datum(SAT)
-							}
-						}
-						if !g.AUTOHAR {
-							var ERNDAT int
-							ERNDAT, g.ERNTE[SLFINDindex] = g.Datum(ERNT)
-							if SLFIND == 1 {
-								g.ITAG = ERNDAT
-							}
-							g.ERNTE2[SLFINDindex] = g.ERNTE[SLFINDindex]
-						}
-
+					ERNT = ROtoken[hHarvest]
+					if len(ROtoken) > hOrgDung {
+						g.ODU[SLFINDindex] = ValAsFloat(ROtoken[hOrgDung], ROTA, ROtoken[hOrgDung])
+					} else {
+						g.ODU[SLFINDindex] = 0
+					}
+					if !g.AUTOMAN {
 						if SLFIND > 1 {
-							if g.AUTOIRRI || g.AUTOFERT || g.AUTOHAR || g.AUTOMAN {
-								autfil := hPath.auto
-								_, autoScanner, _ := Open(&FileDescriptior{FilePath: autfil, FileDescription: "automated file", UseFilePool: true})
-								LineInut(autoScanner)
-								for autoScanner.Scan() {
-									crpman := autoScanner.Text()
-									if g.ToCropType(crpman[0:3]) == g.FRUCHT[SLFINDindex] {
-										if g.AUTOMAN {
-											if ValAsInt(crpman[4:8], autfil, crpman) == 0 {
-												SAT = ROtoken[2]
-												_, g.SAAT[SLFINDindex] = g.Datum(SAT)
-												g.SAAT1[SLFINDindex] = g.SAAT[SLFINDindex] - 1
-												g.SAAT2[SLFINDindex] = g.SAAT[SLFINDindex]
+							_, g.SAAT[SLFINDindex] = g.Datum(SAT)
+						}
+					}
+					if !g.AUTOHAR {
+						var ERNDAT int
+						ERNDAT, g.ERNTE[SLFINDindex] = g.Datum(ERNT)
+						if SLFIND == 1 {
+							g.ITAG = ERNDAT
+						}
+						g.ERNTE2[SLFINDindex] = g.ERNTE[SLFINDindex]
+					}
+
+					if SLFIND > 1 {
+						if g.AUTOIRRI || g.AUTOFERT || g.AUTOHAR || g.AUTOMAN {
+							autfil := hPath.auto
+							_, autoScanner, _ := Open(&FileDescriptior{FilePath: autfil, FileDescription: "automated file", UseFilePool: true})
+							LineInut(autoScanner)
+							for autoScanner.Scan() {
+								crpman := autoScanner.Text()
+								if g.ToCropType(crpman[0:3]) == g.FRUCHT[SLFINDindex] {
+									if g.AUTOMAN {
+										if ValAsInt(crpman[4:8], autfil, crpman) == 0 {
+											SAT = ROtoken[hSow]
+											_, g.SAAT[SLFINDindex] = g.Datum(SAT)
+											g.SAAT1[SLFINDindex] = g.SAAT[SLFINDindex] - 1
+											g.SAAT2[SLFINDindex] = g.SAAT[SLFINDindex]
+										} else {
+											sat1 := crpman[4:8] + SAT[4:]
+											sat2 := crpman[9:13] + SAT[4:]
+											if crpman[24:25] == "x" {
+												g.TSLMAX[SLFINDindex] = ValAsFloat(crpman[19:24], autfil, crpman)
+												g.TSLMIN[SLFINDindex] = -1
 											} else {
-												sat1 := crpman[4:8] + SAT[4:]
-												sat2 := crpman[9:13] + SAT[4:]
-												if crpman[24:25] == "x" {
-													g.TSLMAX[SLFINDindex] = ValAsFloat(crpman[19:24], autfil, crpman)
-													g.TSLMIN[SLFINDindex] = -1
-												} else {
-													g.TSLMAX[SLFINDindex] = -1
-													g.TSLMIN[SLFINDindex] = ValAsFloat(crpman[19:24], autfil, crpman)
-												}
-												g.MINMOI[SLFINDindex] = ValAsFloat(crpman[25:30], autfil, crpman)
-												g.MAXMOI[SLFINDindex] = ValAsFloat(crpman[32:37], autfil, crpman)
-												_, g.SAAT1[SLFINDindex] = g.Datum(sat1)
-												_, g.SAAT2[SLFINDindex] = g.Datum(sat2)
-												g.SAAT[SLFINDindex] = 0
-												g.TJAHR[SLFINDindex] = ValAsFloat(crpman[68:71], autfil, crpman)
-												g.TJBAS[SLFINDindex] = ValAsFloat(crpman[74:76], autfil, crpman)
-												g.TSLWINDOW[SLFINDindex] = ValAsFloat(crpman[135:137], autfil, crpman)
+												g.TSLMAX[SLFINDindex] = -1
+												g.TSLMIN[SLFINDindex] = ValAsFloat(crpman[19:24], autfil, crpman)
 											}
-										}
-										if g.AUTOHAR {
-											if ValAsInt(crpman[14:18], autfil, crpman) == 0 {
-												_, g.ERNTE2[SLFINDindex] = g.Datum(ERNT)
-											} else {
-												har2 := crpman[14:18] + ERNT[4:]
-												g.MINHMOI[SLFINDindex] = ValAsFloat(crpman[39:44], autfil, crpman)
-												g.MAXHMOI[SLFINDindex] = ValAsFloat(crpman[46:51], autfil, crpman)
-												g.RAINLIM[SLFINDindex] = ValAsFloat(crpman[53:57], autfil, crpman)
-												g.RAINACT[SLFINDindex] = ValAsFloat(crpman[60:64], autfil, crpman)
-												_, g.ERNTE2[SLFINDindex] = g.Datum(har2)
-												g.ERNTE[SLFINDindex] = 0
-											}
-										}
-										if g.AUTOIRRI {
-											g.IRRST1[SLFINDindex] = ValAsFloat(crpman[80:81], autfil, crpman)
-											g.IRRST2[SLFINDindex] = ValAsFloat(crpman[87:88], autfil, crpman)
-											g.IRRLOW[SLFINDindex] = ValAsFloat(crpman[163:166], autfil, crpman) / 100
-											g.IRRDEP[SLFINDindex] = ValAsFloat(crpman[170:173], autfil, crpman) / 10
-											g.IRRMAX[SLFINDindex] = ValAsFloat(crpman[177:180], autfil, crpman)
-										}
-										if g.AUTOFERT {
-											g.NDEM1[SLFINDindex] = ValAsFloat(crpman[94:97], autfil, crpman)
-											if g.ODU[SLFINDindex] == 1 {
-												g.DGART[SLFINDindex] = strings.Trim(crpman[143:146], " ")
-												l.DGMG[SLFINDindex] = ValAsFloat(crpman[149:152], autfil, crpman)
-												g.ORGTIME[SLFINDindex] = crpman[156:157]
-												g.ORGDOY[SLFINDindex] = int(ValAsInt(crpman[157:159], autfil, crpman))
-												dueng(SLFINDindex, g, l, hPath)
-											} else {
-												g.ORGTIME[SLFINDindex] = "0"
-												g.ORGDOY[SLFINDindex] = 0
-												g.NDIR[SLFINDindex] = 0
-												g.NLAS[SLFINDindex] = 0
-												g.NSAS[SLFINDindex] = 0
-											}
-											g.NDEM2[SLFINDindex] = ValAsFloat(crpman[100:103], autfil, crpman)
-											g.NDEM3[SLFINDindex] = ValAsFloat(crpman[106:109], autfil, crpman)
-											if crpman[112:113] == "S" {
-												g.NDOY1[SLFINDindex] = ValAsFloat(crpman[113:115], autfil, crpman)
-											} else {
-												g.NDOY1[SLFINDindex] = ValAsFloat(crpman[112:115], autfil, crpman)
-											}
-											if crpman[119:120] == "S" {
-												g.NDOY2[SLFINDindex] = ValAsFloat(crpman[120:122], autfil, crpman)
-											} else {
-												g.NDOY2[SLFINDindex] = ValAsFloat(crpman[119:122], autfil, crpman)
-											}
-											if crpman[127:128] == "S" {
-												g.NDOY3[SLFINDindex] = ValAsFloat(crpman[128:130], autfil, crpman)
-											} else {
-												g.NDOY3[SLFINDindex] = ValAsFloat(crpman[127:130], autfil, crpman)
-											}
+											g.MINMOI[SLFINDindex] = ValAsFloat(crpman[25:30], autfil, crpman)
+											g.MAXMOI[SLFINDindex] = ValAsFloat(crpman[32:37], autfil, crpman)
+											_, g.SAAT1[SLFINDindex] = g.Datum(sat1)
+											_, g.SAAT2[SLFINDindex] = g.Datum(sat2)
+											g.SAAT[SLFINDindex] = 0
+											g.TJAHR[SLFINDindex] = ValAsFloat(crpman[68:71], autfil, crpman)
+											g.TJBAS[SLFINDindex] = ValAsFloat(crpman[74:76], autfil, crpman)
 											g.TSLWINDOW[SLFINDindex] = ValAsFloat(crpman[135:137], autfil, crpman)
 										}
-										break
 									}
-								}
-							}
-						} else {
-							var ERNDAT int
-							ERNDAT, g.ERNTE[SLFINDindex] = g.Datum(ERNT)
-							g.ITAG = ERNDAT
-							if g.AUTOHAR || g.AUTOFERT {
-								autfil := hPath.auto
-								_, autoScanner, _ := Open(&FileDescriptior{FilePath: autfil, FileDescription: "automated file", UseFilePool: true})
-								LineInut(autoScanner)
-								for autoScanner.Scan() {
-									crpman := autoScanner.Text()
-									if g.ToCropType(crpman[0:3]) == g.FRUCHT[SLFINDindex] {
+									if g.AUTOHAR {
+										if ValAsInt(crpman[14:18], autfil, crpman) == 0 {
+											_, g.ERNTE2[SLFINDindex] = g.Datum(ERNT)
+										} else {
+											har2 := crpman[14:18] + ERNT[4:]
+											g.MINHMOI[SLFINDindex] = ValAsFloat(crpman[39:44], autfil, crpman)
+											g.MAXHMOI[SLFINDindex] = ValAsFloat(crpman[46:51], autfil, crpman)
+											g.RAINLIM[SLFINDindex] = ValAsFloat(crpman[53:57], autfil, crpman)
+											g.RAINACT[SLFINDindex] = ValAsFloat(crpman[60:64], autfil, crpman)
+											_, g.ERNTE2[SLFINDindex] = g.Datum(har2)
+											g.ERNTE[SLFINDindex] = 0
+										}
+									}
+									if g.AUTOIRRI {
+										g.IRRST1[SLFINDindex] = ValAsFloat(crpman[80:81], autfil, crpman)
+										g.IRRST2[SLFINDindex] = ValAsFloat(crpman[87:88], autfil, crpman)
+										g.IRRLOW[SLFINDindex] = ValAsFloat(crpman[163:166], autfil, crpman) / 100
+										g.IRRDEP[SLFINDindex] = ValAsFloat(crpman[170:173], autfil, crpman) / 10
+										g.IRRMAX[SLFINDindex] = ValAsFloat(crpman[177:180], autfil, crpman)
+									}
+									if g.AUTOFERT {
+										g.NDEM1[SLFINDindex] = ValAsFloat(crpman[94:97], autfil, crpman)
 										if g.ODU[SLFINDindex] == 1 {
-											g.DGART[SLFINDindex] = strings.Trim(crpman[143:146], " ")
+											g.DGART[SLFINDindex] = strings.TrimSpace(crpman[143:146])
 											l.DGMG[SLFINDindex] = ValAsFloat(crpman[149:152], autfil, crpman)
 											g.ORGTIME[SLFINDindex] = crpman[156:157]
 											g.ORGDOY[SLFINDindex] = int(ValAsInt(crpman[157:159], autfil, crpman))
-											dueng(SLFIND, g, l, hPath)
+											dueng(SLFINDindex, g, l, hPath)
 										} else {
 											g.ORGTIME[SLFINDindex] = "0"
 											g.ORGDOY[SLFINDindex] = 0
@@ -480,26 +462,70 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 											g.NLAS[SLFINDindex] = 0
 											g.NSAS[SLFINDindex] = 0
 										}
-										break
+										g.NDEM2[SLFINDindex] = ValAsFloat(crpman[100:103], autfil, crpman)
+										g.NDEM3[SLFINDindex] = ValAsFloat(crpman[106:109], autfil, crpman)
+										if crpman[112:113] == "S" {
+											g.NDOY1[SLFINDindex] = ValAsFloat(crpman[113:115], autfil, crpman)
+										} else {
+											g.NDOY1[SLFINDindex] = ValAsFloat(crpman[112:115], autfil, crpman)
+										}
+										if crpman[119:120] == "S" {
+											g.NDOY2[SLFINDindex] = ValAsFloat(crpman[120:122], autfil, crpman)
+										} else {
+											g.NDOY2[SLFINDindex] = ValAsFloat(crpman[119:122], autfil, crpman)
+										}
+										if crpman[127:128] == "S" {
+											g.NDOY3[SLFINDindex] = ValAsFloat(crpman[128:130], autfil, crpman)
+										} else {
+											g.NDOY3[SLFINDindex] = ValAsFloat(crpman[127:130], autfil, crpman)
+										}
+										g.TSLWINDOW[SLFINDindex] = ValAsFloat(crpman[135:137], autfil, crpman)
 									}
+									break
 								}
 							}
 						}
-						g.JN[SLFINDindex] = ValAsFloat(ROtoken[4], ROTA, RO) / 100
-						if SLFIND == 1 {
-							g.ERTR[SLFINDindex] = ValAsFloat(ROtoken[5], ROTA, RO)
+					} else {
+						var ERNDAT int
+						ERNDAT, g.ERNTE[SLFINDindex] = g.Datum(ERNT)
+						g.ITAG = ERNDAT
+						if g.AUTOHAR || g.AUTOFERT {
+							autfil := hPath.auto
+							_, autoScanner, _ := Open(&FileDescriptior{FilePath: autfil, FileDescription: "automated file", UseFilePool: true})
+							LineInut(autoScanner)
+							for autoScanner.Scan() {
+								crpman := autoScanner.Text()
+								if g.ToCropType(crpman[0:3]) == g.FRUCHT[SLFINDindex] {
+									if g.ODU[SLFINDindex] == 1 {
+										g.DGART[SLFINDindex] = strings.TrimSpace(crpman[143:146])
+										l.DGMG[SLFINDindex] = ValAsFloat(crpman[149:152], autfil, crpman)
+										g.ORGTIME[SLFINDindex] = crpman[156:157]
+										g.ORGDOY[SLFINDindex] = int(ValAsInt(crpman[157:159], autfil, crpman))
+										dueng(SLFIND, g, l, hPath)
+									} else {
+										g.ORGTIME[SLFINDindex] = "0"
+										g.ORGDOY[SLFINDindex] = 0
+										g.NDIR[SLFINDindex] = 0
+										g.NLAS[SLFINDindex] = 0
+										g.NSAS[SLFINDindex] = 0
+									}
+									break
+								}
+							}
 						}
+					}
+					g.JN[SLFINDindex] = ValAsFloat(ROtoken[hJN], ROTA, ROtoken[hJN]) / 100
+					if SLFIND == 1 {
+						g.ERTR[SLFINDindex] = ValAsFloat(ROtoken[hHarvestResidue], ROTA, ROtoken[hHarvestResidue])
+					}
+					SCHLAG, ROtoken, valid = NextLineInut(hSchlag, scannerRotation, splitLine)
 
-						RO = LineInut(scannerRotation)
-						ROtoken = Explode(RO, []rune{' '})
-						SCHLAG = readN(RO, 9)
-						if SCHLAG != g.PKT {
-							g.FRUCHT[SLFINDindex+1] = SM // TODO: Why hardcoded SM?
-							g.ERTR[SLFINDindex+1] = 0
-							g.SAAT1[SLFINDindex+1] = g.SAAT[SLFINDindex] + 365
-							g.SAAT2[SLFINDindex+1] = g.SAAT[SLFINDindex] + 365
-							g.TSLWINDOW[SLFINDindex+1] = 5
-						}
+					if SCHLAG != g.PKT {
+						g.FRUCHT[SLFINDindex+1] = SM // TODO: Why hardcoded SM?
+						g.ERTR[SLFINDindex+1] = 0
+						g.SAAT1[SLFINDindex+1] = g.SAAT[SLFINDindex] + 365
+						g.SAAT2[SLFINDindex+1] = g.SAAT[SLFINDindex] + 365
+						g.TSLWINDOW[SLFINDindex+1] = 5
 					}
 				}
 			}
@@ -545,140 +571,135 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 			}
 			LineInut(scannerObserv)
 			g.NMESS = 0
-			for scannerObserv.Scan() {
-				OBSER := scannerObserv.Text()
-				OBSERtoken := Explode(OBSER, []rune{' '})
-				SCHLAG := readN(OBSER, 9)
-				if SCHLAG == Fident {
-					for ok := true; ok; ok = SCHLAG == Fident {
-						g.NMESS++
-						l.MK[g.NMESS-1] = OBSERtoken[1]
-						if g.NMESS == 1 {
-							g.MES[g.NMESS-1] = l.MK[g.NMESS-1]
-							_, g.MESS[g.NMESS-1] = g.Datum(g.MES[g.NMESS-1])
+			for SCHLAG, OBSERtoken, valid := NextLineInut(0, scannerObserv, strings.Fields); valid; SCHLAG, OBSERtoken, valid = NextLineInut(0, scannerObserv, strings.Fields) {
+				for ok := SCHLAG == Fident; ok; ok = SCHLAG == Fident && valid {
+					g.NMESS++
+					l.MK[g.NMESS-1] = OBSERtoken[1]
+					if g.NMESS == 1 {
+						g.MES[g.NMESS-1] = l.MK[g.NMESS-1]
+						_, g.MESS[g.NMESS-1] = g.Datum(g.MES[g.NMESS-1])
 
-							//! +++++++++++++++ Ueberschreiben des Erntedatums der Vorfrucht aus der Rotationsdatei ++++++++++++++++++++
-							//if g.AUTOHAR {
-							// commentented out by Christians newest version
-							// var ERNDAT int
-							// ERNDAT, gloInput.ERNTE[0] = Datum(gloInput.MES[gloInput.NMESS-1], gloInput.CENT)
-							// gloInput.ITAG = ERNDAT
-							// gloInput.BEGINN = gloInput.ERNTE[0]
-							//}
-							if g.AUTOFERT {
-								if g.ORGTIME[0] == "H" {
-									g.ZTDG[0] = g.ERNTE[0] + 1
-								}
-							}
-
-							l.KONZ1 = ValAsFloat(OBSERtoken[2], obs, OBSER)
-							l.KONZ3 = ValAsFloat(OBSERtoken[3], obs, OBSER)
-							l.KONZ4 = ValAsFloat(OBSERtoken[4], obs, OBSER)
-							if len(OBSERtoken) > 9 {
-								l.KONZ5 = ValAsFloat(OBSERtoken[9], obs, OBSER)
-								l.KONZ6 = ValAsFloat(OBSERtoken[10], obs, OBSER)
-								l.KONZ7 = ValAsFloat(OBSERtoken[11], obs, OBSER)
-							}
-							l.Jstr = OBSERtoken[5]
-							winit[0] = ValAsFloat(OBSERtoken[6], obs, OBSER)
-							winit[1] = ValAsFloat(OBSERtoken[7], obs, OBSER)
-							winit[2] = ValAsFloat(OBSERtoken[8], obs, OBSER)
-
-							if len(OBSERtoken) > 9 {
-								winit[3] = ValAsFloat(OBSERtoken[12], obs, OBSER)
-								winit[4] = ValAsFloat(OBSERtoken[13], obs, OBSER)
-								winit[5] = ValAsFloat(OBSERtoken[14], obs, OBSER)
-							}
-							if g.MES[0] != "------" {
-								for zi := 1; zi <= g.N; zi++ {
-									ziIndex := zi - 1
-									if zi < 4 {
-										if l.Jstr == "3" {
-											g.WG[g.NMESS+1][ziIndex] = winit[0]
-										} else if l.Jstr == "2" {
-											g.WG[g.NMESS+1][ziIndex] = winit[0] * 1.4
-										} else {
-											g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[0]
-										}
-									} else if zi > 3 && zi < 7 {
-										if l.Jstr == "3" {
-											g.WG[g.NMESS+1][ziIndex] = winit[1]
-										} else if l.Jstr == "2" {
-											g.WG[g.NMESS+1][ziIndex] = winit[1] * 1.5
-										} else {
-											g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[1]
-										}
-									} else if zi > 6 && zi < 10 {
-										if l.Jstr == "3" {
-											g.WG[g.NMESS+1][ziIndex] = winit[2]
-										} else if l.Jstr == "2" {
-											g.WG[g.NMESS+1][ziIndex] = winit[2] * 1.6
-										} else {
-											g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[2]
-										}
-									} else if zi > 9 && zi < 13 {
-										if l.Jstr == "3" {
-											g.WG[g.NMESS+1][ziIndex] = winit[3]
-										} else if l.Jstr == "2" {
-											g.WG[g.NMESS+1][ziIndex] = winit[3] * 1.6
-										} else {
-											g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[3]
-										}
-									} else if zi > 12 && zi < 16 {
-										if l.Jstr == "3" {
-											g.WG[g.NMESS+1][ziIndex] = winit[4]
-										} else if l.Jstr == "2" {
-											g.WG[g.NMESS+1][ziIndex] = winit[4] * 1.6
-										} else {
-											g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[4]
-										}
-									} else if zi > 15 {
-										g.WG[g.NMESS+1][ziIndex] = winit[5]
-									}
-								}
-								g.WG[g.NMESS+1][g.N] = g.WG[g.NMESS+1][g.N-1]
-								if g.NMESS == 1 {
-									if l.Jstr == "3" {
-										g.WNZ[0] = (winit[0] + winit[1] + winit[2]) * 300
-									} else if l.Jstr == "2" {
-										g.WNZ[0] = (winit[0]*1.4 + winit[1]*1.5 + winit[2]*1.6) * 300
-									} else {
-										g.WNZ[0] = (g.WG[2][0] + g.WG[2][1] + g.WG[2][2] + g.WG[2][3] + g.WG[2][4] + g.WG[2][5] + g.WG[2][6] + g.WG[2][7] + g.WG[2][8]) * 100
-									}
-								}
-								g.KNZ1[0] = l.KONZ1
-								g.KNZ2[0] = l.KONZ3
-								g.KNZ3[0] = l.KONZ4
-								g.KNZ4[0] = l.KONZ5
-								g.KNZ5[0] = l.KONZ6
-								g.KNZ6[0] = l.KONZ7
-								for i := 1; i <= g.N; i++ {
-									iIndex := i - 1
-									if i < 4 {
-										g.CN[g.NMESS][iIndex] = g.KNZ1[0] / 3
-									} else if i > 3 && i < 7 {
-										g.CN[g.NMESS][iIndex] = g.KNZ2[0] / 3
-									} else if i > 6 && i < 10 {
-										g.CN[g.NMESS][iIndex] = g.KNZ3[0] / 3
-									} else if i > 9 && i < 13 {
-										g.CN[g.NMESS][iIndex] = g.KNZ4[0] / 3
-									} else if i > 12 && i < 16 {
-										g.CN[g.NMESS][iIndex] = g.KNZ5[0] / 3
-									} else {
-										g.CN[g.NMESS][iIndex] = g.KNZ6[0] / 5
-									}
-								}
-							} else {
-								g.MESS[0] = g.BEGINN
-								for i := 0; i < g.N; i++ {
-									g.CN[1][i] = g.CN[0][i]
-								}
+						//! +++++++++++++++ Ueberschreiben des Erntedatums der Vorfrucht aus der Rotationsdatei ++++++++++++++++++++
+						//if g.AUTOHAR {
+						// commentented out by Christians newest version
+						// var ERNDAT int
+						// ERNDAT, gloInput.ERNTE[0] = Datum(gloInput.MES[gloInput.NMESS-1], gloInput.CENT)
+						// gloInput.ITAG = ERNDAT
+						// gloInput.BEGINN = gloInput.ERNTE[0]
+						//}
+						if g.AUTOFERT {
+							if g.ORGTIME[0] == "H" {
+								g.ZTDG[0] = g.ERNTE[0] + 1
 							}
 						}
-						OBSER = LineInut(scannerObserv)
-						OBSERtoken = Explode(OBSER, []rune{' '})
-						SCHLAG = readN(OBSER, 9)
+
+						l.KONZ1 = ValAsFloat(OBSERtoken[2], obs, OBSERtoken[2])
+						l.KONZ3 = ValAsFloat(OBSERtoken[3], obs, OBSERtoken[3])
+						l.KONZ4 = ValAsFloat(OBSERtoken[4], obs, OBSERtoken[4])
+						if len(OBSERtoken) > 9 {
+							l.KONZ5 = ValAsFloat(OBSERtoken[9], obs, OBSERtoken[9])
+							l.KONZ6 = ValAsFloat(OBSERtoken[10], obs, OBSERtoken[10])
+							l.KONZ7 = ValAsFloat(OBSERtoken[11], obs, OBSERtoken[11])
+						}
+						l.Jstr = OBSERtoken[5]
+						winit[0] = ValAsFloat(OBSERtoken[6], obs, OBSERtoken[6])
+						winit[1] = ValAsFloat(OBSERtoken[7], obs, OBSERtoken[7])
+						winit[2] = ValAsFloat(OBSERtoken[8], obs, OBSERtoken[8])
+
+						if len(OBSERtoken) > 9 {
+							winit[3] = ValAsFloat(OBSERtoken[12], obs, OBSERtoken[12])
+							winit[4] = ValAsFloat(OBSERtoken[13], obs, OBSERtoken[13])
+							winit[5] = ValAsFloat(OBSERtoken[14], obs, OBSERtoken[14])
+						}
+						if g.MES[0] != "------" {
+							for zi := 1; zi <= g.N; zi++ {
+								ziIndex := zi - 1
+								if zi < 4 {
+									if l.Jstr == "3" {
+										g.WG[g.NMESS+1][ziIndex] = winit[0]
+									} else if l.Jstr == "2" {
+										g.WG[g.NMESS+1][ziIndex] = winit[0] * 1.4
+									} else {
+										g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[0]
+									}
+								} else if zi > 3 && zi < 7 {
+									if l.Jstr == "3" {
+										g.WG[g.NMESS+1][ziIndex] = winit[1]
+									} else if l.Jstr == "2" {
+										g.WG[g.NMESS+1][ziIndex] = winit[1] * 1.5
+									} else {
+										g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[1]
+									}
+								} else if zi > 6 && zi < 10 {
+									if l.Jstr == "3" {
+										g.WG[g.NMESS+1][ziIndex] = winit[2]
+									} else if l.Jstr == "2" {
+										g.WG[g.NMESS+1][ziIndex] = winit[2] * 1.6
+									} else {
+										g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[2]
+									}
+								} else if zi > 9 && zi < 13 {
+									if l.Jstr == "3" {
+										g.WG[g.NMESS+1][ziIndex] = winit[3]
+									} else if l.Jstr == "2" {
+										g.WG[g.NMESS+1][ziIndex] = winit[3] * 1.6
+									} else {
+										g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[3]
+									}
+								} else if zi > 12 && zi < 16 {
+									if l.Jstr == "3" {
+										g.WG[g.NMESS+1][ziIndex] = winit[4]
+									} else if l.Jstr == "2" {
+										g.WG[g.NMESS+1][ziIndex] = winit[4] * 1.6
+									} else {
+										g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[4]
+									}
+								} else if zi > 15 {
+									g.WG[g.NMESS+1][ziIndex] = winit[5]
+								}
+							}
+							g.WG[g.NMESS+1][g.N] = g.WG[g.NMESS+1][g.N-1]
+							if g.NMESS == 1 {
+								if l.Jstr == "3" {
+									g.WNZ[0] = (winit[0] + winit[1] + winit[2]) * 300
+								} else if l.Jstr == "2" {
+									g.WNZ[0] = (winit[0]*1.4 + winit[1]*1.5 + winit[2]*1.6) * 300
+								} else {
+									g.WNZ[0] = (g.WG[2][0] + g.WG[2][1] + g.WG[2][2] + g.WG[2][3] + g.WG[2][4] + g.WG[2][5] + g.WG[2][6] + g.WG[2][7] + g.WG[2][8]) * 100
+								}
+							}
+							g.KNZ1[0] = l.KONZ1
+							g.KNZ2[0] = l.KONZ3
+							g.KNZ3[0] = l.KONZ4
+							g.KNZ4[0] = l.KONZ5
+							g.KNZ5[0] = l.KONZ6
+							g.KNZ6[0] = l.KONZ7
+							for i := 1; i <= g.N; i++ {
+								iIndex := i - 1
+								if i < 4 {
+									g.CN[g.NMESS][iIndex] = g.KNZ1[0] / 3
+								} else if i > 3 && i < 7 {
+									g.CN[g.NMESS][iIndex] = g.KNZ2[0] / 3
+								} else if i > 6 && i < 10 {
+									g.CN[g.NMESS][iIndex] = g.KNZ3[0] / 3
+								} else if i > 9 && i < 13 {
+									g.CN[g.NMESS][iIndex] = g.KNZ4[0] / 3
+								} else if i > 12 && i < 16 {
+									g.CN[g.NMESS][iIndex] = g.KNZ5[0] / 3
+								} else {
+									g.CN[g.NMESS][iIndex] = g.KNZ6[0] / 5
+								}
+							}
+						} else {
+							g.MESS[0] = g.BEGINN
+							for i := 0; i < g.N; i++ {
+								g.CN[1][i] = g.CN[0][i]
+							}
+						}
 					}
+
+					SCHLAG, OBSERtoken, valid = NextLineInut(0, scannerObserv, strings.Fields)
+
 				}
 			}
 
@@ -695,25 +716,22 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 				LineInut(scannertilage)
 				LineInut(scannertilage)
 				NRTIL := 0
-				for scannertilage.Scan() {
-					Tili := scannertilage.Text()
-					SCHLAG := readN(Tili, 9)
+
+				for SCHLAG, tilageTokens, valid := NextLineInut(0, scannertilage, strings.Fields); valid; SCHLAG, tilageTokens, valid = NextLineInut(0, scannertilage, strings.Fields) {
 					if SCHLAG == g.PKT {
-						for ok := true; ok; ok = SCHLAG == g.PKT {
-							tilageTokens := strings.Fields(Tili)
+						for ok := true; ok; ok = SCHLAG == g.PKT && valid {
 							// Tokens: Schlag/FieldID(0) depth(1) type(2) date(3)
 							NRTIL++
 							NRTILindex := NRTIL - 1
 							g.TILDAT[NRTILindex] = tilageTokens[3]
-							g.EINT[NRTILindex] = ValAsFloat(tilageTokens[1], til, Tili)
-							g.TILART[NRTILindex] = int(ValAsInt(tilageTokens[2], til, Tili))
+							g.EINT[NRTILindex] = ValAsFloat(tilageTokens[1], til, tilageTokens[1])
+							g.TILART[NRTILindex] = int(ValAsInt(tilageTokens[2], til, tilageTokens[2]))
 							_, valEinte := g.Datum(g.TILDAT[NRTILindex])
 							g.EINTE[NRTIL] = valEinte
 							if g.EINTE[NRTIL] < g.BEGINN {
 								NRTIL--
 							}
-							Tili = LineInut(scannertilage)
-							SCHLAG = readN(Tili, 9)
+							SCHLAG, tilageTokens, valid = NextLineInut(0, scannertilage, strings.Fields)
 						}
 					}
 				}
@@ -731,27 +749,24 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 				_, scannerFert, _ := Open(&FileDescriptior{FilePath: dun, FileDescription: "fertilization file", UseFilePool: true})
 				LineInut(scannerFert)
 				NDu := 1
-				for scannerFert.Scan() {
-					FERTI := scannerFert.Text()
-					SCHLAG := readN(FERTI, 9)
-					if SCHLAG == g.PKT {
-						for ok := true; ok; ok = SCHLAG == g.PKT {
-							fertilizerToken := strings.Fields(FERTI)
-							//Field_ID(0)  N(1)   Frt(2) date(3)
-							NDu++
-							NDuindex := NDu - 1
-							DGDAT := fertilizerToken[3]
-							l.DGMG[NDuindex] = ValAsFloat(fertilizerToken[1], dun, FERTI) * g.DUNGSZEN
-							g.DGART[NDuindex] = fertilizerToken[2]
-							_, valztdg := g.Datum(DGDAT)
-							g.ZTDG[NDuindex] = valztdg
-							if g.ZTDG[NDuindex] < g.BEGINN {
-								NDu--
-							}
-							FERTI = LineInut(scannerFert)
-							SCHLAG = readN(FERTI, 9)
+				for SCHLAG, fertilizerToken, valid := NextLineInut(0, scannerFert, strings.Fields); valid; SCHLAG, fertilizerToken, valid = NextLineInut(0, scannerFert, strings.Fields) {
+
+					for ok := SCHLAG == g.PKT; ok; ok = SCHLAG == g.PKT && valid {
+						//fertilizerToken := strings.Fields(FERTI)
+						//Field_ID(0)  N(1)   Frt(2) date(3)
+						NDu++
+						NDuindex := NDu - 1
+						DGDAT := fertilizerToken[3]
+						l.DGMG[NDuindex] = ValAsFloat(fertilizerToken[1], dun, fertilizerToken[1]) * g.DUNGSZEN
+						g.DGART[NDuindex] = fertilizerToken[2]
+						_, valztdg := g.Datum(DGDAT)
+						g.ZTDG[NDuindex] = valztdg
+						if g.ZTDG[NDuindex] < g.BEGINN {
+							NDu--
 						}
+						SCHLAG, fertilizerToken, valid = NextLineInut(0, scannerFert, strings.Fields)
 					}
+
 				}
 				for i := 1; i <= NDu; i++ {
 					index := i - 1
