@@ -2,8 +2,11 @@ package hermes
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"time"
+
+	yaml "gopkg.in/yaml.v2"
 )
 
 // Input units for weather files
@@ -428,7 +431,6 @@ func ReadWeatherCSV(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDa
 	s.replaceMissingValues(yrz, driConfig.WeatherNoneValue)
 	// apply value changes
 	s.transformWeatherData(yrz, CORRK[:])
-
 	return nil
 }
 
@@ -465,17 +467,9 @@ func ReadWeatherCZ(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDat
 	h := readHeader(line)
 	//@YYYYJJJ     RAD    TMAX    TMIN      RH    WIND    PREC     CO2    SUNH
 
-	// if header consists of 3 lines (1. column names, 2. global values)
-	if driConfig.WeatherNumHeader == 2 {
-		heights := LineInut(scanner)
-		high := Explode(heights, []rune{',', ';'})
-		s.ALTITUDE = ValAsFloat(high[0], VWDAT, heights)
-		s.hasALTITUDE = true
-	} else {
-		// skip other header lines
-		for i := 1; i < driConfig.WeatherNumHeader; i++ {
-			LineInut(scanner)
-		}
+	// skip header lines
+	for i := 1; i < driConfig.WeatherNumHeader; i++ {
+		LineInut(scanner)
 	}
 
 	T := 0
@@ -529,7 +523,7 @@ func ReadWeatherCZ(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDat
 			d.globrad, err[7] = strconv.ParseFloat(tokens[h[globrad]], 64)
 		}
 		// optional co2 token, if left empty the previous co2 value will persist
-		if len(tokens) > h[co2] {
+		if _, ok := h[co2]; ok && len(tokens) > h[co2] {
 			currentCO2, err[8] = strconv.ParseFloat(tokens[h[co2]], 64)
 		}
 		if anyError := anyWeatherError(err, g.LOGID, VWDAT); anyError != nil {
@@ -704,4 +698,24 @@ func LoadYear(g *GlobalVarsMain, s *WeatherDataShared, year int) error {
 		}
 	}
 	return fmt.Errorf(`requested year (%d) was not loaded: loaded years %d - %d `, year, s.JAR[0], s.JAR[loadedYears-1])
+}
+
+// check if sunhours are given
+func (s *WeatherDataShared) HasSunHours() bool {
+	return s.hasSUND
+}
+
+func DumpWeatherDataToFile(filename string, s *WeatherDataShared) {
+
+	file := OpenResultFile(filename, false)
+	defer file.Close()
+
+	data, err := yaml.Marshal(s)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+
+	if _, err := file.WriteBytes(data); err != nil {
+		log.Fatal(err)
+	}
 }
