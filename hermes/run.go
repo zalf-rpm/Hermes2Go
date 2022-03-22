@@ -303,7 +303,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			if g.TAG.Num == g.DT.Num {
 				g.TJAHRSUM = 0
 
-				if driConfig.WeatherFileFormat == 1 {
+				if driConfig.WeatherFileFormat == 1 || driConfig.WeatherFileFormat == 2 {
 					LoadYear(&g, &bbbShared, 1900+g.J)
 				} else if driConfig.WeatherFileFormat == 0 {
 					VWDAT := herPath.VWdat(g.J)
