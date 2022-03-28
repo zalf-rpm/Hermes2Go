@@ -7,7 +7,7 @@ ENV WORKDIR /go/src/github.com/zalf-rpm/Hermes2Go
 WORKDIR ${WORKDIR}
 COPY . ${WORKDIR}
 
-RUN git describe --always --long > /version.txt
+RUN git describe --always --tags --long > /version.txt
 WORKDIR /go/src/github.com/zalf-rpm/Hermes2Go/src/hermes2go
 RUN go get gopkg.in/yaml.v2 
 RUN VERSION=$(cat /version.txt) && go build -v -ldflags "-X main.version=${VERSION}"
