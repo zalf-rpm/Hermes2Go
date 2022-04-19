@@ -480,19 +480,19 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 
 			FSCS := 0.0
 			ZSR := 1.0
-			// // try a test with Monica variante and Fluss0
-			// pri := math.Abs(g.FLUSS0 * g.DZ.Num)
-			// timeStepFactorCurrentLayer := 1.0
-			// if pri <= 5.0 {
-			// 	timeStepFactorCurrentLayer = 1.0
-			// } else if 5.0 < pri && pri <= 10.0 {
-			// 	timeStepFactorCurrentLayer = 0.5
-			// } else if 10.0 < pri && pri <= 15.0 {
-			// 	timeStepFactorCurrentLayer = 0.25
-			// } else if pri > 15.0 {
-			// 	timeStepFactorCurrentLayer = 0.125
-			// }
-			// ZSR = 1 / timeStepFactorCurrentLayer
+			// try a test with Monica variante and Fluss0
+			pri := math.Abs(g.FLUSS0 * g.DZ.Num)
+			timeStepFactorCurrentLayer := 1.0
+			if pri <= 5.0 {
+				timeStepFactorCurrentLayer = 1.0
+			} else if 5.0 < pri && pri <= 10.0 {
+				timeStepFactorCurrentLayer = 0.5
+			} else if 10.0 < pri && pri <= 15.0 {
+				timeStepFactorCurrentLayer = 0.25
+			} else if pri > 15.0 {
+				timeStepFactorCurrentLayer = 0.125
+			}
+			ZSR = 1 / timeStepFactorCurrentLayer
 
 			for I := 1; I <= g.N; I++ {
 				index := I - 1
