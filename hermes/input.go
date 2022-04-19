@@ -50,7 +50,7 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 	for scanner.Scan() {
 		wa := scanner.Text()
 		punr := int(ValAsInt(wa[0:5], "none", wa))
-		l.FLAEID = wa[0:5] + "    "
+		l.FLAEID = wa[0:5]
 		if punr == g.SLNR {
 			if g.GROUNDWATERFROM == Polygonfile {
 				g.GRHI = int(ValAsInt(wa[20:22], "none", wa))
@@ -563,7 +563,7 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 			_, scannerObserv, _ := Open(&FileDescriptior{FilePath: obs, FileDescription: "observation file", UseFilePool: true})
 			var Fident string
 			if g.INIWAHL == 1 {
-				Fident = "ALLE     " // maybe switch to English and use ALL?
+				Fident = "ALLE"
 			} else if g.INIWAHL == 2 {
 				Fident = g.PKT
 			} else if g.INIWAHL == 3 {
