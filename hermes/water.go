@@ -216,6 +216,7 @@ func Evatra(l *WaterSharedVars, g *GlobalVarsMain, hPath *HFilePath, zeit int) {
 			//  !                       RAD(TAG)  (PAR Einstrahlung MJ/m^2/d)
 			//  ! -- Vordefinierte Konstante
 			RSTOM0 := 100.0
+			g.RSTOM = 100.
 			Albedo := 0.23
 			Bolz := 0.0000000049
 			DL, _, _, EXT, _, _, _ := CalculateDayLenght(g.TAG.Num, g.LAT)
@@ -667,6 +668,9 @@ func stomat(l *WaterSharedVars, zeit int, g *GlobalVarsMain) {
 	// ! SATDEF          = Sättigungsdefizit der Luft (kPa?)
 
 	DL, DLE, _, _, RDN, DRC, DEC := CalculateDayLenght(g.TAG.Num, g.LAT)
+	if DLE <= 0 {
+		return
+	}
 	DRO := .2 * DRC
 	EFF0 := .5
 	// ! ++++++++++++++  Auswahl mehrerer Methoden zum CO2 Effect +++++++++++++++

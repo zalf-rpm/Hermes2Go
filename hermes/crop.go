@@ -889,6 +889,10 @@ func radia(g *GlobalVarsMain, l *CropSharedVars, zeit int) (DLE, DLP, GPHOT, MAI
 	//! MAXAMAX          = maximale C-Assimilationsrate bei Lichtsättigung und Optimaltemperatur (kg CO2/ha leave/h)
 	var DL, RDN, DRC, DEC float64
 	DL, DLE, DLP, _, RDN, DRC, DEC = CalculateDayLenght(g.TAG.Num, g.LAT)
+	if DL <= 0 {
+		return DLE, DLP, 0, 0
+	}
+
 	DRO := .2 * DRC
 	EFF0 := .5
 	var EFF float64
