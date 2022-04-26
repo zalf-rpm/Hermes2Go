@@ -531,7 +531,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 							if SLIDETEMP >= g.TSLMIN[g.AKF.Index] && g.TEMP[g.TAG.Index] >= g.TSLMIN[g.AKF.Index] {
 								NFK1 := (g.WG[0][0] + g.REGEN[g.TAG.Index]/g.DZ.Num - g.WMIN[0]) / (g.WNOR[0] - g.WMIN[0]) * 100
 								if NFK1 <= g.MAXMOI[g.AKF.Index] && NFK1 >= g.MINMOI[g.AKF.Index] {
-									if g.REGEN[g.TAG.Index] <= 0.5 && g.REGEN[g.TAG.Index-1] <= 5 {
+									if g.REGEN[g.TAG.Index] <= 0.5 && (g.TAG.Index < 1 || g.REGEN[g.TAG.Index-1] <= 5) {
 										if ZEIT > g.ERNTE[g.AKF.Index-1]+4 {
 											g.SAAT[g.AKF.Index] = ZEIT
 										}
@@ -542,7 +542,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 							if SLIDETEMP <= g.TSLMAX[g.AKF.Index] && g.TEMP[g.TAG.Index] <= g.TSLMAX[g.AKF.Index] {
 								NFK1 := (g.WG[0][0] + g.REGEN[g.TAG.Index]/g.DZ.Num - g.WMIN[0]) / (g.WNOR[0] - g.WMIN[0]) * 100
 								if NFK1 <= g.MAXMOI[g.AKF.Index] && NFK1 >= g.MINMOI[g.AKF.Index] {
-									if g.REGEN[g.TAG.Index] <= 0.5 && g.REGEN[g.TAG.Index-1] <= 5 {
+									if g.REGEN[g.TAG.Index] <= 0.5 && (g.TAG.Index < 1 || g.REGEN[g.TAG.Index-1] <= 5) {
 										if ZEIT > g.ERNTE[g.AKF.Index-1]+4 {
 											g.SAAT[g.AKF.Index] = ZEIT
 										}
