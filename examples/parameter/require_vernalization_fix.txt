@@ -7,4 +7,4 @@ WR Winter Roggen
 TR triticale 
 WRA Winter Raps
 WRC winter rapeseed catch crop 
-WW 
+WW Winter weizen
