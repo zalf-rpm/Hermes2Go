@@ -1,0 +1,10 @@
+PARAM.OEL öllein 
+PARAM.PH Phacelia
+PARAM.AA alfalfa
+ORH Ölrettich
+WG Winter Gerste
+WR Winter Roggen
+TR triticale 
+WRA Winter Raps
+WRC winter rapeseed catch crop 
+WW 
