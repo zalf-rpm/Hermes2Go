@@ -11,50 +11,62 @@ import (
 
 type config struct {
 
+	//***** Formats *****
 	// DateDEshort ddmmyy <- default format(old)
 	// DateDElong ddmmyyyy
 	// DateENshort mmddyy
 	// DateENlong mmddyyyy
 	// short format "ddmmyy", e.g. 24.01.95 -> "ddmmyy" requires input as 240195, you need to set the century devision year "DivideCentury", e.g. 1950 -> 50
 	// long format "ddmmyyyy", e.g. 24.01.2066  requires input as 24012066
-	Dateformat DateFormat `yaml:"Dateformat"`
-	// ground water is read from either 'soilfile' or 'polygonfile
-	GroundWaterFrom                 GroundWaterFrom `yaml:"GroundWaterFrom"`
-	ResultFileFormat                int             `yaml:"ResultFileFormat,omitempty"`      // result file format (0= hermes default, 1 = csv)
-	ResultFileExt                   string          `yaml:"ResultFileExt,omitempty"`         // result file extensions (default RES, csv)
-	OutputIntervall                 int             `yaml:"OutputIntervall"`                 // Output intervall (days) (0=no time serie)
-	InitSelection                   int             `yaml:"InitSelection"`                   // Init.values general(1),field(2), Polygon(3)
-	SoilFile                        string          `yaml:"SoilFile"`                        // soil profile file name (without projectname)
-	SoilFileExtension               string          `yaml:"SoilFileExtension"`               // soil file extension (txt = hermes soil, csv = csv table format)
-	CropFileFormat                  string          `yaml:"CropFileFormat"`                  // crop file format (txt = hermes crop, csv = csv table format)
-	WeatherFile                     string          `yaml:"WeatherFile"`                     // weather file name template (without projectname)
-	WeatherFileFormat               int             `yaml:"WeatherFileFormat"`               // Weather file format (0=separator(, ; \t), 1 year per file ) (1=separator(, ; \t), multiple years per file, (1=separator(, ; \t ' '), cz format, multiple years per file)
-	WeatherFolder                   string          `yaml:"WeatherFolder"`                   // Weather scenario folder
-	WeatherRootFolder               string          `yaml:"WeatherRootFolder"`               // weather root directory without scenario folder or filename
-	WeatherNoneValue                float64         `yaml:"WeatherNoneValue"`                // weather none value, default -99.9
-	WeatherNumHeader                int             `yaml:"WeatherNumHeader"`                // number of header lines (min = 1, with column names)
-	CorrectionPrecipitation         FeatureSwitch   `yaml:"CorrectionPrecipitation"`         // correction precipitation (0= no, 1 = yes)
-	ETpot                           int             `yaml:"ETpot"`                           // ETpot method(1=Haude,2=Turc-Wendling,3 Penman-Monteith)
-	PTF                             int             `yaml:"PTF"`                             // PTF pedo transfer function (0 = none (from file), 1 = Toth 2015, 2 = Batjes for pF 2.5, 3 = Batjes for pF 1.7, 4 = Rawls et al. 2003 for pF 2.5 )
-	CoastDistance                   float64         `yaml:"CoastDistance"`                   // Distance to coast (km)
-	CO2method                       int             `yaml:"CO2method"`                       // CO2method(1=Nonhebel,2=Hoffmann,3=Mitchell)
-	CO2concentration                float64         `yaml:"CO2concentration"`                // CO2 concentration (ppm)
-	CO2StomataInfluence             FeatureSwitch   `yaml:"CO2StomataInfluence"`             // CO2 Stomata influence (1=on/0= off)
-	StartYear                       int             `yaml:"StartYear"`                       // Starting year of simulation (YYYY)
-	EndDate                         string          `yaml:"EndDate"`                         // End date of simulation (DDMMYYYY)
-	AnnualOutputDate                string          `yaml:"AnnualOutputDate"`                // Date for annual output
-	Latitude                        float64         `yaml:"Latitude"`                        // Latitude
-	Altitude                        float64         `yaml:"Altitude"`                        // Altitude - height (can be overwritten weather file)
-	LeachingDepth                   int             `yaml:"LeachingDepth"`                   // Depth for leaching/seepage calculation (dm)
-	OrganicMatterMineralProportion  float64         `yaml:"OrganicMatterMineralProportion"`  // Mineralisable proportion of organic matter
-	NDeposition                     float64         `yaml:"NDeposition"`                     // N-Deposition (annual kg/ha)
-	PolygonGridFileName             string          `yaml:"PolygonGridFileName"`             // Name of Polygon resp. grid file
-	Fertilization                   float64         `yaml:"Fertilization"`                   // fertilization scenario (fertilization in %)
-	VirtualDateFertilizerPrediction string          `yaml:"VirtualDateFertilizerPrediction"` // Virtual date for fertilizer prediction; '------' for no prediction
-	DivideCentury                   int             `yaml:"DivideCentury,omitempty"`         // (depends on Date format) Year to divide 20. and 21. Century (YY)
-	KcFactorBareSoil                float64         `yaml:"KcFactorBareSoil"`                // kc factor for bare soil
-	AnnualAverageTemperature        float64         `yaml:"AnnualAverageTemperature"`        // annual average temperature (Celsius)
+	Dateformat    DateFormat `yaml:"Dateformat"`
+	DivideCentury int        `yaml:"DivideCentury,omitempty"` // (depends on Date format) Year to divide 20. and 21. Century (YY)
 
+	GroundWaterFrom     GroundWaterFrom `yaml:"GroundWaterFrom"`            // ground water is read from either 'soilfile' or 'polygonfile
+	ResultFileFormat    int             `yaml:"ResultFileFormat,omitempty"` // result file format (0= hermes default, 1 = csv)
+	ResultFileExt       string          `yaml:"ResultFileExt,omitempty"`    // result file extensions (default RES, csv)
+	OutputIntervall     int             `yaml:"OutputIntervall"`            // Output intervall (days) (0=no time serie)
+	InitSelection       int             `yaml:"InitSelection"`              // Init.values all(1),Field_ID(2), Polyg(3) -> POLY_XXX.txt, Uses: 1= all (if the word ALLE is written in the file), 2= Field_ID, 3= Polyg
+	SoilFile            string          `yaml:"SoilFile"`                   // soil profile file name (without projectname)
+	SoilFileExtension   string          `yaml:"SoilFileExtension"`          // soil file extension (txt = hermes soil, csv = csv table format)
+	CropFileFormat      string          `yaml:"CropFileFormat"`             // crop file format (txt = hermes crop, csv = csv table format)
+	PolygonGridFileName string          `yaml:"PolygonGridFileName"`        // Name of Polygon resp. grid file
+
+	//***** Weather *****
+	WeatherFile              string        `yaml:"WeatherFile"`              // weather file name template (without projectname)
+	WeatherFileFormat        int           `yaml:"WeatherFileFormat"`        // Weather file format (0=separator(, ; \t), 1 year per file ) (1=separator(, ; \t), multiple years per file, (1=separator(, ; \t ' '), cz format, multiple years per file)
+	WeatherFolder            string        `yaml:"WeatherFolder"`            // Weather scenario folder
+	WeatherRootFolder        string        `yaml:"WeatherRootFolder"`        // weather root directory without scenario folder or filename
+	WeatherNoneValue         float64       `yaml:"WeatherNoneValue"`         // weather none value, default -99.9
+	WeatherNumHeader         int           `yaml:"WeatherNumHeader"`         // number of header lines (min = 1, with column names)
+	CorrectionPrecipitation  FeatureSwitch `yaml:"CorrectionPrecipitation"`  // correction precipitation (0= no, 1 = yes)
+	AnnualAverageTemperature float64       `yaml:"AnnualAverageTemperature"` // annual average temperature (Celsius)
+
+	//***** Atmosphere *****
+	ETpot               int           `yaml:"ETpot"`               // ETpot method(1=Haude,2=Turc-Wendling,3 Penman-Monteith)
+	CO2method           int           `yaml:"CO2method"`           // CO2method(1=Nonhebel,2=Hoffmann,3=Mitchell)
+	CO2concentration    float64       `yaml:"CO2concentration"`    // CO2 concentration (ppm)
+	CO2StomataInfluence FeatureSwitch `yaml:"CO2StomataInfluence"` // CO2 Stomata influence (1=on/0= off)
+	NDeposition         float64       `yaml:"NDeposition"`         // N-Deposition (annual kg/ha)
+
+	//***** Time *****
+	StartYear                       int    `yaml:"StartYear"`                       // Starting year of simulation (YYYY)
+	EndDate                         string `yaml:"EndDate"`                         // End date of simulation (DDMMYYYY)
+	AnnualOutputDate                string `yaml:"AnnualOutputDate"`                // Date for annual output
+	VirtualDateFertilizerPrediction string `yaml:"VirtualDateFertilizerPrediction"` // Virtual date for fertilizer prediction; '------' for no prediction
+
+	//***** Geoography *****
+	Latitude      float64 `yaml:"Latitude"`      // Latitude
+	Altitude      float64 `yaml:"Altitude"`      // Altitude - height (can be overwritten weather file)
+	CoastDistance float64 `yaml:"CoastDistance"` // Distance to coast (km)
+
+	//***** Soil *****
+	PTF                            int     `yaml:"PTF"`                            // PTF pedo transfer function (0 = none (from file), 1 = Toth 2015, 2 = Batjes for pF 2.5, 3 = Batjes for pF 1.7, 4 = Rawls et al. 2003 for pF 2.5 )
+	LeachingDepth                  int     `yaml:"LeachingDepth"`                  // Depth for leaching/seepage calculation (dm)
+	OrganicMatterMineralProportion float64 `yaml:"OrganicMatterMineralProportion"` // Mineralisable proportion of organic matter
+	KcFactorBareSoil               float64 `yaml:"KcFactorBareSoil"`               // kc factor for bare soil
+
+	//***** Management *****
+	Fertilization     float64       `yaml:"Fertilization"`     // fertilization scenario (fertilization in %)
 	AutoSowingHarvest FeatureSwitch `yaml:"AutoSowingHarvest"` // automatic sowing/harvest (0=no, 1 = yes)
 	AutoFertilization FeatureSwitch `yaml:"AutoFertilization"` // automatic fertilization (0=no, 1=on demand)
 	AutoIrrigation    FeatureSwitch `yaml:"AutoIrrigation"`    // automatic irrigation (0=no, 1= on demand)
