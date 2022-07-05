@@ -358,18 +358,19 @@ type GlobalVarsMain struct {
 	SoilID    string
 
 	// output parameters
-	PerY        float64 // accumulated output
-	SWCY1       float64 // accumulated output
-	SWCY2       float64 // accumulated output
-	SOC1        float64 // accumulated output
-	Nmin9to20   float64 // sum of C1 from layer 9 to 20
-	SickerDaily float64 // sicker - capsum daily update
-	HARVEST     float64 // potential harvest daily
-	NAOSAKT     float64 // sum NAOS
-	NFOSAKT     float64 // sum NFOS
-	SumMINAOS   float64 // sum MINAOS
-	SumMINFOS   float64 // sum MINFOS
-	AvgTSoil    float64 // average TD soil temperature upper 2 layers
+	PerY            float64 // accumulated output
+	SWCY1           float64 // accumulated output
+	SWCY2           float64 // accumulated output
+	SOC1            float64 // accumulated output
+	Nmin9to20       float64 // sum of C1 from layer 9 to 20
+	SickerDaily     float64 // sicker - capsum daily update
+	SickerDailyDiff float64 // sicker - capsum daily difference
+	HARVEST         float64 // potential harvest daily
+	NAOSAKT         float64 // sum NAOS
+	NFOSAKT         float64 // sum NFOS
+	SumMINAOS       float64 // sum MINAOS
+	SumMINFOS       float64 // sum MINFOS
+	AvgTSoil        float64 // average TD soil temperature upper 2 layers
 
 	TEMPdaily      float64 // temperatur avg at current day
 	TMINdaily      float64 // temperatur min at current day

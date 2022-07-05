@@ -630,7 +630,10 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 					for ci := 9; ci < 20; ci++ {
 						g.Nmin9to20 += g.C1[ci]
 					}
+					oldSickerDaily := g.SickerDaily
 					g.SickerDaily = g.SICKER - math.Abs(g.CAPSUM)
+					g.SickerDailyDiff = g.SickerDaily - oldSickerDaily
+
 					g.SumMINAOS = g.MINAOS[0] + g.MINAOS[1] + g.MINAOS[2]
 					g.SumMINFOS = g.MINFOS[0] + g.MINFOS[1] + g.MINFOS[2]
 					g.AvgTSoil = (g.TD[1] + g.TD[2]) / 2
@@ -693,6 +696,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				// reset output values
 				g.OUTSUM = 0
 				g.SICKER = 0
+				g.SickerDaily = 0
 				g.CAPSUM = 0
 				g.TRAY = 0
 				g.VERDUNST = 0
