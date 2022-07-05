@@ -655,7 +655,15 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 										g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[4]
 									}
 								} else if zi > 15 {
-									g.WG[g.NMESS+1][ziIndex] = winit[5]
+									if l.Jstr == "3" {
+										g.WG[g.NMESS+1][ziIndex] = winit[5]
+									} else if l.Jstr == "2" {
+										g.WG[g.NMESS+1][ziIndex] = winit[5] * 1.6
+									} else {
+										g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[5]
+									}
+
+									//g.WG[g.NMESS+1][ziIndex] = winit[5]
 								}
 							}
 							g.WG[g.NMESS+1][g.N] = g.WG[g.NMESS+1][g.N-1]
