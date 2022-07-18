@@ -17,3 +17,4 @@ examples/RESULT*
 src/calcHermesBatch/calcHermesBatch
 src/hermes2go/hermes2go
 src/hermes2go/hermestogo
+src/hermes2go/version.txt
