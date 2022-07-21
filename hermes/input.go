@@ -360,6 +360,23 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 				}
 			}
 
+			checkDate := func() func(date string) {
+				currentDate := 0
+				currentDateStr := ""
+				return func(date string) {
+					if currentDate == 0 {
+						_, currentDate = g.Datum(date)
+						currentDateStr = date
+					} else {
+						if _, dateValue := g.Datum(date); dateValue <= currentDate {
+							panic(fmt.Sprintf("Date %s is before %s", currentDateStr, date))
+						} else {
+							currentDate = dateValue
+							currentDateStr = date
+						}
+					}
+				}
+			}()
 			SLFIND := 0
 			for SCHLAG, ROtoken, valid := NextLineInut(hSchlag, scannerRotation, splitLine); valid; SCHLAG, ROtoken, valid = NextLineInut(hSchlag, scannerRotation, splitLine) {
 				for ok := SCHLAG == g.PKT; ok; ok = SCHLAG == g.PKT && valid {
@@ -371,9 +388,11 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 					}
 					if SLFIND > 1 {
 						SAT = ROtoken[hSow]
+						checkDate(SAT)
 					}
 
 					ERNT = ROtoken[hHarvest]
+					checkDate(ERNT)
 					if len(ROtoken) > hOrgDung {
 						g.ODU[SLFINDindex] = ValAsFloat(ROtoken[hOrgDung], ROTA, ROtoken[hOrgDung])
 					} else {
