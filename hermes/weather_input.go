@@ -661,14 +661,33 @@ func (s *WeatherDataShared) replaceMissingValues(yrz int, noneValue float64) {
 // LoadYear loads weather data from WeatherDataShared of a given year into global GlobalVarsMain
 func LoadYear(g *GlobalVarsMain, s *WeatherDataShared, year int) error {
 
+	checkTminTmax := func(tmin, tmax float64) bool {
+		if tmin > tmax+0.5 {
+			errorStr := fmt.Sprintf("%s Error in Weather data: Tmin(%0.3f) > Tmax(%0.3f) ", g.LOGID, tmin, tmax)
+			if g.DEBUGCHANNEL != nil {
+				g.DEBUGCHANNEL <- errorStr
+			} else {
+				log.Print(errorStr)
+			}
+			return false
+		}
+		return true
+	}
 	loadedYears := len(s.MaxYearDays)
 	for yearIdx := 0; yearIdx < loadedYears; yearIdx++ {
 		days := s.MaxYearDays[yearIdx]
 		if s.JAR[yearIdx] == year {
 			for Tidx := 0; Tidx < days; Tidx++ {
+
 				g.TEMP[Tidx] = s.TMP[yearIdx][Tidx]
 				g.TMIN[Tidx] = s.TMI[yearIdx][Tidx]
 				g.TMAX[Tidx] = s.TMA[yearIdx][Tidx]
+				// check if measured temperature values are valid
+				if !checkTminTmax(g.TMIN[Tidx], g.TMAX[Tidx]) {
+					g.TMIN[Tidx] = s.TMA[yearIdx][Tidx]
+					g.TMAX[Tidx] = s.TMI[yearIdx][Tidx]
+				}
+
 				g.RH[Tidx] = s.RELF[yearIdx][Tidx]
 				g.RAD[Tidx] = s.RADI[yearIdx][Tidx]
 				g.WIND[Tidx] = s.WIN[yearIdx][Tidx]
