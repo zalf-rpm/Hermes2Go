@@ -77,6 +77,7 @@ type GlobalVarsMain struct {
 	LD       [10]int     // bulk density KA5 (1-5) (Lagerungsdichtestufe nach KA5 (1-5))
 	BULK     [10]float64 // avarage bulk density (Zuweisung mittlere Lagerungsdichte von LD(I) (g/cm^3))
 	CGEHALT  [10]float64 // C organic content in soil layer (Corg-Gehalt in Horizont I (Gew.%))
+	SGEHALT  [10]float64 // S organic content in soil layer (Sorg-Gehalt in Horizont I (Gew.%))
 	HUMUS    [21]float64 // humus content in soil layer (Humusgehalt in Hor. I (Gew.%))
 	STEIN    [10]float64 // stone content in soil layer (%)
 	FKA      [10]float64 // water content at field capacity (Wassergehalt bei Feldkapazität) (Vol. %)
@@ -158,7 +159,7 @@ type GlobalVarsMain struct {
 	MINAOS          [4]float64  //  should be size of N
 	MINFOS          [4]float64  // should be size of N
 	CA              [21]float64
-	NDG             DualType
+	NDG             DualType // Nitrogen fertilization counter
 	MZ              int
 	NBR             int
 	NTIL            DualType
@@ -356,6 +357,26 @@ type GlobalVarsMain struct {
 	N2onitsum float64
 	AKTUELL   string // current Date string
 	SoilID    string
+	// Sulphony Parameter
+	SAKT    float64
+	SALTOS  float64
+	SFOS    [21]float64
+	S1      [21]float64
+	SI      [2][21]float64
+	SAOS    [21]float64
+	Sminaos [21]float64
+	Sminfos [21]float64
+	ANFSUM  float64
+	SDG     DualType // index for sulfur fertilization
+	SDSUMM  float64  // sum of mineral sulphur fertilization
+	SFOSUM  float64
+	SAOSUM  float64
+	SSUM    float64
+	SFSUM   float64
+	SF      [21]float64
+	SSAS    [300]float64
+	SLAS    [300]float64
+	SDIR    [300]float64
 
 	// output parameters
 	PerY            float64 // accumulated output
@@ -476,6 +497,7 @@ func NewGlobalVarsMain() GlobalVarsMain {
 		IZM:     30,
 		N:       20, // default, will be overwritten by soil
 		DV:      4.9,
+		SDG:     NewDualType(0, 1),
 		// _______ PARAMETER FOR YU/ALLEN _________
 		ALPH:           40,
 		SATBETA:        2.5,

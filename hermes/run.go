@@ -624,6 +624,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			}
 			g.NAOSAKT = (g.NAOS[0] + g.NAOS[1] + g.NAOS[2])
 			g.NFOSAKT = (g.NFOS[0] + g.NFOS[1] + g.NFOS[2])
+
 			if OUTINT > 0 {
 				if (ZEIT % OUTINT) == 0 {
 					g.Nmin9to20 = 0
@@ -691,6 +692,20 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				g.SWCY1 = SWCY1 / float64(g.JTAG)
 				g.SWCY2 = SWCY / float64(g.JTAG)
 				g.SOC1 = (g.NALTOS/g.NAKT*(1-g.NAKT) + g.NAOSAKT + g.NFOSAKT) * g.CNRAT1
+
+				//---from sulfonie------------------------------------------------------------------------------------------
+				// not sure if this is the correct position for this code
+				for Z := 1; Z <= g.N; Z++ {
+					g.S1[Z] = g.SI[0][Z]
+					if float64(Z) < 40/g.DZ.Num {
+						g.SAOS[Z] = g.SALTOS / 30 * g.DZ.Num
+						g.SFOS[Z] = 0
+						g.Sminaos[Z] = 0
+						g.Sminfos[Z] = 0
+					}
+					g.ANFSUM = g.ANFSUM + g.S1[Z] // thats an output variable
+				}
+
 				yearlyOutConfig.WriteLine(pnamFile, OutputFileFormat(driConfig.ResultFileFormat))
 
 				// reset output values

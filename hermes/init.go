@@ -69,7 +69,8 @@ func Init(g *GlobalVarsMain) {
 		g.CA[z] = 0
 	}
 	g.WG[0][10] = g.WG[0][9]
-	g.NDG.SetByIndex(0)
+	g.NDG.SetByIndex(0) // Nitrogen fertilization counter
+	g.SDG.SetByIndex(0) // Sulfor fertilizer counter
 	g.MZ = 1
 	g.NBR = 1
 	g.NTIL.SetByIndex(0)
@@ -80,6 +81,7 @@ func Init(g *GlobalVarsMain) {
 	g.RADSUM = 0
 	g.BLATTSUM = 0
 	g.DSUMM = 0
+	g.SDSUMM = 0
 	g.UMS = 0
 	g.OUTSUM = 0
 	g.NFIXSUM = 0
