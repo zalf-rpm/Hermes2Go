@@ -23,7 +23,6 @@ type NitroBBBSharedVars struct {
 
 // NitroSharedVars shared variables for this module
 type NitroSharedVars struct {
-	DUMS    [4]float64
 	D       [21]float64
 	V       [21]float64
 	KONV    [21]float64
@@ -222,7 +221,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 	}
 	if subd == 1 {
 		// Aufruf Mineralisations Subroutine
-		mineral(wdt, subd, g, l)
+		mineral(g, l)
 	}
 	if zeit == g.ERNTE[g.AKF.Index] && subd == 1 {
 		var NDI, NSA, NLA float64
@@ -452,7 +451,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 }
 
 //mineral
-func mineral(wdt float64, subd int, g *GlobalVarsMain, l *NitroSharedVars) {
+func mineral(g *GlobalVarsMain, l *NitroSharedVars) {
 	//! ------------------------------------- Mineralisation in Abh. von Temperatur und Wassergehalt ------------
 	//! Inputs:
 	//! IZM                       = bodenartspezifische Mineralisierungstiefe
@@ -471,7 +470,7 @@ func mineral(wdt float64, subd int, g *GlobalVarsMain, l *NitroSharedVars) {
 
 	//! ----------------------------------------------------------------------------------------------------------
 	var DTOTALN, DMINFOS, MIRED [4]float64
-
+	var DUMS [4]float64
 	//---------------------  Mineralisation  --------------------
 	num := g.IZM / g.DZ.Index
 	for z := 1; z <= num; z++ {
@@ -516,11 +515,11 @@ func mineral(wdt float64, subd int, g *GlobalVarsMain, l *NitroSharedVars) {
 			}
 			g.NFOS[zIndex] = g.NFOS[zIndex] - DMINFOS[zIndex]
 			if z == 1 {
-				l.DUMS[zIndex] = KTD * MIRED[zIndex] * (g.DSUMM - g.UMS)
+				DUMS[zIndex] = KTD * MIRED[zIndex] * (g.DSUMM - g.UMS)
 				l.DNH4UMS[zIndex] = KTD * MIRED[zIndex] * (g.NH4Sum - g.NH4UMS) //!Nitrifikation pro Zeitschritt (kg N/ha)
 
 			} else {
-				l.DUMS[zIndex] = 0
+				DUMS[zIndex] = 0
 				l.DNH4UMS[zIndex] = 0
 
 			}
@@ -528,14 +527,14 @@ func mineral(wdt float64, subd int, g *GlobalVarsMain, l *NitroSharedVars) {
 			N2oNIT := (l.DNH4UMS[zIndex] + DTOTALN[zIndex] + DMINFOS[zIndex]) * FN2oNit                                     //! N2O emission aus Nitrifikation pro Zeitschritt (kg N/ha)
 
 			// Mineralisationssumme => Quellterm ( dn(z) )
-			g.DN[zIndex] = DTOTALN[zIndex] + DMINFOS[zIndex] + l.DUMS[zIndex] - N2oNIT
+			g.DN[zIndex] = DTOTALN[zIndex] + DMINFOS[zIndex] + DUMS[zIndex] - N2oNIT
 
 			g.MINAOS[zIndex] = g.MINAOS[zIndex] + DTOTALN[zIndex]
 			g.MINFOS[zIndex] = g.MINFOS[zIndex] + DMINFOS[zIndex]
-			g.UMS = g.UMS + l.DUMS[zIndex]
+			g.UMS = g.UMS + DUMS[zIndex]
 			g.NH4UMS = g.NH4UMS + l.DNH4UMS[zIndex]
 			g.N2onitsum = g.N2onitsum + N2oNIT
-			g.MINSUM = g.MINSUM + g.DN[zIndex] - l.DUMS[zIndex]
+			g.MINSUM = g.MINSUM + g.DN[zIndex] - DUMS[zIndex]
 		} else {
 			if z == 1 {
 				// Reduktionsfaktoren bei suboptimalem Wassergehalt
@@ -553,21 +552,21 @@ func mineral(wdt float64, subd int, g *GlobalVarsMain, l *NitroSharedVars) {
 				if MIRED[zIndex] < 0 {
 					MIRED[zIndex] = 0
 				}
-				l.DUMS[zIndex] = 0.4 * MIRED[zIndex] * (g.DSUMM - g.UMS)
+				DUMS[zIndex] = 0.4 * MIRED[zIndex] * (g.DSUMM - g.UMS)
 				l.DNH4UMS[zIndex] = 0.4 * MIRED[zIndex] * (g.NH4Sum - g.NH4UMS) //!Nitrifikation pro Zeitschritt (kg N/ha)
 
 			} else {
-				l.DUMS[zIndex] = 0
+				DUMS[zIndex] = 0
 				l.DNH4UMS[zIndex] = 0
 			}
-			g.UMS = g.UMS + l.DUMS[zIndex]
+			g.UMS = g.UMS + DUMS[zIndex]
 
 			g.NH4UMS = g.NH4UMS + l.DNH4UMS[zIndex]
 			FN2oNit := (0.4*(g.WG[0][zIndex]/g.PORGES[zIndex]) - 1.04) / (g.WG[0][zIndex]/g.PORGES[zIndex] - 1.04) * 0.0016 //! Faktor N2O aus Nitrifikation
 			N2ONIT := l.DNH4UMS[zIndex] * FN2oNit                                                                           //! N2O emission aus Nitrifikation pro Zeitschritt (kg N/ha)
 			g.N2onitsum = g.N2onitsum + N2ONIT
 
-			g.DN[zIndex] = l.DUMS[zIndex] - N2ONIT
+			g.DN[zIndex] = DUMS[zIndex] - N2ONIT
 		}
 	}
 }
