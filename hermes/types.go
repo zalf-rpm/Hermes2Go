@@ -377,6 +377,12 @@ type GlobalVarsMain struct {
 	SSAS    [300]float64
 	SLAS    [300]float64
 	SDIR    [300]float64
+	PESUMS  float64
+	SMINSUM float64
+	DNS     [21]float64
+	PES     [21]float64 //S-uptake of crop in soil layer Z (kg N/ha)
+	SKSAT   float64     // Saettigungs-Loesungskonzentration in Gramm S/Liter
+	KLOS    float64     // S Loesungskoeffizient (Geschwindigkeit)
 
 	// output parameters
 	PerY            float64 // accumulated output

@@ -64,6 +64,8 @@ type config struct {
 	LeachingDepth                  int     `yaml:"LeachingDepth"`                  // Depth for leaching/seepage calculation (dm)
 	OrganicMatterMineralProportion float64 `yaml:"OrganicMatterMineralProportion"` // Mineralisable proportion of organic matter
 	KcFactorBareSoil               float64 `yaml:"KcFactorBareSoil"`               // kc factor for bare soil
+	SulfurSatSolutionConcentration float64 `yaml:"SulfurSatSolutionConcentration"` // Saturated Solution Concentration (SKSAT) in Gramms S/Liter
+	SulfurSolutionCoefficient      float64 `yaml:"SulfurSolutionCoefficient"`      // Sulfur Solution Coefficient (KLOS)
 
 	//***** Management *****
 	Fertilization     float64       `yaml:"Fertilization"`     // fertilization scenario (fertilization in %)
@@ -117,6 +119,8 @@ func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) c
 	g.AUTOIRRI = bool(hconfig.AutoIrrigation)
 	g.AUTOHAR = bool(hconfig.AutoHarvest)
 	g.PTF = hconfig.PTF
+	g.SKSAT = hconfig.SulfurSatSolutionConcentration
+	g.KLOS = hconfig.SulfurSolutionCoefficient
 	if len(hconfig.WeatherFolder) == 0 {
 		hconfig.WeatherFolder = "Weather"
 	}
@@ -196,13 +200,16 @@ func WriteYamlConfig(filename string, structIn interface{}) {
 func NewDefaultConfig() config {
 	return config{
 		Dateformat:                      DateDElong,
+		DivideCentury:                   0,
 		GroundWaterFrom:                 Soilfile,
 		ResultFileFormat:                0,
+		ResultFileExt:                   "",
 		OutputIntervall:                 0,
 		InitSelection:                   3,
 		SoilFile:                        "soil",
 		SoilFileExtension:               "txt",
 		CropFileFormat:                  "txt",
+		PolygonGridFileName:             "poly",
 		WeatherFile:                     "%s.csv",
 		WeatherFileFormat:               1,
 		WeatherFolder:                   "Weather",
@@ -210,27 +217,28 @@ func NewDefaultConfig() config {
 		WeatherNoneValue:                -99.9,
 		WeatherNumHeader:                2,
 		CorrectionPrecipitation:         false,
+		AnnualAverageTemperature:        8.7,
 		ETpot:                           3,
-		PTF:                             0,
-		CoastDistance:                   300,
 		CO2method:                       2,
 		CO2concentration:                360,
 		CO2StomataInfluence:             true,
+		NDeposition:                     20,
 		StartYear:                       1980,
 		EndDate:                         "31122010",
 		AnnualOutputDate:                "3009",
+		VirtualDateFertilizerPrediction: "--------",
 		Latitude:                        52.52,
 		Altitude:                        0,
+		CoastDistance:                   300,
+		PTF:                             0,
 		LeachingDepth:                   15,
 		OrganicMatterMineralProportion:  0.13,
-		NDeposition:                     20,
-		PolygonGridFileName:             "poly",
-		Fertilization:                   100,
-		VirtualDateFertilizerPrediction: "--------",
 		KcFactorBareSoil:                0.4,
-		AnnualAverageTemperature:        8.7,
-		AutoFertilization:               true,
+		SulfurSatSolutionConcentration:  0.2,
+		SulfurSolutionCoefficient:       0.1,
+		Fertilization:                   100,
 		AutoSowingHarvest:               true,
+		AutoFertilization:               true,
 		AutoIrrigation:                  true,
 		AutoHarvest:                     true,
 	}
