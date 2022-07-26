@@ -327,6 +327,9 @@ func (soildata *soilFileData) cNSetup(i int) {
 
 func (soildata *soilFileData) cSulforSetup(i int) {
 
+	if soildata.CSRATIO[i] == 0 {
+		soildata.CSRATIO[i] = 100
+	}
 	if soildata.CSRATIO[i] > 0 {
 		soildata.SGEHALT[i] = soildata.CGEHALT[i] / soildata.CSRATIO[i]
 	}
