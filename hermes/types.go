@@ -52,7 +52,7 @@ func NewDualType(baseIndex int, offset int) DualType {
 type GlobalVarsMain struct {
 	IZM      int
 	DT       DualType
-	DZ       DualType //= 10 (cm to mm)
+	DZ       DualType //layer depth = 10 cm (default)
 	N        int      // max number of layer (changed by soil file)
 	DV       float64
 	ALPH     float64
@@ -358,31 +358,34 @@ type GlobalVarsMain struct {
 	AKTUELL   string // current Date string
 	SoilID    string
 	// Sulphony Parameter
-	SAKT    float64
-	SALTOS  float64
-	SFOS    [21]float64
-	S1      [21]float64
-	SI      [2][21]float64
-	SAOS    [21]float64
-	Sminaos [21]float64
-	Sminfos [21]float64
-	ANFSUM  float64
-	SDG     DualType // index for sulfur fertilization
-	SDSUMM  float64  // sum of mineral sulphur fertilization
-	SFOSUM  float64
-	SAOSUM  float64
-	SSUM    float64
-	SFSUM   float64
-	SF      [21]float64
-	SSAS    [300]float64
-	SLAS    [300]float64
-	SDIR    [300]float64
-	PESUMS  float64
-	SMINSUM float64
-	DNS     [21]float64
-	PES     [21]float64 //S-uptake of crop in soil layer Z (kg N/ha)
-	SKSAT   float64     // Saettigungs-Loesungskonzentration in Gramm S/Liter
-	KLOS    float64     // S Loesungskoeffizient (Geschwindigkeit)
+	SAKT      float64
+	SALTOS    float64
+	SFOS      [21]float64
+	S1        [21]float64 // Smin-content in layer Z (kg N/ha)
+	SI        [2][21]float64
+	SAOS      [21]float64
+	Sminaos   [21]float64
+	Sminfos   [21]float64
+	ANFSUM    float64
+	SDG       DualType // index for sulfur fertilization
+	SDSUMM    float64  // sum of mineral sulphur fertilization
+	SFOSUM    float64
+	SAOSUM    float64
+	SSUM      float64
+	SFSUM     float64
+	SF        [21]float64
+	SSAS      [300]float64
+	SLAS      [300]float64
+	SDIR      [300]float64
+	PESUMS    float64
+	SMINSUM   float64
+	DNS       [21]float64 // source term from mineralisation (kg S/ha) in layer
+	PES       [21]float64 // S-uptake of crop in soil layer Z (kg S/ha)
+	SKSAT     float64     // Saettigungs-Loesungskonzentration in Gramm S/Liter
+	KLOS      float64     // S Loesungskoeffizient (Geschwindigkeit)
+	SDEPOS    float64     // S-Deposition depending on site
+	SOUTSUM   float64     // sum of S-drainage in soil
+	SAUFNASUM float64     // sum of ...
 
 	// output parameters
 	PerY            float64 // accumulated output
