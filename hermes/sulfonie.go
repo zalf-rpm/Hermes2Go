@@ -83,8 +83,7 @@ func Sulfo(wdt float64, subd, zeit int, g *GlobalVarsMain, hPath *HFilePath) {
 			//IF akf <> 1 then
 			if g.AKF.Num != 1 {
 				//CALL SRESID(SSA,SLA)
-				SSA, SLA = sResid(g, hPath)
-
+				sResid(g, hPath)
 			}
 			//LET SFOS(1) = SFOS(1) + SSA
 			g.SFOS[0] += SSA
@@ -215,31 +214,49 @@ func sMineral(g *GlobalVarsMain) {
 
 // 	SUB SMOVE(#5)
 func sMove(wdt float64, subd, zeit int, g *GlobalVarsMain) {
-	// 		DIM S(0:21)
-	var S [22]float64
-	var D [21]float64 //Diffusionskoeffizienten pro layer
+	// ---------------------      N-Verlagerung konvektions-Dispersionsgleichung ---------------------
+	//Inputs:
+	// DV                        = Dispersionslänge (cm)
+	// FLUSS=                    = Infiltration durch Bodenoberfläche (cm/d)
+	// Q1(Z)                     = Fluss durch Untergrenze (cm/d)
+	// QDRAIN                    = Ausfluss in Drainrohr (cm/d)
+	// DRAIDEP                   = Tiefe des Drains (dm)
+	// AD                        = Faktor für Diffusivität?
+	// DZ                        = Schichtdicke (cm)
+	// WG(0,Z)                   = Wassergehalt am Anfang Zeitschritt in Schicht Z  (cm^3/cm^3)
+	// WNOR(Z)                   = NORM-FK (ohne Wasserstau) in Schicht Z (cm^3/cm^3)
+	// WMIN(Z)                   = Wassergehalt bei PWP in Schicht Z (cm^3/cm^3)
+	// PORGES(Z)                 = Gesamtporenvolumen in Schicht Z  (cm^3/cm^3)
+	// PES(Z)                    = S-Aufnahme Pflanze in Schicht Z (kg S/ha)
+	// S1(Z)                     = Smin-gehalt der Schicht Z (kg S/ha)
+	// DN(Z)                     = Quellterm aus Mineralisation (kg S/ha) in Schicht Z
+	// OUTN                      = Tiefe für Auswaschungsberechnung (dm)
+	// 		DIM Sarray(0:21)
+	var Sarray [22]float64
+	var DiffCoeff [21]float64 //Diffusionskoeffizienten pro layer
 
 	for z := 0; z < g.N; z++ {
+		z1 := z + 1
 		// ! --- Berechnung des Diffusionskoeffizienten am unteren Kompartimentrand ---
 		// LET D(Z) = D0S * (AD*EXP((WG(0,Z)+WG(0,Z+1))*5)/((WG(0,Z)+WG(0,Z+1))/2))*DT
-		D[z] = 2.14 * (g.AD * math.Exp((g.WG[0][z]+g.WG[0][z+1])*5) / ((g.WG[0][z] + g.WG[0][z+1]) / 2)) * wdt
+		DiffCoeff[z] = 2.14 * (g.AD * math.Exp((g.WG[0][z]+g.WG[0][z+1])*5) / ((g.WG[0][z] + g.WG[0][z+1]) / 2)) * wdt
 
 		// ** Loeslichkeitsobergrenzen und Loesungs-/Faellungsreaktion **
 		// SKSAT ist die Saettigungs-Loesungskonzentration in Gramm S/Liter
 		//  SF(z) ist die nicht gelöste Smin-Menge in kg S/ha
 		//LET S(Z) = (S1(Z)-SF(Z))/(wg(0,z)*DZ*100)
-		S[z] = (g.S1[z] - g.SF[z]) / (g.WG[0][z] * g.DZ.Num * 100)
+		Sarray[z1] = (g.S1[z] - g.SF[z]) / (g.WG[0][z] * g.DZ.Num * 100)
 		//IF S(Z) >= SKSAT then
-		if S[z] >= g.SKSAT {
+		if Sarray[z1] >= g.SKSAT {
 			//LET S(Z) = SKSAT
-			S[z] = g.SKSAT
+			Sarray[z1] = g.SKSAT
 			//LET SF(Z) = S1(Z) - S(Z)*(wg(0,z)*dz*100)
-			g.SF[z] = g.S1[z] - S[z]*(g.WG[0][z]*g.DZ.Num*100)
+			g.SF[z] = g.S1[z] - Sarray[z1]*(g.WG[0][z]*g.DZ.Num*100)
 		} else {
 			//LET S(Z)  = S(Z) + (Sksat-S(Z)) * (1-EXP(-klos*(SF(Z)/(WG(0,z)*dz*100))))
-			S[z] += (g.SKSAT - S[z]) * (1 - math.Exp(-g.KLOS*(g.SF[z]/(g.WG[0][z]*g.DZ.Num*100))))
+			Sarray[z1] += (g.SKSAT - Sarray[z1]) * (1 - math.Exp(-g.KLOS*(g.SF[z]/(g.WG[0][z]*g.DZ.Num*100))))
 			//LET SF(Z) = S1(Z) - S(Z)*(wg(0,z)*dz*100)
-			g.SF[z] = g.S1[z] - S[z]*(g.WG[0][z]*g.DZ.Num*100)
+			g.SF[z] = g.S1[z] - Sarray[z1]*(g.WG[0][z]*g.DZ.Num*100)
 		}
 		if subd == 1 {
 			//! Untere Begrenzung für Entleerung pro Schicht (0.02 kg S/ha)
@@ -256,85 +273,132 @@ func sMove(wdt float64, subd, zeit int, g *GlobalVarsMain) {
 			//LET PESUMS = PESUMS + PES(Z)/2
 			g.PESUMS += g.PES[z] / 2
 			//LET AUFNASUM = AUFNASUM + PES(Z)/2
-			g.AUFNASUM += g.PES[z] / 2
+			g.SAUFNASUM += g.PES[z] / 2
 		}
 		// Umrechnung in Bodenloesungskonzentration (kg/ha --> g/l)
 		// Quellen und Senken jeweils halb bei Beginn/Ende Zeitschritt
 		// LET S(Z) = (S1(Z)-SF(Z) + DNS(Z)/2 - PES(Z)/2)/(wg(0,z)*DZ*100)
-		S[z] = (g.S1[z] - g.SF[z] + g.DNS[z]/2 - g.PES[z]/2) / (g.WG[0][z] * g.DZ.Num * 100)
+		Sarray[z1] = (g.S1[z] - g.SF[z] + g.DNS[z]*wdt/2 - g.PES[z]/2) / (g.WG[0][z] * g.DZ.Num * 100)
 
 	}
+	var V, DB, DISP, KONV [21]float64
 	// 		!--------------------- Verlagerung nach unten ---------------------
 	// 		LET Q1(0) = FLUSS0*DT
-	// 		! Berechnung der Dispersion in Abh�ngigkeit der Porenwassergeschwindigkeit
-	// 		FOR Z = 1 TO N
-	// 			!LET V(Z) = ABS(Q1(Z)/((WG(0,Z)+WG(0,Z+1))*.5))
-	// 			LET V(Z) = ABS(Q1(Z)/((W(Z)+W(Z+1))*.5))
-	// 			LET DB(Z) = (WG(0,Z)+WG(0,Z+1))/2*(D(Z) + DV*V(Z))-.5*dz*ABS(q1(z))+.5*dt*ABS((q1(z)+q1(z-1))/2)*v(z)
-	// 			IF Z = 1 THEN
-	// 			   LET DISP(Z) = - DB(Z) * (S(Z)-S(Z+1))/DZ^2
-	// 			ELSE IF Z < N THEN
-	// 			   LET DISP(Z) = DB(Z-1)*(S(Z-1)-S(Z))/DZ^2-DB(Z)*(S(Z)-S(Z+1))/DZ^2
-	// 			ELSE
-	// 			   LET DISP(Z) = DB(Z-1)*(S(Z-1)-S(Z))/DZ^2
-	// 			END IF
-	// 		NEXT Z
-	// 		! Berechnung der Konvektion f�r unterschiedliche Flie�richtungsfaelle
-	// 		FOR Z = 1 TO N
-	// 			IF Q1(Z) >= 0 AND Q1(Z-1) >= 0 then
-	// 			   LET KONV(Z) = (S(Z)*Q1(Z) - S(Z-1)*Q1(Z-1))/dz
-	// 			ELSE IF Q1(Z) >= 0 AND Q1(Z-1) < 0 then
-	// 			   IF Z > 1 then
-	// 				  LET KONV(Z) = (S(Z)*Q1(Z) - S(Z)*Q1(Z-1))/dz
-	// 			   ELSE
-	// 				  LET KONV(Z) = S(Z)*Q1(Z)/dz
-	// 			   END IF
-	// 			ELSE IF Q1(Z) < 0 AND Q1(Z-1) < 0 then
-	// 			   IF Z > 1 then
-	// 				  LET KONV(Z) = (S(Z+1)*Q1(Z) - S(Z)*Q1(Z-1))/dz
-	// 			   ELSE
-	// 				  LET KONV(Z) = S(Z+1)*Q1(Z)/dz
-	// 			   END IF
-	// 			ELSE IF Q1(Z) < 0 AND Q1(Z-1) >= 0 then
-	// 			   LET KONV(Z) = (S(Z+1)*Q1(Z) - S(Z-1)*Q1(Z-1))/dz
-	// 			END IF
-	// 		NEXT Z
-	// 		! Neuberechnung der Sulfatverteilung nach Transport
-	// 		!        einschliesslich Umrechnung in kg/ha
-	// 		FOR Z = 1 TO N
-	// 			LET S1(Z) = (S(Z)*WG(0,Z) + DISP(Z) - KONV(Z))*DZ*100 + SF(Z)
-	// 		NEXT Z
-	// 		IF Q1(outn) > 0 then
-	// If Outn < n then
-	// 		   LET SOUTSUM = SOUTSUM + Q1(outn)*S(outn)/dz*100*DZ + DB(outn) * (S(outn)-S(outn+1))/DZ^2*100*dz
-	// else
-	// 		   LET SOUTSUM = SOUTSUM + Q1(outn)*S(outn)/dz*100*DZ
-	// end if
-	// 		ELSE
-	// If Outn < n then
-	// 		   LET SOUTSUM = Soutsum + (Q1(outn)*S(outn+1)/dz*100*DZ) + (DB(outn) * (S(outn)-S(outn+1))/DZ^2*100*dz)
-	// else
-	// 		   Let SOutsum = Soutsum
-	// end if
-	// 		END IF
-	// 		! 2. Haelfte Quellen und Senken nach Verlagerung
-	// 		FOR Z = 1 TO N
-	// 			IF PES(Z)/2 > S1(Z)-SF(Z)-.02 THEN
-	// 			   LET PES(Z) = (S1(Z)-SF(Z)-.02) * 2
-	// 			END IF
-	// 			IF PES(Z) < 0 THEN LET PES(Z) = 0
-	// 			LET S1(Z) = S1(Z) + DNS(Z)/2 - PES(Z)/2
-	// 			LET PESUMS = PESUMS + PES(Z)/2
-	// 			LET AUFNASUM = AUFNASUM + PES(Z)/2
-	// 			IF S1(Z) < 0 THEN
-	// 			   LET S1(Z) = 0.0001
-	// 			END IF
-	// 		NEXT Z
-	// 	END SUB
+	g.Q1[0] = g.FLUSS0 * wdt
+	sqrdDZ := math.Pow(g.DZ.Num, 2)
+	// 	! Berechnung der Dispersion in Abhängigkeit der Porenwassergeschwindigkeit
+	// 	FOR Z = 1 TO N
+	for z1 := 1; z1 <= g.N; z1++ {
+		z0 := z1 - 1
+		// 		!LET V(Z) = ABS(Q1(Z)/((WG(0,Z)+WG(0,Z+1))*.5))
+		//LET V(Z) = ABS(Q1(Z)/((W(Z)+W(Z+1))*.5))
+		V[z0] = math.Abs(g.Q1[z1] / ((g.WG[0][z0] + g.WG[0][z0+1]) * .5)) // note: in nitro it is W not WG[0]
+		//LET DB(Z) = (WG(0,Z)+WG(0,Z+1))/2*(D(Z) + DV*V(Z))-.5*dz*ABS(q1(z))+.5*dt*ABS((q1(z)+q1(z-1))/2)*v(z)
+		DB[z0] = (g.WG[0][z0]+g.WG[0][z0+1])/2*(DiffCoeff[z0]+g.DV*V[z0]) - .5*g.DZ.Num*math.Abs(g.Q1[z1]) + .5*wdt*math.Abs((g.Q1[z1]+g.Q1[z1-1])/2)*V[z0]
+		if z1 == 1 {
+			// LET DISP(Z) = - DB(Z) * (S(Z)-S(Z+1))/DZ^2
+			DISP[z0] = -DB[z0] * (Sarray[z1] - Sarray[z1+1]) / sqrdDZ
+
+		} else if z1 < g.N {
+			//LET DISP(Z) = DB(Z-1)*(S(Z-1)-S(Z))/DZ^2-DB(Z)*(S(Z)-S(Z+1))/DZ^2
+			DISP[z0] = DB[z0-1]*(Sarray[z1-1]-Sarray[z1])/sqrdDZ - DB[z0]*(Sarray[z1]-Sarray[z1+1])/sqrdDZ
+		} else {
+			//LET DISP(Z) = DB(Z-1)*(S(Z-1)-S(Z))/DZ^2
+			DISP[z0] = DB[z0-1] * (Sarray[z1-1] - Sarray[z1]) / sqrdDZ
+		}
+	}
+
+	// 	! Berechnung der Konvektion für unterschiedliche Fließrichtungsfälle
+	// TODO: ask about the Drainage as in Nitro
+	// 	FOR Z = 1 TO N
+	for z1 := 1; z1 <= g.N; z1++ {
+		z0 := z1 - 1
+		//IF Q1(Z) >= 0 AND Q1(Z-1) >= 0 then
+		if g.Q1[z1] >= 0 && g.Q1[z1-1] >= 0 {
+			//LET KONV(Z) = (S(Z)*Q1(Z) - S(Z-1)*Q1(Z-1))/dz
+			KONV[z0] = (Sarray[z1]*g.Q1[z1] - Sarray[z1-1]*g.Q1[z1-1]) / g.DZ.Num
+			//ELSE IF Q1(Z) >= 0 AND Q1(Z-1) < 0 then
+		} else if g.Q1[z1] >= 0 && g.Q1[z1-1] < 0 {
+			//IF Z > 1 then
+			if z1 > 1 {
+				//LET KONV(Z) = (S(Z)*Q1(Z) - S(Z)*Q1(Z-1))/dz
+				KONV[z0] = (Sarray[z1]*g.Q1[z1] - Sarray[z1]*g.Q1[z1-1]) / g.DZ.Num
+			} else {
+				//LET KONV(Z) = S(Z)*Q1(Z)/dz
+				KONV[z0] = Sarray[z1] * g.Q1[z1] / g.DZ.Num
+			}
+			//ELSE IF Q1(Z) < 0 AND Q1(Z-1) < 0 then
+		} else if g.Q1[z1] < 0 && g.Q1[z1-1] < 0 {
+			//IF Z > 1 then
+			if z1 > 1 {
+				//LET KONV(Z) = (S(Z+1)*Q1(Z) - S(Z)*Q1(Z-1))/dz
+				KONV[z0] = (Sarray[z1+1]*g.Q1[z1] - Sarray[z1]*g.Q1[z1-1]) / g.DZ.Num
+			} else {
+				//LET KONV(Z) = S(Z+1)*Q1(Z)/dz
+				KONV[z0] = Sarray[z1+1] * g.Q1[z1] / g.DZ.Num
+			}
+			//ELSE IF Q1(Z) < 0 AND Q1(Z-1) >= 0 then
+		} else if g.Q1[z1] < 0 && g.Q1[z1-1] >= 0 {
+			//LET KONV(Z) = (S(Z+1)*Q1(Z) - S(Z-1)*Q1(Z-1))/dz
+			KONV[z0] = (Sarray[z1+1]*g.Q1[z1] - Sarray[z1-1]*g.Q1[z1-1]) / g.DZ.Num
+		}
+	}
+	// 	! Neuberechnung der Sulfatverteilung nach Transport
+	// 	!        einschliesslich Umrechnung in kg/ha
+	// 	FOR Z = 1 TO N
+	for z0 := 0; z0 < g.N; z0++ {
+		z1 := z0 + 1
+		//LET S1(Z) = (S(Z)*WG(0,Z) + DISP(Z) - KONV(Z))*DZ*100 + SF(Z)
+		g.S1[z0] = (Sarray[z1]*g.WG[0][z0]+DISP[z0]-KONV[z0])*g.DZ.Num*100 + g.SF[z0]
+		// 	NEXT Z
+	}
+	// 	IF Q1(outn) > 0 then
+	if g.Q1[g.OUTN] > 0 {
+		// If Outn < n then
+		if g.OUTN < g.N {
+			//LET SOUTSUM = SOUTSUM + Q1(outn)*S(outn)/dz*100*DZ + DB(outn) * (S(outn)-S(outn+1))/DZ^2*100*dz
+			g.SOUTSUM = g.SOUTSUM + g.Q1[g.OUTN]*Sarray[g.OUTN]/g.DZ.Num*100 + DB[g.OUTN]*(Sarray[g.OUTN]-Sarray[g.OUTN+1])/sqrdDZ*100
+		} else {
+			//LET SOUTSUM = SOUTSUM + Q1(outn)*S(outn)/dz*100*DZ
+			g.SOUTSUM = g.SOUTSUM + g.Q1[g.OUTN]*Sarray[g.OUTN]/g.DZ.Num*100*g.DZ.Num
+		}
+	} else {
+		// If Outn < n then
+		if g.OUTN < g.N {
+			//LET SOUTSUM = Soutsum + (Q1(outn)*S(outn+1)/dz*100*DZ) + (DB(outn) * (S(outn)-S(outn+1))/DZ^2*100*dz)
+			g.SOUTSUM = g.SOUTSUM + (g.Q1[g.OUTN] * Sarray[g.OUTN+1] / g.DZ.Num * 100 * g.DZ.Num) + (DB[g.OUTN] * (Sarray[g.OUTN] - Sarray[g.OUTN+1]) / sqrdDZ * 100 * g.DZ.Num)
+		}
+	}
+
+	// 	! 2. Haelfte Quellen und Senken nach Verlagerung
+	// 	FOR Z = 1 TO N
+	for z0 := 0; z0 < g.N; z0++ {
+
+		//IF PES(Z)/2 > S1(Z)-SF(Z)-.02 THEN
+		if g.PES[z0]/2 > g.S1[z0]-g.SF[z0]-0.02 {
+			//LET PES(Z) = (S1(Z)-SF(Z)-.02) * 2
+			g.PES[z0] = (g.S1[z0] - g.SF[z0] - 0.02) * 2
+		}
+		//IF PES(Z) < 0 THEN LET PES(Z) = 0
+		if g.PES[z0] < 0 {
+			g.PES[z0] = 0
+		}
+		//LET S1(Z) = S1(Z) + DNS(Z)/2 - PES(Z)/2
+		g.S1[z0] = g.S1[z0] + g.DNS[z0]/2 - g.PES[z0]/2
+		//LET PESUMS = PESUMS + PES(Z)/2
+		g.PESUMS = g.PESUMS + g.PES[z0]/2
+		//LET AUFNASUM = AUFNASUM + PES(Z)/2
+		g.SAUFNASUM = g.SAUFNASUM + g.PES[z0]/2
+		//IF S1(Z) < 0 THEN
+		if g.S1[z0] < 0 {
+			//LET S1(Z) = 0.0001
+			g.S1[z0] = 0.0001
+		}
+	}
 }
 
 // 	SUB SRESID(SDI,SSA,SLA)
-func sResid(g *GlobalVarsMain, hPath *HFilePath) (SSA, SLA float64) {
+func sResid(g *GlobalVarsMain, hPath *HFilePath) {
 	// 		!Mineralisationspotentiale aus Vorfruchtresiduen
 	CRONAM := hPath.cropn
 	_, scanner, _ := Open(&FileDescriptior{FilePath: CRONAM, UseFilePool: true})
@@ -385,10 +449,10 @@ func sResid(g *GlobalVarsMain, hPath *HFilePath) (SSA, SLA float64) {
 	if DGM < 0 {
 		DGM = 0
 	}
-	//LET SSA = DGM * SFAST
-	SSA = DGM * SFAST
-	//LET SLA = DGM * (1-SFAST)
-	SLA = DGM * (1 - SFAST)
-
-	return SSA, SLA
+	//LET SSAS(1) = DGM * SFAST
+	g.SSAS[0] = DGM * SFAST
+	//LET SLAS(1) = DGM * (1-SFAST)
+	g.SLAS[0] = DGM * (1 - SFAST)
+	//LET SDIR(1) = 0.0
+	g.SDIR[0] = 0.0 // SDIR is set to 0 afer harvest.. what about quick following cultures?
 }
