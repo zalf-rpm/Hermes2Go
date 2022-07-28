@@ -458,6 +458,14 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			if g.C1[0] < 0 {
 				g.C1[0] = 0
 			}
+
+			// ***** ADDITION DER S-DEPOSITION ZUR OBERSTEN SCHICHT *****
+			g.S1[0] = g.S1[0] + g.SDEPOS/365*g.DT.Num
+			if g.S1[0] < 0 {
+				g.S1[0] = 0
+			}
+
+			// check for measured water content
 			if ZEIT == g.MESS[g.MZ-1] {
 				for Z := 1; Z <= g.N+1; Z++ {
 					Zindex := Z - 1
