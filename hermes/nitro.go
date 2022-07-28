@@ -616,48 +616,48 @@ func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 	}
 	// --------------------- Verlagerung nach unten ---------------------
 	g.Q1[0] = g.FLUSS0 * wdt
-	for zIndex0 := 0; zIndex0 < g.N; zIndex0++ {
-		zIndex1 := zIndex0 + 1
+	for z0 := 0; z0 < g.N; z0++ {
+		z1 := z0 + 1
 		// Porenwassergeschwindigkeit V
-		l.V[zIndex0] = math.Abs(g.Q1[zIndex1] / ((g.W[zIndex0] + g.W[zIndex0+1]) * .5))
-		l.DB[zIndex0] = (g.WG[0][zIndex0]+g.WG[0][zIndex0+1])/2*(l.D[zIndex0]+g.DV*l.V[zIndex0]) - 0.5*wdt*math.Abs(g.Q1[zIndex1]) + 0.5*wdt*math.Abs((g.Q1[zIndex1]+g.Q1[zIndex1-1])/2)*l.V[zIndex0]
-		if zIndex1 == 1 {
-			cVar := Carray[zIndex1] - Carray[zIndex1+1]
-			dbVar := -l.DB[zIndex0]
+		l.V[z0] = math.Abs(g.Q1[z1] / ((g.W[z0] + g.W[z0+1]) * .5))
+		l.DB[z0] = (g.WG[0][z0]+g.WG[0][z0+1])/2*(l.D[z0]+g.DV*l.V[z0]) - 0.5*wdt*math.Abs(g.Q1[z1]) + 0.5*wdt*math.Abs((g.Q1[z1]+g.Q1[z1-1])/2)*l.V[z0]
+		if z1 == 1 {
+			cVar := Carray[z1] - Carray[z1+1]
+			dbVar := -l.DB[z0]
 			num100 := math.Pow(g.DZ.Num, 2)
-			l.DISP[zIndex0] = dbVar * cVar / num100
-		} else if zIndex1 < g.N {
-			l.DISP[zIndex0] = l.DB[zIndex0-1]*(Carray[zIndex1-1]-Carray[zIndex1])/math.Pow(g.DZ.Num, 2) - l.DB[zIndex0]*(Carray[zIndex1]-Carray[zIndex1+1])/math.Pow(g.DZ.Num, 2)
+			l.DISP[z0] = dbVar * cVar / num100
+		} else if z1 < g.N {
+			l.DISP[z0] = l.DB[z0-1]*(Carray[z1-1]-Carray[z1])/math.Pow(g.DZ.Num, 2) - l.DB[z0]*(Carray[z1]-Carray[z1+1])/math.Pow(g.DZ.Num, 2)
 		} else {
-			l.DISP[zIndex0] = l.DB[zIndex0-1] * (Carray[zIndex1-1] - Carray[zIndex1]) / math.Pow(g.DZ.Num, 2)
+			l.DISP[z0] = l.DB[z0-1] * (Carray[z1-1] - Carray[z1]) / math.Pow(g.DZ.Num, 2)
 		}
 	}
-	for z := 1; z <= g.N; z++ {
-		z0 := z - 1
-		if g.Q1[z] >= 0 && g.Q1[z-1] >= 0 {
-			if z == g.DRAIDEP {
-				l.KONV[z0] = (Carray[z]*g.Q1[z] + Carray[z]*g.QDRAIN - Carray[z-1]*g.Q1[z-1]) / g.DZ.Num
+	for z1 := 1; z1 <= g.N; z1++ {
+		z0 := z1 - 1
+		if g.Q1[z1] >= 0 && g.Q1[z1-1] >= 0 {
+			if z1 == g.DRAIDEP {
+				l.KONV[z0] = (Carray[z1]*g.Q1[z1] + Carray[z1]*g.QDRAIN - Carray[z1-1]*g.Q1[z1-1]) / g.DZ.Num
 			} else {
-				l.KONV[z0] = (Carray[z]*g.Q1[z] - Carray[z-1]*g.Q1[z-1]) / g.DZ.Num
+				l.KONV[z0] = (Carray[z1]*g.Q1[z1] - Carray[z1-1]*g.Q1[z1-1]) / g.DZ.Num
 			}
-		} else if g.Q1[z] >= 0 && g.Q1[z-1] < 0 {
-			if z > 1 {
-				if z == g.DRAIDEP {
-					l.KONV[z0] = (Carray[z]*g.Q1[z] + Carray[z]*g.QDRAIN - Carray[z]*g.Q1[z-1]) / g.DZ.Num
+		} else if g.Q1[z1] >= 0 && g.Q1[z1-1] < 0 {
+			if z1 > 1 {
+				if z1 == g.DRAIDEP {
+					l.KONV[z0] = (Carray[z1]*g.Q1[z1] + Carray[z1]*g.QDRAIN - Carray[z1]*g.Q1[z1-1]) / g.DZ.Num
 				} else {
-					l.KONV[z0] = (Carray[z]*g.Q1[z] - Carray[z]*g.Q1[z-1]) / g.DZ.Num
+					l.KONV[z0] = (Carray[z1]*g.Q1[z1] - Carray[z1]*g.Q1[z1-1]) / g.DZ.Num
 				}
 			} else {
-				l.KONV[z0] = Carray[z] * g.Q1[z] / g.DZ.Num
+				l.KONV[z0] = Carray[z1] * g.Q1[z1] / g.DZ.Num
 			}
-		} else if g.Q1[z] < 0 && g.Q1[z-1] < 0 {
-			if z > 1 {
-				l.KONV[z0] = (Carray[z+1]*g.Q1[z] - Carray[z]*g.Q1[z-1]) / g.DZ.Num
+		} else if g.Q1[z1] < 0 && g.Q1[z1-1] < 0 {
+			if z1 > 1 {
+				l.KONV[z0] = (Carray[z1+1]*g.Q1[z1] - Carray[z1]*g.Q1[z1-1]) / g.DZ.Num
 			} else {
-				l.KONV[z0] = Carray[z+1] * g.Q1[z] / g.DZ.Num
+				l.KONV[z0] = Carray[z1+1] * g.Q1[z1] / g.DZ.Num
 			}
-		} else if g.Q1[z] < 0 && g.Q1[z-1] >= 0 {
-			l.KONV[z0] = (Carray[z+1]*g.Q1[z] - Carray[z-1]*g.Q1[z-1]) / g.DZ.Num
+		} else if g.Q1[z1] < 0 && g.Q1[z1-1] >= 0 {
+			l.KONV[z0] = (Carray[z1+1]*g.Q1[z1] - Carray[z1-1]*g.Q1[z1-1]) / g.DZ.Num
 		}
 	}
 	g.DRAINLOSS = g.DRAINLOSS + g.QDRAIN*Carray[g.DRAIDEP]/g.DZ.Num*100*g.DZ.Num
