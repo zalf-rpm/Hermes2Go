@@ -47,6 +47,7 @@ type config struct {
 	CO2concentration    float64       `yaml:"CO2concentration"`    // CO2 concentration (ppm)
 	CO2StomataInfluence FeatureSwitch `yaml:"CO2StomataInfluence"` // CO2 Stomata influence (1=on/0= off)
 	NDeposition         float64       `yaml:"NDeposition"`         // N-Deposition (annual kg/ha)
+	SDeposition         float64       `yaml:"SDeposition"`         // S-Deposition (annual kg/ha)
 
 	//***** Time *****
 	StartYear                       int    `yaml:"StartYear"`                       // Starting year of simulation (YYYY)
@@ -107,6 +108,7 @@ func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) c
 	g.OUTN = hconfig.LeachingDepth
 	g.NAKT = hconfig.OrganicMatterMineralProportion
 	g.DEPOS = hconfig.NDeposition
+	g.SDEPOS = hconfig.SDeposition
 	g.DUNGSZEN = hconfig.Fertilization / 100
 	g.Datum = DateConverter(hconfig.DivideCentury, g.DATEFORMAT)
 	g.Kalender = KalenderConverter(g.DATEFORMAT, ".")
@@ -223,6 +225,7 @@ func NewDefaultConfig() config {
 		CO2concentration:                360,
 		CO2StomataInfluence:             true,
 		NDeposition:                     20,
+		SDeposition:                     18,
 		StartYear:                       1980,
 		EndDate:                         "31122010",
 		AnnualOutputDate:                "3009",
