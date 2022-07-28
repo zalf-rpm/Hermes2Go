@@ -1165,6 +1165,46 @@ func dueng(i int, g *GlobalVarsMain, l *InputSharedVars, hPath *HFilePath) {
 			g.NDIR[i] = g.NDIR[i] - g.NDIR[i]*ValAsFloat(token[5], dungfile, du)*VOL           // NH4
 			g.NSAS[i] = (l.DGMG[i]*l.NORG[i] - g.NDIR[i]) * ValAsFloat(token[3], dungfile, du) // Nfst
 			g.NLAS[i] = (l.DGMG[i]*l.NORG[i] - g.NDIR[i]) * ValAsFloat(token[4], dungfile, du) // Nslo
+
+			// sulfur in fertilizer
+
+			//LET SO4   = VAL(DUNG$(18:21))
+			SO4 := ValAsFloat(token[7], dungfile, du)
+			//LET SORG  = 1- SO4  !VAL(DUNG$(27:30))
+			SORG := 1 - SO4
+			//LET SFAST = VAL(DUNG$(23:26))
+			SFAST := ValAsFloat(token[8], dungfile, du)
+			//LET SDIR(I) = DGMG(I) * SO4
+			g.SDIR[i] = l.DGMG[i] * SO4
+			//LET SSAS(I) = DGMG(I) * SORG * SFAST
+			g.SSAS[i] = l.DGMG[i] * SORG * SFAST
+			//LET SLAS(I) = DGMG(I) * SORG * (1-SFAST)
+			g.SLAS[i] = l.DGMG[i] * SORG * (1 - SFAST)
+
+			break
 		}
 	}
 }
+
+//TODO: add sulfur fertilization
+// SUB DUENG(I)
+//         LET DU$ = "DUENGER.TXT"
+//         WHEN ERROR IN
+//              OPEN #4:Name DU$,ACCESS INPUT,ORGANIZATION TEXT
+//         USE
+//              PRINT "Datei Duengercharakteristik ";DU$;" nicht gefunden "
+//              STOP
+//         END WHEN
+//         DO while more #4
+//            LINE INPUT #4: DUNG$
+//            IF DUNG$(1:1) = DGART$(I) then
+//               LET SO4   = VAL(DUNG$(18:21))
+//               LET SORG  = 1- SO4  !VAL(DUNG$(27:30))
+//               LET SFAST = VAL(DUNG$(23:26))
+//               LET SDIR(I) = DGMG(I) * SO4
+//               LET SSAS(I) = DGMG(I) * SORG * SFAST
+//               LET SLAS(I) = DGMG(I) * SORG * (1-SFAST)
+//               EXIT DO
+//            END IF
+//         LOOP
+//     END SUB
