@@ -54,7 +54,7 @@ type GlobalVarsMain struct {
 	DT       DualType
 	DZ       DualType //layer depth = 10 cm (default)
 	N        int      // max number of layer (changed by soil file)
-	DV       float64
+	DV       float64  // Dispersionslänge (cm) (default = 4.9 cm)
 	ALPH     float64
 	SATBETA  float64
 	AKF      DualType    // current crop index (aktuelle frucht)
@@ -386,6 +386,7 @@ type GlobalVarsMain struct {
 	SDEPOS    float64     // S-Deposition depending on site
 	SOUTSUM   float64     // sum of S-drainage in soil
 	SAUFNASUM float64     // sum of ...
+	SDV       float64     // Dispersionslänge (cm) for sulfonie
 
 	// output parameters
 	PerY            float64 // accumulated output
@@ -507,6 +508,7 @@ func NewGlobalVarsMain() GlobalVarsMain {
 		N:       20, // default, will be overwritten by soil
 		DV:      4.9,
 		SDG:     NewDualType(0, 1),
+		SDV:     15,
 		// _______ PARAMETER FOR YU/ALLEN _________
 		ALPH:           40,
 		SATBETA:        2.5,

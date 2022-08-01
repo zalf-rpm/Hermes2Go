@@ -294,7 +294,7 @@ func sMove(wdt float64, subd, zeit int, g *GlobalVarsMain) {
 		//LET V(Z) = ABS(Q1(Z)/((W(Z)+W(Z+1))*.5))
 		V[z0] = math.Abs(g.Q1[z1] / ((g.WG[0][z0] + g.WG[0][z0+1]) * .5)) // note: in nitro it is W not WG[0]
 		//LET DB(Z) = (WG(0,Z)+WG(0,Z+1))/2*(D(Z) + DV*V(Z))-.5*dz*ABS(q1(z))+.5*dt*ABS((q1(z)+q1(z-1))/2)*v(z)
-		DB[z0] = (g.WG[0][z0]+g.WG[0][z0+1])/2*(DiffCoeff[z0]+g.DV*V[z0]) - .5*g.DZ.Num*math.Abs(g.Q1[z1]) + .5*wdt*math.Abs((g.Q1[z1]+g.Q1[z1-1])/2)*V[z0]
+		DB[z0] = (g.WG[0][z0]+g.WG[0][z0+1])/2*(DiffCoeff[z0]+g.SDV*V[z0]) - .5*g.DZ.Num*math.Abs(g.Q1[z1]) + .5*wdt*math.Abs((g.Q1[z1]+g.Q1[z1-1])/2)*V[z0]
 		if z1 == 1 {
 			// LET DISP(Z) = - DB(Z) * (S(Z)-S(Z+1))/DZ^2
 			DISP[z0] = -DB[z0] * (Sarray[z1] - Sarray[z1+1]) / sqrdDZ
