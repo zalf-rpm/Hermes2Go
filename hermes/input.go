@@ -275,11 +275,16 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 
 					for SCHLAG, SLAGtoken, ok := NextLineInut(0, scannerIrrFile, strings.Fields); ok; SCHLAG, SLAGtoken, ok = NextLineInut(0, scannerIrrFile, strings.Fields) {
 						valid := true
+						dateTokenIndex := 3
 						for ok := SCHLAG == g.PKT; ok; ok = SCHLAG == g.PKT && valid {
 							l.ANZBREG++
 							g.BREG[l.ANZBREG-1] = ValAsFloat(SLAGtoken[1], Bereg, SLAGtoken[1])
-							g.BRKZ[l.ANZBREG-1] = ValAsFloat(SLAGtoken[2], Bereg, SLAGtoken[2])
-							BREGDAT := SLAGtoken[3]
+							g.BRKZn[l.ANZBREG-1] = ValAsFloat(SLAGtoken[2], Bereg, SLAGtoken[2])
+							if len(SLAGtoken) > 3 {
+								g.BRKZs[l.ANZBREG-1] = ValAsFloat(SLAGtoken[3], Bereg, SLAGtoken[3])
+								dateTokenIndex = 4
+							}
+							BREGDAT := SLAGtoken[dateTokenIndex]
 							_, g.ZTBR[l.ANZBREG-1] = g.Datum(BREGDAT)
 
 							///!warning may Beginn not yet initialized
@@ -293,14 +298,16 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 					for i := l.ANZBREG; i < 500; i++ {
 						g.ZTBR[i] = 0
 						g.BREG[i] = 0
-						g.BRKZ[i] = 0
+						g.BRKZn[i] = 0
+						g.BRKZs[i] = 0
 					}
 				} else {
 					l.ANZBREG = 0
 					for i := 0; i < 500; i++ {
 						g.ZTBR[i] = 0
 						g.BREG[i] = 0
-						g.BRKZ[i] = 0
+						g.BRKZn[i] = 0
+						g.BRKZs[i] = 0
 					}
 				}
 			}

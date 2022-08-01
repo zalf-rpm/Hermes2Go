@@ -106,7 +106,7 @@ type GlobalVarsMain struct {
 	CLAY     [21]float64 // clay(ton) in %
 	NALTOS   float64
 	BREG     []float64 // irrigation amount (in mm)
-	BRKZ     []float64 // N-Concentration in irrigation water (in ppm)
+	BRKZn    []float64 // N-Concentration in irrigation water (in ppm)
 	ZTBR     []int     // irrigation time (timestamp since 1900)
 	BEGINN   int
 	ENDE     int
@@ -387,6 +387,7 @@ type GlobalVarsMain struct {
 	SOUTSUM   float64     // sum of S-drainage in soil
 	SAUFNASUM float64     // sum of ...
 	SDV       float64     // Dispersionslänge (cm) for sulfonie
+	BRKZs     []float64   // S-Concentration in irrigation water (in ppm)
 
 	// output parameters
 	PerY            float64 // accumulated output
@@ -502,7 +503,8 @@ func NewGlobalVarsMain() GlobalVarsMain {
 		DZ:      NewDualType(10, 0),
 		WINDHI:  2,
 		BREG:    make([]float64, 1200),
-		BRKZ:    make([]float64, 1200),
+		BRKZn:   make([]float64, 1200),
+		BRKZs:   make([]float64, 1200),
 		ZTBR:    make([]int, 1200),
 		IZM:     30,
 		N:       20, // default, will be overwritten by soil
@@ -523,13 +525,17 @@ func (g *GlobalVarsMain) setIrrigation(zeit, index int, value float64) {
 	lenSL := len(g.BREG)
 	if index >= lenSL-1 {
 		sliceBREG := make([]float64, index+10)
-		sliceBRKZ := make([]float64, index+10)
+		sliceBRKZn := make([]float64, index+10)
+		sliceBRKZs := make([]float64, index+10)
 		sliceZTBR := make([]int, index+10)
+
 		copy(sliceBREG, g.BREG)
-		copy(sliceBRKZ, g.BRKZ)
+		copy(sliceBRKZn, g.BRKZn)
+		copy(sliceBRKZs, g.BRKZs)
 		copy(sliceZTBR, g.ZTBR)
 		g.BREG = sliceBREG
-		g.BRKZ = sliceBRKZ
+		g.BRKZn = sliceBRKZn
+		g.BRKZs = sliceBRKZs
 		g.ZTBR = sliceZTBR
 	}
 	g.BREG[index] = value

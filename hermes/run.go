@@ -403,9 +403,15 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			if ZEIT == g.ZTBR[g.NBR-1] {
 				g.EffectiveIRRIG = g.BREG[g.NBR-1] / 10
 				g.REGEN[g.TAG.Index] = g.REGEN[g.TAG.Index] + g.EffectiveIRRIG
-				nConcetrationInWater := g.BRKZ[g.NBR-1] * g.BREG[g.NBR-1] * 0.01
+				nConcetrationInWater := g.BRKZn[g.NBR-1] * g.BREG[g.NBR-1] * 0.01
 				if nConcetrationInWater > 0 {
 					g.C1[0] = g.C1[0] + nConcetrationInWater
+				}
+
+				// add s from irrigation to S1 concentration in upper soil layer
+				sConcentrationInWater := g.BRKZs[g.NBR-1] * g.BREG[g.NBR-1] * 0.01
+				if sConcentrationInWater > 0 {
+					g.S1[0] = g.S1[0] + sConcentrationInWater
 				}
 				g.NBR++
 			}
