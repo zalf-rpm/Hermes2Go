@@ -769,7 +769,7 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 						}
 					}
 				}
-
+				// move overlapping dates
 				for i := 1; i <= NRTIL; i++ {
 					if g.EINTE[i+1] == g.EINTE[i] {
 						g.EINTE[i+1] = g.EINTE[i+1] + 1
@@ -777,6 +777,7 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 				}
 			}
 			residi(g, hPath)
+			sResidi(g, hPath)
 			if !g.AUTOFERT {
 				// ! ********************** Düngungsmassnahmen lesen ***********************************
 				dun := hPath.dun
@@ -815,7 +816,8 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 			break
 		}
 	}
-	potmin(g, l)
+	nPotMin(g, l)
+	sPotMin(g)
 	return nil
 }
 
@@ -1119,7 +1121,7 @@ func residi(g *GlobalVarsMain, hPath *HFilePath) {
 	g.NDIR[0] = 0.0
 }
 
-func potmin(g *GlobalVarsMain, l *InputSharedVars) {
+func nPotMin(g *GlobalVarsMain, l *InputSharedVars) {
 	if g.CGEHALT[0] > 14 {
 		g.NALTOS = 5000 * l.NGEHALT[0] * g.NAKT * float64(g.UKT[1])
 	} else if g.CGEHALT[0] > 5 {

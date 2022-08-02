@@ -114,8 +114,8 @@ type GlobalVarsMain struct {
 	CVARIETY [300]string
 	SAAT     [300]int
 	JN       [300]float64
-	ERNTE    [300]int
-	ERTR     [300]float64
+	ERNTE    [300]int     // harvest date (timestamp since 1900)
+	ERTR     [300]float64 // harvest residue
 	ITAG     int
 	TAG      DualType // current day
 	JTAG     int      // number of days in current year
@@ -130,10 +130,10 @@ type GlobalVarsMain struct {
 	KNZ1     [100]float64
 	KNZ2     [100]float64
 	KNZ3     [100]float64
-	TILDAT   [200]string
-	EINT     [300]float64
-	TILART   [200]int
-	EINTE    [201]int //(0:200)
+	TILDAT   [200]string  // Tillage date
+	EINT     [300]float64 // Einarbeitungstiefe/ Tillage depth (cm)
+	TILART   [200]int     // Tillage method (currently only 1 or 0 = none)
+	EINTE    [201]int     //(0:200) Tillage date (as timestamp since 1900)
 	DGART    [300]string
 	NDIR     [300]float64
 	NH4N     [300]float64 // not NH4 fertilizer ( nicht Nitrat-N in Dünger)

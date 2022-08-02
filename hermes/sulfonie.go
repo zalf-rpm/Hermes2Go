@@ -2,7 +2,7 @@ package hermes
 
 import "math"
 
-func PotMin(g *GlobalVarsMain) {
+func sPotMin(g *GlobalVarsMain) {
 	//IF CGEHALT(1) > 14 THEN
 	if g.CGEHALT[0] > 14 {
 		g.SALTOS = 5000 * g.SGEHALT[0] * g.SAKT * float64(g.UKT[0])
@@ -42,14 +42,15 @@ func Sulfo(wdt float64, subd, zeit int, g *GlobalVarsMain, hPath *HFilePath) {
 			}
 		}
 		// TODO: Auto-fertilization
-
+		// ---- Homogene Vermischung von mineralischem u. organ. S bei Bearbeitung ----
 		// 		IF Zeit = EINTE(1)+1 then
-		if zeit == g.EINTE[0]+1 {
+		if zeit == g.EINTE[g.NTIL.Index+1]+1 {
 			g.SFOSUM, g.SAOSUM, g.SSUM, g.SFSUM = 0, 0, 0, 0
 			// 		   IF EINT(1) > 0 then
-			if g.EINT[0] > 0 {
+			if g.EINT[g.NTIL.Index] > 0 {
+				mixDepth := math.Round(g.EINT[g.NTIL.Index] / g.DZ.Num)
 				// 		 FOR Z = 1 TO EINT(1)/dz
-				for z := 0; z < int(g.EINT[0]/g.DZ.Num); z++ {
+				for z := 0; z < int(mixDepth); z++ {
 					//! Vollständige Durchmischung bis Bearbeitungstiefe für Anfangsforfrucht
 					//LET SFOSUM = SFOSUM + SFOS(Z)
 					g.SFOSUM += g.SFOS[z]
@@ -62,17 +63,18 @@ func Sulfo(wdt float64, subd, zeit int, g *GlobalVarsMain, hPath *HFilePath) {
 					//NEXT Z
 				}
 				//FOR Z = 1 TO EINT(1)/dz
-				for z := 0; z < int(g.EINT[0]/g.DZ.Num); z++ {
+				for z := 0; z < int(mixDepth); z++ {
 					//LET SFOS(Z) = SFOSUM/EINT(1)*dz
-					g.SFOS[z] = g.SFOSUM / g.EINT[0] * g.DZ.Num
+					g.SFOS[z] = g.SFOSUM / mixDepth
 					//LET SAOS(Z) = SAOSUM/EINT(1)*dz
-					g.SAOS[z] = g.SAOSUM / g.EINT[0] * g.DZ.Num
+					g.SAOS[z] = g.SAOSUM / mixDepth
 					//LET S1(z)   = SSUM/EINT(1)*dz
-					g.S1[z] = g.SSUM / g.EINT[0] * g.DZ.Num
+					g.S1[z] = g.SSUM / mixDepth
 					//LET SF(z)   = SFSUM/EINT(1)*dz
-					g.SF[z] = g.SFSUM / g.EINT[0] * g.DZ.Num
+					g.SF[z] = g.SFSUM / mixDepth
 				}
 			}
+			// don't increment NTIL here, it is used in nitro()
 		}
 
 		sMineral(g)
@@ -93,38 +95,6 @@ func Sulfo(wdt float64, subd, zeit int, g *GlobalVarsMain, hPath *HFilePath) {
 			g.SDSUMM += SDI
 			// 		   LET AKF = AKF+1
 			// don't increment AKF here, it is used in nitro()
-		}
-		// 		! ---- Homogene Vermischung von mineralischem u. organ. N bei Bearbeitung ----
-		// 		IF ZEIT = EINTE(AKF-1) THEN
-		if zeit == g.EINTE[g.AKF.Index] {
-			g.SFOSUM, g.SAOSUM, g.SSUM, g.SFSUM = 0, 0, 0, 0
-			//IF EINT(AKF-1) > 0 then
-			if g.EINT[g.AKF.Index] > 0 {
-				//FOR Z = 1 TO EINT(AKF-1)/dz
-				for z := 0; z < int(g.EINT[g.AKF.Index]/g.DZ.Num); z++ {
-					//LET SFOSUM = SFOSUM + SFOS(Z)
-					g.SFOSUM += g.SFOS[z]
-					//LET SAOSUM = SAOSUM + SAOS(Z)
-					g.SAOSUM += g.SAOS[z]
-					//LET SSUM   = SSUM   + S1(Z)
-					g.SSUM += g.S1[z]
-					//LET SFSUM = SFSUM + SF(Z)
-					g.SFSUM += g.SF[z]
-
-				}
-				//FOR Z = 1 TO EINT(AKF-1)/dz
-				for z := 0; z < int(g.EINT[g.AKF.Index]/g.DZ.Num); z++ {
-
-					//LET SFOS(Z) = SFOSUM/EINT(AKF-1)*dz
-					g.SFOS[z] = g.SFOSUM / g.EINT[g.AKF.Index] * g.DZ.Num
-					//LET SAOS(Z) = SAOSUM/EINT(AKF-1)*dz
-					g.SAOS[z] = g.SAOSUM / g.EINT[g.AKF.Index] * g.DZ.Num
-					//LET S1(z)   = SSUM/EINT(AKF-1)*dz
-					g.S1[z] = g.SSUM / g.EINT[g.AKF.Index] * g.DZ.Num
-					//LET SF(z)   = SFSUM/EINT(AKF-1)*dz
-					g.SF[z] = g.SFSUM / g.EINT[g.AKF.Index] * g.DZ.Num
-				}
-			}
 		}
 	}
 	sMove(wdt, subd, zeit, g)
@@ -455,4 +425,51 @@ func sResid(g *GlobalVarsMain, hPath *HFilePath) {
 	g.SLAS[0] = DGM * (1 - SFAST)
 	//LET SDIR(1) = 0.0
 	g.SDIR[0] = 0.0 // SDIR is set to 0 afer harvest.. what about quick following cultures?
+}
+
+//SUB SRESIDI
+func sResidi(g *GlobalVarsMain, hPath *HFilePath) {
+	// ! ******  Mineralisationspotentiale aus Vorfruchtresiduen
+	// CROP_S.TXT
+	CRONAM := hPath.cropn
+	_, scanner, _ := Open(&FileDescriptior{FilePath: CRONAM, UseFilePool: true})
+	var KOSTRO, SKOPP, SERNT, SWURA, SFAST float64
+	for scanner.Scan() {
+		CROP := scanner.Text()
+		//    IF CROP$(1:3) = FRUCHT$(1) then
+		if g.ToCropType(CROP[0:3]) == g.FRUCHT[g.AKF.Index] {
+			//       LET KOSTRO = VAL(CROP$(5:7))
+			KOSTRO = ValAsFloat(CROP[4:7], CRONAM, CROP)
+			//       LET TM     = VAL(CROP$(9:12))
+			//       LET SERNT  = VAL(CROP$(20:24))     ! N = (14:18))
+			SERNT = ValAsFloat(CROP[19:24], CRONAM, CROP) //S_HEG
+			//       LET SKOPP  = VAL(CROP$(32:35))     ! N = (26:30))
+			SKOPP = ValAsFloat(CROP[31:35], CRONAM, CROP) // SNEG
+			//       LET SWURA  = VAL(CROP$(37:40))
+			SWURA = ValAsFloat(CROP[36:40], CRONAM, CROP) // SWur
+			//       LET SFAST  = VAL(CROP$(47:50))     ! N = (42:45))
+			SFAST = ValAsFloat(CROP[46:50], CRONAM, CROP) // Sfas
+			break
+		}
+	}
+
+	AUFGES := (g.ERTR[0]*SERNT + g.ERTR[0]*KOSTRO*SKOPP) / (1 - SWURA)
+	var DGM float64
+	if g.JN[0] == 0 {
+		if g.EINT[0] == 0 {
+			DGM = 0
+		} else {
+			DGM = AUFGES - (g.ERTR[0] * SERNT)
+		}
+	} else if g.JN[0] == 1 {
+		DGM = AUFGES * SWURA
+	} else {
+		DGM = AUFGES*SWURA + (1-g.JN[0])*(AUFGES-g.ERTR[0]*SERNT-AUFGES*SWURA)
+	}
+	if DGM < 0 {
+		DGM = 0
+	}
+	g.SSAS[0] = DGM * SFAST
+	g.SLAS[0] = DGM * (1 - SFAST)
+	g.SDIR[0] = 0.0
 }
