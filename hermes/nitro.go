@@ -186,11 +186,14 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			if g.SAAT[g.AKF.Index] > 0 && g.ERNTE[g.AKF.Index] == 0 {
 				g.EINTE[g.NTIL.Index+1] = g.EINTE[g.NTIL.Index+1] + 2
 			}
+			// // TODO: ask Christian about this... I think this was his intention
+			// // if for tillage date is before the harvest date, the tillage date is set to a day after harvest date
+			// if g.ERNTE[g.AKF.Index] > 0 && g.EINTE[g.NTIL.Index+1] <= g.ERNTE[g.AKF.Index] {
+			// 	g.EINTE[g.NTIL.Index+1] = g.ERNTE[g.AKF.Index] + 1
+			// }
 		}
 	}
-	if g.EINTE[g.NTIL.Index+1] <= g.ERNTE[g.AKF.Index] {
-		g.EINTE[g.AKF.Index+1] = g.EINTE[g.AKF.Index+1] + 1
-	}
+
 	// ----------------------------------------------------------------------------------------------------------------
 	if zeit == g.EINTE[g.NTIL.Index+1]+1 && subd == 1 {
 		var NFOSUM, NAOSUM, nmifosum, nmiaosum, CSUM float64
