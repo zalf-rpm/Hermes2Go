@@ -105,3 +105,5 @@ AutoFertilization: 0
 AutoIrrigation: 1
 # automatic harvest (0=no, 1= on demand)
 AutoHarvest: 0
+# calculation of sulfur dynamics  (0=off, 1= on)
+Sulfonie: 1

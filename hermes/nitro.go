@@ -36,13 +36,13 @@ type NitroSharedVars struct {
 func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath *HFilePath, output *CropOutputVars) (finishedCycle bool) {
 	if !g.AUTOFERT {
 		//! +++++++++++++++++++++++++++++++++++++ Option real fertilization +++++++++++++++++++++++++++++++++++++++++++++++
-		if zeit == g.ZTDG[g.NDG.Index]+1 && subd == 1 {
-			g.NFOS[0] = g.NFOS[0] + g.NSAS[g.NDG.Index]
-			g.NAOS[0] = g.NAOS[0] + g.NLAS[g.NDG.Index]
-			g.DSUMM = g.DSUMM + g.NDIR[g.NDG.Index] //! Summe miner. Duengung
-			g.NFERTSIM = g.NFERTSIM + g.NDIR[g.NDG.Index]
-			g.NH4Sum = g.NH4Sum + g.NH4N[g.NDG.Index] // Summe min. Ammoniakalische Düngung
-			g.NDG.Inc()
+		if zeit == g.ZTDG[g.DG.Index]+1 && subd == 1 {
+			g.NFOS[0] = g.NFOS[0] + g.NSAS[g.DG.Index]
+			g.NAOS[0] = g.NAOS[0] + g.NLAS[g.DG.Index]
+			g.DSUMM = g.DSUMM + g.NDIR[g.DG.Index] //! Summe miner. Duengung
+			g.NFERTSIM = g.NFERTSIM + g.NDIR[g.DG.Index]
+			g.NH4Sum = g.NH4Sum + g.NH4N[g.DG.Index] // Summe min. Ammoniakalische Düngung
+			g.DG.Inc()
 		}
 		//! ---------------------------------------------------------------------------------------------------------------
 	} else if g.AUTOFERT {

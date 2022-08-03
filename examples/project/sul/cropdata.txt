@@ -1,1 +1,27 @@
-Crop ZF MaxRoot NoE  Comment
+Crop ZF Comment
+AB  3.2 Ackerbohne
+CCM 1.6 Corn-Cob-Mix Kolben + Körner
+GR  2.0 Grünland Schnittnutzung
+GRE 2.0 Gras. Futter Grünmasse
+H   2.8 Hafer
+OA  2.8 Hafer /Oat
+K   2.7 Kartoffeln
+LUP 3.2 Lupinen
+ORH 2.7 Ölrettich
+SE  2.0 Senf Zwischenfrucht 
+SG  1.6 Sommergerste
+SM  1.6 Silomais
+M   1.6 Mais
+SW  1.6 Sommerweizen
+TR  1.6 Triticale Korn
+WG  1.6 Wintergerste
+WR  1.6 Winterroggen
+WRA 3.2 Winterraps
+WRC 3.2 Winterraps catch crop
+WW  1.6 W.Weizen
+ZR  2.7 Zuckerrüben
+AA  3.2 alfalfa
+OEL 2.0 Oellein Zwischenfrucht
+ERB 3.2 Felderbse 
+PH  2.0 Phazelia
+SOY 3.2 Soyabohne

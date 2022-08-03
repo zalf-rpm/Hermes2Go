@@ -67,6 +67,7 @@ type config struct {
 	KcFactorBareSoil               float64 `yaml:"KcFactorBareSoil"`               // kc factor for bare soil
 	SulfurSatSolutionConcentration float64 `yaml:"SulfurSatSolutionConcentration"` // Saturated Solution Concentration (SKSAT) in Gramms S/Liter
 	SulfurSolutionCoefficient      float64 `yaml:"SulfurSolutionCoefficient"`      // Sulfur Solution Coefficient (KLOS)
+	SmineralPartOrgSoilMatter      float64 `yaml:"SmineralPartOrgSoilMatter"`      // mineralisable part of organic soil matter
 
 	//***** Management *****
 	Fertilization     float64       `yaml:"Fertilization"`     // fertilization scenario (fertilization in %)
@@ -74,6 +75,7 @@ type config struct {
 	AutoFertilization FeatureSwitch `yaml:"AutoFertilization"` // automatic fertilization (0=no, 1=on demand)
 	AutoIrrigation    FeatureSwitch `yaml:"AutoIrrigation"`    // automatic irrigation (0=no, 1= on demand)
 	AutoHarvest       FeatureSwitch `yaml:"AutoHarvest"`       // automatic harvest (0=no, 1= on demand)
+	Sulfonie          FeatureSwitch `yaml:"SulfurStress"`      // Sulfur stress (0=no, 1=yes)
 }
 
 func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) config {
@@ -123,6 +125,8 @@ func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) c
 	g.PTF = hconfig.PTF
 	g.SKSAT = hconfig.SulfurSatSolutionConcentration
 	g.KLOS = hconfig.SulfurSolutionCoefficient
+	g.Sulfonie = bool(hconfig.Sulfonie)
+	g.SAKT = hconfig.SmineralPartOrgSoilMatter
 	if len(hconfig.WeatherFolder) == 0 {
 		hconfig.WeatherFolder = "Weather"
 	}
@@ -239,11 +243,13 @@ func NewDefaultConfig() config {
 		KcFactorBareSoil:                0.4,
 		SulfurSatSolutionConcentration:  0.2,
 		SulfurSolutionCoefficient:       0.1,
+		SmineralPartOrgSoilMatter:       0.15,
 		Fertilization:                   100,
 		AutoSowingHarvest:               true,
 		AutoFertilization:               true,
 		AutoIrrigation:                  true,
 		AutoHarvest:                     true,
+		Sulfonie:                        false,
 	}
 }
 

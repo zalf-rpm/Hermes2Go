@@ -77,7 +77,6 @@ type GlobalVarsMain struct {
 	LD       [10]int     // bulk density KA5 (1-5) (Lagerungsdichtestufe nach KA5 (1-5))
 	BULK     [10]float64 // avarage bulk density (Zuweisung mittlere Lagerungsdichte von LD(I) (g/cm^3))
 	CGEHALT  [10]float64 // C organic content in soil layer (Corg-Gehalt in Horizont I (Gew.%))
-	SGEHALT  [10]float64 // S organic content in soil layer (Sorg-Gehalt in Horizont I (Gew.%))
 	HUMUS    [21]float64 // humus content in soil layer (Humusgehalt in Hor. I (Gew.%))
 	STEIN    [10]float64 // stone content in soil layer (%)
 	FKA      [10]float64 // water content at field capacity (Wassergehalt bei Feldkapazität) (Vol. %)
@@ -159,7 +158,7 @@ type GlobalVarsMain struct {
 	MINAOS          [4]float64  //  should be size of N
 	MINFOS          [4]float64  // should be size of N
 	CA              [21]float64
-	NDG             DualType // Nitrogen fertilization counter
+	DG              DualType // Nitrogen fertilization counter
 	MZ              int
 	NBR             int
 	NTIL            DualType
@@ -357,8 +356,10 @@ type GlobalVarsMain struct {
 	N2onitsum float64
 	AKTUELL   string // current Date string
 	SoilID    string
-	// Sulphony Parameter
-	SAKT      float64
+	// Sulfonie Parameter
+	Sulfonie  bool        // enable Sulfonie
+	SAKT      float64     // mineralizable part of soil organic matter
+	SGEHALT   [10]float64 // S organic content in soil layer (Sorg-Gehalt in Horizont I (Gew.%))
 	SALTOS    float64
 	SFOS      [21]float64
 	S1        [21]float64 // Smin-content in layer Z (kg N/ha)
@@ -367,27 +368,27 @@ type GlobalVarsMain struct {
 	Sminaos   [21]float64
 	Sminfos   [21]float64
 	ANFSUM    float64
-	SDG       DualType // index for sulfur fertilization
-	SDSUMM    float64  // sum of mineral sulphur fertilization
+	SDSUMM    float64 // sum of mineral sulphur fertilization
 	SFOSUM    float64
 	SAOSUM    float64
 	SSUM      float64
-	SFSUM     float64
-	SF        [21]float64
+	SFSUM     float64     //SF Sum over all layers
+	SF        [21]float64 //SF Smin not in solution in kg S/ha per layer(SF ist die nicht gelöste Smin-Menge in kg S/ha)
 	SSAS      [300]float64
 	SLAS      [300]float64
 	SDIR      [300]float64
 	PESUMS    float64
 	SMINSUM   float64
-	DNS       [21]float64 // source term from mineralisation (kg S/ha) in layer
-	PES       [21]float64 // S-uptake of crop in soil layer Z (kg S/ha)
-	SKSAT     float64     // Saettigungs-Loesungskonzentration in Gramm S/Liter
-	KLOS      float64     // S Loesungskoeffizient (Geschwindigkeit)
-	SDEPOS    float64     // S-Deposition depending on site
-	SOUTSUM   float64     // sum of S-drainage in soil
-	SAUFNASUM float64     // sum of ...
-	SDV       float64     // Dispersionslänge (cm) for sulfonie
-	BRKZs     []float64   // S-Concentration in irrigation water (in ppm)
+	DNS       [21]float64          // source term from mineralisation (kg S/ha) in layer
+	PES       [21]float64          // S-uptake of crop in soil layer Z (kg S/ha)
+	SKSAT     float64              // Saettigungs-Loesungskonzentration in Gramm S/Liter
+	KLOS      float64              // S Loesungskoeffizient (Geschwindigkeit)
+	SDEPOS    float64              // S-Deposition depending on site
+	SOUTSUM   float64              // sum of S-drainage in soil
+	SAUFNASUM float64              // sum of ...
+	SDV       float64              // Dispersionslänge (cm) for sulfonie
+	BRKZs     []float64            // S-Concentration in irrigation water (in ppm)
+	ZFMap     map[CropType]float64 // map of ZF increase parameter for S-Uptake curve (Steigungparameter) per crop
 
 	// output parameters
 	PerY            float64 // accumulated output
@@ -498,7 +499,7 @@ func NewGlobalVarsMain() GlobalVarsMain {
 		INTWICK: NewDualType(-1, 1),
 		AKF:     NewDualType(0, 1),
 		DT:      NewDualType(1, 0),
-		NDG:     NewDualType(0, 1),
+		DG:      NewDualType(0, 1),
 		NTIL:    NewDualType(0, 1),
 		DZ:      NewDualType(10, 0),
 		WINDHI:  2,
@@ -509,7 +510,6 @@ func NewGlobalVarsMain() GlobalVarsMain {
 		IZM:     30,
 		N:       20, // default, will be overwritten by soil
 		DV:      4.9,
-		SDG:     NewDualType(0, 1),
 		SDV:     15,
 		// _______ PARAMETER FOR YU/ALLEN _________
 		ALPH:           40,

@@ -42,35 +42,50 @@ func Init(g *GlobalVarsMain) {
 	} else if g.FEU == 3 {
 		FKPROZ = FKPROZ + .3
 	}
-	for z := 0; z < g.N; z++ {
-		zNum := float64(z) + 1
-		if zNum > 15 {
-			g.WG[0][z] = g.W[z] - (g.W[z]-g.WMIN[z])*(1-0.95)
-			if g.WG[0][z] < g.WMIN[z] {
-				g.WG[0][z] = g.WMIN[z]
+	for z0 := 0; z0 < g.N; z0++ {
+		z1 := float64(z0) + 1
+		if z1 > 15 {
+			g.WG[0][z0] = g.W[z0] - (g.W[z0]-g.WMIN[z0])*(1-0.95)
+			if g.WG[0][z0] < g.WMIN[z0] {
+				g.WG[0][z0] = g.WMIN[z0]
 			}
 		} else {
-			g.WG[0][z] = g.W[z] - (g.W[z]-g.WMIN[z])*(1-FKPROZ)
-			if g.WG[0][z] < g.WMIN[z] {
-				g.WG[0][z] = g.WMIN[z]
+			g.WG[0][z0] = g.W[z0] - (g.W[z0]-g.WMIN[z0])*(1-FKPROZ)
+			if g.WG[0][z0] < g.WMIN[z0] {
+				g.WG[0][z0] = g.WMIN[z0]
 			}
 		}
-		PG := g.PORGES[z]
-		if zNum >= g.GW {
-			g.WG[0][z] = PG
+		PG := g.PORGES[z0]
+		if z1 >= g.GW {
+			g.WG[0][z0] = PG
 		}
-		g.C1[z] = g.CN[0][z]
-		if zNum > 0 && zNum < 40./g.DZ.Num {
-			g.NAOS[z] = g.NALTOS / 30 * g.DZ.Num
-			g.NFOS[z] = 0
-			g.MINAOS[z] = 0
-			g.MINFOS[z] = 0
+		g.C1[z0] = g.CN[0][z0]
+		if z1 > 0 && z1 < 40./g.DZ.Num {
+			g.NAOS[z0] = g.NALTOS / 30 * g.DZ.Num
+			g.NFOS[z0] = 0
+			g.MINAOS[z0] = 0
+			g.MINFOS[z0] = 0
 		}
-		g.CA[z] = 0
+		// LET S1(z) = SI(0,z)
+		g.S1[z0] = g.SI[0][z0]
+		// IF Z > 0 AND Z < 40/DZ THEN
+		if z1 > 0 && z1 < 40./g.DZ.Num {
+			//LET SAOS(Z) = SALTOS/30*DZ
+			g.SAOS[z0] = g.SALTOS / 30 * g.DZ.Num
+			//LET SFOS(Z) = 0
+			g.SFOS[z0] = 0
+			//LET Sminaos(z) = 0
+			g.Sminaos[z0] = 0
+			//LET Sminfos(z) = 0
+			g.Sminfos[z0] = 0
+		}
+		// LET ANFSUM = ANFSUM + S1(Z)
+		g.ANFSUM = g.ANFSUM + g.S1[z0]
+
+		g.CA[z0] = 0
 	}
 	g.WG[0][10] = g.WG[0][9]
-	g.NDG.SetByIndex(0) // Nitrogen fertilization counter
-	g.SDG.SetByIndex(0) // Sulfor fertilizer counter
+	g.DG.SetByIndex(0) // Nitrogen fertilization counter
 	g.MZ = 1
 	g.NBR = 1
 	g.NTIL.SetByIndex(0)

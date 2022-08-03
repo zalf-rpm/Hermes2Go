@@ -124,6 +124,7 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 			g.LD = currentSoil.LD
 			g.BULK = currentSoil.BULK
 			g.CGEHALT = currentSoil.CGEHALT
+			g.SGEHALT = currentSoil.SGEHALT
 			g.CNRAT1 = currentSoil.CNRAT1
 			l.NGEHALT = currentSoil.NGEHALT
 			g.HUMUS = currentSoil.HUMUS
@@ -555,6 +556,12 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 					}
 				}
 			}
+
+			err := sReadCropData(g, hPath)
+			if err != nil {
+				// failed to read crop data
+				return err
+			}
 			// ! -- Setzen des Simulationsbeginns für Zeitschleife
 			// set simulation start for time loop
 			g.BEGINN = g.ERNTE[0]
@@ -776,7 +783,9 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 					}
 				}
 			}
+			// calculate initial n residue
 			residi(g, hPath)
+			// calculate inital S residue
 			sResidi(g, hPath)
 			if !g.AUTOFERT {
 				// ! ********************** Düngungsmassnahmen lesen ***********************************

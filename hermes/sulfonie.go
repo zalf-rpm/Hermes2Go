@@ -1,6 +1,9 @@
 package hermes
 
-import "math"
+import (
+	"math"
+	"strings"
+)
 
 func sPotMin(g *GlobalVarsMain) {
 	//IF CGEHALT(1) > 14 THEN
@@ -30,15 +33,15 @@ func Sulfo(wdt float64, subd, zeit int, g *GlobalVarsMain, hPath *HFilePath) {
 		if !g.AUTOFERT {
 			//! +++++++++++++++++++++++++++++++++++++ Option real fertilization +++++++++++++++++++++++++++++++++++++++++++++++
 			// IF ZEIT = ZTDG(NDG)+1 THEN
-			if zeit == g.ZTDG[g.SDG.Index]+1 {
+			if zeit == g.ZTDG[g.DG.Index]+1 {
 				// 		   LET SFOS(1) = SFOS(1) + SSAS(NDG)
-				g.SFOS[0] += g.SSAS[g.SDG.Index]
+				g.SFOS[0] += g.SSAS[g.DG.Index]
 				// 		   LET SAOS(1) = SAOS(1) + SLAS(NDG)
-				g.SAOS[0] += g.SLAS[g.SDG.Index]
+				g.SAOS[0] += g.SLAS[g.DG.Index]
 				// 		   LET DSUMM = DSUMM + SDIR(NDG)    ! Summe miner. Düngung
-				g.SDSUMM += g.SDIR[g.SDG.Index]
+				g.SDSUMM += g.SDIR[g.DG.Index]
 				// 		   LET NDG = NDG + 1
-				g.SDG.Inc()
+				// do not increase fertilization index here ... this happens in nitro()
 			}
 		}
 		// TODO: Auto-fertilization
@@ -52,6 +55,7 @@ func Sulfo(wdt float64, subd, zeit int, g *GlobalVarsMain, hPath *HFilePath) {
 				// 		 FOR Z = 1 TO EINT(1)/dz
 				for z := 0; z < int(mixDepth); z++ {
 					//! Vollständige Durchmischung bis Bearbeitungstiefe für Anfangsforfrucht
+					// mix everything up until the mix depth for the initial crop
 					//LET SFOSUM = SFOSUM + SFOS(Z)
 					g.SFOSUM += g.SFOS[z]
 					//LET SAOSUM = SAOSUM + SAOS(Z)
@@ -85,7 +89,7 @@ func Sulfo(wdt float64, subd, zeit int, g *GlobalVarsMain, hPath *HFilePath) {
 			//IF akf <> 1 then
 			if g.AKF.Num != 1 {
 				//CALL SRESID(SSA,SLA)
-				sResid(g, hPath)
+				SSA, SLA, SDI = sResid(g, hPath)
 			}
 			//LET SFOS(1) = SFOS(1) + SSA
 			g.SFOS[0] += SSA
@@ -368,7 +372,7 @@ func sMove(wdt float64, subd, zeit int, g *GlobalVarsMain) {
 }
 
 // 	SUB SRESID(SDI,SSA,SLA)
-func sResid(g *GlobalVarsMain, hPath *HFilePath) {
+func sResid(g *GlobalVarsMain, hPath *HFilePath) (SSA, SLA, SDI float64) {
 	// 		!Mineralisationspotentiale aus Vorfruchtresiduen
 	CRONAM := hPath.cropn
 	_, scanner, _ := Open(&FileDescriptior{FilePath: CRONAM, UseFilePool: true})
@@ -396,35 +400,41 @@ func sResid(g *GlobalVarsMain, hPath *HFilePath) {
 		}
 	}
 	var DGM float64
-	// 		IF JN(AKF) = 0 THEN
+	// 	IF JN(AKF) = 0 THEN
 	if g.JN[g.AKF.Index] == 0 {
-		//IF EINT(AKF) = 0 then
-		if g.EINT[g.AKF.Index] == 0 {
-			//! LET DGM = 0
-			//LET DGM = PESUMS * SWURA
+		// 	IF EINT(AKF) = 0 then
+		if g.EINT[g.NTIL.Index] == 0 {
+			// 	   ! LET DGM = 0
+			// 	   LET DGM = PESUMS * SWURA
 			DGM = g.PESUMS * SWURA
 		} else {
-			//LET DGM = PESUMS - (ERTR(AKF) * SERNT)
+			// 	   LET DGM = PESUMS - (ERTR(AKF) * SERNT)
 			DGM = g.PESUMS - (g.ERTR[g.AKF.Index] * SERNT)
 		}
-		//ELSE IF JN(AKF) = 1  then
+		//  ELSE IF JN(AKF) = 1  then
 	} else if g.JN[g.AKF.Index] == 1 {
-		//LET DGM = PESUMS * SWURA
+		// 	LET DGM = PESUMS * SWURA
 		DGM = g.PESUMS * SWURA
+		//  ELSE
 	} else {
-		//LET DGM = PESUMS *SWURA + (1-JN(AKF)) * (PESUMS - ERTR(AKF) * SERNT - PESUMS*SWURA)
+		// 	LET DGM = PESUMS *SWURA + (1-JN(AKF)) * (PESUMS - ERTR(AKF) * SERNT - PESUMS*SWURA)
 		DGM = g.PESUMS*SWURA + (1-g.JN[g.AKF.Index])*(g.PESUMS-g.ERTR[g.AKF.Index]*SERNT-g.PESUMS*SWURA)
+		// 	!LET DGM = PESUMS *SWURA + JN(AKF) * (PESUMS - ERTR(AKF) * TM * SERNT - PESUMS*SWURA)
+		//  END IF
 	}
-	//IF DGM < 0 then LET DGM = 0
+	//  IF DGM < 0 then LET DGM = 0
 	if DGM < 0 {
 		DGM = 0
 	}
-	//LET SSAS(1) = DGM * SFAST
-	g.SSAS[0] = DGM * SFAST
-	//LET SLAS(1) = DGM * (1-SFAST)
-	g.SLAS[0] = DGM * (1 - SFAST)
-	//LET SDIR(1) = 0.0
-	g.SDIR[0] = 0.0 // SDIR is set to 0 afer harvest.. what about quick following cultures?
+	//  LET SSA = DGM * SFAST
+	SSA = DGM * SFAST
+	//  LET SLA = DGM * (1-SFAST)
+	SLA = DGM * (1 - SFAST)
+	//  LET SDI = 0.0
+	SDI = 0.0
+
+	return SSA, SLA, SDI
+
 }
 
 //SUB SRESIDI
@@ -472,4 +482,45 @@ func sResidi(g *GlobalVarsMain, hPath *HFilePath) {
 	g.SSAS[0] = DGM * SFAST
 	g.SLAS[0] = DGM * (1 - SFAST)
 	g.SDIR[0] = 0.0
+}
+
+func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
+
+	// only read this file if sulfonie is enabled
+	if !g.Sulfonie {
+		return nil
+	}
+	cData := hpath.cropdata
+	// check if file exists
+	_, scannerCropDataFile, err := Open(&FileDescriptior{FilePath: cData, FileDescription: "crop data file", UseFilePool: true})
+	if err != nil {
+		return err
+	}
+
+	header := LineInut(scannerCropDataFile) // skip header
+	headerTokens := strings.Split(header, " ")
+	indexZF := -1
+	indexCrop := -1
+
+	for i, token := range headerTokens {
+		switch token {
+		case "Crop":
+			indexCrop = i
+		case "ZF":
+			indexZF = i
+		}
+	}
+	g.ZFMap = make(map[CropType]float64)
+
+	for scannerCropDataFile.Scan() {
+		line := scannerCropDataFile.Text()
+		token := strings.Split(line, " ")
+		if len(token) > indexCrop && len(token) >= indexZF {
+			crop := token[indexCrop]
+			zf := token[indexZF]
+			cropt := g.ToCropType(crop)
+			g.ZFMap[cropt] = ValAsFloat(zf, cData, line)
+		}
+	}
+	return nil
 }

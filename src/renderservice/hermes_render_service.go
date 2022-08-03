@@ -534,12 +534,12 @@ func generateNH4NItems(keys []int) []opts.LineData {
 
 	for i, key := range keys {
 		dmp := globalHandler.receivedDumps[key]
-		if dmp.Global.NDG.Index > 0 &&
-			dmp.Zeit == dmp.Global.ZTDG[dmp.Global.NDG.Index-1]+1 &&
+		if dmp.Global.DG.Index > 0 &&
+			dmp.Zeit == dmp.Global.ZTDG[dmp.Global.DG.Index-1]+1 &&
 			dmp.Step == 1 {
 
 			//g.NH4Sum = g.NH4Sum + g.NH4N[g.NDG.Index]
-			val := dmp.Global.NH4N[dmp.Global.NDG.Index-1]
+			val := dmp.Global.NH4N[dmp.Global.DG.Index-1]
 			items = append(items, opts.LineData{Value: val, Symbol: "diamond", XAxisIndex: i})
 		}
 	}
