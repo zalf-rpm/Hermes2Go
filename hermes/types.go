@@ -362,8 +362,10 @@ type GlobalVarsMain struct {
 	SGEHALT   [10]float64 // S organic content in soil layer (Sorg-Gehalt in Horizont I (Gew.%))
 	SALTOS    float64
 	SFOS      [21]float64
-	S1        [21]float64 // Smin-content in layer Z (kg N/ha)
-	SI        [2][21]float64
+	S1        [21]float64       // Smin-content in layer Z (kg N/ha)
+	SI        map[int][]float64 // observed Smin-content in layer Z (kg N/ha)
+	sMESS     []int             // date for observed Smin-content
+	sMessIdx  int               // current index for sMESS
 	SAOS      [21]float64
 	Sminaos   [21]float64
 	Sminfos   [21]float64

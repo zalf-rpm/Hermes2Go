@@ -23,7 +23,6 @@ type InputSharedVars struct {
 	KONZ7   float64
 	IRRIGAT bool
 	ANZBREG int
-	FLAEID  string
 	SSAND   [10]float64
 	SLUF    [10]float64
 	TON     [10]float64
@@ -50,8 +49,8 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 	for scanner.Scan() {
 		wa := scanner.Text()
 		punr := int(ValAsInt(wa[0:5], "none", wa))
-		l.FLAEID = wa[0:5]
 		if punr == g.SLNR {
+			FLAEID := wa[0:5]
 			if g.GROUNDWATERFROM == Polygonfile {
 				g.GRHI = int(ValAsInt(wa[20:22], "none", wa))
 				g.GRLO = int(ValAsInt(wa[23:25], "none", wa))
@@ -594,14 +593,7 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 			// LET OBS$ = PATH$ & "init_" & locid$ & ".txt"
 			obs := hPath.obs
 			_, scannerObserv, _ := Open(&FileDescriptior{FilePath: obs, FileDescription: "observation file", UseFilePool: true})
-			var Fident string
-			if g.INIWAHL == 1 {
-				Fident = "ALLE"
-			} else if g.INIWAHL == 2 {
-				Fident = g.PKT
-			} else if g.INIWAHL == 3 {
-				Fident = l.FLAEID
-			}
+			Fident := getFident(g, FLAEID)
 			LineInut(scannerObserv)
 			g.NMESS = 0
 			for SCHLAG, OBSERtoken, valid := NextLineInut(0, scannerObserv, strings.Fields); valid; SCHLAG, OBSERtoken, valid = NextLineInut(0, scannerObserv, strings.Fields) {
@@ -749,6 +741,11 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 					g.CN[0][i] = .1
 				}
 			}
+			// read Smin observed data
+			err = readSmin(g, FLAEID, hPath)
+			if err != nil {
+				return err
+			}
 
 			// ! ********************** Bodenbearbeitungsmassnahmen lesen ***********************************
 			til := hPath.til
@@ -828,6 +825,17 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 	nPotMin(g, l)
 	sPotMin(g)
 	return nil
+}
+
+func getFident(g *GlobalVarsMain, FLAEID string) (Fident string) {
+	if g.INIWAHL == 1 {
+		Fident = "ALLE"
+	} else if g.INIWAHL == 2 {
+		Fident = g.PKT
+	} else if g.INIWAHL == 3 {
+		Fident = FLAEID
+	}
+	return Fident
 }
 
 // Hydro reads hydro parameter

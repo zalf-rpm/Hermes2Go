@@ -25,10 +25,21 @@ func sPotMin(g *GlobalVarsMain) {
 func Sulfo(wdt float64, subd, zeit int, g *GlobalVarsMain, hPath *HFilePath) {
 
 	if subd == 1 {
-		if zeit == g.MESS[0] {
+		// apply observed values
+		// if observed date is 0, apply as inital value
+		if len(g.sMESS) > g.sMessIdx && (zeit == g.sMESS[g.sMessIdx] || g.sMESS[g.sMessIdx] == 0) {
+			messDates := g.SI[g.sMESS[g.sMessIdx]]
 			for z := 0; z < g.N; z++ {
-				g.S1[z] = g.SI[1][z]
+				// apply only values > 0 (negative values count as not set)
+				if messDates[z] > 0 {
+					g.S1[z] = messDates[z]
+				} else if g.sMESS[g.sMessIdx] == 0 {
+					// assume initial values if no observed value is set
+					// TODO: check with Christian if it is better to calculate something from soil
+					g.S1[z] = 0.01
+				}
 			}
+			g.sMessIdx++
 		}
 		if !g.AUTOFERT {
 			//! +++++++++++++++++++++++++++++++++++++ Option real fertilization +++++++++++++++++++++++++++++++++++++++++++++++
@@ -520,6 +531,59 @@ func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
 			zf := token[indexZF]
 			cropt := g.ToCropType(crop)
 			g.ZFMap[cropt] = ValAsFloat(zf, cData, line)
+		}
+	}
+	return nil
+}
+
+func readSmin(g *GlobalVarsMain, FLAEID string, hPath *HFilePath) error {
+	// only read this file if sulfonie is enabled
+	if !g.Sulfonie {
+		Fident := getFident(g, FLAEID)
+		_, scannerSminFile, err := Open(&FileDescriptior{FilePath: hPath.smin, FileDescription: "smin file", UseFilePool: true})
+		if err != nil {
+			return err
+		}
+		LineInut(scannerSminFile) // skip header
+		g.SI = make(map[int][]float64)
+
+		for scannerSminFile.Scan() {
+			line := scannerSminFile.Text()
+
+			if strings.HasPrefix(line, Fident) {
+				token := Explode(line, []rune{' ', ',', ';'})
+				if len(token) >= 8 && token[0] == Fident {
+					date := 0
+					if token[1] != "nan" {
+						_, date = g.Datum(token[1])
+					}
+					siValues := make([]float64, g.N)
+					Smi0_3 := ValAsFloat(token[1], hPath.smin, line) / 3
+					Smi3_6 := ValAsFloat(token[2], hPath.smin, line) / 3
+					Smi6_9 := ValAsFloat(token[3], hPath.smin, line) / 3
+					Smi9_12 := ValAsFloat(token[4], hPath.smin, line) / 3
+					Smi12_15 := ValAsFloat(token[5], hPath.smin, line) / 3
+					Smi15_20 := ValAsFloat(token[6], hPath.smin, line) / 5
+
+					for i := 0; i < g.N; i++ {
+						if i < 3 {
+							siValues[i] = Smi0_3
+						} else if i < 6 {
+							siValues[i] = Smi3_6
+						} else if i < 9 {
+							siValues[i] = Smi6_9
+						} else if i < 12 {
+							siValues[i] = Smi9_12
+						} else if i < 15 {
+							siValues[i] = Smi12_15
+						} else {
+							siValues[i] = Smi15_20
+						}
+					}
+					g.SI[date] = siValues
+					g.sMESS = append(g.sMESS, date)
+				}
+			}
 		}
 	}
 	return nil

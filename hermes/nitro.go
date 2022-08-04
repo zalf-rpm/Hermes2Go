@@ -793,6 +793,7 @@ func pinit(g *GlobalVarsMain) {
 
 	if g.DAUERKULT != 'D' {
 		g.PESUM = 0
+		g.PESUMS = 0
 		g.VERNTAGE = 0
 		g.OBMAS = 0
 		g.WUMAS = 0
