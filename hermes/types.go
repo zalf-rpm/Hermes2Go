@@ -366,10 +366,10 @@ type GlobalVarsMain struct {
 	SI        map[int][]float64 // observed Smin-content in layer Z (kg N/ha)
 	sMESS     []int             // date for observed Smin-content
 	sMessIdx  int               // current index for sMESS
+	SDiff     float64           // difference sum between observed and simulated Smin-content
 	SAOS      [21]float64
 	Sminaos   [21]float64
 	Sminfos   [21]float64
-	ANFSUM    float64
 	SDSUMM    float64 // sum of mineral sulphur fertilization
 	SFOSUM    float64
 	SAOSUM    float64
