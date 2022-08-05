@@ -615,6 +615,8 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 						}
 					}
 				}
+
+				Sulfo(WDT, SUBD, ZEIT, &g, &herPath)
 				//CALL NITRO(WDT,SUBD,#7)
 				if Nitro(WDT, SUBD, ZEIT, &g, &nitroSharedVars, &nitroSharedBBBVars, &herPath, &cropOut) {
 					cropOutputConfig.WriteLine(CNAMfile, OutputFileFormat(driConfig.ResultFileFormat))

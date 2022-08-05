@@ -67,7 +67,15 @@ func Init(g *GlobalVarsMain) {
 			g.MINFOS[z0] = 0
 		}
 		// LET S1(z) = SI(0,z)
-		g.S1[z0] = g.SI[0][z0]
+		// check if initial smin data exists
+		if _, ok := g.SI[0]; ok {
+			g.S1[z0] = g.SI[0][z0]
+			g.sMessIdx++
+		}
+		// make sure that initial smin data is > 0
+		if g.S1[z0] <= 0 {
+			g.S1[z0] = 0.01
+		}
 		// IF Z > 0 AND Z < 40/DZ THEN
 		if z1 > 0 && z1 < 40./g.DZ.Num {
 			//LET SAOS(Z) = SALTOS/30*DZ
@@ -79,9 +87,6 @@ func Init(g *GlobalVarsMain) {
 			//LET Sminfos(z) = 0
 			g.Sminfos[z0] = 0
 		}
-		// LET ANFSUM = ANFSUM + S1(Z)
-		g.ANFSUM = g.ANFSUM + g.S1[z0]
-
 		g.CA[z0] = 0
 	}
 	g.WG[0][10] = g.WG[0][9]

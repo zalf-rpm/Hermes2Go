@@ -27,19 +27,18 @@ func Sulfo(wdt float64, subd, zeit int, g *GlobalVarsMain, hPath *HFilePath) {
 	if subd == 1 {
 		// apply observed values
 		// if observed date is 0, apply as inital value
-		if len(g.sMESS) > g.sMessIdx && (zeit == g.sMESS[g.sMessIdx] || g.sMESS[g.sMessIdx] == 0) {
+		if len(g.sMESS) > g.sMessIdx && (zeit == g.sMESS[g.sMessIdx]) {
 			messDates := g.SI[g.sMESS[g.sMessIdx]]
 			for z := 0; z < g.N; z++ {
+				currS1 := g.S1[z]
 				// apply only values > 0 (negative values count as not set)
 				if messDates[z] > 0 {
 					g.S1[z] = messDates[z]
-				} else if g.sMESS[g.sMessIdx] == 0 {
-					// assume initial values if no observed value is set
-					// TODO: check with Christian if it is better to calculate something from soil
-					g.S1[z] = 0.01
 				}
+				g.SDiff += currS1 - g.S1[z]
 			}
 			g.sMessIdx++
+			g.SDSUMM = 0 // but why?
 		}
 		if !g.AUTOFERT {
 			//! +++++++++++++++++++++++++++++++++++++ Option real fertilization +++++++++++++++++++++++++++++++++++++++++++++++
