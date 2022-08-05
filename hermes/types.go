@@ -390,7 +390,7 @@ type GlobalVarsMain struct {
 	SAUFNASUM float64              // sum of ...
 	SDV       float64              // Dispersionslänge (cm) for sulfonie
 	BRKZs     []float64            // S-Concentration in irrigation water (in ppm)
-	ZFMap     map[CropType]float64 // map of ZF increase parameter for S-Uptake curve (Steigungparameter) per crop
+	ZF        map[CropType]float64 // map of ZF increase parameter for S-Uptake curve (Steigungparameter) per crop
 
 	// output parameters
 	PerY            float64 // accumulated output

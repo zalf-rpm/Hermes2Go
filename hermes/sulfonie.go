@@ -520,7 +520,7 @@ func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
 			indexZF = i
 		}
 	}
-	g.ZFMap = make(map[CropType]float64)
+	g.ZF = make(map[CropType]float64)
 
 	for scannerCropDataFile.Scan() {
 		line := scannerCropDataFile.Text()
@@ -529,7 +529,7 @@ func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
 			crop := token[indexCrop]
 			zf := token[indexZF]
 			cropt := g.ToCropType(crop)
-			g.ZFMap[cropt] = ValAsFloat(zf, cData, line)
+			g.ZF[cropt] = ValAsFloat(zf, cData, line)
 		}
 	}
 	return nil
