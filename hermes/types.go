@@ -392,6 +392,9 @@ type GlobalVarsMain struct {
 	BRKZs       []float64            // S-Concentration in irrigation water (in ppm)
 	ZF          map[CropType]float64 // map of ZF increase parameter for S-Uptake curve (Steigungparameter) per crop
 	CRITSGEHALT map[CropType]float64 // map of constants for critical S-Content in plants
+	SGEFKT      int                  // critical S function
+	SGEHMAX     float64              // maximal S-Content in plants
+	SGEHMIN     float64              // minimal S-Content in plants
 
 	// output parameters
 	PerY            float64 // accumulated output
