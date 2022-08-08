@@ -1,27 +1,27 @@
-Crop ZF Comment
-AB  3.2 Ackerbohne
-CCM 1.6 Corn-Cob-Mix Kolben + Körner
-GR  2.0 Grünland Schnittnutzung
-GRE 2.0 Gras. Futter Grünmasse
-H   2.8 Hafer
-OA  2.8 Hafer /Oat
-K   2.7 Kartoffeln
-LUP 3.2 Lupinen
-ORH 2.7 Ölrettich
-SE  2.0 Senf Zwischenfrucht 
-SG  1.6 Sommergerste
-SM  1.6 Silomais
-M   1.6 Mais
-SW  1.6 Sommerweizen
-TR  1.6 Triticale Korn
-WG  1.6 Wintergerste
-WR  1.6 Winterroggen
-WRA 3.2 Winterraps
-WRC 3.2 Winterraps catch crop
-WW  1.6 W.Weizen
-ZR  2.7 Zuckerrüben
-AA  3.2 alfalfa
-OEL 2.0 Oellein Zwischenfrucht
-ERB 3.2 Felderbse 
-PH  2.0 Phazelia
-SOY 3.2 Soyabohne
+Crop ZF critSContent Comment(please fill with measured values)
+AB  3.2 0.28         Ackerbohne
+CCM 1.6 0.213        Corn-Cob-Mix Kolben + Körner
+GR  2.0 0.28         Grünland Schnittnutzung
+GRE 2.0 0.28         Gras. Futter Grünmasse
+H   2.8 0.37         Hafer
+OA  2.8 0.37         Hafer /Oat
+K   2.7 0.28         Kartoffeln
+LUP 3.2 0.28         Lupinen
+ORH 2.7 0.28         Ölrettich
+SE  2.0 0.28         Senf Zwischenfrucht 
+SG  1.6 0.37         Sommergerste
+SM  1.6 0.213        Silomais (critical S content by Carciotti et al. 2019)
+M   1.6 0.213        Mais (critical S content by Carciotti et al. 2019)
+SW  1.6 0.37         Sommerweizen
+TR  1.6 0.37         Triticale Korn
+WG  1.6 0.37         Wintergerste
+WR  1.6 0.37         Winterroggen
+WRA 3.2 1.22         Winterraps (critical S content by Ferreira & Ernst 2014)
+WRC 3.2 1.22         Winterraps catch crop (critical S content by Ferreira & Ernst 2014)
+WW  1.6 0.37         W.Weizen (critical S content by Reussi et al. 2012)
+ZR  2.7 0.28         Zuckerrüben
+AA  3.2 0.28         alfalfa
+OEL 2.0 0.28         Oellein Zwischenfrucht
+ERB 3.2 0.28         Felderbse 
+PH  2.0 0.28         Phazelia
+SOY 3.2 0.28         Soyabohne (critical S content by Divito et al. 2016)

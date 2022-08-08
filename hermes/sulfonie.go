@@ -511,6 +511,7 @@ func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
 	headerTokens := strings.Split(header, " ")
 	indexZF := -1
 	indexCrop := -1
+	indexCritSContent := -1
 
 	for i, token := range headerTokens {
 		switch token {
@@ -518,18 +519,26 @@ func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
 			indexCrop = i
 		case "ZF":
 			indexZF = i
+		case "critSContent":
+			indexCritSContent = i
 		}
 	}
 	g.ZF = make(map[CropType]float64)
+	g.CRITSGEHALT = make(map[CropType]float64)
 
 	for scannerCropDataFile.Scan() {
 		line := scannerCropDataFile.Text()
 		token := strings.Split(line, " ")
-		if len(token) > indexCrop && len(token) >= indexZF {
+
+		if len(token) > indexCrop &&
+			len(token) >= indexZF &&
+			len(token) >= indexCritSContent {
 			crop := token[indexCrop]
 			zf := token[indexZF]
+			critSContent := token[indexCritSContent]
 			cropt := g.ToCropType(crop)
 			g.ZF[cropt] = ValAsFloat(zf, cData, line)
+			g.CRITSGEHALT[cropt] = ValAsFloat(critSContent, cData, line)
 		}
 	}
 	return nil
