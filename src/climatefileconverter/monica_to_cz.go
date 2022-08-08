@@ -9,7 +9,7 @@ import (
 func ConvertFileMonicaToCZ(in, out string) error {
 
 	var g hermes.GlobalVarsMain
-	s := hermes.NewWeatherDataShared(36)
+	s := hermes.NewWeatherDataShared(36, 360)
 	var hPath hermes.HFilePath
 	driConfig := hermes.NewDefaultConfig()
 	driConfig.WeatherNoneValue = -99

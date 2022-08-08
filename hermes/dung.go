@@ -129,7 +129,7 @@ func PrognoseTime(ZEIT int, g *GlobalVarsMain, herPath *HFilePath, driConfig *co
 	// overwrite weather data with prognosed weather data (optional? if not given no)
 	VWDAT := herPath.vwdatnrm
 	year, _, _ := KalenderDate(ZEIT)
-	s := NewWeatherDataShared(1)
+	s := NewWeatherDataShared(1, g.CO2KONZ)
 	err := WetterK(VWDAT, year, g, &s, herPath, driConfig)
 	if err != nil {
 		if g.DEBUGCHANNEL != nil {

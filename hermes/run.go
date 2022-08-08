@@ -205,7 +205,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		if driConfig.WeatherFileFormat == 1 {
 			yearEnde, _, _ := KalenderDate(g.ENDE)
 			years := yearEnde - g.ANJAHR + 1
-			bbbShared = NewWeatherDataShared(years)
+			bbbShared = NewWeatherDataShared(years, g.CO2KONZ)
 			err = ReadWeatherCSV(VWDATstr, g.ANJAHR, &g, &bbbShared, &herPath, &driConfig)
 			if err != nil {
 				return err
@@ -216,13 +216,13 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			herPath.vwdatTemplate = path.Join(driConfig.WeatherRootFolder, driConfig.WeatherFolder, driConfig.WeatherFile)
 			herPath.SetVwdatNoExt(g.FCODE)
 			VWDAT := herPath.VWdat(g.J)
-			bbbShared = NewWeatherDataShared(1)
+			bbbShared = NewWeatherDataShared(1, g.CO2KONZ)
 			WetterK(VWDAT, 1900+g.J, &g, &bbbShared, &herPath, &driConfig)
 			LoadYear(&g, &bbbShared, 1900+g.J)
 		} else if driConfig.WeatherFileFormat == 2 {
 			yearEnde, _, _ := KalenderDate(g.ENDE)
 			years := yearEnde - g.ANJAHR + 1
-			bbbShared = NewWeatherDataShared(years)
+			bbbShared = NewWeatherDataShared(years, g.CO2KONZ)
 			err = ReadWeatherCZ(VWDATstr, g.ANJAHR, &g, &bbbShared, &herPath, &driConfig)
 			if err != nil {
 				return err

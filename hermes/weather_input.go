@@ -24,9 +24,6 @@ import (
 // altitude  							m			(optional)
 // CO2 concentration 					ppm			(optional)
 
-// BaseCO2 default co2 value (in 2000)
-const BaseCO2 = 360.0
-
 // WeatherDataShared all weather split in years
 type WeatherDataShared struct {
 	JAR      []int
@@ -55,7 +52,7 @@ type WeatherDataShared struct {
 }
 
 // NewWeatherDataShared returns a new WeatherDataShared struct
-func NewWeatherDataShared(years int) WeatherDataShared {
+func NewWeatherDataShared(years int, baseCO2 float64) WeatherDataShared {
 
 	s := WeatherDataShared{
 		JAR:         make([]int, years),
@@ -80,7 +77,7 @@ func NewWeatherDataShared(years int) WeatherDataShared {
 		hasSUND:     false,
 		hasETNULL:   false,
 	}
-	s.fillCO2Value(BaseCO2)
+	s.fillCO2Value(baseCO2)
 	return s
 }
 
@@ -475,7 +472,7 @@ func ReadWeatherCZ(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDat
 	T := 0
 	yrz := 0
 	first := true
-	currentCO2 := BaseCO2
+	currentCO2 := s.CO2KONZ[0] // baseCO2 for first year
 	for scanner.Scan() {
 		line := scanner.Text()
 		T++
