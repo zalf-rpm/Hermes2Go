@@ -548,7 +548,6 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 				g.GEHMIN = 0.0135 + 0.0403*math.Exp(-0.26*g.OBMAS/1000)
 			}
 		}
-		//CRITSGEHALT
 
 		if g.Sulfonie {
 			// calc biomass
@@ -729,7 +728,9 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			if DTGESS < 0 {
 				DTGESS = 0.0
 			}
-
+			// TODO: S-uptake depending on crop parameters
+			// !*******************  S-Aufnahmefunktion  ********************************
+			//DTGESS2 := (g.SGEHMAX*g.OBMAS + g.WUMAS*g.WGMAX[g.INTWICK.Index] - g.PESUMS) * g.DT.Num
 		}
 	}
 	if zeit == g.ERNTE2[g.AKF.Index]-1 && g.ERNTE[g.AKF.Index] == 0 {

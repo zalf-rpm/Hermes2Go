@@ -266,8 +266,8 @@ type GlobalVarsMain struct {
 	AEHR       string
 	BLUEH      string
 	REIFE      string
-	GEHMAX     float64
-	GEHMIN     float64
+	GEHMAX     float64 // maximal möglicher N-Gehalt (Treiber für N-Aufnahme)(kg N/kg Biomasse)
+	GEHMIN     float64 // kritischer N-Gehalt der Biomasse (Beginn N-Stress) (kg N/kg Biomasse)
 	DUNGBED    float64
 	DEFDAT     int
 	ENDSTADIUM DevelopmentStage
