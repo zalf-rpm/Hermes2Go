@@ -551,36 +551,24 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 
 		if g.Sulfonie {
 			// calc biomass
-			org := 0.0
-			if g.SubOrgan > 0 {
-				org = g.WORG[g.SubOrgan-1]
+			BM := 0.0
+			for _, bioMassPart := range g.WORG {
+				BM += bioMassPart
 			}
-			BM := g.OBMAS + org/1000
 			SC := g.CRITSGEHALT[g.FRUCHT[g.AKF.Index]]
-			// wheat
-			if g.SGEFKT == 1 {
+			exp := g.CRITSEXP[g.FRUCHT[g.AKF.Index]]
+			// wheat, maize, soybean
+			if g.SGEFKT[g.FRUCHT[g.AKF.Index]] == 1 {
 				if BM > 1.0 {
-					SC = SC * math.Pow(((BM)/1000), -0.169)
+					SC = SC * math.Pow(((BM)/1000), exp)
+				}
+				// oilseed rape
+			} else if g.SGEFKT[g.FRUCHT[g.AKF.Index]] == 2 {
+				if BM > 1.0 {
+					SC = SC * math.Exp(exp*BM)
 				}
 			}
-			// maize
-			if g.SGEFKT == 2 {
-				if BM > 1.0 {
-					SC = SC * math.Pow(((BM)/1000), -0.23)
-				}
-			}
-			// oilseed rape
-			if g.SGEFKT == 3 {
-				if BM > 1.0 {
-					SC = SC * math.Exp(-0.18*BM)
-				}
-			}
-			// soybean
-			if g.SGEFKT == 4 {
-				if BM > 1.0 {
-					SC = SC * math.Pow(((BM)/1000), -0.11)
-				}
-			}
+
 			// SGEHMAX   = maximal möglicher S-Gehalt (Treiber für S-Aufnahme)(kg S/kg Biomasse)
 			// SGEHMIN   = kritischer S-Gehalt der Biomasse (Beginn S-Stress) (kg S/kg Biomasse)
 			g.SGEHMAX = SC * 1.3
@@ -730,7 +718,12 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			}
 			// TODO: S-uptake depending on crop parameters
 			// !*******************  S-Aufnahmefunktion  ********************************
-			//DTGESS2 := (g.SGEHMAX*g.OBMAS + g.WUMAS*g.WGMAX[g.INTWICK.Index] - g.PESUMS) * g.DT.Num
+			var DTGESS2 float64
+			if g.FRUCHT[g.AKF.Index] == ZR || g.FRUCHT[g.AKF.Index] == K {
+				DTGESS2 = (g.SGEHMAX*g.OBMAS + (g.WUMAS+g.WORG[3])*g.WGMAX[g.INTWICK.Index] - g.PESUMS) * g.DT.Num
+			} else {
+				DTGESS2 = (g.SGEHMAX*g.OBMAS + g.WUMAS*g.WGMAX[g.INTWICK.Index] - g.PESUMS) * g.DT.Num
+			}
 		}
 	}
 	if zeit == g.ERNTE2[g.AKF.Index]-1 && g.ERNTE[g.AKF.Index] == 0 {

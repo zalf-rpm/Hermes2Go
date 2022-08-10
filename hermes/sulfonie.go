@@ -509,36 +509,48 @@ func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
 
 	header := LineInut(scannerCropDataFile) // skip header
 	headerTokens := strings.Split(header, " ")
-	indexZF := -1
-	indexCrop := -1
-	indexCritSContent := -1
 
+	cDHeader := map[string]int{
+		"Crop":         -1,
+		"ZF":           -1,
+		"S_Funct":      -1,
+		"critSContent": -1,
+		"Exp":          -1,
+		"HEGzuNEG":     -1,
+		"TM_":          -1,
+		"N_HEG":        -1,
+		"S_HEG":        -1,
+		"N_NEG":        -1,
+		"S_NEG":        -1,
+		"SWura":        -1,
+		"Nfas":         -1,
+		"Sfas":         -1,
+	}
 	for i, token := range headerTokens {
-		switch token {
-		case "Crop":
-			indexCrop = i
-		case "ZF":
-			indexZF = i
-		case "critSContent":
-			indexCritSContent = i
+		if _, ok := cDHeader[token]; ok {
+			cDHeader[token] = i
 		}
 	}
 	g.ZF = make(map[CropType]float64)
 	g.CRITSGEHALT = make(map[CropType]float64)
+	g.CRITSEXP = make(map[CropType]float64)
+	g.SGEFKT = make(map[CropType]int)
 
 	for scannerCropDataFile.Scan() {
 		line := scannerCropDataFile.Text()
 		token := strings.Split(line, " ")
 
-		if len(token) > indexCrop &&
-			len(token) >= indexZF &&
-			len(token) >= indexCritSContent {
-			crop := token[indexCrop]
-			zf := token[indexZF]
-			critSContent := token[indexCritSContent]
+		if len(token) >= len(cDHeader) {
+			crop := token[cDHeader["Crop"]]
+			zf := token[cDHeader["ZF"]]
+			critSContent := token[cDHeader["critSContent"]]
 			cropt := g.ToCropType(crop)
+			Sgefkt := token[cDHeader["S_Funct"]]
+			critsexp := token[cDHeader["Exp"]]
 			g.ZF[cropt] = ValAsFloat(zf, cData, line)
 			g.CRITSGEHALT[cropt] = ValAsFloat(critSContent, cData, line)
+			g.SGEFKT[cropt] = int(ValAsInt(Sgefkt, cData, line))
+			g.CRITSEXP[cropt] = ValAsFloat(critsexp, cData, line)
 		}
 	}
 	return nil

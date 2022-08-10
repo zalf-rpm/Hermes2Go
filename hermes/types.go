@@ -204,10 +204,10 @@ type GlobalVarsMain struct {
 	WUDICH          [21]float64
 	LUKRIT          [10]float64
 	LUMDAY          int
-	TP              [21]float64
-	TRREL           float64 // Water stress factor (1 = no stress, 0 = full stress)
-	REDUK           float64 // Nitrogen stress factor (1 = no stress, 0 = full stress)
-	ETA             float64 // Potential/actual Evapotranspiration (mm)
+	TP              [21]float64 //TP(I) = Water uptake in layer I (mm)
+	TRREL           float64     // Water stress factor (1 = no stress, 0 = full stress)
+	REDUK           float64     // Nitrogen stress factor (1 = no stress, 0 = full stress)
+	ETA             float64     // Potential/actual Evapotranspiration (mm)
 	HEATCOND        [21]float64
 	HEATCAP         [21]float64
 	TDSUM           [20]float64
@@ -391,8 +391,9 @@ type GlobalVarsMain struct {
 	SDV         float64              // Dispersionslänge (cm) for sulfonie
 	BRKZs       []float64            // S-Concentration in irrigation water (in ppm)
 	ZF          map[CropType]float64 // map of ZF increase parameter for S-Uptake curve (Steigungparameter) per crop
-	CRITSGEHALT map[CropType]float64 // map of constants for critical S-Content in plants
-	SGEFKT      int                  // critical S function
+	CRITSGEHALT map[CropType]float64 // map of constants for critical S-Content funktion in crops
+	CRITSEXP    map[CropType]float64 // map of exponents for critical S-Content function in crops
+	SGEFKT      map[CropType]int     // critical S function
 	SGEHMAX     float64              // maximal S-Content in plants
 	SGEHMIN     float64              // minimal S-Content in plants
 
