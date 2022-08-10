@@ -496,6 +496,13 @@ func sResidi(g *GlobalVarsMain, hPath *HFilePath) {
 
 func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
 
+	// Notes : https://d-nb.info/1175826456/34
+	// Schwefel in Ernte/Ernteresten Mengenverhältnis zum Vergleichen
+	// WW 0,22 :0,18 -> 1:0,8
+	// WRA 0,50 : 0,40  -> 1:1,6
+	// K 0,04 : 0,06 -> 1:0,5
+	// ZR 0,03 : 0,03 -> 1:0,7
+
 	// only read this file if sulfonie is enabled
 	if !g.Sulfonie {
 		return nil
