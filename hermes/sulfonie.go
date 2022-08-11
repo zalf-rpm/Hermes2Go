@@ -114,7 +114,7 @@ func Sulfo(wdt float64, subd, zeit int, g *GlobalVarsMain, hPath *HFilePath) {
 	sMove(wdt, subd, zeit, g)
 }
 
-// 	SUB SMINERAL
+// SUB SMINERAL
 func sMineral(g *GlobalVarsMain) {
 	// 		DIM DSAOS(4),DSFOS(4),MIRED(4)
 	var DSAOS, DSFOS, MIRED, DUMS [4]float64
@@ -196,7 +196,7 @@ func sMineral(g *GlobalVarsMain) {
 	}
 }
 
-// 	SUB SMOVE(#5)
+// SUB SMOVE(#5)
 func sMove(wdt float64, subd, zeit int, g *GlobalVarsMain) {
 	// ---------------------      N-Verlagerung konvektions-Dispersionsgleichung ---------------------
 	//Inputs:
@@ -381,7 +381,7 @@ func sMove(wdt float64, subd, zeit int, g *GlobalVarsMain) {
 	}
 }
 
-// 	SUB SRESID(SDI,SSA,SLA)
+// SUB SRESID(SDI,SSA,SLA)
 func sResid(g *GlobalVarsMain, hPath *HFilePath) (SSA, SLA, SDI float64) {
 	// 		!Mineralisationspotentiale aus Vorfruchtresiduen
 	CRONAM := hPath.cropn
@@ -447,7 +447,7 @@ func sResid(g *GlobalVarsMain, hPath *HFilePath) (SSA, SLA, SDI float64) {
 
 }
 
-//SUB SRESIDI
+// SUB SRESIDI
 func sResidi(g *GlobalVarsMain, hPath *HFilePath) {
 	// ! ******  Mineralisationspotentiale aus Vorfruchtresiduen
 	// CROP_S.TXT
@@ -542,6 +542,16 @@ func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
 	g.CRITSGEHALT = make(map[CropType]float64)
 	g.CRITSEXP = make(map[CropType]float64)
 	g.SGEFKT = make(map[CropType]int)
+	g.HEGzuNEG = make(map[CropType]float64)
+	g.TM = make(map[CropType]float64)
+	g.N_HEG = make(map[CropType]float64)
+	g.S_HEG = make(map[CropType]float64)
+	g.N_NEG = make(map[CropType]float64)
+	g.S_NEG = make(map[CropType]float64)
+	g.SWura = make(map[CropType]float64)
+	g.Nfas = make(map[CropType]float64)
+	g.Sfas = make(map[CropType]float64)
+	g.SNRatio = make(map[CropType]float64)
 
 	for scannerCropDataFile.Scan() {
 		line := scannerCropDataFile.Text()
@@ -558,6 +568,18 @@ func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
 			g.CRITSGEHALT[cropt] = ValAsFloat(critSContent, cData, line)
 			g.SGEFKT[cropt] = int(ValAsInt(Sgefkt, cData, line))
 			g.CRITSEXP[cropt] = ValAsFloat(critsexp, cData, line)
+			g.Sfas[cropt] = ValAsFloat(token[cDHeader["Sfas"]], cData, line)
+			g.SWura[cropt] = ValAsFloat(token[cDHeader["SWura"]], cData, line)
+			g.S_HEG[cropt] = ValAsFloat(token[cDHeader["S_NEG"]], cData, line)
+			g.S_NEG[cropt] = ValAsFloat(token[cDHeader["N_NEG"]], cData, line)
+			g.N_HEG[cropt] = ValAsFloat(token[cDHeader["N_HEG"]], cData, line)
+			g.N_NEG[cropt] = ValAsFloat(token[cDHeader["S_HEG"]], cData, line)
+			g.TM[cropt] = ValAsFloat(token[cDHeader["TM_"]], cData, line)
+			g.HEGzuNEG[cropt] = ValAsFloat(token[cDHeader["HEGzuNEG"]], cData, line)
+
+			// calculate SNRatio
+			// SNRatio = (HEGzuNEG * N_HEG + N_NEG) / (HEGzuNEG * S_HEG + S_NEG)
+			g.SNRatio[cropt] = (g.HEGzuNEG[cropt]*g.N_HEG[cropt] + g.N_NEG[cropt]) / (g.HEGzuNEG[cropt]*g.S_HEG[cropt] + g.S_NEG[cropt])
 		}
 	}
 	return nil

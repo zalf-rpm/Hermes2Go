@@ -597,7 +597,13 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			} else {
 				g.REDUK = 1.
 			}
+			if g.SGEHOB < g.SGEHMIN {
+				AUX := g.SGEHOB / g.GEHMIN
+				g.SREDUK = math.Pow((1 - math.Exp(1+1/(AUX-1))), 2)
+			}
 			g.REDUKSUM = g.REDUKSUM + g.REDUK
+			g.SREDUKSUM = g.SREDUKSUM + g.SREDUK
+
 			g.TRRELSUM = g.TRRELSUM + g.TRREL
 			// ************************ DAYS WITH ETA/ETP < 0.4 UNTIL ANTHESIS UND ANTHESIS TO MATURITY
 			if g.ETREL < 0.4 {
@@ -719,10 +725,14 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			// TODO: S-uptake depending on crop parameters
 			// !*******************  S-Aufnahmefunktion  ********************************
 			var DTGESS2 float64
+			WGSMax := g.WGMAX[g.INTWICK.Index] / g.SNRatio[g.FRUCHT[g.AKF.Index]]
 			if g.FRUCHT[g.AKF.Index] == ZR || g.FRUCHT[g.AKF.Index] == K {
-				DTGESS2 = (g.SGEHMAX*g.OBMAS + (g.WUMAS+g.WORG[3])*g.WGMAX[g.INTWICK.Index] - g.PESUMS) * g.DT.Num
+				DTGESS2 = (g.SGEHMAX*g.OBMAS + (g.WUMAS+g.WORG[3])*WGSMax - g.PESUMS) * g.DT.Num
 			} else {
-				DTGESS2 = (g.SGEHMAX*g.OBMAS + g.WUMAS*g.WGMAX[g.INTWICK.Index] - g.PESUMS) * g.DT.Num
+				DTGESS2 = (g.SGEHMAX*g.OBMAS + g.WUMAS*WGSMax - g.PESUMS) * g.DT.Num
+			}
+			if DTGESS2 < 0 {
+				DTGESS2 = 0.0
 			}
 		}
 	}
@@ -917,6 +927,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 	}
 	// ------------------------------------------------------------
 	// S-uptake from root
+	var SUMPES float64
 	for index := 0; index < int(min); index++ {
 		if DTGESS > 0 {
 			if TRNSUMS >= DTGESS {
@@ -939,6 +950,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		} else {
 			g.PES[index] = 0
 		}
+		SUMPES = SUMPES + g.PES[index]
 	}
 
 	// ------------------------------------------------------------
@@ -977,6 +989,15 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 	} else {
 		g.GEHOB = (g.PESUM + SUMPE + g.NFIX - g.WUMAS*g.WUGEH) / g.OBMAS
 	}
+
+	// ------------------------------------------------------------
+	SWUGEH := g.WUGEH / g.SNRatio[g.FRUCHT[g.AKF.Index]]
+	if g.FRUCHT[g.AKF.Index] == ZR || g.FRUCHT[g.AKF.Index] == K {
+		g.SGEHOB = (g.PESUMS + SUMPES - g.WUMAS*SWUGEH) / (g.OBMAS + g.WORG[3])
+	} else {
+		g.SGEHOB = (g.PESUMS + SUMPES - g.WUMAS*SWUGEH) / g.OBMAS
+	}
+
 }
 
 // radia  Strahlunsinterception, Photosynthese und Erhaltungsatmung nach Penning de Vries 1982

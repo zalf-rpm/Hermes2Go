@@ -396,6 +396,19 @@ type GlobalVarsMain struct {
 	SGEFKT      map[CropType]int     // critical S function
 	SGEHMAX     float64              // maximal S-Content in plants
 	SGEHMIN     float64              // minimal S-Content in plants
+	HEGzuNEG    map[CropType]float64 // map Harvest residues ratio for crops (HauptErnteGut NebenErnteGut)
+	TM          map[CropType]float64
+	N_HEG       map[CropType]float64 // map of N-content of main harvest residues for crops
+	S_HEG       map[CropType]float64 // map of S-content of main harvest residues for crops
+	N_NEG       map[CropType]float64 // map of N-content of secondary harvest residues for crops
+	S_NEG       map[CropType]float64 // map of S-content of secondary harvest residues for crops
+	SWura       map[CropType]float64 // map of S in root
+	Nfas        map[CropType]float64 // N fast uptake fraction
+	Sfas        map[CropType]float64 // S fast uptake fraction
+	SNRatio     map[CropType]float64 // S-N-Ratio for crops
+	SGEHOB      float64              //S content in upper plant organs
+	SREDUK      float64              //S reduction factor
+	SREDUKSUM   float64              //S reduction factor sum
 
 	// output parameters
 	PerY            float64 // accumulated output
@@ -447,7 +460,7 @@ type GlobalVarsMain struct {
 	CropTypeLookup  map[string]CropType    `yaml:"-"`
 }
 
-//CropOutputVars at harvest
+// CropOutputVars at harvest
 type CropOutputVars struct {
 	SowDate      string
 	SowDOY       int
