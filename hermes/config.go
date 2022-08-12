@@ -75,7 +75,7 @@ type config struct {
 	AutoFertilization FeatureSwitch `yaml:"AutoFertilization"` // automatic fertilization (0=no, 1=on demand)
 	AutoIrrigation    FeatureSwitch `yaml:"AutoIrrigation"`    // automatic irrigation (0=no, 1= on demand)
 	AutoHarvest       FeatureSwitch `yaml:"AutoHarvest"`       // automatic harvest (0=no, 1= on demand)
-	Sulfonie          FeatureSwitch `yaml:"SulfurStress"`      // Sulfur stress (0=no, 1=yes)
+	Sulfonie          FeatureSwitch `yaml:"Sulfonie"`          // Sulfur stress (0=no, 1=yes)
 }
 
 func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) config {
@@ -202,7 +202,7 @@ func WriteYamlConfig(filename string, structIn interface{}) {
 	}
 }
 
-//NewDefaultConfig creates a config file with default setup
+// NewDefaultConfig creates a config file with default setup
 func NewDefaultConfig() config {
 	return config{
 		Dateformat:                      DateDElong,

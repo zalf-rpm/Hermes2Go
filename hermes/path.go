@@ -113,7 +113,7 @@ func NewHermesFilePath(root, locid, snam, parameterOverride, resultOverride stri
 		dailyOutput:            path.Join(pathToProject, "dailyout_conf.yml"),
 		cropOutput:             path.Join(pathToProject, "cropout_conf.yml"),
 		pfOutput:               path.Join(pathToProject, "pfout_conf.yml"),
-		smin:                   path.Join(parameter, "smin.txt"),
+		smin:                   path.Join(pathToProject, "smin.txt"),
 	}
 }
 
@@ -210,7 +210,7 @@ func (fp *FilePool) Close() {
 	fp.mux.Unlock()
 }
 
-//Fout bufferd file writer
+// Fout bufferd file writer
 type Fout struct {
 	file    *os.File
 	fwriter *bufio.Writer

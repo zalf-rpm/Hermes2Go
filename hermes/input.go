@@ -742,10 +742,7 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 				}
 			}
 			// read Smin observed data
-			err = readSmin(g, FLAEID, hPath)
-			if err != nil {
-				return err
-			}
+			readSmin(g, FLAEID, hPath)
 
 			// ! ********************** Bodenbearbeitungsmassnahmen lesen ***********************************
 			til := hPath.til
@@ -1193,20 +1190,20 @@ func dueng(i int, g *GlobalVarsMain, l *InputSharedVars, hPath *HFilePath) {
 			g.NLAS[i] = (l.DGMG[i]*l.NORG[i] - g.NDIR[i]) * ValAsFloat(token[4], dungfile, du) // Nslo
 
 			// sulfur in fertilizer
-
-			//LET SO4   = VAL(DUNG$(18:21))
-			SO4 := ValAsFloat(token[7], dungfile, du)
-			//LET SORG  = 1- SO4  !VAL(DUNG$(27:30))
-			SORG := 1 - SO4
-			//LET SFAST = VAL(DUNG$(23:26))
-			SFAST := ValAsFloat(token[8], dungfile, du)
-			//LET SDIR(I) = DGMG(I) * SO4
-			g.SDIR[i] = l.DGMG[i] * SO4
-			//LET SSAS(I) = DGMG(I) * SORG * SFAST
-			g.SSAS[i] = l.DGMG[i] * SORG * SFAST
-			//LET SLAS(I) = DGMG(I) * SORG * (1-SFAST)
-			g.SLAS[i] = l.DGMG[i] * SORG * (1 - SFAST)
-
+			if g.Sulfonie {
+				//LET SO4   = VAL(DUNG$(18:21))
+				SO4 := ValAsFloat(token[7], dungfile, du)
+				//LET SORG  = 1- SO4  !VAL(DUNG$(27:30))
+				SORG := 1 - SO4
+				//LET SFAST = VAL(DUNG$(23:26))
+				SFAST := ValAsFloat(token[8], dungfile, du)
+				//LET SDIR(I) = DGMG(I) * SO4
+				g.SDIR[i] = l.DGMG[i] * SO4
+				//LET SSAS(I) = DGMG(I) * SORG * SFAST
+				g.SSAS[i] = l.DGMG[i] * SORG * SFAST
+				//LET SLAS(I) = DGMG(I) * SORG * (1-SFAST)
+				g.SLAS[i] = l.DGMG[i] * SORG * (1 - SFAST)
+			}
 			break
 		}
 	}

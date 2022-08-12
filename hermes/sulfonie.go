@@ -515,7 +515,7 @@ func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
 	}
 
 	header := LineInut(scannerCropDataFile) // skip header
-	headerTokens := strings.Split(header, " ")
+	headerTokens := strings.Fields(header)
 
 	cDHeader := map[string]int{
 		"Crop":         -1,
@@ -555,7 +555,7 @@ func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
 
 	for scannerCropDataFile.Scan() {
 		line := scannerCropDataFile.Text()
-		token := strings.Split(line, " ")
+		token := strings.Fields(line)
 
 		if len(token) >= len(cDHeader) {
 			crop := token[cDHeader["Crop"]]
@@ -585,14 +585,12 @@ func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
 	return nil
 }
 
-func readSmin(g *GlobalVarsMain, FLAEID string, hPath *HFilePath) error {
+func readSmin(g *GlobalVarsMain, FLAEID string, hPath *HFilePath) {
 	// only read this file if sulfonie is enabled
-	if !g.Sulfonie {
+	if g.Sulfonie {
 		Fident := getFident(g, FLAEID)
-		_, scannerSminFile, err := Open(&FileDescriptior{FilePath: hPath.smin, FileDescription: "smin file", UseFilePool: true})
-		if err != nil {
-			return err
-		}
+		_, scannerSminFile, _ := Open(&FileDescriptior{FilePath: hPath.smin, FileDescription: "smin file", UseFilePool: true})
+
 		LineInut(scannerSminFile) // skip header
 		g.SI = make(map[int][]float64)
 
@@ -635,5 +633,4 @@ func readSmin(g *GlobalVarsMain, FLAEID string, hPath *HFilePath) error {
 			}
 		}
 	}
-	return nil
 }
