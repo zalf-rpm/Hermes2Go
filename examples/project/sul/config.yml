@@ -23,7 +23,7 @@ InitSelection: 3
 # soil profile file name (without projectname)
 SoilFile: soil
 #  soil file extension (txt = hermes soil, csv = csv table format)
-SoilFileExtension: 'csv'
+SoilFileExtension: 'txt'
 #  crop file format (txt = hermes crop, csv = csv table format)
 CropFileFormat: 'txt'
 # Name of Polygon resp. grid file
@@ -31,7 +31,7 @@ PolygonGridFileName: poly
 
 #***** Weather *****
 # weather file name template/pattern, %s will be replaced with fcode
-WeatherFile: '%s109_120.csv'
+WeatherFile: '%s.csv'
 # Weather file format (0=separator(, ; \t), 1 year per file ) (1=separator(, ; \t), multiple years per file)
 WeatherFileFormat: 1
 # Weather scenario folder
