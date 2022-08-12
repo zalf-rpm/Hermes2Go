@@ -30,8 +30,10 @@ func main() {
 	Kalender = hermes.KalenderConverter(hermes.DateDEshort, ".")
 	fmt.Println("Open a browser and connet to: http://localhost:8081 ")
 	fmt.Println("For N2O connet to: http://localhost:8081/n2o ")
+	fmt.Println("For N2O connet to: http://localhost:8081/sulfonie ")
 	http.HandleFunc("/", c1debughttpserver)
 	http.HandleFunc("/n2o", n2odebughttpserver)
+	http.HandleFunc("/sulfonie", sulfoniehttpserver)
 	http.ListenAndServe("localhost:8081", nil)
 }
 
