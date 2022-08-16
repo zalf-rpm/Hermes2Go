@@ -64,10 +64,10 @@ type GlobalVarsMain struct {
 	WMIN     [21]float64 // Permanent Wilting point (Wassergehalt PWP (cm^3/cm^3) aus Bodenprofildatei 1. Schicht)
 	PORGES   [21]float64 // Pore volume  (Gesamtporenvolumen Schicht I (cm3/cm3))
 	NAKT     float64
-	ETMETH   int // evapo transpiration methode selection
-	PTF      int // pedotransfer function methode selection
-	INIWAHL  int // initial field values setup selection
-	DUNGSZEN float64
+	ETMETH   int         // evapo transpiration methode selection
+	PTF      int         // pedotransfer function methode selection
+	INIWAHL  int         // initial field values setup selection
+	DUNGSZEN float64     // percentage of fertilizer applied to the field in relation to what is set in fert_file
 	AZHO     int         // number of layer in soil profile (Anzahl Horizonte des Bodenprofils)
 	WURZMAX  int         // effective root depth in profile (effektive Wurzeltiefe des Profils)
 	DRAIDEP  int         // drainage depth (Tiefe der Drainung)

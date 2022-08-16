@@ -10,7 +10,8 @@ import (
 // InputSharedVars is a struct of shared variables for this module
 type InputSharedVars struct {
 	NORG    [300]float64
-	DGMG    [300]float64
+	NDGMG   [300]float64 // amount of nitrogen in fertilizer
+	SDGMG   [300]float64 // amount of sulfur in fertiliser
 	NGEHALT [10]float64
 	Jstr    string
 	MK      [70]string
@@ -477,7 +478,7 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 										g.NDEM1[SLFINDindex] = ValAsFloat(crpman[94:97], autfil, crpman)
 										if g.ODU[SLFINDindex] == 1 {
 											g.DGART[SLFINDindex] = strings.TrimSpace(crpman[143:146])
-											l.DGMG[SLFINDindex] = ValAsFloat(crpman[149:152], autfil, crpman)
+											l.NDGMG[SLFINDindex] = ValAsFloat(crpman[149:152], autfil, crpman)
 											g.ORGTIME[SLFINDindex] = crpman[156:157]
 											g.ORGDOY[SLFINDindex] = int(ValAsInt(crpman[157:159], autfil, crpman))
 											dueng(SLFINDindex, g, l, hPath)
@@ -524,7 +525,7 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 								if g.ToCropType(crpman[0:3]) == g.FRUCHT[SLFINDindex] {
 									if g.ODU[SLFINDindex] == 1 {
 										g.DGART[SLFINDindex] = strings.TrimSpace(crpman[143:146])
-										l.DGMG[SLFINDindex] = ValAsFloat(crpman[149:152], autfil, crpman)
+										l.NDGMG[SLFINDindex] = ValAsFloat(crpman[149:152], autfil, crpman)
 										g.ORGTIME[SLFINDindex] = crpman[156:157]
 										g.ORGDOY[SLFINDindex] = int(ValAsInt(crpman[157:159], autfil, crpman))
 										dueng(SLFIND, g, l, hPath)
@@ -790,13 +791,31 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 				for SCHLAG, fertilizerToken, valid := NextLineInut(0, scannerFert, strings.Fields); valid; SCHLAG, fertilizerToken, valid = NextLineInut(0, scannerFert, strings.Fields) {
 
 					for ok := SCHLAG == g.PKT; ok; ok = SCHLAG == g.PKT && valid {
-						//fertilizerToken := strings.Fields(FERTI)
+
+						// try to stay backwards compatible with old format
 						//Field_ID(0)  N(1)   Frt(2) date(3)
+						headerN := 1
+						headerS := -1
+						headerFrt := 2
+						headerDate := 3
+						// or Field_ID(0)  N(1) S(2)  Frt(3) date(4)
+						if len(fertilizerToken) == 4 {
+							headerN = 1
+							headerS = 2
+							headerFrt = 3
+							headerDate = 4
+						}
 						NDu++
 						NDuindex := NDu - 1
-						DGDAT := fertilizerToken[3]
-						l.DGMG[NDuindex] = ValAsFloat(fertilizerToken[1], dun, fertilizerToken[1]) * g.DUNGSZEN
-						g.DGART[NDuindex] = fertilizerToken[2]
+
+						l.NDGMG[NDuindex] = ValAsFloat(fertilizerToken[headerN], dun, fertilizerToken[headerN]) * g.DUNGSZEN
+						l.SDGMG[NDuindex] = 0
+						if headerS > 0 {
+							l.SDGMG[NDuindex] = ValAsFloat(fertilizerToken[headerS], dun, fertilizerToken[headerS]) * g.DUNGSZEN
+						}
+						g.DGART[NDuindex] = fertilizerToken[headerFrt]
+						DGDAT := fertilizerToken[headerDate]
+
 						_, valztdg := g.Datum(DGDAT)
 						g.ZTDG[NDuindex] = valztdg
 						if g.ZTDG[NDuindex] < g.BEGINN {
@@ -1181,13 +1200,13 @@ func dueng(i int, g *GlobalVarsMain, l *InputSharedVars, hPath *HFilePath) {
 		du := scanner.Text()
 		token := strings.Fields(du)
 		if token[0] == g.DGART[i] {
-			l.NORG[i] = ValAsFloat(token[1], dungfile, du)                                     //Ntot
-			VOL := ValAsFloat(token[6], dungfile, du)                                          // Loss
-			g.NDIR[i] = l.DGMG[i] * l.NORG[i] * ValAsFloat(token[2], dungfile, du)             // NDIR
-			g.NH4N[i] = g.NDIR[i] * ValAsFloat(token[5], dungfile, du) * (1 - VOL)             // Neu: nicht Nitrat-N in Dünger NH4N
-			g.NDIR[i] = g.NDIR[i] - g.NDIR[i]*ValAsFloat(token[5], dungfile, du)*VOL           // NH4
-			g.NSAS[i] = (l.DGMG[i]*l.NORG[i] - g.NDIR[i]) * ValAsFloat(token[3], dungfile, du) // Nfst
-			g.NLAS[i] = (l.DGMG[i]*l.NORG[i] - g.NDIR[i]) * ValAsFloat(token[4], dungfile, du) // Nslo
+			l.NORG[i] = ValAsFloat(token[1], dungfile, du)                                      //Ntot
+			VOL := ValAsFloat(token[6], dungfile, du)                                           // Loss
+			g.NDIR[i] = l.NDGMG[i] * l.NORG[i] * ValAsFloat(token[2], dungfile, du)             // NDIR
+			g.NH4N[i] = g.NDIR[i] * ValAsFloat(token[5], dungfile, du) * (1 - VOL)              // Neu: nicht Nitrat-N in Dünger NH4N
+			g.NDIR[i] = g.NDIR[i] - g.NDIR[i]*ValAsFloat(token[5], dungfile, du)*VOL            // NH4
+			g.NSAS[i] = (l.NDGMG[i]*l.NORG[i] - g.NDIR[i]) * ValAsFloat(token[3], dungfile, du) // Nfst
+			g.NLAS[i] = (l.NDGMG[i]*l.NORG[i] - g.NDIR[i]) * ValAsFloat(token[4], dungfile, du) // Nslo
 
 			// sulfur in fertilizer
 			if g.Sulfonie {
@@ -1198,11 +1217,11 @@ func dueng(i int, g *GlobalVarsMain, l *InputSharedVars, hPath *HFilePath) {
 				//LET SFAST = VAL(DUNG$(23:26))
 				SFAST := ValAsFloat(token[8], dungfile, du)
 				//LET SDIR(I) = DGMG(I) * SO4
-				g.SDIR[i] = l.DGMG[i] * SO4
+				g.SDIR[i] = l.SDGMG[i] * SO4
 				//LET SSAS(I) = DGMG(I) * SORG * SFAST
-				g.SSAS[i] = l.DGMG[i] * SORG * SFAST
+				g.SSAS[i] = l.SDGMG[i] * SORG * SFAST
 				//LET SLAS(I) = DGMG(I) * SORG * (1-SFAST)
-				g.SLAS[i] = l.DGMG[i] * SORG * (1 - SFAST)
+				g.SLAS[i] = l.SDGMG[i] * SORG * (1 - SFAST)
 			}
 			break
 		}
