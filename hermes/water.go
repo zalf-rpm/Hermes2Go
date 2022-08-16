@@ -480,19 +480,46 @@ func Evatra(l *WaterSharedVars, g *GlobalVarsMain, hPath *HFilePath, zeit int) {
 	// ! Input: PROP       = Verteilungsfaktor Exponentialfunktion (abh. von Hauptbodenart)
 	if l.EVA[g.TAG.Index] > 0 {
 		SUMVAR := 0.
-		for i := 0; i < g.N; i++ {
-			if g.WG[0][i]-g.WMIN[i]/3 > 0 {
-				VAR[i] = (g.WG[0][i] - g.WMIN[i]/3) * math.Exp(-g.PROP*.1*(float64((i+1)*10)-g.DZ.Num/2))
+		// ! ++++++++++++ Neu: Bei �berstau Entnahme aus Ueberstauwasser bzw. 1. Schicht ++++++++++++++
+		// IF Storage > 0 then
+		if storage > 0 {
+			//    IF storage > EVa(tag)*dt then
+			if storage > l.EVA[g.TAG.Index]*g.DT.Num {
+				// 	  LET storage = Storage - Eva(Tag) *dt
+				storage = storage - l.EVA[g.TAG.Index]*g.DT.Num
+				// 	  LET EVA(Tag) = 0
+				l.EVA[g.TAG.Index] = 0
+				//    ELSE
 			} else {
-				VAR[i] = 0
+				// 	  LET EVA(TAG) = eva(tag)*dt-storage
+				l.EVA[g.TAG.Index] = l.EVA[g.TAG.Index]*g.DT.Num - storage
+				// 	  LET storage = 0
+				storage = 0
+				// 	  !LET fluss0 = -EV(1)
+				//    END IF
 			}
-			SUMVAR = SUMVAR + VAR[i]
-		}
-		for i := 0; i < g.N; i++ {
-			if SUMVAR > 0 {
-				l.EV[i] = l.EVA[g.TAG.Index] * VAR[i] / SUMVAR * g.DT.Num
-			} else {
+			//    FOR I = 2 to n
+			for i := 1; i < g.N; i++ {
+				// 	   LET ev(i) = 0
 				l.EV[i] = 0
+				//    NEXT i
+			}
+			// ELSE
+		} else {
+			for i := 0; i < g.N; i++ {
+				if g.WG[0][i]-g.WMIN[i]/3 > 0 {
+					VAR[i] = (g.WG[0][i] - g.WMIN[i]/3) * math.Exp(-g.PROP*.1*(float64((i+1)*10)-g.DZ.Num/2))
+				} else {
+					VAR[i] = 0
+				}
+				SUMVAR = SUMVAR + VAR[i]
+			}
+			for i := 0; i < g.N; i++ {
+				if SUMVAR > 0 {
+					l.EV[i] = l.EVA[g.TAG.Index] * VAR[i] / SUMVAR * g.DT.Num
+				} else {
+					l.EV[i] = 0
+				}
 			}
 		}
 	} else {
@@ -810,9 +837,12 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 	// !***     REGEN(+) BZW. EVAPORATION (-) (cm):        FLUSS0  ***
 	// !***     Draintiefe bei Drainung (dm)               DRAIDEP ***
 	// !***     Drainfaktor (Fraktion) wenn > FK           DRAIFAK ***
+	// !***     maximaler Fluss bei FK                     qm(z)   ***
+	// !***     Profilminimum des maximalen Flusses        qmax    ***
 	// !**************************************************************
 	var WATER [2][21]float64
 	if subd == 1 {
+		gwtab := 0
 		for i := 0; i < g.N; i++ {
 			if g.TP[i] > (g.WG[0][i]-g.WMIN[i])*g.DZ.Num {
 				if g.WG[0][i] < g.WMIN[i] {
@@ -822,6 +852,10 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 				}
 			}
 			WATER[0][i] = g.WG[0][i]*g.DZ.Num - g.TP[i]*wdt
+			//! -------- Definition des Stauwasserhorizonts ----------
+			if WATER[0][i]/g.DZ.Num >= g.PORGES[i]-g.TP[i]*wdt && gwtab == 0 {
+				gwtab = i
+			}
 		}
 	} else {
 		for i := 0; i < g.N; i++ {
@@ -831,7 +865,19 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 	}
 	g.QDRAIN = 0
 	if g.FLUSS0 > 0 {
-		a := g.FLUSS0 * wdt
+		// ! Bei Wassersättigung und Überstau Infiltration bis kleinste Profilleitfähigkeit
+		//    !IF storage > 0 or gwtab = 1 then
+		//        LET qmax = PORGES(1)*dz - WATER(0,1) + qm(1)
+		qmax := g.PORGES[0]*g.DZ.Num - WATER[0][0] + g.QM[0]
+		//       LET storage = storage + fluss0 * wdt
+		storage := g.FLUSS0 * wdt
+		//       Let maxinfil = Min(storage,qmax*wdt)
+		maxinfil := math.Min(storage, qmax*wdt)
+		//       Let storage = storage - maxinfil
+		storage = storage - maxinfil
+		//       LET a = maxinfil   !qmax * wdt
+		a := maxinfil
+		//a := g.FLUSS0 * wdt
 		g.Q1[0] = a
 		//------------------------ Infiltration------------------------
 		for k1 := 1; k1 <= g.N; k1++ {
@@ -841,22 +887,39 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 			if a < 0 {
 				WATER[1][k1INdex] = b
 				g.Q1[k1] = 0
-				for k2 := k1 + 1; k2 <= g.N; k2++ {
-					k2Index := k2 - 1
-					WATER[1][k2Index] = WATER[0][k2Index]
-					g.Q1[k2] = 0
-				}
-				break
+				a = 0
+				// for k2 := k1 + 1; k2 <= g.N; k2++ {
+				// 	k2Index := k2 - 1
+				// 	WATER[1][k2Index] = WATER[0][k2Index]
+				// 	g.Q1[k2] = 0
+				// }
+				// break
 			} else {
 				if k1 == g.DRAIDEP {
-					g.Q1[k1] = (1 - g.DRAIFAK) * a
-					g.QDRAIN = g.DRAIFAK * a
+					// g.Q1[k1] = (1 - g.DRAIFAK) * a
+					// g.QDRAIN = g.DRAIFAK * a
+					// a = g.Q1[k1]
+
+					// LET Q1(k1) = MIN((1-draifak) * a,qm(k1))
+					g.Q1[k1] = math.Min((1-g.DRAIFAK)*a, g.QM[k1])
+					// LET qdrain = a-q1(k1)  !draifak * a
+					g.QDRAIN = a - g.Q1[k1]
+					// LET a = q1(k1)
 					a = g.Q1[k1]
+					//LET WATER(1,k1) = W(K1) * dz
+					WATER[1][k1INdex] = g.W[k1INdex] * g.DZ.Num
 				} else {
-					g.Q1[k1] = a
+					// g.Q1[k1] = a
+
+					// LET Q1(k1) = MIN(a,qm(k1))
+					g.Q1[k1] = math.Min(a, g.QM[k1])
+					// LET a = q1(k1)
+					a = g.Q1[k1]
+					// LET WATER(1,k1) = b-a  ! W(K1) * dz
+					WATER[1][k1INdex] = b - a
 				}
-				WATER[1][k1INdex] = g.W[k1INdex] * g.DZ.Num
-				g.Q1[k1] = a
+				// WATER[1][k1INdex] = g.W[k1INdex] * g.DZ.Num
+				// g.Q1[k1] = a
 			}
 		}
 
@@ -866,6 +929,7 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 		a1 := a
 		g.Q1[0] = 0
 		for k1 := 0; k1 < g.N; k1++ {
+			k1IdxQ := k1 + 1
 			l.LIMIT[k1] = WATER[0][k1] - l.EV[k1]*wdt
 			if l.LIMIT[k1] < (g.WMIN[k1]/3)*g.DZ.Num {
 				l.EV[k1+1] = l.EV[k1+1] + (l.EV[k1] - WATER[0][k1] + g.WMIN[k1]/3*g.DZ.Num)
@@ -876,19 +940,45 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 			var wlost float64
 			if vcap > a1 {
 				wlost = a1
-				WATER[1][k1] = WATER[0][k1] - wlost
-				g.Q1[k1+1] = 0
-				for k2 := k1 + 1; k2 < g.N; k2++ {
-					WATER[1][k2] = WATER[0][k2]
-					g.Q1[k2+1] = 0
-				}
-				break
+				//WATER[1][k1] = WATER[0][k1] - wlost
+				g.Q1[k1IdxQ] = 0
+				//LET a1 = 0
+				a1 = 0
+				// for k2 := k1 + 1; k2 < g.N; k2++ {
+				// 	WATER[1][k2] = WATER[0][k2]
+				// 	g.Q1[k2+1] = 0
+				// }
+				//break
 			} else {
 				wlost = vcap
 				a1 = a1 - vcap
-				g.Q1[k1+1] = -a1
+				g.Q1[k1IdxQ] = -a1
 			}
 			WATER[1][k1] = WATER[0][k1] - wlost
+			//! ++++++++downward water flow of excessive water over FC from previous time steps+++++++++++++++++++++++++
+			//    IF WATER(1,k1) > W(k1)*dz then
+			if WATER[1][k1] > g.W[k1]*g.DZ.Num {
+				//LET a = MIN(WATER(1,k1) - W(K1) * dz,qm(k1))
+				a = math.Min(WATER[1][k1]-g.W[k1]*g.DZ.Num, g.QM[k1])
+				//LET WATER(1,k1) = WATER(1,k1)-a
+				WATER[1][k1] = WATER[1][k1] - a
+				//LET Q1(k1) = q1(k1) + a
+				g.Q1[k1IdxQ] = g.Q1[k1IdxQ] + a
+				//IF q1(k1) > 0 then
+				if g.Q1[k1IdxQ] > 0 {
+					//LET a1 = 0
+					a1 = 0
+					//LET WATER(0,k1+1) = Water (0,k1+1) + Q1(k1)
+					WATER[0][k1+1] = WATER[0][k1+1] + g.Q1[k1IdxQ]
+					//ELSE
+				} else {
+					//LET a1 = -q1(k1)
+					a1 = -g.Q1[k1IdxQ]
+					//END IF
+				}
+				//END IF
+			}
+			//! +++++++++++++++++++++++++++++++++++
 		}
 	} else {
 		for i := 0; i < g.N; i++ {
@@ -897,14 +987,14 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 		}
 	}
 
-	for i := 0; i < g.N; i++ {
-		if WATER[1][i]/g.DZ.Num > g.W[i] {
-			sink := WATER[1][i] - g.W[i]*g.DZ.Num
-			WATER[1][i] = g.W[i] * g.DZ.Num
-			WATER[1][i+1] = WATER[1][i+1] + sink
-			g.Q1[i+1] = g.Q1[i+1] + sink
-		}
-	}
+	// for i := 0; i < g.N; i++ {
+	// 	if WATER[1][i]/g.DZ.Num > g.W[i] {
+	// 		sink := WATER[1][i] - g.W[i]*g.DZ.Num
+	// 		WATER[1][i] = g.W[i] * g.DZ.Num
+	// 		WATER[1][i+1] = WATER[1][i+1] + sink
+	// 		g.Q1[i+1] = g.Q1[i+1] + sink
+	// 	}
+	// }
 
 	// ! -------------------  Berechnung des kapillaren Aufstiegs -----------------
 	// ! GRW            = Grundwasserstand (dm unter Flur)
@@ -969,7 +1059,18 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 
 	g.WG[1][g.N] = g.WG[1][g.N-1]
 	g.DRAISUM = g.DRAISUM + g.QDRAIN*10
-
+	// 	IF subd = 1 then
+	if subd == 1 {
+		// 	LET draitag = 0
+		g.DRAITAG = 0
+		//  END IF
+	}
+	//  IF subd<= dt/wdt then
+	if float64(subd) <= g.DT.Num/wdt {
+		// 	LET DRAITAG = Draitag+Qdrain*10
+		g.DRAITAG = g.DRAITAG + g.QDRAIN*10
+		//  END IF
+	}
 	if g.Q1[g.OUTN] > 0 {
 		g.SICKER = g.SICKER + g.Q1[g.OUTN]*10
 	} else {

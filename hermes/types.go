@@ -356,6 +356,8 @@ type GlobalVarsMain struct {
 	N2onitsum float64
 	AKTUELL   string // current Date string
 	SoilID    string
+	// new water model
+	DRAITAG float64
 
 	// output parameters
 	PerY            float64 // accumulated output
