@@ -281,7 +281,7 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 							l.ANZBREG++
 							g.BREG[l.ANZBREG-1] = ValAsFloat(SLAGtoken[1], Bereg, SLAGtoken[1])
 							g.BRKZn[l.ANZBREG-1] = ValAsFloat(SLAGtoken[2], Bereg, SLAGtoken[2])
-							if len(SLAGtoken) > 3 {
+							if len(SLAGtoken) > 4 {
 								g.BRKZs[l.ANZBREG-1] = ValAsFloat(SLAGtoken[3], Bereg, SLAGtoken[3])
 								dateTokenIndex = 4
 							}
@@ -799,7 +799,7 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 						headerFrt := 2
 						headerDate := 3
 						// or Field_ID(0)  N(1) S(2)  Frt(3) date(4)
-						if len(fertilizerToken) == 4 {
+						if len(fertilizerToken) == 5 {
 							headerN = 1
 							headerS = 2
 							headerFrt = 3
