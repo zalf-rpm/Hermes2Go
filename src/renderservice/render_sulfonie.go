@@ -15,7 +15,7 @@ func sulfoniehttpserver(w http.ResponseWriter, _ *http.Request) {
 	page := components.NewPage()
 	keys := extractSortedKeys()
 	dates := keysAsDate(Kalender, keys)
-	errKeys := generateErrorItems(keys)
+	measurementKeys := generateMeasurementItems(keys)
 
 	// SGEHOB
 	// SREDUK
@@ -23,10 +23,10 @@ func sulfoniehttpserver(w http.ResponseWriter, _ *http.Request) {
 	// SGEHMIN
 	// S1
 	page.AddCharts(
-		lineMultiS1(keys, errKeys, dates),
-		lineMultiSGEHMIN(keys, errKeys, dates),
-		lineMultiSREDUK(keys, errKeys, dates),
-		lineMultiSGEHOB(keys, errKeys, dates),
+		lineMultiS1(keys, measurementKeys, dates),
+		lineMultiSGEHMIN(keys, measurementKeys, dates),
+		lineMultiSREDUK(keys, measurementKeys, dates),
+		lineMultiSGEHOB(keys, measurementKeys, dates),
 	)
 
 	page.Render(w)
@@ -42,9 +42,9 @@ func lineMultiS1(keys, errKeys []int, dates []string) *charts.Line {
 	line := makeMultiLine("Smin Content")
 
 	line.SetXAxis(dates).
-		AddSeries("S1 Schicht 1", generateS1Items(keys, 0), errorMarker(errKeys, 60)).
-		AddSeries("S1 Schicht 2", generateS1Items(keys, 1)).
-		AddSeries("S1 Schicht 3", generateS1Items(keys, 2))
+		AddSeries("S1 Layer 1", generateS1Items(keys, 0), measurementMarker(errKeys, 1)).
+		AddSeries("S1 Layer 2", generateS1Items(keys, 1)).
+		AddSeries("S1 Layer 3", generateS1Items(keys, 2))
 	return line
 }
 
@@ -66,7 +66,7 @@ func lineMultiSGEHMIN(keys, errKeys []int, dates []string) *charts.Line {
 	line := makeMultiLine("S GEHALT MIN/MAX")
 
 	line.SetXAxis(dates).
-		AddSeries("SGEHMIN", generateSGEHMINItems(keys), errorMarker(errKeys, 23)).
+		AddSeries("SGEHMIN", generateSGEHMINItems(keys), measurementMarker(errKeys, 1)).
 		AddSeries("SGEHMAX", generateSGEHMAXItems(keys))
 	return line
 }
@@ -100,7 +100,7 @@ func lineMultiSREDUK(keys, errKeys []int, dates []string) *charts.Line {
 	line := makeMultiLine("S REDUKTION")
 
 	line.SetXAxis(dates).
-		AddSeries("SREDUK", generateSREDUKItems(keys), errorMarker(errKeys, 23))
+		AddSeries("SREDUK", generateSREDUKItems(keys), measurementMarker(errKeys, 1))
 	return line
 }
 
@@ -120,7 +120,7 @@ func lineMultiSGEHOB(keys, errKeys []int, dates []string) *charts.Line {
 	line := makeMultiLine("S GEHALT OBEN")
 
 	line.SetXAxis(dates).
-		AddSeries("SGEHOB", generateSGEHOBItems(keys), errorMarker(errKeys, 23))
+		AddSeries("SGEHOB", generateSGEHOBItems(keys), measurementMarker(errKeys, 1))
 	return line
 }
 
@@ -134,4 +134,34 @@ func generateSGEHOBItems(keys []int) []opts.LineData {
 	}
 	globalHandler.mux.Unlock()
 	return items
+}
+
+func generateMeasurementItems(keys []int) []int {
+	globalHandler.mux.Lock()
+	listOfMeasurements := []int{}
+
+	for _, key := range keys {
+		zeit := globalHandler.receivedDumps[key].Zeit
+		if _, ok := globalHandler.receivedDumps[key].Global.SI[zeit]; ok {
+			listOfMeasurements = append(listOfMeasurements, key)
+		}
+	}
+	globalHandler.mux.Unlock()
+	return listOfMeasurements
+}
+
+func measurementMarker(errKeys []int, offset float64) charts.SeriesOpts {
+	dates := keysAsDate(Kalender, errKeys)
+
+	marker := make([]opts.MarkPointNameCoordItem, 0, len(dates))
+	for _, date := range dates {
+		marker = append(marker, opts.MarkPointNameCoordItem{
+			Name:       "M",
+			Coordinate: []interface{}{date, 0},
+			Label:      &opts.Label{Show: true, Color: "white", Position: "inside", Formatter: "{b}"},
+		})
+	}
+	options := charts.WithMarkPointNameCoordItemOpts(marker...)
+
+	return options
 }
