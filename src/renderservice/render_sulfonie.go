@@ -4,6 +4,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/components"
@@ -16,6 +17,7 @@ func sulfoniehttpserver(w http.ResponseWriter, _ *http.Request) {
 	keys := extractSortedKeys()
 	dates := keysAsDate(Kalender, keys)
 	measurementKeys := generateMeasurementItems(keys)
+	eventKeys, eventTypes := generateEventItems(keys)
 
 	// SGEHOB
 	// SREDUK
@@ -23,10 +25,11 @@ func sulfoniehttpserver(w http.ResponseWriter, _ *http.Request) {
 	// SGEHMIN
 	// S1
 	page.AddCharts(
+		lineMultiSmin(keys, measurementKeys, dates),
 		lineMultiS1(keys, measurementKeys, dates),
 		lineMultiSGEHMIN(keys, measurementKeys, dates),
 		lineMultiSREDUK(keys, measurementKeys, dates),
-		lineMultiSGEHOB(keys, measurementKeys, dates),
+		lineMultiSGEHOB(keys, eventKeys, eventTypes, dates),
 	)
 
 	page.Render(w)
@@ -48,7 +51,32 @@ func lineMultiS1(keys, errKeys []int, dates []string) *charts.Line {
 	return line
 }
 
-// generateC1Items generate Nmin (C1) items
+func lineMultiSmin(keys, errKeys []int, dates []string) *charts.Line {
+	line := makeMultiLine("Smin every 30cm")
+
+	line.SetXAxis(dates).
+		AddSeries("Layer 0-3cm", generateS1SumItems(keys, 0, 3), measurementMarker(errKeys, 1)).
+		AddSeries("Layer 3-6cm", generateS1SumItems(keys, 3, 6)).
+		AddSeries("Layer 6-9cm", generateS1SumItems(keys, 6, 9))
+	return line
+}
+func generateS1SumItems(keys []int, layerDepth1, layerDepth2 int) []opts.LineData {
+	globalHandler.mux.Lock()
+	items := make([]opts.LineData, 0, len(keys))
+
+	for _, key := range keys {
+		var val float64
+		for i := layerDepth1; i < layerDepth2; i++ {
+			val += globalHandler.receivedDumps[key].Global.S1[i]
+		}
+
+		items = append(items, opts.LineData{Value: val})
+	}
+	globalHandler.mux.Unlock()
+	return items
+}
+
+// generateS1Items generate Smin (S1) items
 func generateS1Items(keys []int, index int) []opts.LineData {
 	globalHandler.mux.Lock()
 	items := make([]opts.LineData, 0, len(keys))
@@ -116,11 +144,11 @@ func generateSREDUKItems(keys []int) []opts.LineData {
 	return items
 }
 
-func lineMultiSGEHOB(keys, errKeys []int, dates []string) *charts.Line {
+func lineMultiSGEHOB(keys, eventKeys []int, eventTypes []string, dates []string) *charts.Line {
 	line := makeMultiLine("S GEHALT OBEN")
 
 	line.SetXAxis(dates).
-		AddSeries("SGEHOB", generateSGEHOBItems(keys), measurementMarker(errKeys, 1))
+		AddSeries("SGEHOB", generateSGEHOBItems(keys), eventMarker(eventKeys, eventTypes, 1))
 	return line
 }
 
@@ -157,6 +185,50 @@ func measurementMarker(errKeys []int, offset float64) charts.SeriesOpts {
 	for _, date := range dates {
 		marker = append(marker, opts.MarkPointNameCoordItem{
 			Name:       "M",
+			Coordinate: []interface{}{date, 0},
+			Label:      &opts.Label{Show: true, Color: "white", Position: "inside", Formatter: "{b}"},
+		})
+	}
+	options := charts.WithMarkPointNameCoordItemOpts(marker...)
+
+	return options
+}
+
+func generateEventItems(keys []int) ([]int, []string) {
+	globalHandler.mux.Lock()
+	listOfEvents := []int{}
+	listOfEventTypes := []string{}
+	currentIntwick := 0
+	for _, key := range keys {
+		dmp := globalHandler.receivedDumps[key]
+		zeit := dmp.Zeit
+		akf := dmp.Global.AKF.Index
+		if dmp.Global.ERNTE[akf-1] == zeit {
+			listOfEvents = append(listOfEvents, key)
+			listOfEventTypes = append(listOfEventTypes, "har")
+		}
+		if currentIntwick != dmp.Global.INTWICK.Index {
+			currentIntwick = dmp.Global.INTWICK.Index
+			listOfEvents = append(listOfEvents, key)
+			listOfEventTypes = append(listOfEventTypes, strconv.Itoa(currentIntwick))
+		}
+		if dmp.Global.SAAT[akf] == zeit {
+			listOfEvents = append(listOfEvents, key)
+			listOfEventTypes = append(listOfEventTypes, "sow")
+		}
+
+	}
+	globalHandler.mux.Unlock()
+	return listOfEvents, listOfEventTypes
+}
+
+func eventMarker(eventKeys []int, eventType []string, offset float64) charts.SeriesOpts {
+	dates := keysAsDate(Kalender, eventKeys)
+
+	marker := make([]opts.MarkPointNameCoordItem, 0, len(dates))
+	for idx, date := range dates {
+		marker = append(marker, opts.MarkPointNameCoordItem{
+			Name:       eventType[idx],
 			Coordinate: []interface{}{date, 0},
 			Label:      &opts.Label{Show: true, Color: "white", Position: "inside", Formatter: "{b}"},
 		})
