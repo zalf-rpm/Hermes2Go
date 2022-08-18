@@ -109,6 +109,7 @@ func Sulfo(wdt float64, subd, zeit int, g *GlobalVarsMain, hPath *HFilePath) {
 			g.SDSUMM += SDI
 			// 		   LET AKF = AKF+1
 			// don't increment AKF here, it is used in nitro()
+			g.SUPTAKE = g.PESUMS
 		}
 	}
 	sMove(wdt, subd, zeit, g)
@@ -605,27 +606,37 @@ func readSmin(g *GlobalVarsMain, FLAEID string, hPath *HFilePath) {
 						_, date = g.Datum(token[1])
 					}
 					siValues := make([]float64, g.N)
-					Smi0_3 := ValAsFloat(token[1], hPath.smin, line) / 3
-					Smi3_6 := ValAsFloat(token[2], hPath.smin, line) / 3
-					Smi6_9 := ValAsFloat(token[3], hPath.smin, line) / 3
-					Smi9_12 := ValAsFloat(token[4], hPath.smin, line) / 3
-					Smi12_15 := ValAsFloat(token[5], hPath.smin, line) / 3
-					Smi15_20 := ValAsFloat(token[6], hPath.smin, line) / 5
+					Smi0_3 := ValAsFloat(token[2], hPath.smin, line)
+					Smi3_6 := ValAsFloat(token[3], hPath.smin, line)
+					Smi6_9 := ValAsFloat(token[4], hPath.smin, line)
+					Smi9_12 := ValAsFloat(token[5], hPath.smin, line)
+					Smi12_15 := ValAsFloat(token[6], hPath.smin, line)
+					Smi15_20 := ValAsFloat(token[7], hPath.smin, line)
 
 					for i := 0; i < g.N; i++ {
+						var val float64
 						if i < 3 {
-							siValues[i] = Smi0_3
+							val = Smi0_3
 						} else if i < 6 {
-							siValues[i] = Smi3_6
+							val = Smi3_6
 						} else if i < 9 {
-							siValues[i] = Smi6_9
+							val = Smi6_9
 						} else if i < 12 {
-							siValues[i] = Smi9_12
+							val = Smi9_12
 						} else if i < 15 {
-							siValues[i] = Smi12_15
+							val = Smi12_15
 						} else {
-							siValues[i] = Smi15_20
+							val = Smi15_20
 						}
+						if val > 0 {
+							if i > 16 {
+								val = val / 5
+							} else {
+								val = val / 3
+							}
+						}
+
+						siValues[i] = val
 					}
 					g.SI[date] = siValues
 					g.sMESS = append(g.sMESS, date)
