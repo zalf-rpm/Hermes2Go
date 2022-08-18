@@ -42,6 +42,7 @@ func Init(g *GlobalVarsMain) {
 	} else if g.FEU == 3 {
 		FKPROZ = FKPROZ + .3
 	}
+	_, applyInitialS := g.SI[0]
 	for z0 := 0; z0 < g.N; z0++ {
 		z1 := float64(z0) + 1
 		if z1 > 15 {
@@ -68,10 +69,10 @@ func Init(g *GlobalVarsMain) {
 		}
 		// LET S1(z) = SI(0,z)
 		// check if initial smin data exists
-		if _, ok := g.SI[0]; ok {
+		if applyInitialS {
 			g.S1[z0] = g.SI[0][z0]
-			g.sMessIdx++
 		}
+
 		// make sure that initial smin data is > 0
 		if g.S1[z0] <= 0 {
 			g.S1[z0] = 0.01
@@ -88,6 +89,9 @@ func Init(g *GlobalVarsMain) {
 			g.Sminfos[z0] = 0
 		}
 		g.CA[z0] = 0
+	}
+	if applyInitialS {
+		g.sMessIdx++
 	}
 	g.WG[0][10] = g.WG[0][9]
 	g.DG.SetByIndex(0) // Nitrogen fertilization counter
