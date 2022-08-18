@@ -1,6 +1,7 @@
 package hermes
 
 import (
+	"fmt"
 	"math"
 	"strings"
 )
@@ -571,16 +572,24 @@ func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
 			g.CRITSEXP[cropt] = ValAsFloat(critsexp, cData, line)
 			g.Sfas[cropt] = ValAsFloat(token[cDHeader["Sfas"]], cData, line)
 			g.SWura[cropt] = ValAsFloat(token[cDHeader["SWura"]], cData, line)
-			g.S_HEG[cropt] = ValAsFloat(token[cDHeader["S_NEG"]], cData, line)
-			g.S_NEG[cropt] = ValAsFloat(token[cDHeader["N_NEG"]], cData, line)
+			g.S_HEG[cropt] = ValAsFloat(token[cDHeader["S_HEG"]], cData, line)
+			g.S_NEG[cropt] = ValAsFloat(token[cDHeader["S_NEG"]], cData, line)
 			g.N_HEG[cropt] = ValAsFloat(token[cDHeader["N_HEG"]], cData, line)
-			g.N_NEG[cropt] = ValAsFloat(token[cDHeader["S_HEG"]], cData, line)
+			g.N_NEG[cropt] = ValAsFloat(token[cDHeader["N_NEG"]], cData, line)
 			g.TM[cropt] = ValAsFloat(token[cDHeader["TM_"]], cData, line)
 			g.HEGzuNEG[cropt] = ValAsFloat(token[cDHeader["HEGzuNEG"]], cData, line)
 
 			// calculate SNRatio
 			// SNRatio = (HEGzuNEG * N_HEG + N_NEG) / (HEGzuNEG * S_HEG + S_NEG)
-			g.SNRatio[cropt] = (g.HEGzuNEG[cropt]*g.N_HEG[cropt] + g.N_NEG[cropt]) / (g.HEGzuNEG[cropt]*g.S_HEG[cropt] + g.S_NEG[cropt])
+			if g.HEGzuNEG[cropt] > 0 {
+				g.SNRatio[cropt] = (g.HEGzuNEG[cropt]*g.N_HEG[cropt] + g.N_NEG[cropt]) / (g.HEGzuNEG[cropt]*g.S_HEG[cropt] + g.S_NEG[cropt])
+			} else {
+				g.SNRatio[cropt] = (g.N_HEG[cropt]) / (g.S_HEG[cropt])
+			}
+			// check if SNRatio is valid float
+			if math.IsInf(g.SNRatio[cropt], 0) {
+				return fmt.Errorf("SNRatio is not a number for crop %s", crop)
+			}
 		}
 	}
 	return nil
