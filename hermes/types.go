@@ -409,6 +409,7 @@ type GlobalVarsMain struct {
 	SGEHOB      float64              //S content in upper plant organs
 	SREDUK      float64              //S reduction factor
 	SREDUKSUM   float64              //S reduction factor sum
+	SUPTAKE     float64              //S-uptake
 
 	// output parameters
 	PerY            float64 // accumulated output
@@ -477,6 +478,7 @@ type CropOutputVars struct {
 	Nfertil      float64
 	Irrig        float64
 	Nuptake      float64
+	Suptake      float64
 	Nagb         float64
 	ETcG         float64
 	ETaG         float64
@@ -491,6 +493,9 @@ type CropOutputVars struct {
 	SoilN1       float64
 	Nmin1        float64
 	Nmin2        float64
+	Smin1        float64
+	Smin2        float64
+	Smin3        float64
 	NLeaG        float64
 	TRRel        float64
 	Reduk        float64
