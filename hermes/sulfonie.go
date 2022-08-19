@@ -9,16 +9,16 @@ import (
 func sPotMin(g *GlobalVarsMain) {
 	//IF CGEHALT(1) > 14 THEN
 	if g.CGEHALT[0] > 14 {
-		g.SALTOS = 5000 * g.SGEHALT[0] * g.SAKT * float64(g.UKT[0])
+		g.SALTOS = 5000 * g.SGEHALT[0] * g.SAKT * float64(g.UKT[1])
 		//ELSE IF CGEHALT(1) > 5 THEN
 	} else if g.CGEHALT[0] > 5 {
-		g.SALTOS = 11000 * g.SGEHALT[0] * g.SAKT * float64(g.UKT[0])
+		g.SALTOS = 11000 * g.SGEHALT[0] * g.SAKT * float64(g.UKT[1])
 		//ELSE IF CGEHALT(1) < 1 THEN
 	} else if g.CGEHALT[0] < 1 {
-		g.SALTOS = 15000 * g.SGEHALT[0] * g.SAKT * float64(g.UKT[0])
+		g.SALTOS = 15000 * g.SGEHALT[0] * g.SAKT * float64(g.UKT[1])
 		//ELSE
 	} else {
-		g.SALTOS = 15000 * g.SGEHALT[0] * g.SAKT * float64(g.UKT[0])
+		g.SALTOS = 15000 * g.SGEHALT[0] * g.SAKT * float64(g.UKT[1])
 	}
 }
 
