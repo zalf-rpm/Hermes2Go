@@ -4,7 +4,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/components"
@@ -30,6 +29,7 @@ func sulfoniehttpserver(w http.ResponseWriter, _ *http.Request) {
 		lineMultiSGEHMIN(keys, measurementKeys, dates),
 		lineMultiSREDUK(keys, measurementKeys, dates),
 		lineMultiSGEHOB(keys, eventKeys, eventTypes, dates),
+		lineMultiPESUMS(keys, measurementKeys, eventKeys, eventTypes, dates),
 	)
 
 	page.Render(w)
@@ -148,7 +148,8 @@ func lineMultiSGEHOB(keys, eventKeys []int, eventTypes []string, dates []string)
 	line := makeMultiLine("S GEHALT OBEN")
 
 	line.SetXAxis(dates).
-		AddSeries("SGEHOB", generateSGEHOBItems(keys), eventMarker(eventKeys, eventTypes, 1))
+		AddSeries("SGEHOB", generateSGEHOBItems(keys), eventMarker(eventKeys, eventTypes, 1)).
+		AddSeries("GEHOB", generateGEHOBItems(keys))
 	return line
 }
 
@@ -158,6 +159,18 @@ func generateSGEHOBItems(keys []int) []opts.LineData {
 
 	for _, key := range keys {
 		val := globalHandler.receivedDumps[key].Global.SGEHOB
+		items = append(items, opts.LineData{Value: val})
+	}
+	globalHandler.mux.Unlock()
+	return items
+}
+
+func generateGEHOBItems(keys []int) []opts.LineData {
+	globalHandler.mux.Lock()
+	items := make([]opts.LineData, 0, len(keys))
+
+	for _, key := range keys {
+		val := globalHandler.receivedDumps[key].Global.GEHOB
 		items = append(items, opts.LineData{Value: val})
 	}
 	globalHandler.mux.Unlock()
@@ -209,8 +222,18 @@ func generateEventItems(keys []int) ([]int, []string) {
 		}
 		if currentIntwick != dmp.Global.INTWICK.Index {
 			currentIntwick = dmp.Global.INTWICK.Index
-			listOfEvents = append(listOfEvents, key)
-			listOfEventTypes = append(listOfEventTypes, strconv.Itoa(currentIntwick))
+			if currentIntwick == 0 {
+				listOfEvents = append(listOfEvents, key)
+				listOfEventTypes = append(listOfEventTypes, "meg")
+			}
+			if currentIntwick == 3 {
+				listOfEvents = append(listOfEvents, key)
+				listOfEventTypes = append(listOfEventTypes, "ant")
+			}
+			if currentIntwick == 4 {
+				listOfEvents = append(listOfEvents, key)
+				listOfEventTypes = append(listOfEventTypes, "mat")
+			}
 		}
 		if dmp.Global.SAAT[akf] == zeit {
 			listOfEvents = append(listOfEvents, key)
@@ -236,4 +259,36 @@ func eventMarker(eventKeys []int, eventType []string, offset float64) charts.Ser
 	options := charts.WithMarkPointNameCoordItemOpts(marker...)
 
 	return options
+}
+
+func lineMultiPESUMS(keys, errKeys, eventKeys []int, eventTypes, dates []string) *charts.Line {
+	line := makeMultiLine("PESUM N and S")
+
+	line.SetXAxis(dates).
+		AddSeries("PESUM", generatePESUMItems(keys), measurementMarker(errKeys, 1)).
+		AddSeries("PESUMS", generatePESUMSItems(keys), eventMarker(eventKeys, eventTypes, 1))
+	return line
+}
+
+func generatePESUMItems(keys []int) []opts.LineData {
+	globalHandler.mux.Lock()
+	items := make([]opts.LineData, 0, len(keys))
+
+	for _, key := range keys {
+		val := globalHandler.receivedDumps[key].Global.PESUM
+		items = append(items, opts.LineData{Value: val})
+	}
+	globalHandler.mux.Unlock()
+	return items
+}
+func generatePESUMSItems(keys []int) []opts.LineData {
+	globalHandler.mux.Lock()
+	items := make([]opts.LineData, 0, len(keys))
+
+	for _, key := range keys {
+		val := globalHandler.receivedDumps[key].Global.PESUMS
+		items = append(items, opts.LineData{Value: val})
+	}
+	globalHandler.mux.Unlock()
+	return items
 }
