@@ -290,7 +290,8 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		g.FKC = l.kcini + (l.kc[g.INTWICK.Index]-l.kcini)*g.SUM[0]/g.TSUM[0]
 	}
 	var DTGESN float64
-	var DTGESS float64
+	//var DTGESS float64
+	var DTGESS2 float64
 	var WUMALT float64
 	var OBALT float64
 	var GEHALT float64
@@ -551,16 +552,16 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 
 		if g.Sulfonie {
 			// calc biomass
-			BM := 0.0
-			for _, bioMassPart := range g.WORG {
-				BM += bioMassPart
-			}
+			BM := g.OBMAS / 1000
+			// for _, bioMassPart := range g.WORG {
+			// 	BM += bioMassPart
+			// }
 			SC := g.CRITSGEHALT[g.FRUCHT[g.AKF.Index]]
 			exp := g.CRITSEXP[g.FRUCHT[g.AKF.Index]]
 			// wheat, maize, soybean
 			if g.SGEFKT[g.FRUCHT[g.AKF.Index]] == 1 {
 				if BM > 1.0 {
-					SC = SC * math.Pow(((BM)/1000), exp)
+					SC = SC * math.Pow((BM), exp)
 				}
 				// oilseed rape
 			} else if g.SGEFKT[g.FRUCHT[g.AKF.Index]] == 2 {
@@ -708,24 +709,24 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 				DTGESN = (g.GEHMAX*g.OBMAS + g.WUMAS*g.WGMAX[g.INTWICK.Index] - g.PESUM) * g.DT.Num
 			}
 
-			NMAX := 2.5
-			// !*******************  S-Aufnahmefunktion  ********************************
-			// LET SUP = Nmax * 10^(-ZF * (log10(Tempsum/Warmsum))^2)
-			SUP := NMAX * math.Pow(10, -g.ZF[g.FRUCHT[g.AKF.Index]]) * math.Pow(math.Log10(g.PHYLLO+g.SUM[0]/g.TSUM[g.INTWICK.Index]), 2)
-			// !*************************************************************************
-			// LET DTGESS = (SUP - PESUMS)*DT
-			DTGESS = (SUP - g.PESUMS) * g.DT.Num
-			// IF DTGESS > 1.5*DT THEN LET DTGESS = 1.5*DT
-			if DTGESS > 1.5*g.DT.Num {
-				DTGESS = 1.5 * g.DT.Num
-			}
-			if DTGESS < 0 {
-				DTGESS = 0.0
-			}
+			// NMAX := 2.5
+			// // !*******************  S-Aufnahmefunktion  ********************************
+			// // LET SUP = Nmax * 10^(-ZF * (log10(Tempsum/Warmsum))^2)
+			// SUP := NMAX * math.Pow(10, -g.ZF[g.FRUCHT[g.AKF.Index]]) * math.Pow(math.Log10(g.PHYLLO+g.SUM[0]/g.TSUM[g.INTWICK.Index]), 2)
+			// // !*************************************************************************
+			// // LET DTGESS = (SUP - PESUMS)*DT
+			// DTGESS = (SUP - g.PESUMS) * g.DT.Num
+			// // IF DTGESS > 1.5*DT THEN LET DTGESS = 1.5*DT
+			// if DTGESS > 1.5*g.DT.Num {
+			// 	DTGESS = 1.5 * g.DT.Num
+			// }
+			// if DTGESS < 0 {
+			// 	DTGESS = 0.0
+			// }
 			// TODO: S-uptake depending on crop parameters
 			// !*******************  S-Aufnahmefunktion  ********************************
-			var DTGESS2 float64
 			WGSMax := g.WGMAX[g.INTWICK.Index] / g.SNRatio[g.FRUCHT[g.AKF.Index]]
+			//WGSMax := g.WGMAX[g.INTWICK.Index] * g.SWura[g.FRUCHT[g.AKF.Index]]
 			if g.FRUCHT[g.AKF.Index] == ZR || g.FRUCHT[g.AKF.Index] == K {
 				DTGESS2 = (g.SGEHMAX*g.OBMAS + (g.WUMAS+g.WORG[3])*WGSMax - g.PESUMS) * g.DT.Num
 			} else {
@@ -929,13 +930,13 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 	// S-uptake from root
 	var SUMPES float64
 	for index := 0; index < int(min); index++ {
-		if DTGESS > 0 {
-			if TRNSUMS >= DTGESS {
-				g.PES[index] = DTGESS * MASS_S[index] / TRNSUM
+		if DTGESS2 > 0 {
+			if TRNSUMS >= DTGESS2 {
+				g.PES[index] = DTGESS2 * MASS_S[index] / TRNSUMS
 			} else {
 				if SminSUM > TRNSUMS {
 					//LET PES(I) = MASS(I) + (DTGESS - TRNSUM) * (S1(I)-0.01-MASS(I))/(NMINSUM-TRNSUM)
-					g.PES[index] = MASS_S[index] + (DTGESS-TRNSUMS)*(g.S1[index]-.01-MASS_S[index])/(SminSUM-TRNSUMS)
+					g.PES[index] = MASS_S[index] + (DTGESS2-TRNSUMS)*(g.S1[index]-.01-MASS_S[index])/(SminSUM-TRNSUMS)
 				} else {
 					g.PES[index] = MASS_S[index]
 				}
@@ -991,11 +992,13 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 	}
 
 	// ------------------------------------------------------------
+	//SWUGEH := (g.PESUMS + SUMPES) * g.SWura[g.FRUCHT[g.AKF.Index]]
 	SWUGEH := g.WUGEH / g.SNRatio[g.FRUCHT[g.AKF.Index]]
 	if g.FRUCHT[g.AKF.Index] == ZR || g.FRUCHT[g.AKF.Index] == K {
-		g.SGEHOB = (g.PESUMS + SUMPES - g.WUMAS*SWUGEH) / (g.OBMAS + g.WORG[3])
+
+		g.SGEHOB = (g.PESUMS + SUMPES - SWUGEH) / (g.OBMAS + g.WORG[3])
 	} else {
-		g.SGEHOB = (g.PESUMS + SUMPES - g.WUMAS*SWUGEH) / g.OBMAS
+		g.SGEHOB = (g.PESUMS + SUMPES - SWUGEH) / g.OBMAS
 	}
 
 }
