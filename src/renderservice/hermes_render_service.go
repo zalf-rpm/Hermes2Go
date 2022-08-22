@@ -29,9 +29,11 @@ func main() {
 	StartRPCHandler()
 	Kalender = hermes.KalenderConverter(hermes.DateDEshort, ".")
 	fmt.Println("Open a browser and connet to: http://localhost:8081 ")
-	fmt.Println("For N2O connet to: http://localhost:8081/n2o ")
+	fmt.Println("For N2O content to: http://localhost:8081/n2o ")
+	fmt.Println("For Water content to: http://localhost:8081/water ")
 	http.HandleFunc("/", c1debughttpserver)
 	http.HandleFunc("/n2o", n2odebughttpserver)
+	http.HandleFunc("/water", waterhttpserver)
 	http.ListenAndServe("localhost:8081", nil)
 }
 
@@ -419,10 +421,10 @@ func lineMultiQ1(keys, errKeys []int, dates []string) *charts.Line {
 
 	line.SetXAxis(dates)
 	line.AddSeries("Regen ", generateRegenItems(keys))
-	line.AddSeries("Q1 Schicht 0", generateQ1Items(keys, 0), errorMarker(errKeys, 9))
-	line.AddSeries("Q1 Schicht 1", generateQ1Items(keys, 1))
-	line.AddSeries("Q1 Schicht 2", generateQ1Items(keys, 2))
-	line.AddSeries("Q1 Schicht 3", generateQ1Items(keys, 3))
+	line.AddSeries("Q1 Layer 0", generateQ1Items(keys, 0), errorMarker(errKeys, 9))
+	line.AddSeries("Q1 Layer 1", generateQ1Items(keys, 1))
+	line.AddSeries("Q1 Layer 2", generateQ1Items(keys, 2))
+	line.AddSeries("Q1 Layer 3", generateQ1Items(keys, 3))
 
 	return line
 }
