@@ -27,6 +27,7 @@ type InputSharedVars struct {
 	SSAND   [10]float64
 	SLUF    [10]float64
 	TON     [10]float64
+	QMax    [10]float64
 }
 
 // Input modul for reading soil data, crop rotation, cultivation data (Fertilization, tillage) of fields and ploygon units
@@ -134,6 +135,7 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 			l.SSAND = currentSoil.SSAND
 			l.SLUF = currentSoil.SLUF
 			l.TON = currentSoil.TON
+			l.QMax = currentSoil.QMax
 
 			g.DT.SetByIndex(1)
 
@@ -159,6 +161,7 @@ func Input(scanner *bufio.Scanner, l *InputSharedVars, g *GlobalVarsMain, hPath 
 				// for every 10 cm in this layer
 				for LT := g.UKT[L-1] + 1; LT <= g.UKT[L]; LT++ {
 					LTindex := LT - 1
+					g.QM[LTindex] = l.QMax[lindex]
 					if g.PTF == 0 {
 						if g.FKA[lindex] > 0 {
 							g.CAPPAR = 1

@@ -482,19 +482,19 @@ func Evatra(l *WaterSharedVars, g *GlobalVarsMain, hPath *HFilePath, zeit int) {
 		SUMVAR := 0.
 		// ! ++++++++++++ Neu: Bei �berstau Entnahme aus Ueberstauwasser bzw. 1. Schicht ++++++++++++++
 		// IF Storage > 0 then
-		if storage > 0 {
+		if g.STORAGE > 0 {
 			//    IF storage > EVa(tag)*dt then
-			if storage > l.EVA[g.TAG.Index]*g.DT.Num {
+			if g.STORAGE > l.EVA[g.TAG.Index]*g.DT.Num {
 				// 	  LET storage = Storage - Eva(Tag) *dt
-				storage = storage - l.EVA[g.TAG.Index]*g.DT.Num
+				g.STORAGE = g.STORAGE - l.EVA[g.TAG.Index]*g.DT.Num
 				// 	  LET EVA(Tag) = 0
 				l.EVA[g.TAG.Index] = 0
 				//    ELSE
 			} else {
 				// 	  LET EVA(TAG) = eva(tag)*dt-storage
-				l.EVA[g.TAG.Index] = l.EVA[g.TAG.Index]*g.DT.Num - storage
+				l.EVA[g.TAG.Index] = l.EVA[g.TAG.Index]*g.DT.Num - g.STORAGE
 				// 	  LET storage = 0
-				storage = 0
+				g.STORAGE = 0
 				// 	  !LET fluss0 = -EV(1)
 				//    END IF
 			}
@@ -870,11 +870,11 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 		//        LET qmax = PORGES(1)*dz - WATER(0,1) + qm(1)
 		qmax := g.PORGES[0]*g.DZ.Num - WATER[0][0] + g.QM[0]
 		//       LET storage = storage + fluss0 * wdt
-		storage := g.FLUSS0 * wdt
+		g.STORAGE = g.FLUSS0 * wdt
 		//       Let maxinfil = Min(storage,qmax*wdt)
-		maxinfil := math.Min(storage, qmax*wdt)
+		maxinfil := math.Min(g.STORAGE, qmax*wdt)
 		//       Let storage = storage - maxinfil
-		storage = storage - maxinfil
+		g.STORAGE = g.STORAGE - maxinfil
 		//       LET a = maxinfil   !qmax * wdt
 		a := maxinfil
 		//a := g.FLUSS0 * wdt

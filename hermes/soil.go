@@ -58,6 +58,7 @@ type soilFileData struct {
 	SSAND                      [10]float64 // sand in %
 	SLUF                       [10]float64 // silt in %
 	TON                        [10]float64 // clay in %
+	QMax                       [10]float64 // max water flow at field capacity
 }
 
 func NewSoilFileData(soilID string) soilFileData {
@@ -91,6 +92,7 @@ func NewSoilFileData(soilID string) soilFileData {
 		SSAND:                      [10]float64{},
 		SLUF:                       [10]float64{},
 		TON:                        [10]float64{},
+		QMax:                       [10]float64{},
 	}
 }
 
@@ -106,6 +108,10 @@ func loadSoil(withGroundwater bool, LOGID string, hPath *HFilePath, soilID strin
 
 	for scannerSoilFile.Scan() {
 		bodenLine := scannerSoilFile.Text()
+		// check if string has only empty spaces
+		if strings.TrimSpace(bodenLine) == "" {
+			continue
+		}
 		boden := bodenLine[0:3] // SID - first 3 character
 		if boden == soilID {
 
@@ -121,8 +127,7 @@ func loadSoil(withGroundwater bool, LOGID string, hPath *HFilePath, soilID strin
 				soildata.GW = float64(soildata.GRLO+soildata.GRHI) / 2
 				soildata.AMPL = 0
 			}
-			soildata.DRAIDEP = int(ValAsInt(bodenLine[62:64], "none", bodenLine))
-			soildata.DRAIFAK = ValAsFloat(bodenLine[67:70], "none", bodenLine)
+
 			soildata.UKT[0] = 0
 			for i := 0; i < soildata.AZHO; i++ {
 				soildata.BART[i] = bodenLine[9:12]
@@ -136,36 +141,57 @@ func loadSoil(withGroundwater bool, LOGID string, hPath *HFilePath, soilID strin
 				soildata.CNRATIO[i] = ValAsFloat(bodenLine[21:24], "none", bodenLine)
 				(&soildata).cNSetup(i)
 				soildata.STEIN[i] = ValAsFloat(bodenLine[18:20], "none", bodenLine) / 100
-				// Field capacity
 
-				value, err := TryValAsFloat(bodenLine[40:42])
+				// slit rest of bodenline
+				rest := bodenLine[40:]
+				token := strings.Fields(rest)
+
+				// Field capacity
+				value, err := TryValAsFloat(token[0])
 				if err == nil {
 					soildata.FKA[i] = value
 				}
 				// wilting point
-				value, err = TryValAsFloat(bodenLine[43:45])
+				value, err = TryValAsFloat(token[1])
 				if err == nil {
 					soildata.WP[i] = value
 				}
 				// general pore volume
-				value, err = TryValAsFloat(bodenLine[46:48])
+				value, err = TryValAsFloat(token[2])
 				if err == nil {
 					soildata.GPV[i] = value
 				}
 				// sand in %
-				value, err = TryValAsFloat(bodenLine[49:51])
+				value, err = TryValAsFloat(token[3])
 				if err == nil {
 					soildata.SSAND[i] = value
 				}
 				// silt in %
-				value, err = TryValAsFloat(bodenLine[52:54])
+				value, err = TryValAsFloat(token[4])
 				if err == nil {
 					soildata.SLUF[i] = value
 				}
 				// clay in %
-				value, err = TryValAsFloat(bodenLine[55:57])
+				value, err = TryValAsFloat(token[5])
 				if err == nil {
 					soildata.TON[i] = value
+				}
+				// water flow in %
+				value, err = TryValAsFloat(token[6])
+				if err == nil {
+					soildata.QMax[i] = value
+				}
+				if i == 0 {
+					soildata.useGroundwaterFromSoilfile = withGroundwater
+					if withGroundwater {
+						soildata.GRHI = int(ValAsInt(token[9], "none", bodenLine))
+						soildata.GRLO = soildata.GRHI
+						soildata.GRW = float64(soildata.GRLO+soildata.GRHI) / 2
+						soildata.GW = float64(soildata.GRLO+soildata.GRHI) / 2
+						soildata.AMPL = 0
+					}
+					soildata.DRAIDEP = int(ValAsInt(token[7], "none", bodenLine))
+					soildata.DRAIFAK = ValAsFloat(token[8], "none", bodenLine)
 				}
 				if i+1 < soildata.AZHO {
 					// scan next line in soil profile
@@ -269,6 +295,12 @@ func loadSoilCSV(withGroundwater bool, LOGID string, hPath *HFilePath, soilID st
 				if err == nil {
 					soildata.TON[i] = value
 				}
+				// water flow max
+				value, err = TryValAsFloat(tokens[header[waterflowmax]])
+				if err == nil {
+					soildata.QMax[i] = value
+				}
+
 				if i+1 < soildata.AZHO {
 					// scan next line in soil profile
 					bodenLine = LineInut(scanner)
@@ -338,6 +370,7 @@ const (
 	drainagedepth
 	drainagepercetage
 	groundwaterlevel
+	waterflowmax
 )
 
 var soilHeaderNames = map[string]SoilHeader{
@@ -360,6 +393,7 @@ var soilHeaderNames = map[string]SoilHeader{
 	"DrainageDepth":    drainagedepth,
 	"Drainage%":        drainagepercetage,
 	"GroundWaterLevel": groundwaterlevel,
+	"QMax":             waterflowmax,
 }
 
 func readSoilHeader(line string) map[SoilHeader]int {

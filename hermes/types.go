@@ -145,52 +145,56 @@ type GlobalVarsMain struct {
 	ETNULL   [367]float64
 	TEMP     [367]float64
 	//TEMPBO1, TEMPBO2 [367]float64 // not initialized, obsolete?
-	RH              [367]float64 // relative humidity
-	VERD            [367]float64 // Verdunstung, Evaporation, required for ETMETH = 1
-	WIND            [367]float64 // wind
-	REGEN           [368]float64 // TODO: set to 368 for irrigation calculation (FIXME: last value is 0, load data from next year)
-	SUND            [367]float64 // Sun shine hours, required if RAD is 0
-	RAD             [367]float64 // photosynthetic active radiation
-	ALBEDO          float64
-	FEU             int
-	C1              [21]float64 // Nitrogen content N-min
-	NAOS            [21]float64 // Nitrogen in slowly decomposable pool (kg N ha-1)
-	MINAOS          [4]float64  //  should be size of N
-	MINFOS          [4]float64  // should be size of N
-	CA              [21]float64
-	NDG             DualType
-	MZ              int
-	NBR             int
-	NTIL            DualType
-	REGENSUM        float64
-	MINSUM          float64
-	RADSUM          float64
-	BLATTSUM        float64
-	DSUMM           float64
-	UMS             float64
-	OUTSUM          float64
-	NFIXSUM         float64
-	DRAISUM         float64
-	DRAINLOSS       float64
-	NFIX            float64
-	SCHNORR         float64
-	PRECO           bool // enable/disable correction factor of rain fall data
-	KCOA            float64
-	CO2KONZ         float64
-	CO2METH         int
-	CTRANS          bool
-	OUTN            int
-	DEPOS           float64
-	PROGNOS         int
-	FKB             float64
-	ANJAHR          int
-	J               int
-	WINDHI          float64
-	ALTI            float64
-	SICKER          float64
-	CAPSUM          float64
-	Q1              [22]float64 //(0:21)
-	INTWICK         DualType    // crop development state
+	RH        [367]float64 // relative humidity
+	VERD      [367]float64 // Verdunstung, Evaporation, required for ETMETH = 1
+	WIND      [367]float64 // wind
+	REGEN     [368]float64 // TODO: set to 368 for irrigation calculation (FIXME: last value is 0, load data from next year)
+	SUND      [367]float64 // Sun shine hours, required if RAD is 0
+	RAD       [367]float64 // photosynthetic active radiation
+	ALBEDO    float64
+	FEU       int
+	C1        [21]float64 // Nitrogen content N-min
+	NAOS      [21]float64 // Nitrogen in slowly decomposable pool (kg N ha-1)
+	MINAOS    [4]float64  //  should be size of N
+	MINFOS    [4]float64  // should be size of N
+	CA        [21]float64
+	NDG       DualType
+	MZ        int
+	NBR       int
+	NTIL      DualType
+	REGENSUM  float64
+	MINSUM    float64
+	RADSUM    float64
+	BLATTSUM  float64
+	DSUMM     float64
+	UMS       float64
+	OUTSUM    float64
+	NFIXSUM   float64
+	DRAISUM   float64
+	DRAINLOSS float64
+	NFIX      float64
+	SCHNORR   float64
+	PRECO     bool // enable/disable correction factor of rain fall data
+	KCOA      float64
+	CO2KONZ   float64
+	CO2METH   int
+	CTRANS    bool
+	OUTN      int
+	DEPOS     float64
+	PROGNOS   int
+	FKB       float64
+	ANJAHR    int
+	J         int
+	WINDHI    float64
+	ALTI      float64
+	// water balance variables
+	SICKER  float64
+	CAPSUM  float64
+	Q1      [22]float64 //(0:21) water flow in soil layer
+	STORAGE float64     // backwater(Wasserstau) in cm ... puddles
+	QM      [21]float64 // max water flow at field capacity/ maximale Wasserfluss bei Feldkapazität
+
+	INTWICK         DualType // crop development state
 	FKF             [12]float64
 	FKC             float64
 	LAT             float64
