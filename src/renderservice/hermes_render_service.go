@@ -28,6 +28,7 @@ import (
 func main() {
 	StartRPCHandler()
 	Kalender = hermes.KalenderConverter(hermes.DateDEshort, ".")
+	KalenderLong = hermes.KalenderConverter(hermes.DateENlong, ".")
 	fmt.Println("Open a browser and connet to: http://localhost:8081 ")
 	fmt.Println("For N2O content to: http://localhost:8081/n2o ")
 	fmt.Println("For Water content to: http://localhost:8081/water ")
@@ -47,6 +48,7 @@ type RPCHandler struct {
 
 var globalHandler *RPCHandler
 var Kalender hermes.KalenderConverterFunc
+var KalenderLong hermes.KalenderConverterFunc
 
 // StartRPCHandler start RPC handler in another go routine
 func StartRPCHandler() {

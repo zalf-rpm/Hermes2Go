@@ -144,7 +144,14 @@ func DateConverter(splitCenturyAt int, dateformat DateFormat) func(string) (ztDa
 				log.Fatalf("Error: parsing date! Date before 1901 are not supported: %s \n", ztdatInNoSpaces)
 			}
 			YR = YR - 1900
+		case DateENyearfirst:
+			MON, TG, YR, err = extractDate(ztdatInNoSpaces, false)
+			if YR < 1901 {
+				log.Fatalf("Error: parsing date! Date before 1901 are not supported: %s \n", ztdatInNoSpaces)
+			}
+			YR = YR - 1900
 		}
+
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -165,7 +172,7 @@ func DateConverter(splitCenturyAt int, dateformat DateFormat) func(string) (ztDa
 	}
 }
 
-func extractDate(date string, short bool) (first, second, third int, err error) {
+func extractDate(date string, short bool, yearfirst bool) (first, second, third int, err error) {
 	if short {
 		if len(date) == 6 {
 			first = int(ValAsInt(date[0:2], "none", date))
@@ -250,6 +257,12 @@ func KalenderConverter(dateformat DateFormat, seperator string) func(int) string
 				KALDAT = fmt.Sprintf(formatStrShort, month, day, YR-100)
 			} else {
 				KALDAT = fmt.Sprintf(formatStrShort, month, day, YR)
+			}
+		case DateENyearfirst:
+			if YR > 99 {
+				KALDAT = fmt.Sprintf(formatStrShort, YR-100, month, day)
+			} else {
+				KALDAT = fmt.Sprintf(formatStrShort, YR, month, day)
 			}
 		}
 		return KALDAT

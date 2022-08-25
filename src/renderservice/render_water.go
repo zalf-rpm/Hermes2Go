@@ -23,6 +23,7 @@ func waterhttpserver(w http.ResponseWriter, _ *http.Request) {
 		lineMultiQ1(keys, errKeys, dates),
 		lineMultiQ1End(keys, dates),
 		lineMultiSickerDaily(keys, dates),
+		themeRiverTime(keys),
 	)
 
 	page.Render(w)
@@ -90,4 +91,66 @@ func generateSickerDailyItems(keys []int) []opts.LineData {
 	}
 	globalHandler.mux.Unlock()
 	return items
+}
+
+func themeRiverTime(keys []int) *charts.ThemeRiver {
+	tr := charts.NewThemeRiver()
+	tr.SetGlobalOptions(
+		charts.WithTitleOpts(opts.Title{
+			Title: "Q1 soil Layer",
+		}),
+		charts.WithSingleAxisOpts(opts.SingleAxis{
+			Type:   "time",
+			Bottom: "10%",
+		}),
+		charts.WithTooltipOpts(opts.Tooltip{
+			Trigger: "axis",
+		}),
+	)
+	timeKeys := make(map[int]bool, len(keys))
+	for k := range keys {
+		zeit := k / 100
+		timeKeys[zeit] = true
+	}
+	extractRiverData := func(n int, items []opts.ThemeRiverData, prevTime int, prevQ1 [22]float64) []opts.ThemeRiverData {
+		for q := 0; q < n; q++ {
+			items = append(items, opts.ThemeRiverData{
+				Date:  KalenderLong(prevTime),
+				Value: prevQ1[q],
+				Name:  fmt.Sprintf("Q1 Layer %d", q),
+			})
+		}
+		return items
+	}
+
+	items := make([]opts.ThemeRiverData, 0, len(timeKeys))
+	globalHandler.mux.Lock()
+	prevTime := 0
+	N := 0
+	var prevQ1 [22]float64
+	for _, key := range keys {
+
+		q1 := globalHandler.receivedDumps[key].Global.Q1
+		if prevTime != globalHandler.receivedDumps[key].Zeit {
+			// only take the last entry of the day
+			if prevTime > 0 {
+				N = globalHandler.receivedDumps[key].Global.N
+				items = extractRiverData(N, items, prevTime, prevQ1)
+			}
+			prevTime = globalHandler.receivedDumps[key].Zeit
+			prevQ1 = q1
+		} else {
+			for i := range q1 {
+				prevQ1[i] += q1[i]
+			}
+		}
+	}
+	if prevTime > 0 {
+		items = extractRiverData(N, items, prevTime, prevQ1)
+	}
+
+	globalHandler.mux.Unlock()
+
+	tr.AddSeries("Q1 sums", items)
+	return tr
 }
