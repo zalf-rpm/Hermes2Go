@@ -725,8 +725,9 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			// }
 			// TODO: S-uptake depending on crop parameters
 			// !*******************  S-Aufnahmefunktion  ********************************
-			WGSMax := g.WGMAX[g.INTWICK.Index] / g.SNRatio[g.FRUCHT[g.AKF.Index]]
+			//WGSMax := g.WGMAX[g.INTWICK.Index] / g.SNRatio[g.FRUCHT[g.AKF.Index]]
 			//WGSMax := g.WGMAX[g.INTWICK.Index] * g.SWura[g.FRUCHT[g.AKF.Index]]
+			WGSMax := g.WUGEH * g.SWura[g.FRUCHT[g.AKF.Index]]
 			if g.FRUCHT[g.AKF.Index] == ZR || g.FRUCHT[g.AKF.Index] == K {
 				DTGESS2 = (g.SGEHMAX*g.OBMAS + (g.WUMAS+g.WORG[3])*WGSMax - g.PESUMS) * g.DT.Num
 			} else {
