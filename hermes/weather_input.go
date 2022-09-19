@@ -103,7 +103,7 @@ func (s *WeatherDataShared) fillCO2Value(co2 float64) {
 // the naming of the colums is irrelevant
 // column content should be in following order:
 // Temperature average;Temperature min;Temperture max;ET0;relative humidity; water vapour saturation deficit;wind;sun hours;global radiation;prepitation;year day
-func WetterK(VWDAT string, year int, g *GlobalVarsMain, s *WeatherDataShared, hPath *HFilePath, driConfig *config) error {
+func WetterK(VWDAT string, year int, g *GlobalVarsMain, s *WeatherDataShared, hPath *HFilePath, driConfig *Config) error {
 	//DIM CORRK(12),Wettin$(12),high$(2)
 	var high, Wettin []string
 	CORRK, err := ReadPreco(g, hPath)
@@ -297,7 +297,7 @@ func readHeader(line string) map[Header]int {
 }
 
 // ReadWeatherCSV read a weather file
-func ReadWeatherCSV(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDataShared, hPath *HFilePath, driConfig *config) error {
+func ReadWeatherCSV(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDataShared, hPath *HFilePath, driConfig *Config) error {
 
 	// read pre correction file for precipitation
 	CORRK, err := ReadPreco(g, hPath)
@@ -441,7 +441,7 @@ func anyWeatherError(list []error, logid, vwdat string) error {
 }
 
 // ReadWeatherCZ read weather file (cz format)
-func ReadWeatherCZ(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDataShared, hPath *HFilePath, driConfig *config) error {
+func ReadWeatherCZ(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDataShared, hPath *HFilePath, driConfig *Config) error {
 
 	// read pre correction file for precipitation
 	CORRK, err := ReadPreco(g, hPath)

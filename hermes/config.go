@@ -9,7 +9,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-type config struct {
+type Config struct {
 
 	//***** Formats *****
 	// DateDEshort ddmmyy <- default format(old)
@@ -73,7 +73,7 @@ type config struct {
 	AutoHarvest       FeatureSwitch `yaml:"AutoHarvest"`       // automatic harvest (0=no, 1= on demand)
 }
 
-func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) config {
+func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) Config {
 	hconfig := NewDefaultConfig()
 	// if config files exists, read it into hconfig
 	if _, err := os.Stat(hp.config); err == nil {
@@ -134,7 +134,7 @@ func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) c
 }
 
 // commandlineOverride will parse through the commandline and try to parse them into config
-func commandlineOverride(argValues map[string]string, hconfig *config) error {
+func commandlineOverride(argValues map[string]string, hconfig *Config) error {
 	if argValues != nil {
 		v := reflect.ValueOf(hconfig)
 		if v.Kind() == reflect.Ptr && !v.IsNil() {
@@ -192,9 +192,9 @@ func WriteYamlConfig(filename string, structIn interface{}) {
 	}
 }
 
-//NewDefaultConfig creates a config file with default setup
-func NewDefaultConfig() config {
-	return config{
+// NewDefaultConfig creates a config file with default setup
+func NewDefaultConfig() Config {
+	return Config{
 		Dateformat:                      DateDElong,
 		GroundWaterFrom:                 Soilfile,
 		ResultFileFormat:                0,

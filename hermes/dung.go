@@ -124,7 +124,7 @@ func SetPrognoseDate(prog string, g *GlobalVarsMain) (PR bool) {
 }
 
 // PrognoseTime triggers loading of weather prognose Data and prepares prognose
-func PrognoseTime(ZEIT int, g *GlobalVarsMain, herPath *HFilePath, driConfig *config) {
+func PrognoseTime(ZEIT int, g *GlobalVarsMain, herPath *HFilePath, driConfig *Config) {
 
 	// overwrite weather data with prognosed weather data (optional? if not given no)
 	VWDAT := herPath.vwdatnrm
