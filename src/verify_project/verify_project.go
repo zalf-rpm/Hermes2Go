@@ -57,15 +57,25 @@ func main() {
 	}
 	defer cropFile.Close()
 
+	var cropFileOut *os.File
 	if *repair {
 		// open output file
-
+		cropPathOut := filepath.Join(*projectDir, *project, "crop_"+*project+"_out."+*ext)
+		cropFileOut, err = os.Create(cropPathOut)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		defer cropFileOut.Close()
 	}
 
 	// read crop rotation file
 	cropReader := bufio.NewScanner(cropFile)
-	// skip header
-	hermes.LineInut(cropReader)
+	// header
+	header := hermes.LineInut(cropReader)
+	if *repair {
+		cropFileOut.WriteString(header + "\n")
+	}
 
 	// previous line harvest
 	var prevHarvest int
@@ -75,6 +85,7 @@ func main() {
 	for cropReader.Scan() {
 		lineCount++
 		line := cropReader.Text()
+		outLine := line
 		// split line
 		tokens := strings.Fields(line)
 		if len(tokens) > 4 {
@@ -92,11 +103,18 @@ func main() {
 				prevRotationID = rotationID
 			} else {
 				if dateSowing <= prevHarvest {
-					fmt.Printf("ERROR line %d: Sowing date before previous harvest date in crop rotation file (%s < %s) \n",
+					fmt.Printf("Correctable ERROR line %d: Sowing date before previous harvest date in crop rotation file (%s < %s) \n",
 						lineCount, Kalender(dateSowing), Kalender(prevHarvest))
+					if *repair {
+						// correct sowing date
+						outLine = strings.Replace(line, tokens[2], KalenderOut(prevHarvest+1), 1)
+					}
 				}
 			}
 			prevHarvest = dateHarvest
+		}
+		if *repair {
+			cropFileOut.WriteString(outLine + "\n")
 		}
 	}
 
