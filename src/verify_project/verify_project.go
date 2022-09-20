@@ -18,7 +18,8 @@ func main() {
 	// project folder
 	projectDir := flag.String("projectDir", "./project", "project folder")
 	project := flag.String("project", "ex2", "project")
-	ext := flag.String("ext", "ex2", "ext")
+	ext := flag.String("ext", "txt", "extension")
+	repair := flag.Bool("repair", false, "try to repair error")
 
 	flag.Parse()
 
@@ -43,17 +44,23 @@ func main() {
 
 	Datum := hermes.DateConverter(hconfig.DivideCentury, hconfig.Dateformat)
 	Kalender := hermes.KalenderConverter(hconfig.Dateformat, ".")
+	KalenderOut := hermes.KalenderConverter(hconfig.Dateformat, "")
 
 	// verify crop rotation dates
 
 	// open crop rotation file
-	cropPath := filepath.Join(*projectDir, *project, "crop_"+*ext+".txt")
+	cropPath := filepath.Join(*projectDir, *project, "crop_"+*project+"."+*ext)
 	cropFile, err := os.Open(cropPath)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	defer cropFile.Close()
+
+	if *repair {
+		// open output file
+
+	}
 
 	// read crop rotation file
 	cropReader := bufio.NewScanner(cropFile)
@@ -76,19 +83,20 @@ func main() {
 			rotationID := tokens[0]
 			_, dateSowing := Datum(tokens[2])
 			_, dateHarvest := Datum(tokens[3])
-			if dateSowing > dateHarvest {
-				fmt.Printf("ERROR line %d: Sowing date after harvest date in crop rotation file (%s > %s)",
+			if dateSowing >= dateHarvest {
+				fmt.Printf("ERROR line %d: Sowing date after harvest date in crop rotation file (%s > %s) \n",
 					lineCount, Kalender(dateSowing), Kalender(prevHarvest))
 			}
 			if prevRotationID != rotationID {
 				prevHarvest = 0
+				prevRotationID = rotationID
 			} else {
-				if dateSowing < prevHarvest {
-					fmt.Printf("ERROR line %d: Sowing date before previous harvest date in crop rotation file (%s < %s)",
+				if dateSowing <= prevHarvest {
+					fmt.Printf("ERROR line %d: Sowing date before previous harvest date in crop rotation file (%s < %s) \n",
 						lineCount, Kalender(dateSowing), Kalender(prevHarvest))
 				}
 			}
-
+			prevHarvest = dateHarvest
 		}
 	}
 
