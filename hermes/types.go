@@ -390,9 +390,9 @@ type GlobalVarsMain struct {
 	Crop         string
 	DevStateDate [10]string
 
-	SNAM            string
-	POLYD           string
-	FCODE           string
+	SNAM            string // plot number, PlotID SLAG NR.
+	POLYD           string // polygon number - just for output
+	FCODE           string // weather station code
 	C1NotStable     string
 	C1NotStableErr  string
 	C1stabilityVal  float64
@@ -407,7 +407,7 @@ type GlobalVarsMain struct {
 	CropTypeLookup  map[string]CropType    `yaml:"-"`
 }
 
-//CropOutputVars at harvest
+// CropOutputVars at harvest
 type CropOutputVars struct {
 	SowDate      string
 	SowDOY       int
