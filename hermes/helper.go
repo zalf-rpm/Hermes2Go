@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -322,6 +323,16 @@ func AskDirectory() string {
 	return root
 }
 
+// create directory if file does not exist
+func MakeDir(outPath string) {
+	dir := filepath.Dir(outPath)
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+			log.Fatalf("ERROR: Failed to generate output path %s :%v", dir, err)
+		}
+	}
+}
+
 // FileDescriptior describes a file with name, usage description and debug log output channel
 type FileDescriptior struct {
 	FilePath        string        // absolute file path
@@ -425,7 +436,7 @@ func printError(logID, errorMsg string, out, logout chan<- string) {
 	}
 }
 
-//DumpStructToFile debug dump global variables to a file
+// DumpStructToFile debug dump global variables to a file
 func DumpStructToFile(filename string, global *GlobalVarsMain) {
 
 	file := OpenResultFile(filename, false)
