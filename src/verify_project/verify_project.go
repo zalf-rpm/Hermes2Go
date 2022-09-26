@@ -96,7 +96,7 @@ func main() {
 			_, dateHarvest := Datum(tokens[3])
 			if dateSowing >= dateHarvest {
 				fmt.Printf("ERROR line %d: Sowing date after harvest date in crop rotation file (%s > %s) \n",
-					lineCount, Kalender(dateSowing), Kalender(prevHarvest))
+					lineCount, Kalender(dateSowing), Kalender(dateHarvest))
 			}
 			if prevRotationID != rotationID {
 				prevHarvest = 0
