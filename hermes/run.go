@@ -2,7 +2,6 @@ package hermes
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"math"
 	"os"
@@ -95,7 +94,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			fmt.Println("Generate config", herPath.config)
 			WriteYamlConfig(herPath.config, NewDefaultConfig())
 		}
-
+		// set SLAG ID / PLOT ID / POLYGON ID
 		g.SLNR = int(ValAsInt(g.SNAM, "none", g.SNAM))
 
 		herPath.SetPnam("Y"+g.POLYD+g.SNAM, driConfig.ResultFileExt)
@@ -129,30 +128,9 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 
 		// ---------------- ENDE ANLAGE DÜNGEEMPFEHLUNG --------------------
 
-		// ******************** OEFFNEN POLYGONDATEI **********************
-		_, scannerPoly2, _ := Open(&FileDescriptior{FilePath: herPath.polnam, FileDescription: "polygonfile", UseFilePool: true})
-		LineInut(scannerPoly2)
-
-		vorhanden := true
-		if _, err := os.Stat(herPath.pnam); err == nil {
-			dummy, err := ioutil.ReadFile(herPath.pnam)
-			if err != nil {
-				log.Fatalf("ERROR: Failed to read existing file %s", herPath.pnam)
-			}
-			if len(dummy) == 0 {
-				vorhanden = false
-			} else {
-				vorhanden = true
-			}
-		} else {
-			vorhanden = false
-		}
 		// create output folder for "RESULT"
-		if !vorhanden {
-			if err := os.MkdirAll(herPath.outputfolder, os.ModePerm); err != nil {
-				log.Fatalf("ERROR: Failed to generate output path %s :%v", herPath.outputfolder, err)
-			}
-		}
+		MakeDir(herPath.pnam)
+
 		var yearlyOutConfig OutputConfig
 		if _, err := os.Stat(herPath.yearlyOutput); err != nil {
 			fmt.Println("Generate config for yearly outpu: ", herPath.yearlyOutput)
@@ -182,7 +160,8 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		}
 
 		//************ AUFRUFEN DES EINGABE UND UMRECHNUNGSMODULS **************
-		errSoil := Input(scannerPoly2, &herInputVars, &g, &herPath, &driConfig, SOID)
+
+		errSoil := Input(&herInputVars, &g, &herPath, &driConfig, SOID)
 		if errSoil != nil {
 			return errSoil
 		}
