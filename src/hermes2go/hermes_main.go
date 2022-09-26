@@ -147,21 +147,20 @@ func main() {
 
 	if module == "single" {
 		root := hermes.AskDirectory()
-		file, scanner, _ := hermes.Open(&hermes.FileDescriptior{FilePath: root + "/project/" + hermes.Modfil, FileDescription: "modinp"})
+		file, scanner, err := hermes.Open(&hermes.FileDescriptior{FilePath: root + "/project/" + hermes.Modfil, FileDescription: "modinp"})
+		if err != nil {
+			log.Fatal(err)
+		}
 		defer file.Close()
 		for scanner.Scan() {
-			text := scanner.Text()
-			if strings.TrimSpace(text) == "" || strings.HasPrefix(text, "end") {
-				break
+			textToken := strings.Fields(scanner.Text())
+			if len(textToken) != 2 {
+				continue
 			}
 
-			indexOfFirstSpace := strings.IndexRune(text, ' ')
-			if indexOfFirstSpace < 0 {
-				log.Fatalf("failed to parse locid from %s", hermes.Modfil)
-			}
-
-			locid := text[0:indexOfFirstSpace] // Name of location directory (character till space)
-			snam := text[indexOfFirstSpace+1:]
+			locid := textToken[0] // Name of location directory (character till space)
+			snam := textToken[1]
+			// check if location id is set, and run only for this location
 			if locID == locid || locID == "" {
 				singleArgs := []string{
 					fmt.Sprintf("project=%s", locid),
@@ -169,6 +168,7 @@ func main() {
 				}
 				hermes.Run(workingDir, singleArgs, "1", nil, nil)
 			}
+
 		}
 	} else if module == "batch" {
 		if len(configLines) > 0 {
