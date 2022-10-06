@@ -189,9 +189,12 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			}
 		}
 	}
-	if g.EINTE[g.NTIL.Index+1] <= g.ERNTE[g.AKF.Index] {
-		g.EINTE[g.AKF.Index+1] = g.EINTE[g.AKF.Index+1] + 1
+	if g.EINTE[g.NTIL.Index+1] > g.SAAT[g.AKF.Index] && g.EINTE[g.NTIL.Index+1] <= g.ERNTE[g.AKF.Index] {
+		// print correction of tillage date
+		fmt.Println("Tillage date ", g.Kalender(g.EINTE[g.NTIL.Index+1]), "corrected to ", g.Kalender(g.ERNTE[g.AKF.Index]+1))
+		g.EINTE[g.NTIL.Index+1] = g.ERNTE[g.AKF.Index] + 1
 	}
+
 	// ----------------------------------------------------------------------------------------------------------------
 	if zeit == g.EINTE[g.NTIL.Index+1]+1 && subd == 1 {
 		var NFOSUM, NAOSUM, nmifosum, nmiaosum, CSUM float64
@@ -451,7 +454,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 	return finishedCycle
 }
 
-//mineral
+// mineral
 func mineral(wdt float64, subd int, g *GlobalVarsMain, l *NitroSharedVars) {
 	//! ------------------------------------- Mineralisation in Abh. von Temperatur und Wassergehalt ------------
 	//! Inputs:
@@ -719,7 +722,7 @@ func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 	}
 }
 
-//resid
+// resid
 func resid(g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath *HFilePath) (NDI, NSA, NLA, NRESID float64) {
 	// ------------------------------- Mineralisationspotentiale aus Vorfruchtresiduen ---------------------------------------
 	// Input:
@@ -786,7 +789,7 @@ func resid(g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath 
 	return NDI, NSA, NLA, NRESID
 }
 
-//pinit
+// pinit
 func pinit(g *GlobalVarsMain) {
 
 	if g.DAUERKULT != 'D' {
