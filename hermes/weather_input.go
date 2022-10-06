@@ -258,6 +258,7 @@ const (
 	relhumid
 	co2
 	sunhours
+	verd
 )
 
 var headerNames = map[string]Header{
@@ -280,6 +281,8 @@ var headerNames = map[string]Header{
 	"sunhours": sunhours,
 	"SUNH":     sunhours,
 	"sun":      sunhours,
+	"VERD":     verd,
+	"verd":     verd,
 }
 
 func readHeader(line string) map[Header]int {
@@ -358,6 +361,7 @@ func ReadWeatherCSV(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDa
 			tavg     float64
 			relhumid float64
 			sunh     float64
+			verd     float64
 			datetime time.Time
 		}
 		d := weatherdate{
@@ -369,9 +373,10 @@ func ReadWeatherCSV(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDa
 			tavg:     0,
 			relhumid: 0,
 			sunh:     driConfig.WeatherNoneValue,
+			verd:     driConfig.WeatherNoneValue,
 			datetime: time.Time{},
 		}
-		err := make([]error, 9)
+		err := make([]error, 10)
 		isodate := tokens[h[isodate]]
 		d.datetime, err[7] = time.Parse("2006-01-02", isodate)
 		// skip years before start year
@@ -393,6 +398,12 @@ func ReadWeatherCSV(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDa
 				err[8] = fmt.Errorf("sunhours should be a value between 0-24 (on earth!) ->'%s' ", tokens[h[sunhours]])
 			}
 			s.hasSUND = true
+		}
+		if _, ok := h[verd]; ok {
+			d.verd, err[9] = strconv.ParseFloat(tokens[h[verd]], 64)
+			if d.verd != driConfig.WeatherNoneValue && d.verd > 0 {
+				s.hasVERD = true
+			}
 		}
 
 		if anyError := anyWeatherError(err, g.LOGID, VWDAT); anyError != nil {
@@ -423,6 +434,7 @@ func ReadWeatherCSV(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDa
 		s.WIN[yrz-1][T-1] = d.wind
 		s.REG[yrz-1][T-1] = d.precip
 		s.SUND[yrz-1][T-1] = d.sunh
+		s.VERD[yrz-1][T-1] = d.verd
 		s.MaxYearDays[yrz-1] = T
 	}
 	s.replaceMissingValues(yrz, driConfig.WeatherNoneValue)
@@ -487,10 +499,11 @@ func ReadWeatherCZ(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDat
 			tmin     float64
 			tavg     float64
 			relhumid float64
+			verd     float64
 			datetime time.Time
 		}
 		var d weatherdate
-		err := make([]error, 9)
+		err := make([]error, 10)
 		doydate := tokens[h[doydate]]
 		//time = yyyydoy
 		d.datetime, err[0] = time.Parse("2006002", doydate)
@@ -519,9 +532,15 @@ func ReadWeatherCZ(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDat
 		if _, ok := h[globrad]; ok {
 			d.globrad, err[7] = strconv.ParseFloat(tokens[h[globrad]], 64)
 		}
+		if _, ok := h[verd]; ok {
+			d.verd, err[8] = strconv.ParseFloat(tokens[h[verd]], 64)
+			if d.verd != driConfig.WeatherNoneValue && d.verd > 0 {
+				s.hasVERD = true
+			}
+		}
 		// optional co2 token, if left empty the previous co2 value will persist
 		if _, ok := h[co2]; ok && len(tokens) > h[co2] {
-			currentCO2, err[8] = strconv.ParseFloat(tokens[h[co2]], 64)
+			currentCO2, err[9] = strconv.ParseFloat(tokens[h[co2]], 64)
 		}
 		if anyError := anyWeatherError(err, g.LOGID, VWDAT); anyError != nil {
 			return anyError
@@ -553,6 +572,7 @@ func ReadWeatherCZ(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDat
 		s.WIN[yrz-1][T-1] = d.wind
 		s.REG[yrz-1][T-1] = d.precip
 		s.SUND[yrz-1][T-1] = d.sunh
+		s.VERD[yrz-1][T-1] = d.verd
 		s.CO2KONZ[yrz-1] = currentCO2
 		s.hasCO2KONZ = true
 		s.MaxYearDays[yrz-1] = T
