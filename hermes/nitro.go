@@ -34,7 +34,7 @@ type NitroSharedVars struct {
 }
 
 // Nitro ...
-func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath *HFilePath, output *CropOutputVars) (finishedCycle bool) {
+func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath *HFilePath, output *CropOutputVars) (finishedCycle bool, runErr error) {
 	if !g.AUTOFERT {
 		//! +++++++++++++++++++++++++++++++++++++ Option real fertilization +++++++++++++++++++++++++++++++++++++++++++++++
 		if zeit == g.ZTDG[g.NDG.Index]+1 && subd == 1 {
@@ -190,9 +190,8 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 		}
 	}
 	if g.EINTE[g.NTIL.Index+1] > g.SAAT[g.AKF.Index] && g.EINTE[g.NTIL.Index+1] <= g.ERNTE[g.AKF.Index] {
-		// print correction of tillage date
-		fmt.Println("Tillage date ", g.Kalender(g.EINTE[g.NTIL.Index+1]), "corrected to ", g.Kalender(g.ERNTE[g.AKF.Index]+1))
-		g.EINTE[g.NTIL.Index+1] = g.ERNTE[g.AKF.Index] + 1
+		//invalid tillage date
+		return finishedCycle, fmt.Errorf("tillage date %s before harvest %s at %s", g.Kalender(g.EINTE[g.NTIL.Index+1]), g.Kalender(g.ERNTE[g.AKF.Index]+1), g.PKT)
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------
@@ -451,7 +450,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 	}
 	// ---------- Aufruf N-Verlagerung -------------------------
 	nmove(wdt, subd, zeit, g, l, ln)
-	return finishedCycle
+	return finishedCycle, nil
 }
 
 // mineral

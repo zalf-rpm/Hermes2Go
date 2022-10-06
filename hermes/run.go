@@ -581,7 +581,11 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 					}
 				}
 				//CALL NITRO(WDT,SUBD,#7)
-				if Nitro(WDT, SUBD, ZEIT, &g, &nitroSharedVars, &nitroSharedBBBVars, &herPath, &cropOut) {
+				finished, err := Nitro(WDT, SUBD, ZEIT, &g, &nitroSharedVars, &nitroSharedBBBVars, &herPath, &cropOut)
+				if err != nil {
+					return err
+				}
+				if finished {
 					cropOutputConfig.WriteLine(CNAMfile, OutputFileFormat(driConfig.ResultFileFormat))
 				}
 			}
