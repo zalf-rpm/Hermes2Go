@@ -257,8 +257,8 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			ln.DUNGART = "---"
 		}
 		// +++++++++++ VERLEGUNG DES TILLAGETERMINS BEI ORGANISCHER DüNGUNG NACH ERNTE +++++++++++++
-		TILZ := g.AKF.Index
-		TDAT2 := g.Kalender(g.EINTE[TILZ])
+
+		TDAT2 := g.Kalender(g.EINTE[g.NTIL.Index+1])
 
 		if g.AKF.Num > 1 {
 			NAOSAKT := (g.NAOS[0] + g.NAOS[1] + g.NAOS[2])
