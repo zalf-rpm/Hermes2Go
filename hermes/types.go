@@ -145,82 +145,83 @@ type GlobalVarsMain struct {
 	ETNULL   [367]float64
 	TEMP     [367]float64
 	//TEMPBO1, TEMPBO2 [367]float64 // not initialized, obsolete?
-	RH              [367]float64 // relative humidity
-	VERD            [367]float64 // Verdunstung, Evaporation, required for ETMETH = 1
-	WIND            [367]float64 // wind
-	REGEN           [368]float64 // TODO: set to 368 for irrigation calculation (FIXME: last value is 0, load data from next year)
-	SUND            [367]float64 // Sun shine hours, required if RAD is 0
-	RAD             [367]float64 // photosynthetic active radiation
-	ALBEDO          float64
-	FEU             int
-	C1              [21]float64 // Nitrogen content N-min
-	NAOS            [21]float64 // Nitrogen in slowly decomposable pool (kg N ha-1)
-	MINAOS          [4]float64  //  should be size of N
-	MINFOS          [4]float64  // should be size of N
-	CA              [21]float64
-	NDG             DualType
-	MZ              int
-	NBR             int
-	NTIL            DualType
-	REGENSUM        float64
-	MINSUM          float64
-	RADSUM          float64
-	BLATTSUM        float64
-	DSUMM           float64
-	UMS             float64
-	OUTSUM          float64
-	NFIXSUM         float64
-	DRAISUM         float64
-	DRAINLOSS       float64
-	NFIX            float64
-	SCHNORR         float64
-	PRECO           bool // enable/disable correction factor of rain fall data
-	KCOA            float64
-	CO2KONZ         float64
-	CO2METH         int
-	CTRANS          bool
-	OUTN            int
-	DEPOS           float64
-	PROGNOS         int
-	FKB             float64
-	ANJAHR          int
-	J               int
-	WINDHI          float64
-	ALTI            float64
-	SICKER          float64
-	CAPSUM          float64
-	Q1              [22]float64 //(0:21)
-	INTWICK         DualType    // crop development state
-	FKF             [12]float64
-	FKC             float64
-	LAT             float64
-	MINTMP          float64
-	RSTOM           float64
-	LAI             float64 // Leaf area index
-	WURZ            int     // root in max soil layer
-	POTROOTINGDEPTH float64 // potential rooting depth (real rooting depth will be limited by soil parameter WURMAX)
-	VERDUNST        float64
-	FLUSS0          float64
-	WUDICH          [21]float64
-	LUKRIT          [10]float64
-	LUMDAY          int
-	TP              [21]float64
-	TRREL           float64 // Water stress factor (1 = no stress, 0 = full stress)
-	REDUK           float64 // Nitrogen stress factor (1 = no stress, 0 = full stress)
-	ETA             float64 // Potential/actual Evapotranspiration (mm)
-	HEATCOND        [21]float64
-	HEATCAP         [21]float64
-	TDSUM           [20]float64
-	TD              [22]float64 // starts with 0 BBB
-	QDRAIN          float64
-	TP3, TP6, TP9   float64
-	PFTRANS         float64
-	INFILT          float64
-	ET0             float64
-	PE              [21]float64 // N-uptake of crop in soil layer Z (kg N/ha)
-	MAXAMAX         float64
-	WUMAXPF         float64 // crop specific rooting depth
-	VELOC           float64 // root depth increase in mm/C°
+	RH                      [367]float64 // relative humidity
+	VERD                    [367]float64 // Verdunstung, Evaporation, required for ETMETH = 1
+	WIND                    [367]float64 // wind
+	REGEN                   [368]float64 // TODO: set to 368 for irrigation calculation (FIXME: last value is 0, load data from next year)
+	SUND                    [367]float64 // Sun shine hours, required if RAD is 0
+	RAD                     [367]float64 // photosynthetic active radiation
+	ALBEDO                  float64
+	FEU                     int
+	C1                      [21]float64 // Nitrogen content N-min
+	NAOS                    [21]float64 // Nitrogen in slowly decomposable pool (kg N ha-1)
+	MINAOS                  [4]float64  //  should be size of N
+	MINFOS                  [4]float64  // should be size of N
+	CA                      [21]float64
+	NDG                     DualType
+	MZ                      int
+	NBR                     int
+	NTIL                    DualType
+	REGENSUM                float64
+	MINSUM                  float64
+	RADSUM                  float64
+	BLATTSUM                float64
+	DSUMM                   float64
+	UMS                     float64
+	OUTSUM                  float64
+	NFIXSUM                 float64
+	DRAISUM                 float64
+	DRAINLOSS               float64
+	NFIX                    float64
+	SCHNORR                 float64
+	PRECO                   bool // enable/disable correction factor of rain fall data
+	KCOA                    float64
+	CO2KONZ                 float64
+	CO2METH                 int
+	CTRANS                  bool
+	OUTN                    int
+	DEPOS                   float64
+	PROGNOS                 int
+	FKB                     float64
+	PotMineralisationMethod int // pot. mineralisation method
+	ANJAHR                  int
+	J                       int
+	WINDHI                  float64
+	ALTI                    float64
+	SICKER                  float64
+	CAPSUM                  float64
+	Q1                      [22]float64 //(0:21)
+	INTWICK                 DualType    // crop development state
+	FKF                     [12]float64
+	FKC                     float64
+	LAT                     float64
+	MINTMP                  float64
+	RSTOM                   float64
+	LAI                     float64 // Leaf area index
+	WURZ                    int     // root in max soil layer
+	POTROOTINGDEPTH         float64 // potential rooting depth (real rooting depth will be limited by soil parameter WURMAX)
+	VERDUNST                float64
+	FLUSS0                  float64
+	WUDICH                  [21]float64
+	LUKRIT                  [10]float64
+	LUMDAY                  int
+	TP                      [21]float64
+	TRREL                   float64 // Water stress factor (1 = no stress, 0 = full stress)
+	REDUK                   float64 // Nitrogen stress factor (1 = no stress, 0 = full stress)
+	ETA                     float64 // Potential/actual Evapotranspiration (mm)
+	HEATCOND                [21]float64
+	HEATCAP                 [21]float64
+	TDSUM                   [20]float64
+	TD                      [22]float64 // starts with 0 BBB
+	QDRAIN                  float64
+	TP3, TP6, TP9           float64
+	PFTRANS                 float64
+	INFILT                  float64
+	ET0                     float64
+	PE                      [21]float64 // N-uptake of crop in soil layer Z (kg N/ha)
+	MAXAMAX                 float64
+	WUMAXPF                 float64 // crop specific rooting depth
+	VELOC                   float64 // root depth increase in mm/C°
 	//WUFKT         int
 	NGEFKT     int
 	RGA        float64 // value for NGEFKT = 5

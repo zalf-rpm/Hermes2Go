@@ -810,7 +810,13 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 			}
 		}
 	}
-	potmin(g, l)
+	if g.PotMineralisationMethod == 1 {
+		// potentielle Mineralisierung mit bulk density
+		potmin1(g, l)
+	} else {
+		// default
+		potmin0(g, l)
+	}
 	return nil
 }
 
@@ -1114,7 +1120,7 @@ func residi(g *GlobalVarsMain, hPath *HFilePath) {
 	g.NDIR[0] = 0.0
 }
 
-func potmin(g *GlobalVarsMain, l *InputSharedVars) {
+func potmin0(g *GlobalVarsMain, l *InputSharedVars) {
 	if g.CGEHALT[0] > 14 {
 		g.NALTOS = 5000 * l.NGEHALT[0] * g.NAKT * float64(g.UKT[1])
 	} else if g.CGEHALT[0] > 5 {
@@ -1123,6 +1129,18 @@ func potmin(g *GlobalVarsMain, l *InputSharedVars) {
 		g.NALTOS = 15000 * l.NGEHALT[0] * g.NAKT * float64(g.UKT[1])
 	} else {
 		g.NALTOS = 15000 * l.NGEHALT[0] * g.NAKT * float64(g.UKT[1])
+	}
+}
+
+func potmin1(g *GlobalVarsMain, l *InputSharedVars) {
+	if g.CGEHALT[0] > 14 {
+		g.NALTOS = g.BULK[0] * 5000 * l.NGEHALT[0] * g.NAKT * float64(g.UKT[1])
+	} else if g.CGEHALT[0] > 5 {
+		g.NALTOS = g.BULK[0] * 9000 * l.NGEHALT[0] * g.NAKT * float64(g.UKT[1])
+	} else if g.CGEHALT[0] < 1 {
+		g.NALTOS = g.BULK[0] * 10000 * l.NGEHALT[0] * g.NAKT * float64(g.UKT[1])
+	} else {
+		g.NALTOS = g.BULK[0] * 10000 * l.NGEHALT[0] * g.NAKT * float64(g.UKT[1])
 	}
 }
 
