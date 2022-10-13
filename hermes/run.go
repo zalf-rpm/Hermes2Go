@@ -143,12 +143,13 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				log.Fatal(err)
 			}
 		}
+		yearlyOutConfig.formatType = OutputFileFormat(driConfig.ResultFileFormat)
 
 		pnamFile := OpenResultFile(herPath.pnam, false)
 		defer pnamFile.Close()
 
 		if g.SLNR >= 1 {
-			yearlyOutConfig.WriteHeader(pnamFile, OutputFileFormat(driConfig.ResultFileFormat))
+			yearlyOutConfig.WriteHeader(pnamFile)
 		}
 
 		// ***************** ÜBERNAHME DES AKTUELLEN DATUMS FÜR PROGNOSE *************
@@ -226,11 +227,12 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				log.Fatal(err)
 			}
 		}
+		cropOutputConfig.formatType = OutputFileFormat(driConfig.ResultFileFormat)
 
 		CNAM := herPath.outputfolder + "/C" + g.POLYD + g.SNAM + "." + driConfig.ResultFileExt
 		CNAMfile := OpenResultFile(CNAM, false)
 		defer CNAMfile.Close()
-		cropOutputConfig.WriteHeader(CNAMfile, OutputFileFormat(driConfig.ResultFileFormat))
+		cropOutputConfig.WriteHeader(CNAMfile)
 
 		var VNAMfile *Fout
 		var dailyOutputConfig OutputConfig
@@ -248,19 +250,21 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 					log.Fatal(err)
 				}
 			}
+			dailyOutputConfig.formatType = OutputFileFormat(driConfig.ResultFileFormat)
 			VNAMfile = OpenResultFile(herPath.vnam, false)
 			defer VNAMfile.Close()
-			dailyOutputConfig.WriteHeader(VNAMfile, OutputFileFormat(driConfig.ResultFileFormat))
+			dailyOutputConfig.WriteHeader(VNAMfile)
 
 			// TODO: find a good name
 			if _, err := os.Stat(herPath.pfOutput); err == nil {
 				pfOutputConfig, err = LoadHermesOutputConfig(herPath.pfOutput, &g)
+				pfOutputConfig.formatType = OutputFileFormat(driConfig.ResultFileFormat)
 				if err != nil {
 					log.Fatal(err)
 				}
 				pfFile = OpenResultFile(herPath.pfnam, false)
 				defer pfFile.Close()
-				pfOutputConfig.WriteHeader(pfFile, OutputFileFormat(driConfig.ResultFileFormat))
+				pfOutputConfig.WriteHeader(pfFile)
 			}
 		}
 
@@ -586,7 +590,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 					return err
 				}
 				if finished {
-					cropOutputConfig.WriteLine(CNAMfile, OutputFileFormat(driConfig.ResultFileFormat))
+					cropOutputConfig.WriteLine(CNAMfile)
 				}
 			}
 
@@ -620,7 +624,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 					g.SumMINAOS = g.MINAOS[0] + g.MINAOS[1] + g.MINAOS[2]
 					g.SumMINFOS = g.MINFOS[0] + g.MINFOS[1] + g.MINFOS[2]
 					g.AvgTSoil = (g.TD[1] + g.TD[2]) / 2
-					dailyOutputConfig.WriteLine(VNAMfile, OutputFileFormat(driConfig.ResultFileFormat))
+					dailyOutputConfig.WriteLine(VNAMfile)
 				}
 
 				if ZEIT == g.ERNTE[g.AKF.Index]-1 {
@@ -655,7 +659,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 					g.NfixP = nfixP[1]
 
 					if pfFile != nil {
-						pfOutputConfig.WriteLine(pfFile, OutputFileFormat(driConfig.ResultFileFormat))
+						pfOutputConfig.WriteLine(pfFile)
 					}
 				}
 			}
@@ -674,7 +678,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				g.SWCY1 = SWCY1 / float64(g.JTAG)
 				g.SWCY2 = SWCY / float64(g.JTAG)
 				g.SOC1 = (g.NALTOS/g.NAKT*(1-g.NAKT) + g.NAOSAKT + g.NFOSAKT) * g.CNRAT1
-				yearlyOutConfig.WriteLine(pnamFile, OutputFileFormat(driConfig.ResultFileFormat))
+				yearlyOutConfig.WriteLine(pnamFile)
 
 				// reset output values
 				g.OUTSUM = 0

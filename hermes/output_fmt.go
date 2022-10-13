@@ -22,6 +22,7 @@ type OutputConfig struct {
 	NotAvailableValue  string                   `yaml:"NaValue"`
 	DataColumns        []OutputDataColum        `yaml:"DataColumns"`
 	Headlines          map[int][]OutHeaderColum `yaml:"Headlines"`
+	formatType         OutputFileFormat
 }
 
 // OutputDataColum describes data format and reference variable
@@ -47,7 +48,7 @@ type OutHeaderColum struct {
 }
 
 // WriteHeader of an output file
-func (c *OutputConfig) WriteHeader(file *Fout, formatType OutputFileFormat) error {
+func (c *OutputConfig) WriteHeader(file *Fout) error {
 	arrStartIndex := make([]int, len(c.DataColumns)+1)
 	for i, col := range c.DataColumns {
 		arrStartIndex[i+1] = arrStartIndex[i] + col.Width + 1
@@ -58,7 +59,7 @@ func (c *OutputConfig) WriteHeader(file *Fout, formatType OutputFileFormat) erro
 			currentIndex := 0
 			lastIndex := 0
 			for idxCol, col := range columnC {
-				if formatType == csvOut {
+				if c.formatType == csvOut {
 					_, err := file.Write(col.Text)
 					if err != nil {
 						return err
@@ -69,7 +70,7 @@ func (c *OutputConfig) WriteHeader(file *Fout, formatType OutputFileFormat) erro
 							return err
 						}
 					}
-				} else if formatType == hermesOut {
+				} else if c.formatType == hermesOut {
 					lastIndex = arrStartIndex[col.ColEnd]
 					// move cursor to next column start index
 					for currentIndex < arrStartIndex[col.ColStart-1]-1 {
@@ -158,7 +159,7 @@ func (c *OutputConfig) WriteHeader(file *Fout, formatType OutputFileFormat) erro
 					}
 				}
 			}
-			if formatType == hermesOut {
+			if c.formatType == hermesOut {
 				// move cursor to next column start index
 				for currentIndex < lastIndex {
 					currentIndex++
@@ -447,13 +448,14 @@ func NewDefaultOutputConfigYearly(g *GlobalVarsMain) OutputConfig {
 	return OutputConfig{
 		numHeadLines:       len(headlines),
 		numDataColumns:     len(dataColumns),
-		Headlines:          headlines,
-		DataColumns:        dataColumns,
 		FillCharacter:      " ",
 		fillRune:           ' ',
 		SeperatorCharacter: ",",
 		seperatorRune:      ',',
 		NotAvailableValue:  "n.a.",
+		DataColumns:        dataColumns,
+		Headlines:          headlines,
+		formatType:         0,
 	}
 
 }
@@ -1166,13 +1168,14 @@ func NewDefaultCropOutputConfig(c *CropOutputVars) OutputConfig {
 	return OutputConfig{
 		numHeadLines:       len(headlines),
 		numDataColumns:     len(dataColumns),
-		Headlines:          headlines,
-		DataColumns:        dataColumns,
 		FillCharacter:      " ",
 		fillRune:           ' ',
 		SeperatorCharacter: ",",
 		seperatorRune:      ',',
 		NotAvailableValue:  "n.a.",
+		DataColumns:        dataColumns,
+		Headlines:          headlines,
+		formatType:         0,
 	}
 }
 
@@ -2020,20 +2023,30 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 	return OutputConfig{
 		numHeadLines:       len(headlines),
 		numDataColumns:     len(dataColumns),
-		Headlines:          headlines,
-		DataColumns:        dataColumns,
 		FillCharacter:      " ",
 		fillRune:           ' ',
 		SeperatorCharacter: ",",
 		seperatorRune:      ',',
 		NotAvailableValue:  "n.a.",
+		DataColumns:        dataColumns,
+		Headlines:          headlines,
+		formatType:         0,
 	}
 }
 
-//LoadHermesOutputConfig loads a output file and reflects to programm variables
+// LoadHermesOutputConfig loads a output file and reflects to programm variables
 func LoadHermesOutputConfig(path string, g interface{}) (OutputConfig, error) {
 	outConfig := OutputConfig{
-		NotAvailableValue: "n.a.",
+		numHeadLines:       0,
+		numDataColumns:     0,
+		FillCharacter:      "",
+		fillRune:           0,
+		SeperatorCharacter: "",
+		seperatorRune:      0,
+		NotAvailableValue:  "n.a.",
+		DataColumns:        []OutputDataColum{},
+		Headlines:          map[int][]OutHeaderColum{},
+		formatType:         0,
 	}
 
 	// if config files exists, read it into outConfig
@@ -2116,7 +2129,7 @@ func LoadHermesOutputConfig(path string, g interface{}) (OutputConfig, error) {
 }
 
 // WriteLine to outputfile
-func (c *OutputConfig) WriteLine(file *Fout, formatType OutputFileFormat) error {
+func (c *OutputConfig) WriteLine(file *Fout) error {
 
 	outLine := NewOutputLine(c.numDataColumns)
 	for _, col := range c.DataColumns {
@@ -2138,9 +2151,9 @@ func (c *OutputConfig) WriteLine(file *Fout, formatType OutputFileFormat) error 
 		}
 	}
 	var err error
-	if formatType == csvOut {
+	if c.formatType == csvOut {
 		err = outLine.writeCSVString(file, c.seperatorRune)
-	} else if formatType == hermesOut {
+	} else if c.formatType == hermesOut {
 		err = outLine.writeHermesString(file, c)
 	}
 

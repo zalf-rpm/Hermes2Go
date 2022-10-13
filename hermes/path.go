@@ -34,6 +34,7 @@ type HFilePath struct {
 	tnnam                  string // other output PEST
 	pfnam                  string // output ground temperature
 	pnam                   string // output yearly
+	mnam                   string // output management
 	bofile                 string // soil file e.g soil_<project>.txt
 	polnam                 string // polygon file e.g poly_<project>.txt
 	irrigation             string // irrigation file
@@ -61,6 +62,7 @@ type HFilePath struct {
 	dailyOutput            string
 	cropOutput             string
 	pfOutput               string
+	managementOutput       string
 }
 
 // NewHermesFilePath create an initialized HermesFilePath struct
@@ -86,6 +88,7 @@ func NewHermesFilePath(root, locid, snam, parameterOverride, resultOverride stri
 		tnam:                   path.Join(out, "t"+snam+".res"),
 		tnnam:                  path.Join(out, "n"+snam+".res"),
 		pfnam:                  path.Join(out, "p"+snam+".res"),
+		mnam:                   path.Join(out, "m"+snam+".res"),
 		fert:                   path.Join(out, "d_"+snam+".txt"),
 		irrigation:             path.Join(pathToProject, "irr_"+locid+".txt"),
 		crop:                   path.Join(pathToProject, "crop_"+locid+".txt"),
@@ -110,6 +113,7 @@ func NewHermesFilePath(root, locid, snam, parameterOverride, resultOverride stri
 		dailyOutput:            path.Join(pathToProject, "dailyout_conf.yml"),
 		cropOutput:             path.Join(pathToProject, "cropout_conf.yml"),
 		pfOutput:               path.Join(pathToProject, "pfout_conf.yml"),
+		managementOutput:       path.Join(pathToProject, "managementout_conf.yml"),
 	}
 }
 
@@ -206,7 +210,7 @@ func (fp *FilePool) Close() {
 	fp.mux.Unlock()
 }
 
-//Fout bufferd file writer
+// Fout bufferd file writer
 type Fout struct {
 	file    *os.File
 	fwriter *bufio.Writer
