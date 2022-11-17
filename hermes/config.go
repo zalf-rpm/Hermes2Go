@@ -25,6 +25,7 @@ type Config struct {
 	ResultFileFormat    int             `yaml:"ResultFileFormat,omitempty"` // result file format (0= hermes default, 1 = csv)
 	ResultFileExt       string          `yaml:"ResultFileExt,omitempty"`    // result file extensions (default RES, csv)
 	OutputIntervall     int             `yaml:"OutputIntervall"`            // Output intervall (days) (0=no time serie)
+	ManagementEvents    int             `yaml:"ManagementEvents"`           // Management events (0=no management events)
 	InitSelection       int             `yaml:"InitSelection"`              // Init.values all(1),Field_ID(2), Polyg(3) -> POLY_XXX.txt, Uses: 1= all (if the word ALLE is written in the file), 2= Field_ID, 3= Polyg
 	SoilFile            string          `yaml:"SoilFile"`                   // soil profile file name (without projectname)
 	SoilFileExtension   string          `yaml:"SoilFileExtension"`          // soil file extension (txt = hermes soil, csv = csv table format)
@@ -132,6 +133,7 @@ func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) C
 		}
 	}
 	g.PotMineralisationMethod = hconfig.PotMineralisation
+
 	return hconfig
 }
 
@@ -203,6 +205,7 @@ func NewDefaultConfig() Config {
 		ResultFileFormat:                0,
 		ResultFileExt:                   "",
 		OutputIntervall:                 0,
+		ManagementEvents:                0,
 		InitSelection:                   3,
 		SoilFile:                        "soil",
 		SoilFileExtension:               "txt",

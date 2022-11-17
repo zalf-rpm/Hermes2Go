@@ -27,11 +27,11 @@ type HFilePath struct {
 	parameter    string
 	outputfolder string
 
-	config                 string
-	enam                   string // configuration file // daily output for single polygone
-	vnam                   string // daily output for single polygone
-	tnam                   string // output PEST
-	tnnam                  string // other output PEST
+	config string
+	//enam   string // configuration file // daily output for single polygone
+	vnam string // daily output for single polygone
+	// tnam                   string // output PEST
+	// tnnam                  string // other output PEST
 	pfnam                  string // output ground temperature
 	pnam                   string // output yearly
 	mnam                   string // output management
@@ -79,16 +79,16 @@ func NewHermesFilePath(root, locid, snam, parameterOverride, resultOverride stri
 		out = path.Join(pathToProject, "RESULT")
 	}
 	return HFilePath{
-		locid:                  locid,
-		path:                   pathToProject,
-		parameter:              parameter,
-		outputfolder:           out,
-		enam:                   path.Join(pathToProject, locid+".dri"),
-		vnam:                   path.Join(out, "v"+snam+".res"),
-		tnam:                   path.Join(out, "t"+snam+".res"),
-		tnnam:                  path.Join(out, "n"+snam+".res"),
+		locid:        locid,
+		path:         pathToProject,
+		parameter:    parameter,
+		outputfolder: out,
+		// enam:         path.Join(pathToProject, locid+".dri"),
+		vnam: path.Join(out, "V"+snam+".res"),
+		// tnam:                   path.Join(out, "t"+snam+".res"),
+		// tnnam:                  path.Join(out, "n"+snam+".res"),
 		pfnam:                  path.Join(out, "p"+snam+".res"),
-		mnam:                   path.Join(out, "m"+snam+".res"),
+		mnam:                   path.Join(out, "M"+snam+".res"),
 		fert:                   path.Join(out, "d_"+snam+".txt"),
 		irrigation:             path.Join(pathToProject, "irr_"+locid+".txt"),
 		crop:                   path.Join(pathToProject, "crop_"+locid+".txt"),

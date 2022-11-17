@@ -391,21 +391,22 @@ type GlobalVarsMain struct {
 	Crop         string
 	DevStateDate [10]string
 
-	SNAM            string // plot number, PlotID SLAG NR.
-	POLYD           string // polygon number - just for output
-	FCODE           string // weather station code
-	C1NotStable     string
-	C1NotStableErr  string
-	C1stabilityVal  float64
-	GROUNDWATERFROM GroundWaterFrom        `yaml:"-"`
-	DATEFORMAT      DateFormat             `yaml:"-"`
-	DEBUGOUT        func(int, interface{}) `yaml:"-"`
-	DEBUGCHANNEL    chan<- string          `yaml:"-"`
-	LOGID           string                 `yaml:"-"`
-	Datum           DateConverterFunc      `yaml:"-"`
-	Kalender        KalenderConverterFunc  `yaml:"-"`
-	LangTag         LangTagConverterFunc   `yaml:"-"`
-	CropTypeLookup  map[string]CropType    `yaml:"-"`
+	SNAM             string // plot number, PlotID SLAG NR.
+	POLYD            string // polygon number - just for output
+	FCODE            string // weather station code
+	C1NotStable      string
+	C1NotStableErr   string
+	C1stabilityVal   float64
+	GROUNDWATERFROM  GroundWaterFrom        `yaml:"-"`
+	DATEFORMAT       DateFormat             `yaml:"-"`
+	DEBUGOUT         func(int, interface{}) `yaml:"-"`
+	DEBUGCHANNEL     chan<- string          `yaml:"-"`
+	LOGID            string                 `yaml:"-"`
+	Datum            DateConverterFunc      `yaml:"-"`
+	Kalender         KalenderConverterFunc  `yaml:"-"`
+	LangTag          LangTagConverterFunc   `yaml:"-"`
+	CropTypeLookup   map[string]CropType    `yaml:"-"`
+	managementConfig *ManagementConfig      `yaml:"-"`
 }
 
 // CropOutputVars at harvest

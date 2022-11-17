@@ -19,7 +19,6 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		var SWCY float64
 		var SWC1 float64
 		var PR bool
-		var OUTINT int
 		var WDT float64
 		var FSCSUM [20]float64
 		var SCHNORRSUM float64
@@ -98,7 +97,6 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		g.SLNR = int(ValAsInt(g.SNAM, "none", g.SNAM))
 
 		herPath.SetPnam("Y"+g.POLYD+g.SNAM, driConfig.ResultFileExt)
-		OUTINT = driConfig.OutputIntervall
 		herPath.vnam = herPath.outputfolder + "/V" + g.POLYD + g.SNAM + "." + driConfig.ResultFileExt
 		herPath.SetBofile(driConfig.SoilFile, driConfig.SoilFileExtension)
 		if driConfig.CoastDistance > 50 {
@@ -234,6 +232,9 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		defer CNAMfile.Close()
 		cropOutputConfig.WriteHeader(CNAMfile)
 
+		OUTINT := driConfig.OutputIntervall
+		WriteManagementEvents := driConfig.ManagementEvents
+
 		var VNAMfile *Fout
 		var dailyOutputConfig OutputConfig
 		var pfFile *Fout
@@ -265,6 +266,20 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				pfFile = OpenResultFile(herPath.pfnam, false)
 				defer pfFile.Close()
 				pfOutputConfig.WriteHeader(pfFile)
+			}
+		}
+		if WriteManagementEvents != 0 {
+			if _, err := os.Stat(herPath.managementOutput); err != nil {
+				fmt.Println("Generate config for management output: ", herPath.managementOutput)
+				g.managementConfig = NewManagentConfig()
+				WriteYamlConfig(herPath.managementOutput, g.managementConfig)
+				log.Fatal("Generated management output configuration")
+			} else {
+				g.managementConfig, err = LoadManagementConfig(&herPath)
+				if err != nil {
+					log.Fatal(err)
+				}
+				defer g.managementConfig.Close()
 			}
 		}
 
@@ -390,6 +405,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				if nConcetrationInWater > 0 {
 					g.C1[0] = g.C1[0] + nConcetrationInWater
 				}
+				g.managementConfig.WriteManagementEvent(NewManagementEvent(Irrigation, ZEIT, make(map[string]interface{}), &g))
 				g.NBR++
 			}
 			// FSCS := 0.0

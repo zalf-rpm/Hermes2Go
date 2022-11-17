@@ -35,6 +35,17 @@ type NitroSharedVars struct {
 
 // Nitro ...
 func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath *HFilePath, output *CropOutputVars) (finishedCycle bool, runErr error) {
+	finishedCycle = false
+	runErr = nil
+	writeFertizerEvent := func(idx1, idx2, idx3 int) error {
+		err := g.managementConfig.WriteManagementEvent(NewManagementEvent(Fertilization, zeit, map[string]interface{}{
+			"Fertilizer": g.DGART[idx1],
+			"Ndirect":    g.NDIR[idx2],
+			"NH4":        g.NH4N[idx3],
+		}, g))
+		return err
+	}
+
 	if !g.AUTOFERT {
 		//! +++++++++++++++++++++++++++++++++++++ Option real fertilization +++++++++++++++++++++++++++++++++++++++++++++++
 		if zeit == g.ZTDG[g.NDG.Index]+1 && subd == 1 {
@@ -43,6 +54,10 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			g.DSUMM = g.DSUMM + g.NDIR[g.NDG.Index] //! Summe miner. Duengung
 			g.NFERTSIM = g.NFERTSIM + g.NDIR[g.NDG.Index]
 			g.NH4Sum = g.NH4Sum + g.NH4N[g.NDG.Index] // Summe min. Ammoniakalische Düngung
+
+			if runErr = writeFertizerEvent(g.NDG.Index, g.NDG.Index, g.NDG.Index); runErr != nil {
+				return finishedCycle, runErr
+			}
 			g.NDG.Inc()
 		}
 		//! ---------------------------------------------------------------------------------------------------------------
@@ -189,7 +204,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			}
 		}
 	}
-	if g.EINTE[g.NTIL.Index+1] > g.SAAT[g.AKF.Index] && g.EINTE[g.NTIL.Index+1] <= g.ERNTE[g.AKF.Index] {
+	if g.SAAT[g.AKF.Index] > 0 && g.EINTE[g.NTIL.Index+1] > g.SAAT[g.AKF.Index] && g.EINTE[g.NTIL.Index+1] <= g.ERNTE[g.AKF.Index] {
 		//invalid tillage date
 		return finishedCycle, fmt.Errorf("tillage date %s before harvest %s at %s", g.Kalender(g.EINTE[g.NTIL.Index+1]), g.Kalender(g.ERNTE[g.AKF.Index]+1), g.PKT)
 	}
@@ -199,6 +214,10 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 		var NFOSUM, NAOSUM, nmifosum, nmiaosum, CSUM float64
 		if g.EINT[g.NTIL.Index] > 0 {
 			mixtief := math.Round(g.EINT[g.NTIL.Index] / g.DZ.Num)
+			runErr = g.managementConfig.WriteManagementEvent(NewManagementEvent(Tillage, zeit, make(map[string]interface{}), g))
+			if runErr != nil {
+				return finishedCycle, runErr
+			}
 			for z := 0; z < int(mixtief); z++ {
 				// Vollstaendige Durchmischung bis Bearbeitungstiefe
 				NFOSUM = NFOSUM + g.NFOS[z]
@@ -230,6 +249,12 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 		var NDI, NSA, NLA float64
 		if g.AKF.Num != 1 {
 			NDI, NSA, NLA, ln.NRESID = resid(g, l, ln, hPath)
+			runErr = g.managementConfig.WriteManagementEvent(NewManagementEvent(Harvest, zeit, map[string]interface{}{
+				"Residue": ln.NRESID,
+			}, g))
+			if runErr != nil {
+				return finishedCycle, runErr
+			}
 		}
 		g.NFOS[0] = g.NFOS[0] + NSA
 		g.NAOS[0] = g.NAOS[0] + NLA

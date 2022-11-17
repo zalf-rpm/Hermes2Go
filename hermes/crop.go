@@ -60,6 +60,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 	if zeit == g.SAAT[g.AKF.Index] {
 		output.SowDate = g.Kalender(zeit)
 		output.SowDOY = g.TAG.Index + 1
+		g.managementConfig.WriteManagementEvent(NewManagementEvent(Sowing, zeit, make(map[string]interface{}), g))
 
 		PARANAM := hPath.GetParanam(g.CropTypeToString(g.FRUCHT[g.AKF.Index], false), g.CVARIETY[g.AKF.Index])
 		g.TRRELSUM = 0
