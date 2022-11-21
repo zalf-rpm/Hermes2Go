@@ -21,7 +21,7 @@ type Config struct {
 	Dateformat    DateFormat `yaml:"Dateformat"`
 	DivideCentury int        `yaml:"DivideCentury,omitempty"` // (depends on Date format) Year to divide 20. and 21. Century (YY)
 
-	GroundWaterFrom     GroundWaterFrom `yaml:"GroundWaterFrom"`            // ground water is read from either 'soilfile' or 'polygonfile
+	GroundWaterFrom     GroundWaterFrom `yaml:"GroundWaterFrom"`            // ground water from 'soilfile'=static, 'polygonfile'=dynamic High/Low, 'gwTimeSeries'= measured time series
 	ResultFileFormat    int             `yaml:"ResultFileFormat,omitempty"` // result file format (0= hermes default, 1 = csv)
 	ResultFileExt       string          `yaml:"ResultFileExt,omitempty"`    // result file extensions (default RES, csv)
 	OutputIntervall     int             `yaml:"OutputIntervall"`            // Output intervall (days) (0=no time serie)
@@ -66,6 +66,7 @@ type Config struct {
 	OrganicMatterMineralProportion float64 `yaml:"OrganicMatterMineralProportion"` // Mineralisable proportion of organic matter
 	KcFactorBareSoil               float64 `yaml:"KcFactorBareSoil"`               // kc factor for bare soil
 	PotMineralisation              int     `yaml:"PotMineralisation,omitempty"`    // Potential mineralisation method (0= standard, 1 = considers bulk density, 2 = considers bulk density)
+	GroundWaterPhase               int     `yaml:"GroundWaterPhase,omitempty"`     // Ground water phase in days (80= standard)
 
 	//***** Management *****
 	Fertilization     float64       `yaml:"Fertilization"`     // fertilization scenario (fertilization in %)
@@ -119,6 +120,7 @@ func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) C
 	g.AUTOIRRI = bool(hconfig.AutoIrrigation)
 	g.AUTOHAR = bool(hconfig.AutoHarvest)
 	g.PTF = hconfig.PTF
+	g.GWPhase = hconfig.GroundWaterPhase
 	if len(hconfig.WeatherFolder) == 0 {
 		hconfig.WeatherFolder = "Weather"
 	}
@@ -236,6 +238,7 @@ func NewDefaultConfig() Config {
 		OrganicMatterMineralProportion:  0.13,
 		KcFactorBareSoil:                0.4,
 		PotMineralisation:               0,
+		GroundWaterPhase:                80,
 		Fertilization:                   100,
 		AutoSowingHarvest:               true,
 		AutoFertilization:               true,
@@ -252,6 +255,8 @@ const (
 	Polygonfile GroundWaterFrom = iota
 	// Soilfile load from soil file
 	Soilfile
+	// Ground water time series file
+	GWTimeSeries
 )
 
 func (s GroundWaterFrom) String() string {
@@ -259,13 +264,15 @@ func (s GroundWaterFrom) String() string {
 }
 
 var toString = map[GroundWaterFrom]string{
-	Polygonfile: "polygonfile",
-	Soilfile:    "soilfile",
+	Polygonfile:  "polygonfile",
+	Soilfile:     "soilfile",
+	GWTimeSeries: "gwTimeSeries",
 }
 
 var toID = map[string]GroundWaterFrom{
-	"polygonfile": Polygonfile,
-	"soilfile":    Soilfile,
+	"polygonfile":  Polygonfile,
+	"soilfile":     Soilfile,
+	"gwTimeSeries": GWTimeSeries,
 }
 
 // MarshalYAML implement YAML Marshaler

@@ -50,100 +50,103 @@ func NewDualType(baseIndex int, offset int) DualType {
 
 // GlobalVarsMain contains all variables that are use by multiple sub modules
 type GlobalVarsMain struct {
-	IZM      int
-	DT       DualType
-	DZ       DualType //= 10 (cm to mm)
-	N        int      // max number of layer (changed by soil file)
-	DV       float64
-	ALPH     float64
-	SATBETA  float64
-	AKF      DualType    // current crop index (aktuelle frucht)
-	SLNR     int         // Schlag Nummer, plot number
-	NFOS     [21]float64 // Nitrogen in fast decomposable fraction (kg N ha-1)
-	W        [21]float64 // Field capacity (Feldkapazität pro Schicht ((cm^3/cm^3) (inkl. Stauwasser))
-	WMIN     [21]float64 // Permanent Wilting point (Wassergehalt PWP (cm^3/cm^3) aus Bodenprofildatei 1. Schicht)
-	PORGES   [21]float64 // Pore volume  (Gesamtporenvolumen Schicht I (cm3/cm3))
-	NAKT     float64
-	ETMETH   int // evapo transpiration methode selection
-	PTF      int // pedotransfer function methode selection
-	INIWAHL  int // initial field values setup selection
-	DUNGSZEN float64
-	AZHO     int         // number of layer in soil profile (Anzahl Horizonte des Bodenprofils)
-	WURZMAX  int         // effective root depth in profile (effektive Wurzeltiefe des Profils)
-	DRAIDEP  int         // drainage depth (Tiefe der Drainung)
-	DRAIFAK  float64     // part of drainage water in soakage (Anteil des Drainwassers am Sickerwasseranfakk (fraction))
-	UKT      [11]int     //(0:10) layer depth (in dm)
-	BART     [10]string  // soil type by KA5(Bodenkundlichen Kartieranleitung 5. Auflage) (special spelling convertions)
-	LD       [10]int     // bulk density KA5 (1-5) (Lagerungsdichtestufe nach KA5 (1-5))
-	BULK     [10]float64 // avarage bulk density (Zuweisung mittlere Lagerungsdichte von LD(I) (g/cm^3))
-	CGEHALT  [10]float64 // C organic content in soil layer (Corg-Gehalt in Horizont I (Gew.%))
-	HUMUS    [21]float64 // humus content in soil layer (Humusgehalt in Hor. I (Gew.%))
-	STEIN    [10]float64 // stone content in soil layer (%)
-	FKA      [10]float64 // water content at field capacity (Wassergehalt bei Feldkapazität) (Vol. %)
-	WP       [10]float64
-	GPV      [10]float64 // total interstice percentage (Gesamtporenvolumen) (Vol%)
-	CAPS     [21]float64
-	LIM      [10]float64
-	PRGES    [10]float64
-	WUMAX    [10]float64 // obsolete
-	AD       float64
-	GRLO     int
-	GRHI     int
-	GRW      float64
-	GW       float64
-	AMPL     int
-	PKT      string
-	WRED     float64
-	PROP     float64
-	NORMFK   [10]float64
-	FELDW    [10]float64 // water content at field capacity (cm^3/cm^3)
-	CAPPAR   int         // used to check if hydrological parameters need to be recalulated on changing ground water
-	BD       [21]float64 // bulk density
-	WNOR     [21]float64 // water content at field capacity uncorrected (cm^3/cm^3)
-	SAND     [21]float64 // sand in %
-	SILT     [21]float64 // silt(schluf) in %
-	CLAY     [21]float64 // clay(ton) in %
-	NALTOS   float64
-	BREG     []float64 // irrigation amount (in mm)
-	BRKZ     []float64 // N-Concentration in irrigation water (in ppm)
-	ZTBR     []int     // irrigation time (timestamp since 1900)
-	BEGINN   int
-	ENDE     int
-	FRUCHT   [300]CropType
-	CVARIETY [300]string
-	SAAT     [300]int
-	JN       [300]float64
-	ERNTE    [300]int
-	ERTR     [300]float64
-	ITAG     int
-	TAG      DualType // current day
-	JTAG     int      // number of days in current year
-	ZTDG     [300]int
-	FKU      [12]float64
-	CN       [2][21]float64 // (0:1,21) all 21 slots used!
-	WG       [3][21]float64 //(0:2,21) all 21 slots used!
-	NMESS    int
-	MES      [100]string // Should be a local array
-	MESS     [100]int
-	WNZ      [100]float64
-	KNZ1     [100]float64
-	KNZ2     [100]float64
-	KNZ3     [100]float64
-	TILDAT   [200]string
-	EINT     [300]float64
-	TILART   [200]int
-	EINTE    [201]int //(0:200)
-	DGART    [300]string
-	NDIR     [300]float64
-	NH4N     [300]float64 // not NH4 fertilizer ( nicht Nitrat-N in Dünger)
-	NSAS     [300]float64
-	NLAS     [300]float64
-	TSOIL    [2][22]float64 //(0:1,0:21)
-	TMIN     [367]float64
-	TMAX     [367]float64
-	TBASE    float64
-	ETNULL   [367]float64
-	TEMP     [367]float64
+	IZM                int
+	DT                 DualType
+	DZ                 DualType //= 10 (cm to mm)
+	N                  int      // max number of layer (changed by soil file)
+	DV                 float64
+	ALPH               float64
+	SATBETA            float64
+	AKF                DualType    // current crop index (aktuelle frucht)
+	SLNR               int         // Schlag Nummer, plot number
+	NFOS               [21]float64 // Nitrogen in fast decomposable fraction (kg N ha-1)
+	W                  [21]float64 // Field capacity (Feldkapazität pro Schicht ((cm^3/cm^3) (inkl. Stauwasser))
+	WMIN               [21]float64 // Permanent Wilting point (Wassergehalt PWP (cm^3/cm^3) aus Bodenprofildatei 1. Schicht)
+	PORGES             [21]float64 // Pore volume  (Gesamtporenvolumen Schicht I (cm3/cm3))
+	NAKT               float64
+	ETMETH             int // evapo transpiration methode selection
+	PTF                int // pedotransfer function methode selection
+	INIWAHL            int // initial field values setup selection
+	DUNGSZEN           float64
+	AZHO               int         // number of layer in soil profile (Anzahl Horizonte des Bodenprofils)
+	WURZMAX            int         // effective root depth in profile (effektive Wurzeltiefe des Profils)
+	DRAIDEP            int         // drainage depth (Tiefe der Drainung)
+	DRAIFAK            float64     // part of drainage water in soakage (Anteil des Drainwassers am Sickerwasseranfakk (fraction))
+	UKT                [11]int     //(0:10) layer depth (in dm)
+	BART               [10]string  // soil type by KA5(Bodenkundlichen Kartieranleitung 5. Auflage) (special spelling convertions)
+	LD                 [10]int     // bulk density KA5 (1-5) (Lagerungsdichtestufe nach KA5 (1-5))
+	BULK               [10]float64 // avarage bulk density (Zuweisung mittlere Lagerungsdichte von LD(I) (g/cm^3))
+	CGEHALT            [10]float64 // C organic content in soil layer (Corg-Gehalt in Horizont I (Gew.%))
+	HUMUS              [21]float64 // humus content in soil layer (Humusgehalt in Hor. I (Gew.%))
+	STEIN              [10]float64 // stone content in soil layer (%)
+	FKA                [10]float64 // water content at field capacity (Wassergehalt bei Feldkapazität) (Vol. %)
+	WP                 [10]float64
+	GPV                [10]float64 // total interstice percentage (Gesamtporenvolumen) (Vol%)
+	CAPS               [21]float64
+	LIM                [10]float64
+	PRGES              [10]float64
+	WUMAX              [10]float64 // obsolete
+	AD                 float64
+	GRLO               int
+	GRHI               int
+	GRW                float64
+	GW                 float64
+	AMPL               int
+	GWTimeSeriesValues map[int]float64
+	GWTimestamps       []int
+	GWPhase            int
+	PKT                string
+	WRED               float64
+	PROP               float64
+	NORMFK             [10]float64
+	FELDW              [10]float64 // water content at field capacity (cm^3/cm^3)
+	CAPPAR             int         // used to check if hydrological parameters need to be recalulated on changing ground water
+	BD                 [21]float64 // bulk density
+	WNOR               [21]float64 // water content at field capacity uncorrected (cm^3/cm^3)
+	SAND               [21]float64 // sand in %
+	SILT               [21]float64 // silt(schluf) in %
+	CLAY               [21]float64 // clay(ton) in %
+	NALTOS             float64
+	BREG               []float64 // irrigation amount (in mm)
+	BRKZ               []float64 // N-Concentration in irrigation water (in ppm)
+	ZTBR               []int     // irrigation time (timestamp since 1900)
+	BEGINN             int
+	ENDE               int
+	FRUCHT             [300]CropType
+	CVARIETY           [300]string
+	SAAT               [300]int
+	JN                 [300]float64
+	ERNTE              [300]int
+	ERTR               [300]float64
+	ITAG               int
+	TAG                DualType // current day
+	JTAG               int      // number of days in current year
+	ZTDG               [300]int
+	FKU                [12]float64
+	CN                 [2][21]float64 // (0:1,21) all 21 slots used!
+	WG                 [3][21]float64 //(0:2,21) all 21 slots used!
+	NMESS              int
+	MES                [100]string // Should be a local array
+	MESS               [100]int
+	WNZ                [100]float64
+	KNZ1               [100]float64
+	KNZ2               [100]float64
+	KNZ3               [100]float64
+	TILDAT             [200]string
+	EINT               [300]float64
+	TILART             [200]int
+	EINTE              [201]int //(0:200)
+	DGART              [300]string
+	NDIR               [300]float64
+	NH4N               [300]float64 // not NH4 fertilizer ( nicht Nitrat-N in Dünger)
+	NSAS               [300]float64
+	NLAS               [300]float64
+	TSOIL              [2][22]float64 //(0:1,0:21)
+	TMIN               [367]float64
+	TMAX               [367]float64
+	TBASE              float64
+	ETNULL             [367]float64
+	TEMP               [367]float64
 	//TEMPBO1, TEMPBO2 [367]float64 // not initialized, obsolete?
 	RH                      [367]float64 // relative humidity
 	VERD                    [367]float64 // Verdunstung, Evaporation, required for ETMETH = 1
@@ -402,7 +405,7 @@ type GlobalVarsMain struct {
 	DEBUGOUT         func(int, interface{}) `yaml:"-"`
 	DEBUGCHANNEL     chan<- string          `yaml:"-"`
 	LOGID            string                 `yaml:"-"`
-	Datum            DateConverterFunc      `yaml:"-"`
+	Datum            DateConverterFunc      `yaml:"-"` // calculates (ztDat = day of the year) and (masDat = total days since 01.01.1901)
 	Kalender         KalenderConverterFunc  `yaml:"-"`
 	LangTag          LangTagConverterFunc   `yaml:"-"`
 	CropTypeLookup   map[string]CropType    `yaml:"-"`

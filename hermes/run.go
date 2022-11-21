@@ -287,6 +287,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		g.CUMDENIT = 0
 		g.EINTE[0] = g.EINTE[1]
 
+		fmt.Println("begin:", g.Kalender(g.BEGINN))
 		for ZEIT := g.BEGINN; ZEIT <= g.ENDE; ZEIT = ZEIT + g.DT.Index {
 
 			g.TAG.Add(g.DT.Index)
@@ -325,8 +326,15 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			}
 			g.AKTUELL = g.Kalender(ZEIT)
 
-			g.GRW = g.GW - (float64(g.AMPL) * math.Sin((g.TAG.Num+80)*math.Pi/180))
-
+			if g.GROUNDWATERFROM == Polygonfile {
+				g.GRW = g.GW - (float64(g.AMPL) * math.Sin((g.TAG.Num+float64(g.GWPhase))*math.Pi/180))
+			} else if g.GROUNDWATERFROM == GWTimeSeries {
+				var err error
+				g.GRW, err = GetGroundWaterLevel(&g, ZEIT)
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
 			// --------------------- ABRUFEN DER HYDROLOGISCHEN PARAMETER ----------------
 			if g.AMPL > 0 && g.CAPPAR == 0 {
 				for L := 1; L <= g.AZHO; L++ {
@@ -343,22 +351,14 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 							g.WMIN[LTindex] = g.LIM[Lindex] * (1 - g.STEIN[Lindex])
 							g.PORGES[LTindex] = g.PRGES[Lindex] * (1 - g.STEIN[Lindex])
 							g.WNOR[LTindex] = g.NORMFK[Lindex] * (1 - g.STEIN[Lindex])
-							g.WNOR[LTindex] = g.NORMFK[Lindex]
 						}
 					}
 				}
+
 				g.WRED = g.WRED / 100
-
-				for L := int(g.GRW + 1); L <= g.N; L++ {
-					Lindex := L - 1
-					if L == int(g.GRW+1) {
-						g.W[Lindex] = (1-math.Mod(g.GRW+1, 1))*g.PORGES[Lindex] + g.W[Lindex]*(math.Mod(g.GRW+1, 1))
-					} else {
-						g.W[Lindex] = g.PORGES[Lindex]
-					}
-				}
-
+				setFieldCapacityWithGW(&g)
 			}
+
 			// +++++++++++++++++++++++++++++++++++ AUTOMATIC IRRIGATION (INCL. 2 DAY FORECAST) +++++++++++
 			if g.AUTOIRRI {
 				if g.SAAT[g.AKF.Index] > 0 {

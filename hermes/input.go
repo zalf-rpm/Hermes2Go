@@ -138,6 +138,21 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 
 				g.DT.SetByIndex(1)
 
+				if g.GROUNDWATERFROM == GWTimeSeries {
+					err := ReadGroundWaterTimeSeries(g, hPath, sid)
+					if err != nil {
+						return fmt.Errorf("%s %v", g.LOGID, err)
+					}
+					// use start value of groundwater time series
+					g.GW, err = GetGroundWaterLevel(g, g.GWTimestamps[0])
+					if err != nil {
+						return fmt.Errorf("%s %v", g.LOGID, err)
+					}
+					g.GRHI = int(g.GW)
+					g.GRLO = int(g.GW)
+					g.GRW = g.GW
+					g.AMPL = 0
+				}
 				// ! *************************** Bodenparameter zuweisen ***********************
 				// ! Inputs aus HYDRO:(I=L=Horizontzähler)
 				// ! FELDW(I)           = Wassergehalt bei Feldkapazität (cm^3/cm^3)
@@ -249,10 +264,10 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 				}
 				g.WRED = g.WRED / 100
 				// ! -- Unterhalb Grundwasserspiegel wird FK auf GPV gesetzt --
-				// below groundwater level FK will be set to GPV
+				// below groundwater level field capacity will be set to GPV
 				if g.GW < float64(g.N) {
-					maxVal := math.Max(g.GW, 1)
-					for l := int(math.Round(maxVal)); l <= g.N; l++ {
+					maxVal := int(math.Round(math.Max(g.GW, 1)))
+					for l := maxVal; l <= g.N; l++ {
 						index := l - 1
 						g.W[index] = g.PORGES[index]
 					}
