@@ -399,6 +399,7 @@ func ReadGroundWaterTimeSeries(g *GlobalVarsMain, hPath *HFilePath, sid string) 
 	}
 	scanner.Scan() // skip header
 
+	found := false
 	// read data
 	for scanner.Scan() {
 		// check for soil id
@@ -410,7 +411,11 @@ func ReadGroundWaterTimeSeries(g *GlobalVarsMain, hPath *HFilePath, sid string) 
 			level := ValAsFloat(tokens[groundWaterHeader["Level"]], hPath.gwtimeseries, scanner.Text())
 			g.GWTimeSeriesValues[date] = level
 			g.GWTimestamps = append(g.GWTimestamps, date)
+			found = true
 		}
+	}
+	if !found {
+		return fmt.Errorf("soil id '%s' not found in ground water time series file '%s'", sid, hPath.gwtimeseries)
 	}
 	return nil
 }
