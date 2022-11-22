@@ -95,17 +95,18 @@ type GlobalVarsMain struct {
 	GWTimeSeriesValues map[int]float64
 	GWTimestamps       []int
 	GWPhase            int
+	W_Backup           [21]float64
+	WMIN_Backup        [21]float64
+	PORGES_Backup      [21]float64
+	WNOR_Backup        [21]float64
 	PKT                string
-	WRED               float64
+	WRED               float64 // field capacity (Feldkapazität) reduced by irrigation (cm^3/cm^3)
 	PROP               float64
 	NORMFK             [10]float64
 	FELDW              [10]float64 // water content at field capacity (cm^3/cm^3)
 	CAPPAR             int         // used to check if hydrological parameters need to be recalulated on changing ground water
 	BD                 [21]float64 // bulk density
 	WNOR               [21]float64 // water content at field capacity uncorrected (cm^3/cm^3)
-	SAND               [21]float64 // sand in %
-	SILT               [21]float64 // silt(schluf) in %
-	CLAY               [21]float64 // clay(ton) in %
 	NALTOS             float64
 	BREG               []float64 // irrigation amount (in mm)
 	BRKZ               []float64 // N-Concentration in irrigation water (in ppm)

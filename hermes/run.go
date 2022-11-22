@@ -287,7 +287,6 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		g.CUMDENIT = 0
 		g.EINTE[0] = g.EINTE[1]
 
-		fmt.Println("begin:", g.Kalender(g.BEGINN))
 		for ZEIT := g.BEGINN; ZEIT <= g.ENDE; ZEIT = ZEIT + g.DT.Index {
 
 			g.TAG.Add(g.DT.Index)
@@ -326,6 +325,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			}
 			g.AKTUELL = g.Kalender(ZEIT)
 
+			oldGrW := g.GRW
 			if g.GROUNDWATERFROM == Polygonfile {
 				g.GRW = g.GW - (float64(g.AMPL) * math.Sin((g.TAG.Num+float64(g.GWPhase))*math.Pi/180))
 			} else if g.GROUNDWATERFROM == GWTimeSeries {
@@ -336,26 +336,36 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				}
 			}
 			// --------------------- ABRUFEN DER HYDROLOGISCHEN PARAMETER ----------------
-			if g.AMPL > 0 && g.CAPPAR == 0 {
-				for L := 1; L <= g.AZHO; L++ {
-					Lindex := L - 1
-					Hydro(L, &g, &herInputVars, &herPath)
-					if g.FELDW[Lindex] == 0 {
-						g.FELDW[Lindex] = g.FELDW[Lindex-1]
-					}
+			// ground water level has changed
+			if g.GRW != oldGrW {
+				if g.PTF == 0 && g.CAPPAR == 0 {
+					for L := 1; L <= g.AZHO; L++ {
+						Lindex := L - 1
+						Hydro(L, &g, &herInputVars, &herPath)
+						if g.FELDW[Lindex] == 0 {
+							g.FELDW[Lindex] = g.FELDW[Lindex-1]
+						}
 
-					for LT := g.UKT[L-1] + 1; LT <= g.UKT[L]; LT++ {
-						LTindex := LT - 1
-						if LT < g.N+1 {
-							g.W[LTindex] = g.FELDW[Lindex] * (1 - g.STEIN[Lindex])
-							g.WMIN[LTindex] = g.LIM[Lindex] * (1 - g.STEIN[Lindex])
-							g.PORGES[LTindex] = g.PRGES[Lindex] * (1 - g.STEIN[Lindex])
-							g.WNOR[LTindex] = g.NORMFK[Lindex] * (1 - g.STEIN[Lindex])
+						for LT := g.UKT[L-1] + 1; LT <= g.UKT[L]; LT++ {
+							LTindex := LT - 1
+							if LT < g.N+1 {
+								g.W[LTindex] = g.FELDW[Lindex] * (1 - g.STEIN[Lindex])
+								g.WMIN[LTindex] = g.LIM[Lindex] * (1 - g.STEIN[Lindex])
+								g.PORGES[LTindex] = g.PRGES[Lindex] * (1 - g.STEIN[Lindex])
+								g.WNOR[LTindex] = g.NORMFK[Lindex] * (1 - g.STEIN[Lindex])
+							}
 						}
 					}
+				} else {
+					// restore soil parameters
+					for idxLayer := 0; idxLayer < g.N; idxLayer++ {
+						g.W[idxLayer] = g.W_Backup[idxLayer]
+						g.WMIN[idxLayer] = g.WMIN_Backup[idxLayer]
+						g.PORGES[idxLayer] = g.PORGES_Backup[idxLayer]
+						g.WNOR[idxLayer] = g.WNOR_Backup[idxLayer]
+					}
+					calcWRed(g.WMIN[0], g.W[0], &g)
 				}
-
-				g.WRED = g.WRED / 100
 				setFieldCapacityWithGW(&g)
 			}
 

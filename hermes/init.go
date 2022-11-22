@@ -23,13 +23,13 @@ func Init(g *GlobalVarsMain) {
 
 	var FKPROZ float64
 	if g.TAG.Num < 275 {
-		if g.GW < 10 {
+		if g.GRW < 10 {
 			FKPROZ = .5
 		} else {
 			FKPROZ = .4
 		}
 	} else {
-		if g.GW < 10 {
+		if g.GRW < 10 {
 			FKPROZ = .65
 		} else {
 			FKPROZ = .6
@@ -54,7 +54,7 @@ func Init(g *GlobalVarsMain) {
 			}
 		}
 		PG := g.PORGES[z]
-		if zNum >= g.GW {
+		if zNum >= g.GRW {
 			g.WG[0][z] = PG
 		}
 		g.C1[z] = g.CN[0][z]
@@ -95,4 +95,15 @@ func setFieldCapacityWithGW(g *GlobalVarsMain) {
 			g.W[l-1] = g.PORGES[l-1]
 		}
 	}
+}
+
+// setWRed calc reduced Field Capacity
+// takes soil texture, wilting point and field capacity from top layer
+func calcWRed(wiltingPoint float64, fieldCapacity float64, g *GlobalVarsMain) {
+	if g.BART[0][0] == 'S' { // if main soil component is sand
+		g.WRED = wiltingPoint + 0.6*(fieldCapacity-wiltingPoint)
+	} else {
+		g.WRED = wiltingPoint + 0.66*(fieldCapacity-wiltingPoint)
+	}
+	g.WRED = g.WRED / 100
 }
