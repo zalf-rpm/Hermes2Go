@@ -32,6 +32,7 @@ func main() {
 	fmt.Println("For N2O connet to: http://localhost:8081/n2o ")
 	http.HandleFunc("/", c1debughttpserver)
 	http.HandleFunc("/n2o", n2odebughttpserver)
+	http.HandleFunc("/groundwater", GroundwaterDebugHttpServer)
 	http.ListenAndServe("localhost:8081", nil)
 }
 
