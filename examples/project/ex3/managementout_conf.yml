@@ -1,0 +1,31 @@
+eventformats:
+  tillage:
+    eventname: tillage
+    enabled: false
+    additionalfields:
+      Depth: '%dcm'
+      Type: '%d'
+  irrigation:
+    eventname: irrigation
+    enabled: false
+    additionalfields:
+      Amount: '%dmm'
+      N03: '%2.1fmg/l'
+  sowing:
+    eventname: sowing
+    enabled: false
+    additionalfields:
+      Crop: '%s'
+  harvest:
+    eventname: harvest
+    enabled: false
+    additionalfields:
+      Crop: '%s'
+      Residue: '%2.1f'
+  fertilization:
+    eventname: fertilization
+    enabled: false
+    additionalfields:
+      Amount: '%d'
+      Name: '%2.1f'
+seperatorrune: 32

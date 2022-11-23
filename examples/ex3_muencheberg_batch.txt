@@ -1,0 +1,4 @@
+project=ex3 WeatherFolder=historical soilId=075 fcode=109_120 plotNr=10001 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT/hist
+project=ex3 WeatherFolder=historical soilId=075 fcode=109_120 plotNr=10002 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT/hist
+project=ex3 WeatherFolder=historical soilId=075 fcode=109_121 plotNr=10001 Altitude=46 Latitude=52.6431 poligonID=30169 resultfolder=RESULT/hist
+project=ex3 WeatherFolder=historical soilId=075 fcode=109_121 plotNr=10002 Altitude=46 Latitude=52.6431 poligonID=30169 resultfolder=RESULT/hist
