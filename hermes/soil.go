@@ -435,7 +435,7 @@ func GetGroundWaterLevel(g *GlobalVarsMain, date int) (float64, error) {
 	// no ground water level is given for date
 	// calculate ground water level from previous and next date
 	var prevDate, nextDate int
-	for d := range g.GWTimestamps {
+	for _, d := range g.GWTimestamps {
 		if d < date {
 			prevDate = d
 		} else if d > date {
