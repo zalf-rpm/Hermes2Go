@@ -2,7 +2,7 @@ project=ex3 WeatherFolder=historical soilId=075 fcode=109_120 plotNr=10001 Altit
 project=ex3 WeatherFolder=historical soilId=075 fcode=109_120 plotNr=10002 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT/gw_075
 project=ex3 WeatherFolder=historical soilId=075 fcode=109_121 plotNr=10001 Altitude=46 Latitude=52.6431 poligonID=30169 resultfolder=RESULT/gw_075
 project=ex3 WeatherFolder=historical soilId=075 fcode=109_121 plotNr=10002 Altitude=46 Latitude=52.6431 poligonID=30169 resultfolder=RESULT/gw_075
-project=ex3 WeatherFolder=historical soilId=075 gwId=murx fcode=109_120 plotNr=10001 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT/any_gw
-project=ex3 WeatherFolder=historical soilId=075 gwId=murx fcode=109_120 plotNr=10002 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT/any_gw
-project=ex3 WeatherFolder=historical soilId=075 gwId=murx fcode=109_121 plotNr=10001 Altitude=46 Latitude=52.6431 poligonID=30169 resultfolder=RESULT/any_gw
-project=ex3 WeatherFolder=historical soilId=075 gwId=murx fcode=109_121 plotNr=10002 Altitude=46 Latitude=52.6431 poligonID=30169 resultfolder=RESULT/any_gw
+project=ex3 WeatherFolder=historical soilId=075 gwId=any fcode=109_120 plotNr=10001 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT/any_gw
+project=ex3 WeatherFolder=historical soilId=075 gwId=any fcode=109_120 plotNr=10002 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT/any_gw
+project=ex3 WeatherFolder=historical soilId=075 gwId=any fcode=109_121 plotNr=10001 Altitude=46 Latitude=52.6431 poligonID=30169 resultfolder=RESULT/any_gw
+project=ex3 WeatherFolder=historical soilId=075 gwId=any fcode=109_121 plotNr=10002 Altitude=46 Latitude=52.6431 poligonID=30169 resultfolder=RESULT/any_gw
