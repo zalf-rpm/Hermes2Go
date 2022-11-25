@@ -29,7 +29,7 @@ type InputSharedVars struct {
 }
 
 // Input modul for reading soil data, crop rotation, cultivation data (Fertilization, tillage) of fields and ploygon units
-func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *Config, soilID string) error {
+func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *Config, soilID, gwId string) error {
 	//! ------Modul zum Einlesen von Boden-, Fruchtfolge und Bewirtschaftungsdaten (Duengung, Bodenbearbeitung) von Feldern und Polygonen ---------
 	var ERNT, SAT string
 	var winit [6]float64
@@ -57,6 +57,10 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 				if soilID == "" {
 					sid = tokens[1] // second entry SID in poly file
 				}
+				groundWaterID := gwId
+				if gwId == "" {
+					groundWaterID = sid
+				}
 				if g.GROUNDWATERFROM == Polygonfile {
 					g.GRHI = int(ValAsInt(tokens[3], "none", tokens[3]))
 					g.GRLO = int(ValAsInt(tokens[4], "none", tokens[4]))
@@ -64,7 +68,7 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 					g.GW = float64(g.GRLO+g.GRHI) / 2
 					g.AMPL = g.GRLO - g.GRHI
 				} else if g.GROUNDWATERFROM == GWTimeSeries {
-					err := ReadGroundWaterTimeSeries(g, hPath, sid)
+					err := ReadGroundWaterTimeSeries(g, hPath, groundWaterID)
 					if err != nil {
 						return fmt.Errorf("%s %v", g.LOGID, err)
 					}

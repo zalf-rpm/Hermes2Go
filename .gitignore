@@ -18,3 +18,5 @@ src/calcHermesBatch/calcHermesBatch
 src/hermes2go/hermes2go
 src/hermes2go/hermestogo
 src/hermes2go/version.txt
+src/renderservice/groundwater_last_run.html
+src/renderservice/last_run.html

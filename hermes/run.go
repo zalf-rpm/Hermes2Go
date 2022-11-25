@@ -50,7 +50,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		}
 		fileExtension := "txt"
 
-		var LOCID, SOID string
+		var LOCID, SOID, gwId string
 		var parameterFolderOverride, resultOverride string
 		for key, value := range argValues {
 			var err error
@@ -71,6 +71,8 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				parameterFolderOverride = value
 			case "resultfolder":
 				resultOverride = value
+			case "gwId":
+				gwId = value
 			}
 
 			if err != nil {
@@ -160,7 +162,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 
 		//************ AUFRUFEN DES EINGABE UND UMRECHNUNGSMODULS **************
 
-		errSoil := Input(&herInputVars, &g, &herPath, &driConfig, SOID)
+		errSoil := Input(&herInputVars, &g, &herPath, &driConfig, SOID, gwId)
 		if errSoil != nil {
 			return errSoil
 		}
