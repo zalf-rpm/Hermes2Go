@@ -26,6 +26,8 @@ func GroundwaterDebugHttpServer(w http.ResponseWriter, _ *http.Request) {
 		lineMultiGW(keys, dates),
 		lineMultiWTop(keys, dates),
 		lineMultiWSub(keys, dates),
+		lineMultiWGTop(keys, dates),
+		lineMultiWGSub(keys, dates),
 		// lineMultiWMIN(keys, errKeys, dates),
 		// lineMultiPORGES(keys, errKeys, dates),
 	)
@@ -109,6 +111,39 @@ func generateGWItems(keys []int) []opts.LineData {
 	globalHandler.mux.Unlock()
 	return items
 }
+func lineMultiWGTop(keys []int, dates []string) *charts.Line {
+	line := makeMultiLine("WG Top Layer")
+
+	line.SetXAxis(dates).
+		AddSeries("1", generateWGItems(keys, 0)).
+		AddSeries("2", generateWGItems(keys, 1)).
+		AddSeries("3", generateWGItems(keys, 2)).
+		AddSeries("4", generateWGItems(keys, 3)).
+		AddSeries("5", generateWGItems(keys, 4)).
+		AddSeries("6", generateWGItems(keys, 5)).
+		AddSeries("7", generateWGItems(keys, 6)).
+		AddSeries("8", generateWGItems(keys, 7)).
+		AddSeries("9", generateWGItems(keys, 8)).
+		AddSeries("10", generateWGItems(keys, 9))
+	return line
+}
+
+func lineMultiWGSub(keys []int, dates []string) *charts.Line {
+	line := makeMultiLine("WG Sub Layer")
+
+	line.SetXAxis(dates).
+		AddSeries("11", generateWGItems(keys, 10)).
+		AddSeries("12", generateWGItems(keys, 11)).
+		AddSeries("13", generateWGItems(keys, 12)).
+		AddSeries("14", generateWGItems(keys, 13)).
+		AddSeries("15", generateWGItems(keys, 14)).
+		AddSeries("16", generateWGItems(keys, 15)).
+		AddSeries("17", generateWGItems(keys, 16)).
+		AddSeries("18", generateWGItems(keys, 17)).
+		AddSeries("19", generateWGItems(keys, 18)).
+		AddSeries("20", generateWGItems(keys, 19))
+	return line
+}
 
 func generateFCItems(keys []int, layer int) []opts.LineData {
 	globalHandler.mux.Lock()
@@ -116,6 +151,17 @@ func generateFCItems(keys []int, layer int) []opts.LineData {
 
 	for _, key := range keys {
 		val := globalHandler.receivedDumps[key].Global.W[layer]
+		items = append(items, opts.LineData{Value: val})
+	}
+	globalHandler.mux.Unlock()
+	return items
+}
+func generateWGItems(keys []int, layer int) []opts.LineData {
+	globalHandler.mux.Lock()
+	items := make([]opts.LineData, 0, len(keys))
+
+	for _, key := range keys {
+		val := globalHandler.receivedDumps[key].Global.WG[1][layer]
 		items = append(items, opts.LineData{Value: val})
 	}
 	globalHandler.mux.Unlock()
