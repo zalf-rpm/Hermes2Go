@@ -97,7 +97,7 @@ func NewHermesFilePath(root, locid, snam, parameterOverride, resultOverride stri
 		til:                    path.Join(pathToProject, "til_"+locid+".txt"),
 		dun:                    path.Join(pathToProject, "fert_"+locid+".txt"),
 		auto:                   path.Join(pathToProject, "automan.txt"),
-		gwtimeseries:           path.Join(pathToProject, "gw_"+locid+".txt"),
+		gwtimeseries:           path.Join(pathToProject, "gw_"+locid+".csv"),
 		precorr:                path.Join(pathToProject, "Weather", "preco.txt"),
 		parcap:                 path.Join(parameter, "PARCAP.TRU"),
 		hypar:                  path.Join(parameter, "HYPAR.TRU"),

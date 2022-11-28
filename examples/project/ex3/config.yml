@@ -88,6 +88,8 @@ OrganicMatterMineralProportion: 0.13
 PTF: 0
 # kc factor for bare soil
 KcFactorBareSoil: 0.4
+# phase shift, if ground water is read from polygonfile, (default 80)
+GroundWaterPhase: 80
 
 #***** Management *****
 # fertilization scenario (fertilization in %)
