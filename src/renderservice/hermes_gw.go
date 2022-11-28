@@ -28,6 +28,8 @@ func GroundwaterDebugHttpServer(w http.ResponseWriter, _ *http.Request) {
 		lineMultiWSub(keys, dates),
 		lineMultiWGTop(keys, dates),
 		lineMultiWGSub(keys, dates),
+		lineMultiWGinPercentTop(keys, dates),
+		lineMultiWGinPercentSub(keys, dates),
 		// lineMultiWMIN(keys, errKeys, dates),
 		// lineMultiPORGES(keys, errKeys, dates),
 	)
@@ -145,6 +147,40 @@ func lineMultiWGSub(keys []int, dates []string) *charts.Line {
 	return line
 }
 
+func lineMultiWGinPercentTop(keys []int, dates []string) *charts.Line {
+	line := makeMultiLine("WG in % Top Layer")
+
+	line.SetXAxis(dates).
+		AddSeries("1", generateWGinPercOfFCItems(keys, 0)).
+		AddSeries("2", generateWGinPercOfFCItems(keys, 1)).
+		AddSeries("3", generateWGinPercOfFCItems(keys, 2)).
+		AddSeries("4", generateWGinPercOfFCItems(keys, 3)).
+		AddSeries("5", generateWGinPercOfFCItems(keys, 4)).
+		AddSeries("6", generateWGinPercOfFCItems(keys, 5)).
+		AddSeries("7", generateWGinPercOfFCItems(keys, 6)).
+		AddSeries("8", generateWGinPercOfFCItems(keys, 7)).
+		AddSeries("9", generateWGinPercOfFCItems(keys, 8)).
+		AddSeries("10", generateWGinPercOfFCItems(keys, 9))
+	return line
+}
+
+func lineMultiWGinPercentSub(keys []int, dates []string) *charts.Line {
+	line := makeMultiLine("WG in % Sub Layer")
+
+	line.SetXAxis(dates).
+		AddSeries("11", generateWGinPercOfFCItems(keys, 10)).
+		AddSeries("12", generateWGinPercOfFCItems(keys, 11)).
+		AddSeries("13", generateWGinPercOfFCItems(keys, 12)).
+		AddSeries("14", generateWGinPercOfFCItems(keys, 13)).
+		AddSeries("15", generateWGinPercOfFCItems(keys, 14)).
+		AddSeries("16", generateWGinPercOfFCItems(keys, 15)).
+		AddSeries("17", generateWGinPercOfFCItems(keys, 16)).
+		AddSeries("18", generateWGinPercOfFCItems(keys, 17)).
+		AddSeries("19", generateWGinPercOfFCItems(keys, 18)).
+		AddSeries("20", generateWGinPercOfFCItems(keys, 19))
+	return line
+}
+
 func generateFCItems(keys []int, layer int) []opts.LineData {
 	globalHandler.mux.Lock()
 	items := make([]opts.LineData, 0, len(keys))
@@ -162,6 +198,18 @@ func generateWGItems(keys []int, layer int) []opts.LineData {
 
 	for _, key := range keys {
 		val := globalHandler.receivedDumps[key].Global.WG[1][layer]
+		items = append(items, opts.LineData{Value: val})
+	}
+	globalHandler.mux.Unlock()
+	return items
+}
+func generateWGinPercOfFCItems(keys []int, layer int) []opts.LineData {
+	globalHandler.mux.Lock()
+	items := make([]opts.LineData, 0, len(keys))
+
+	for _, key := range keys {
+		val := globalHandler.receivedDumps[key].Global.WG[1][layer]
+		val = val / globalHandler.receivedDumps[key].Global.W[layer] * 100
 		items = append(items, opts.LineData{Value: val})
 	}
 	globalHandler.mux.Unlock()
