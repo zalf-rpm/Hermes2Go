@@ -369,6 +369,13 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 					calcWRed(g.WMIN[0], g.W[0], &g)
 				}
 				setFieldCapacityWithGW(&g)
+				// set water content in the sub ground water zone to maximum Field Capacity
+				for z := 0; z < g.N; z++ {
+					zNum := float64(z) + 1
+					if zNum >= g.GRW {
+						g.WG[0][z] = g.W[z]
+					}
+				}
 			}
 
 			// +++++++++++++++++++++++++++++++++++ AUTOMATIC IRRIGATION (INCL. 2 DAY FORECAST) +++++++++++
