@@ -130,7 +130,7 @@ func loadSoil(withGroundwater bool, LOGID string, hPath *HFilePath, soilID strin
 				soildata.UKT[i+1] = int(ValAsInt(bodenLine[13:15], "none", bodenLine))
 				soildata.LD[i] = int(ValAsInt(bodenLine[16:17], "none", bodenLine))
 				// read buld density classes (LD = Lagerungsdichte) set bulk density values
-				(&soildata).bulkDensityClassToDensity(i)
+				(&soildata).BulkDensityClassToDensity(i)
 				// C-content soil class specific in %
 				soildata.CGEHALT[i] = ValAsFloat(bodenLine[4:8], "none", bodenLine)
 				// C/N ratio
@@ -233,7 +233,7 @@ func loadSoilCSV(withGroundwater bool, LOGID string, hPath *HFilePath, soilID st
 				soildata.UKT[i+1] = int(ValAsInt(tokens[header[layerdepth]], "none", bodenLine))
 				soildata.LD[i] = int(ValAsInt(tokens[header[bulkdensityclass]], "none", bodenLine))
 				// read buld density classes (LD = Lagerungsdichte) set bulk density values
-				(&soildata).bulkDensityClassToDensity(i)
+				(&soildata).BulkDensityClassToDensity(i)
 				// C-content soil class specific in %
 				soildata.CGEHALT[i] = ValAsFloat(tokens[header[corg]], "none", bodenLine)
 				// C/N ratio
@@ -290,7 +290,8 @@ func loadSoilCSV(withGroundwater bool, LOGID string, hPath *HFilePath, soilID st
 	return soildata, nil
 }
 
-func (soildata *soilFileData) bulkDensityClassToDensity(i int) {
+// BulkDensityClassToDensity set bulk density from class
+func (soildata *soilFileData) BulkDensityClassToDensity(i int) {
 	// read buld density classes (LD = Lagerungsdichte) set bulk density values
 	if soildata.LD[i] == 1 {
 		soildata.BULK[i] = 1.1
@@ -303,6 +304,101 @@ func (soildata *soilFileData) bulkDensityClassToDensity(i int) {
 	} else if soildata.LD[i] == 5 {
 		soildata.BULK[i] = 1.85
 	}
+}
+
+// BulkDensityToClass get bulk density class from bulk density
+func (soildata *soilFileData) BulkDensityToClass(bulkDensity float64) (bulkDensityClass int) {
+	bulkDensityClass = 1
+	bd := bulkDensity / 1000
+	if bd < 1.3 {
+		bulkDensityClass = 1
+	} else if bd < 1.5 {
+		bulkDensityClass = 2
+	} else if bd < 1.7 {
+		bulkDensityClass = 3
+	} else if bd < 1.85 {
+		bulkDensityClass = 4
+	} else {
+		bulkDensityClass = 5
+	}
+	return bulkDensityClass
+}
+
+// CalculatePoreVolume calculate pore volume from bulk density
+func CalculatePoreVolume(bulkDensity float64) float64 {
+	return 1 - ((bulkDensity / 1000) / 2.65)
+}
+
+// SandAndClayToHa5Texture get a rough KA5 soil texture class from given sand and soil content
+func SandAndClayToHa5Texture(sand, clay float64) string {
+	silt := 1.0 - sand - clay
+	soil_texture := ""
+
+	if silt < 0.1 && clay < 0.05 {
+		soil_texture = "SS "
+	} else if silt < 0.25 && clay < 0.05 {
+		soil_texture = "SU2"
+	} else if silt < 0.25 && clay < 0.08 {
+		soil_texture = "SL2"
+	} else if silt < 0.40 && clay < 0.08 {
+		soil_texture = "SU3"
+	} else if silt < 0.50 && clay < 0.08 {
+		soil_texture = "SU4"
+	} else if silt < 0.8 && clay < 0.08 {
+		soil_texture = "US "
+	} else if silt >= 0.8 && clay < 0.08 {
+		soil_texture = "UU "
+	} else if silt < 0.1 && clay < 0.17 {
+		soil_texture = "ST2"
+	} else if silt < 0.4 && clay < 0.12 {
+		soil_texture = "SL3"
+	} else if silt < 0.4 && clay < 0.17 {
+		soil_texture = "SL4"
+	} else if silt < 0.5 && clay < 0.17 {
+		soil_texture = "SLU"
+	} else if silt < 0.65 && clay < 0.17 {
+		soil_texture = "ULS"
+	} else if silt >= 0.65 && clay < 0.12 {
+		soil_texture = "UT2"
+	} else if silt >= 0.65 && clay < 0.17 {
+		soil_texture = "UT3"
+	} else if silt < 0.15 && clay < 0.25 {
+		soil_texture = "ST3"
+	} else if silt < 0.30 && clay < 0.25 {
+		soil_texture = "LS4"
+	} else if silt < 0.40 && clay < 0.25 {
+		soil_texture = "LS3"
+	} else if silt < 0.50 && clay < 0.25 {
+		soil_texture = "LS2"
+	} else if silt < 0.65 && clay < 0.30 {
+		soil_texture = "LU "
+	} else if silt >= 0.65 && clay < 0.25 {
+		soil_texture = "UT4"
+	} else if silt < 0.15 && clay < 0.35 {
+		soil_texture = "TS4"
+	} else if silt < 0.30 && clay < 0.45 {
+		soil_texture = "LTS"
+	} else if silt < 0.50 && clay < 0.35 {
+		soil_texture = "LT2"
+	} else if silt < 0.65 && clay < 0.45 {
+		soil_texture = "TU3"
+	} else if silt >= 0.65 && clay >= 0.25 {
+		soil_texture = "TU4"
+	} else if silt < 0.15 && clay < 0.45 {
+		soil_texture = "TS3"
+	} else if silt < 0.50 && clay < 0.45 {
+		soil_texture = "LT3"
+	} else if silt < 0.15 && clay < 0.65 {
+		soil_texture = "TS2"
+	} else if silt < 0.30 && clay < 0.65 {
+		soil_texture = "TL "
+	} else if silt >= 0.30 && clay < 0.65 {
+		soil_texture = "TU2"
+	} else if clay >= 0.65 {
+		soil_texture = "TT "
+	}
+
+	return soil_texture
 }
 
 func (soildata *soilFileData) cNSetup(i int) {
