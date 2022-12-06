@@ -373,7 +373,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				for z := 0; z < g.N; z++ {
 					zNum := float64(z) + 1
 					if zNum >= g.GRW {
-						g.WG[0][z] = g.W[z]
+						g.WG[1][z] = g.W[z]
 					}
 				}
 			}
