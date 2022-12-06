@@ -1,0 +1,6 @@
+github.com/zalf-rpm/Hermes2Go/hermes v0.0.0-20221205113848-c5d7400f1a0b h1:NXoVuy+TV8sOzbf5P+p99HE2qYHztCXPbffDXvHCu4g=
+github.com/zalf-rpm/Hermes2Go/hermes v0.0.0-20221205113848-c5d7400f1a0b/go.mod h1:3H9q2sfD98KIKGcW47OlMZtFJaG3KuinINlx/9cMIdY=
+gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
+gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
+gopkg.in/yaml.v2 v2.4.0 h1:D8xgwECY7CYvx+Y2n4sBz93Jn9JRvxdiyyo8CTfuKaY=
+gopkg.in/yaml.v2 v2.4.0/go.mod h1:RDklbk79AGWmwhnvt/jBztapEOGDOx6ZbXqjP6csGnQ=
