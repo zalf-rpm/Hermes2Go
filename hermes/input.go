@@ -109,14 +109,14 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 				// ! NGEHALT(I)     = Norg-Gehalt (Gew. %)
 				// ! HUMUS(I)       = Humusgehalt in Hor. I (Gew.%)
 				// ! ------------------------------------------------------------------------------------------------
-				var currentSoil soilFileData
+				var currentSoil SoilFileData
 				var soilLoadError error
 				groundwaterFormSoilfile := g.GROUNDWATERFROM == Soilfile
 
 				if strings.HasSuffix(hPath.bofile, "csv") {
-					currentSoil, soilLoadError = loadSoilCSV(groundwaterFormSoilfile, g.LOGID, hPath, sid)
+					currentSoil, soilLoadError = LoadSoilCSV(groundwaterFormSoilfile, g.LOGID, hPath, sid)
 				} else {
-					currentSoil, soilLoadError = loadSoil(groundwaterFormSoilfile, g.LOGID, hPath, sid)
+					currentSoil, soilLoadError = LoadSoil(groundwaterFormSoilfile, g.LOGID, hPath, sid)
 				}
 				if soilLoadError != nil {
 					return soilLoadError
@@ -220,32 +220,18 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 								}
 								if g.PTF == 1 {
 									// PTF by Toth 2015
-									fk := 0.2449 - 0.1887*(1/(g.CGEHALT[lindex]+1)) + 0.004527*l.TON[lindex] + 0.001535*l.SLUF[lindex] + 0.001442*l.SLUF[lindex]*(1/(g.CGEHALT[lindex]+1)) - 0.0000511*l.SLUF[lindex]*l.TON[lindex] + 0.0008676*l.TON[lindex]*(1/(g.CGEHALT[lindex]+1))
+									fk, pwp := PTF1(g.CGEHALT[lindex], l.TON[lindex], l.SLUF[lindex])
 									g.W[LTindex] = fk
-									pwp := 0.09878 + 0.002127*l.TON[lindex] - 0.0008366*l.SLUF[lindex] - 0.0767*(1/(g.CGEHALT[lindex]+1)) + 0.00003853*l.SLUF[lindex]*l.TON[lindex] + 0.00233*l.SLUF[lindex]*(1/(g.CGEHALT[lindex]+1)) + 0.0009498*l.SLUF[lindex]*(1/(g.CGEHALT[lindex]+1))
 									g.WMIN[LTindex] = pwp
 								} else if g.PTF == 2 {
 									// PTF by Batjes for pF 2.5
-									g.W[LTindex] = (0.46*l.TON[lindex] + 0.3045*l.SLUF[lindex] + 2.0703*g.CGEHALT[lindex]) / 100
-									g.WMIN[LTindex] = (0.3624*l.TON[lindex] + 0.117*l.SLUF[lindex] + 1.6054*g.CGEHALT[lindex]) / 100
+									g.W[LTindex], g.WMIN[LTindex] = PTF2(g.CGEHALT[lindex], l.TON[lindex], l.SLUF[lindex])
 								} else if g.PTF == 3 {
 									// PTF by Batjes for pF 1.7
-									g.W[LTindex] = (0.6681*l.TON[lindex] + 0.2614*l.SLUF[lindex] + 2.215*g.CGEHALT[lindex]) / 100
-									g.WMIN[LTindex] = (0.3624*l.TON[lindex] + 0.117*l.SLUF[lindex] + 1.6054*g.CGEHALT[lindex]) / 100
+									g.W[LTindex], g.WMIN[LTindex] = PTF3(g.CGEHALT[lindex], l.TON[lindex], l.SLUF[lindex])
 								} else if g.PTF == 4 {
 									// PTF by Rawls et al. 2003 for pF 2.5
-									ix := -0.837531 + 0.430183*g.CGEHALT[lindex]
-									ix2 := math.Pow(ix, 2)
-									ix3 := math.Pow(ix, 3)
-									yps := -1.40744 + 0.0661969*l.TON[lindex]
-									yps2 := math.Pow(yps, 2)
-									yps3 := math.Pow(yps, 3)
-									zet := -1.51866 + 0.0393284*l.SSAND[lindex]
-									zet2 := math.Pow(zet, 2)
-									zet3 := math.Pow(zet, 3)
-
-									g.W[LTindex] = (29.7528 + 10.3544*(0.0461615+0.290955*ix-0.0496845*ix2+0.00704802*ix3+0.269101*yps-0.176528*ix*yps+0.0543138*ix2*yps+0.1982*yps2-0.060699*yps3-0.320249*zet-0.0111693*ix2*zet+0.14104*yps*zet+0.0657345*ix*yps*zet-0.102026*yps2*zet-0.04012*zet2+0.160838*ix*zet2-0.121392*yps*zet2-0.061667*zet3)) / 100
-									g.WMIN[LTindex] = (14.2568 + 7.36318*(0.06865+0.108713*ix-0.0157225*ix2+0.00102805*ix3+0.886569*yps-0.223581*ix*yps+0.0126379*ix2*yps+0.0135266*ix*yps2-0.0334434*yps3-0.0535182*zet-0.0354271*ix*zet-0.00261313*ix2*zet-0.154563*yps*zet-0.0160219*ix*yps*zet-0.0400606*yps2*zet-0.104875*zet2*0.0159857*ix*zet2-0.0671656*yps*zet2-0.0260699*zet3)) / 100
+									g.W[LTindex], g.WMIN[LTindex] = PTF4(g.CGEHALT[lindex], l.TON[lindex], l.SSAND[lindex])
 								}
 								g.PORGES[LTindex] = g.GPV[lindex] / 100
 								g.WNOR[LTindex] = g.W[LTindex]
@@ -836,6 +822,45 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 		potmin0(g, l)
 	}
 	return nil
+}
+
+// PTF by Toth 2015
+func PTF1(CGEHALT, TON, SLUF float64) (fc, wmin float64) {
+	fc = 0.2449 - 0.1887*(1/(CGEHALT+1)) + 0.004527*TON + 0.001535*SLUF + 0.001442*SLUF*(1/(CGEHALT+1)) - 0.0000511*SLUF*TON + 0.0008676*TON*(1/(CGEHALT+1))
+	wmin = 0.09878 + 0.002127*TON - 0.0008366*SLUF - 0.0767*(1/(CGEHALT+1)) + 0.00003853*SLUF*TON + 0.00233*SLUF*(1/(CGEHALT+1)) + 0.0009498*SLUF*(1/(CGEHALT+1))
+	return
+}
+
+// PTF by Batjes for pF 2.5
+func PTF2(CGEHALT, TON, SLUF float64) (fc float64, wmin float64) {
+	fc = (0.46*TON + 0.3045*SLUF + 2.0703*CGEHALT) / 100
+	wmin = (0.3624*TON + 0.117*SLUF + 1.6054*CGEHALT) / 100
+	return
+}
+
+// PTF by Batjes for pF 1.7
+func PTF3(CGEHALT, TON, SLUF float64) (fc, wmin float64) {
+	fc = (0.6681*TON + 0.2614*SLUF + 2.215*CGEHALT) / 100
+	wmin = (0.3624*TON + 0.117*SLUF + 1.6054*CGEHALT) / 100
+
+	return
+}
+
+// PTF by Rawls et al. 2003 for pF 2.5
+func PTF4(CGEHALT, TON, SSAND float64) (fc float64, wmin float64) {
+	ix := -0.837531 + 0.430183*CGEHALT
+	ix2 := math.Pow(ix, 2)
+	ix3 := math.Pow(ix, 3)
+	yps := -1.40744 + 0.0661969*TON
+	yps2 := math.Pow(yps, 2)
+	yps3 := math.Pow(yps, 3)
+	zet := -1.51866 + 0.0393284*SSAND
+	zet2 := math.Pow(zet, 2)
+	zet3 := math.Pow(zet, 3)
+
+	fc = (29.7528 + 10.3544*(0.0461615+0.290955*ix-0.0496845*ix2+0.00704802*ix3+0.269101*yps-0.176528*ix*yps+0.0543138*ix2*yps+0.1982*yps2-0.060699*yps3-0.320249*zet-0.0111693*ix2*zet+0.14104*yps*zet+0.0657345*ix*yps*zet-0.102026*yps2*zet-0.04012*zet2+0.160838*ix*zet2-0.121392*yps*zet2-0.061667*zet3)) / 100
+	wmin = (14.2568 + 7.36318*(0.06865+0.108713*ix-0.0157225*ix2+0.00102805*ix3+0.886569*yps-0.223581*ix*yps+0.0126379*ix2*yps+0.0135266*ix*yps2-0.0334434*yps3-0.0535182*zet-0.0354271*ix*zet-0.00261313*ix2*zet-0.154563*yps*zet-0.0160219*ix*yps*zet-0.0400606*yps2*zet-0.104875*zet2*0.0159857*ix*zet2-0.0671656*yps*zet2-0.0260699*zet3)) / 100
+	return
 }
 
 // Hydro reads hydro parameter
