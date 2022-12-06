@@ -127,6 +127,11 @@ func (hp *HFilePath) SetBofile(prefix, extension string) {
 	hp.bofile = fmt.Sprintf(hp.bofileTemplate, strings.TrimSpace(prefix), strings.TrimSpace(extension))
 }
 
+// OverrideBofile overrides the complete bofile filename
+func (hp *HFilePath) OverrideBofile(newPath string) {
+	hp.bofile = newPath
+}
+
 // SetPolnam completes polnam filename
 func (hp *HFilePath) SetPolnam(ins string) {
 	hp.polnam = fmt.Sprintf(hp.polnamTemplate, strings.TrimSpace(ins))
