@@ -333,119 +333,119 @@ func SandAndClayToHa5Texture(sand, clay float64) string {
 	soil_texture := ""
 
 	// SS silt 0-10% clay 0-5%
-	if silt >= 0.0 && silt <= 0.1 && clay >= 0.0 && clay <= 0.05 {
+	if silt >= 0.0 && silt < 0.1 && clay >= 0.0 && clay < 0.05 {
 		soil_texture = "SS "
 	} else
 	// ST2 silt 0-10% clay 5-17%
-	if silt >= 0.0 && silt <= 0.1 && clay >= 0.05 && clay <= 0.17 {
+	if silt >= 0.0 && silt < 0.1 && clay >= 0.05 && clay < 0.17 {
 		soil_texture = "ST2"
 	} else
 	// ST3 silt 0-15% clay 17-25%
-	if silt >= 0.0 && silt <= 0.15 && clay >= 0.17 && clay <= 0.25 {
+	if silt >= 0.0 && silt < 0.15 && clay >= 0.17 && clay < 0.25 {
 		soil_texture = "ST3"
 	} else
 	// SU2 silt 10-25% clay 0-5%
-	if silt >= 0.1 && silt <= 0.25 && clay >= 0.0 && clay <= 0.05 {
+	if silt >= 0.1 && silt < 0.25 && clay >= 0.0 && clay < 0.05 {
 		soil_texture = "SU2"
 	} else
 	// SU3 silt 25-40% clay 0-8%
-	if silt >= 0.25 && silt <= 0.4 && clay >= 0.0 && clay <= 0.08 {
+	if silt >= 0.25 && silt < 0.4 && clay >= 0.0 && clay < 0.08 {
 		soil_texture = "SU3"
 	} else
 	// SU4 silt 40-50% clay 0-8%
-	if silt >= 0.4 && silt <= 0.5 && clay >= 0.0 && clay <= 0.08 {
+	if silt >= 0.4 && silt < 0.5 && clay >= 0.0 && clay < 0.08 {
 		soil_texture = "SU4"
 	} else
 	// SL2 silt 10-25% clay 5-8%
-	if silt >= 0.1 && silt <= 0.25 && clay >= 0.05 && clay <= 0.08 {
+	if silt >= 0.1 && silt < 0.25 && clay >= 0.05 && clay < 0.08 {
 		soil_texture = "SL2"
 	} else
 	// SL3 silt 10-40% clay 8-12%
-	if silt >= 0.1 && silt <= 0.4 && clay >= 0.08 && clay <= 0.12 {
+	if silt >= 0.1 && silt < 0.4 && clay >= 0.08 && clay < 0.12 {
 		soil_texture = "SL3"
 	} else
 	// SL4 silt 10-40% clay 12-17%
-	if silt >= 0.1 && silt <= 0.4 && clay >= 0.12 && clay <= 0.17 {
+	if silt >= 0.1 && silt < 0.4 && clay >= 0.12 && clay < 0.17 {
 		soil_texture = "SL4"
 	} else
 	// SLU silt 40-50% clay 8-17%
-	if silt >= 0.4 && silt <= 0.5 && clay >= 0.08 && clay <= 0.17 {
+	if silt >= 0.4 && silt < 0.5 && clay >= 0.08 && clay < 0.17 {
 		soil_texture = "SLU"
 	} else
 	// LS2 silt 40-50% clay 17-25%
-	if silt >= 0.4 && silt <= 0.5 && clay >= 0.17 && clay <= 0.25 {
+	if silt >= 0.4 && silt < 0.5 && clay >= 0.17 && clay < 0.25 {
 		soil_texture = "LS2"
 	} else
 	// LS3 silt 30-40% clay 17-25%
-	if silt >= 0.3 && silt <= 0.4 && clay >= 0.17 && clay <= 0.25 {
+	if silt >= 0.3 && silt < 0.4 && clay >= 0.17 && clay < 0.25 {
 		soil_texture = "LS3"
 	} else
 	// LS4 silt 15-30% clay 17-25%
-	if silt >= 0.15 && silt <= 0.3 && clay >= 0.17 && clay <= 0.25 {
+	if silt >= 0.15 && silt < 0.3 && clay >= 0.17 && clay < 0.25 {
 		soil_texture = "LS4"
 	} else
 	// LT2 silt 30-50% clay 25-35%
-	if silt >= 0.3 && silt <= 0.5 && clay >= 0.25 && clay <= 0.35 {
+	if silt >= 0.3 && silt < 0.5 && clay >= 0.25 && clay < 0.35 {
 		soil_texture = "LT2"
 	} else
 	// LT3 silt 30-50% clay 35-45%
-	if silt >= 0.3 && silt <= 0.5 && clay >= 0.35 && clay <= 0.45 {
+	if silt >= 0.3 && silt < 0.5 && clay >= 0.35 && clay < 0.45 {
 		soil_texture = "LT3"
 	} else
 	// LTS silt 15-30% clay 25-45%
-	if silt >= 0.15 && silt <= 0.3 && clay >= 0.25 && clay <= 0.45 {
+	if silt >= 0.15 && silt < 0.3 && clay >= 0.25 && clay < 0.45 {
 		soil_texture = "LTS"
 	} else
 	// LU silt 50-65% clay 17-30%
-	if silt >= 0.5 && silt <= 0.65 && clay >= 0.17 && clay <= 0.3 {
+	if silt >= 0.5 && silt < 0.65 && clay >= 0.17 && clay < 0.3 {
 		soil_texture = "LU "
 	} else
 	// ULS silt 50-65% clay 8-17%
-	if silt >= 0.5 && silt <= 0.65 && clay >= 0.08 && clay <= 0.17 {
+	if silt >= 0.5 && silt < 0.65 && clay >= 0.08 && clay < 0.17 {
 		soil_texture = "ULS"
 	} else
 	// US silt 50-80% clay 0-8%
-	if silt >= 0.5 && silt <= 0.8 && clay >= 0.0 && clay <= 0.08 {
+	if silt >= 0.5 && silt < 0.8 && clay >= 0.0 && clay < 0.08 {
 		soil_texture = "US "
 	} else
 	// UU silt >80% clay 0-8%
-	if silt >= 0.8 && clay >= 0.0 && clay <= 0.08 {
+	if silt >= 0.8 && clay >= 0.0 && clay < 0.08 {
 		soil_texture = "UU "
 	} else
 	// UT2 silt >65% clay 8-12%
-	if silt >= 0.65 && clay >= 0.08 && clay <= 0.12 {
+	if silt >= 0.65 && clay >= 0.08 && clay < 0.12 {
 		soil_texture = "UT2"
 	} else
 	// UT3 silt >65% clay 12-17%
-	if silt >= 0.65 && clay >= 0.12 && clay <= 0.17 {
+	if silt >= 0.65 && clay >= 0.12 && clay < 0.17 {
 		soil_texture = "UT3"
 	} else
 	// UT4 silt >65% clay 17-25%
-	if silt >= 0.65 && clay >= 0.17 && clay <= 0.25 {
+	if silt >= 0.65 && clay >= 0.17 && clay < 0.25 {
 		soil_texture = "UT4"
 	} else
 	// TS2 silt 0-15% clay 45-65%
-	if silt >= 0.0 && silt <= 0.15 && clay >= 0.45 && clay <= 0.65 {
+	if silt >= 0.0 && silt < 0.15 && clay >= 0.45 && clay < 0.65 {
 		soil_texture = "TS2"
 	} else
 	// TS3 silt 0-15% clay 35-45%
-	if silt >= 0.0 && silt <= 0.15 && clay >= 0.35 && clay <= 0.45 {
+	if silt >= 0.0 && silt < 0.15 && clay >= 0.35 && clay < 0.45 {
 		soil_texture = "TS3"
 	} else
 	// TS4 silt 0-15% clay 25-35%
-	if silt >= 0.0 && silt <= 0.15 && clay >= 0.25 && clay <= 0.35 {
+	if silt >= 0.0 && silt < 0.15 && clay >= 0.25 && clay < 0.35 {
 		soil_texture = "TS4"
 	} else
 	// TL silt 15-30% clay 45-65%
-	if silt >= 0.15 && silt <= 0.3 && clay >= 0.45 && clay <= 0.65 {
+	if silt >= 0.15 && silt < 0.3 && clay >= 0.45 && clay < 0.65 {
 		soil_texture = "TL "
 	} else
 	// TU3 silt 50-65% clay 30-45%
-	if silt >= 0.5 && silt <= 0.65 && clay >= 0.3 && clay <= 0.45 {
+	if silt >= 0.5 && silt < 0.65 && clay >= 0.3 && clay < 0.45 {
 		soil_texture = "TU3"
 	} else
 	// TU2 silt > 30% clay 45-65%
-	if silt >= 0.3 && clay >= 0.45 && clay <= 0.65 {
+	if silt >= 0.3 && clay >= 0.45 && clay < 0.65 {
 		soil_texture = "TU2"
 	} else
 	// TU4 silt > 65% clay >25%
@@ -457,6 +457,138 @@ func SandAndClayToHa5Texture(sand, clay float64) string {
 		soil_texture = "TT "
 	}
 
+	return soil_texture
+}
+
+// SandAndClayToHa5Texture with percent sand and clay as integer
+func SandAndClayToKa5Texture(sand, clay int) string {
+	var soil_texture string
+	silt := 100 - sand - clay
+
+	// SS silt 0-10% clay 0-5%
+	if silt >= 0 && silt < 10 && clay >= 0.0 && clay < 5 {
+		soil_texture = "SS "
+	} else
+	// ST2 silt 0-10% clay 5-17%
+	if silt >= 0 && silt < 10 && clay >= 5 && clay < 17 {
+		soil_texture = "ST2"
+	} else
+	// ST3 silt 0-15% clay 17-25%
+	if silt >= 0 && silt < 15 && clay >= 17 && clay < 25 {
+		soil_texture = "ST3"
+	} else
+	// SU2 silt 10-25% clay 0-5%
+	if silt >= 10 && silt < 25 && clay >= 0 && clay < 5 {
+		soil_texture = "SU2"
+	} else
+	// SU3 silt 25-40% clay 0-8%
+	if silt >= 25 && silt < 40 && clay >= 0 && clay < 8 {
+		soil_texture = "SU3"
+	} else
+	// SU4 silt 40-50% clay 0-8%
+	if silt >= 40 && silt < 50 && clay >= 0 && clay < 8 {
+		soil_texture = "SU4"
+	} else
+	// SL2 silt 10-25% clay 5-8%
+	if silt >= 10 && silt < 25 && clay >= 5 && clay < 8 {
+		soil_texture = "SL2"
+	} else
+	// SL3 silt 10-40% clay 8-12%
+	if silt >= 10 && silt < 40 && clay >= 8 && clay < 12 {
+		soil_texture = "SL3"
+	} else
+	// SL4 silt 10-40% clay 12-17%
+	if silt >= 10 && silt < 40 && clay >= 12 && clay < 17 {
+		soil_texture = "SL4"
+	} else
+	// SLU silt 40-50% clay 8-17%
+	if silt >= 40 && silt < 50 && clay >= 8 && clay < 17 {
+		soil_texture = "SLU"
+	} else
+	// LS2 silt 40-50% clay 17-25%
+	if silt >= 40 && silt < 50 && clay >= 17 && clay < 25 {
+		soil_texture = "LS2"
+	} else
+	// LS3 silt 30-40% clay 17-25%
+	if silt >= 30 && silt < 40 && clay >= 17 && clay < 25 {
+		soil_texture = "LS3"
+	} else
+	// LS4 silt 15-30% clay 17-25%
+	if silt >= 15 && silt < 30 && clay >= 17 && clay < 25 {
+		soil_texture = "LS4"
+	} else
+	// LT2 silt 30-50% clay 25-35%
+	if silt >= 30 && silt < 50 && clay >= 25 && clay < 35 {
+		soil_texture = "LT2"
+	} else
+	// LT3 silt 30-50% clay 35-45%
+	if silt >= 30 && silt < 50 && clay >= 35 && clay < 45 {
+		soil_texture = "LT3"
+	} else
+	// LTS silt 15-30% clay 25-45%
+	if silt >= 15 && silt < 30 && clay >= 25 && clay < 45 {
+		soil_texture = "LTS"
+	} else
+	// LU silt 50-65% clay 17-30%
+	if silt >= 50 && silt < 65 && clay >= 17 && clay < 30 {
+		soil_texture = "LU "
+	} else
+	// ULS silt 50-65% clay 8-17%
+	if silt >= 50 && silt < 65 && clay >= 8 && clay < 17 {
+		soil_texture = "ULS"
+	} else
+	// US silt 50-80% clay 0-8%
+	if silt >= 50 && silt < 80 && clay >= 0 && clay < 8 {
+		soil_texture = "US "
+	} else
+	// UU silt >80% clay 0-8%
+	if silt >= 80 && clay >= 0 && clay < 8 {
+		soil_texture = "UU "
+	} else
+	// UT2 silt >65% clay 8-12%
+	if silt >= 65 && clay >= 8 && clay < 12 {
+		soil_texture = "UT2"
+	} else
+	// UT3 silt >65% clay 12-17%
+	if silt >= 65 && clay >= 12 && clay < 17 {
+		soil_texture = "UT3"
+	} else
+	// UT4 silt >65% clay 17-25%
+	if silt >= 65 && clay >= 17 && clay < 25 {
+		soil_texture = "UT4"
+	} else
+	// TS2 silt 0-15% clay 45-65%
+	if silt >= 0 && silt < 15 && clay >= 45 && clay < 65 {
+		soil_texture = "TS2"
+	} else
+	// TS3 silt 0-15% clay 35-45%
+	if silt >= 0 && silt < 15 && clay >= 35 && clay < 45 {
+		soil_texture = "TS3"
+	} else
+	// TS4 silt 0-15% clay 25-35%
+	if silt >= 0 && silt < 15 && clay >= 25 && clay < 35 {
+		soil_texture = "TS4"
+	} else
+	// TL silt 15-30% clay 45-65%
+	if silt >= 15 && silt < 30 && clay >= 45 && clay < 65 {
+		soil_texture = "TL "
+	} else
+	// TU3 silt 50-65% clay 30-45%
+	if silt >= 50 && silt < 65 && clay >= 30 && clay < 45 {
+		soil_texture = "TU3"
+	} else
+	// TU2 silt > 30% clay 45-65%
+	if silt >= 30 && clay >= 45 && clay < 65 {
+		soil_texture = "TU2"
+	} else
+	// TU4 silt > 65% clay >25%
+	if silt >= 65 && clay >= 25 {
+		soil_texture = "TU4"
+	} else
+	// TT clay > 65
+	if clay >= 65 {
+		soil_texture = "TT "
+	}
 	return soil_texture
 }
 
