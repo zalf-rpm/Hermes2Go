@@ -58,7 +58,7 @@ func main() {
 	for i := range soilData {
 		for layer := 0; layer < soilData[i].AZHO; layer++ {
 			if *calcTexture {
-				soilData[i].BART[layer] = hermes.SandAndClayToHa5Texture(soilData[i].SSAND[layer]/100, soilData[i].TON[layer]/100)
+				soilData[i].BART[layer] = hermes.SandAndClayToKa5Texture(int(soilData[i].SSAND[layer]), int(soilData[i].TON[layer]))
 			}
 			if *calBulkDensity {
 				bulk := stdBulk(soilData[i].UKT[layer+1] - 1)
