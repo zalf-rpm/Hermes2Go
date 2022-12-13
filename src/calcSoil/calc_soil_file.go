@@ -66,11 +66,18 @@ func main() {
 
 			}
 			if *calcGPV {
-				bulkDenssity := soilData[i].BULK[layer]
-				if *calBulkDensity {
-					bulkDenssity = stdBulk(soilData[i].UKT[layer+1] - 1)
+				// bulkDenssity := soilData[i].BULK[layer]
+				// if *calBulkDensity {
+				// 	bulkDenssity = stdBulk(soilData[i].UKT[layer+1] - 1)
+				// }
+				//soilData[i].GPV[layer] = hermes.CalculatePoreSpace(bulkDenssity*1000) * 100
+				ts := 1.0
+				if layer == 0 {
+					ts = 0
 				}
-				soilData[i].GPV[layer] = hermes.CalculatePoreVolume(bulkDenssity*1000) * 100
+
+				soilData[i].GPV[layer] = hermes.CalculatePoreSpacePTF1(soilData[i].CGEHALT[layer], soilData[i].TON[layer], soilData[i].SLUF[layer], float64(soilData[i].LD[layer]), ts) * 100
+				//soilData[i].GPV[layer] = hermes.CalculatePoreSpacePTF1(soilData[i].CGEHALT[layer], soilData[i].TON[layer], soilData[i].SLUF[layer], bulkDenssity, ts) * 100
 			}
 			if *ptf > 0 {
 				var fc, wp float64
