@@ -2,6 +2,7 @@ package hermes
 
 import (
 	"fmt"
+	"math"
 	"strings"
 )
 
@@ -324,9 +325,15 @@ func (soildata *SoilFileData) BulkDensityToClass(bulkDensity float64) (bulkDensi
 	return bulkDensityClass
 }
 
-// CalculatePoreVolume calculate pore volume from bulk density
-func CalculatePoreVolume(bulkDensity float64) float64 {
+// CalculatePoreSpace calculate pore volume from bulk density
+func CalculatePoreSpace(bulkDensity float64) float64 {
 	return 1 - ((bulkDensity / 1000) / 2.65)
+}
+
+func CalculatePoreSpacePTF1(CGehalt, Ton, Sluf, BD, tsRat float64) float64 {
+	BD2 := math.Pow(1.2+0.1*BD, 2)
+	PS := 0.6819 - 0.0648*(1/(CGehalt+1)) - 0.119*BD2 - 0.02668*tsRat + 0.001489*Ton + 0.0008031*Sluf + 0.02321*(1/(CGehalt+1))*BD2 + 0.01908*BD2*tsRat - 0.001109*Ton*tsRat - 0.00002315*Sluf*Ton - 0.0001197*Sluf*BD2 - 0.0001068*Ton*BD2
+	return PS
 }
 
 // SandAndClayToHa5Texture get a rough KA5 soil texture class from given sand and soil content
