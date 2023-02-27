@@ -21,7 +21,7 @@
             "cwd": "examples/",
         },
         {
-            "name": "Launch Hermes batch mode",
+            "name": "Launch Hermes batch mode Old",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -35,6 +35,34 @@
             ]
         },
         {
+            "name": "Launch Hermes batch mode new",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "src/hermes2go",
+            "cwd": "examples/",
+            "args": [
+                "-module", "batch",
+                "-concurrent", "1",
+                "-logoutput",
+                "-batch", "all_muencheberg_batch.txt" ,
+            ]
+        },
+        {
+            "name": "Launch Hermes batch mode GW",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "src/hermes2go",
+            "cwd": "examples/",
+            "args": [
+                "-module", "batch",
+                "-concurrent", "1",
+                "-logoutput",
+                "-batch", "ex3_muencheberg_batch.txt" ,
+            ]
+        },
+        {
             "name": "Launch http render service",
             "type": "go",
             "request": "launch",
@@ -42,7 +70,7 @@
             "program": "src/renderservice",
         },
         {
-            "name": "Launch Hermes Batch BBBeurope",
+            "name": "Launch Hermes Batch Other",
             "type": "go",
             "request": "launch",
             "mode": "auto",

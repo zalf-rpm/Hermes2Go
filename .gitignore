@@ -21,3 +21,5 @@ src/hermes2go/version.txt
 .vscode/settings.json
 src/renderservice/last_run.html
 src/renderservice/sulfonie_last_run.html
+examples/MUN_RESULT
+examples/project/ex2/RESULT

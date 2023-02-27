@@ -116,10 +116,11 @@ func LoadSoil(withGroundwater bool, LOGID string, hPath *HFilePath, soilID strin
 
 			soildata.useGroundwaterFromSoilfile = withGroundwater
 			if withGroundwater {
-				soildata.GRHI = int(ValAsInt(bodenLine[70:72], "none", bodenLine))
-				soildata.GRLO = soildata.GRHI
-				soildata.GRW = float64(soildata.GRLO+soildata.GRHI) / 2
-				soildata.GW = float64(soildata.GRLO+soildata.GRHI) / 2
+				gw := int(ValAsInt(bodenLine[70:72], "none", bodenLine))
+				soildata.GRHI = gw
+				soildata.GRLO = gw
+				soildata.GRW = float64(gw)
+				soildata.GW = float64(gw)
 				soildata.AMPL = 0
 			}
 			soildata.DRAIDEP = int(ValAsInt(bodenLine[62:64], "none", bodenLine))
@@ -210,10 +211,11 @@ func LoadSoilCSV(withGroundwater bool, LOGID string, hPath *HFilePath, soilID st
 
 			soildata.useGroundwaterFromSoilfile = withGroundwater
 			if withGroundwater {
-				soildata.GRHI = int(ValAsInt(tokens[header[groundwaterlevel]], "none", bodenLine))
-				soildata.GRLO = soildata.GRHI
-				soildata.GRW = float64(soildata.GRLO+soildata.GRHI) / 2
-				soildata.GW = float64(soildata.GRLO+soildata.GRHI) / 2
+				gw := int(ValAsInt(tokens[header[groundwaterlevel]], "none", bodenLine))
+				soildata.GRHI = gw
+				soildata.GRLO = gw
+				soildata.GRW = float64(gw)
+				soildata.GW = float64(gw)
 				soildata.AMPL = 0
 			}
 			soildata.DRAIDEP = int(ValAsInt(tokens[header[drainagedepth]], "none", bodenLine))
@@ -670,4 +672,81 @@ func readSoilHeader(line string) map[SoilHeader]int {
 		}
 	}
 	return headers
+}
+
+// ReadGroundWaterTimeSeries read ground water time series
+// from csv file, for a given soilID (sid)
+func ReadGroundWaterTimeSeries(g *GlobalVarsMain, hPath *HFilePath, sid string) error {
+
+	groundWaterHeader := map[string]int{
+		"SID":   0,
+		"Date":  1,
+		"Level": 2,
+	}
+	// ground water time series
+	// key: date as int
+	// value: ground water level in layer
+	g.GWTimeSeriesValues = make(map[int]float64)
+	g.GWTimestamps = make([]int, 0)
+
+	_, scanner, err := Open(&FileDescriptior{FilePath: hPath.gwtimeseries, FileDescription: "ground water time series file", UseFilePool: true})
+	if err != nil {
+		return err
+	}
+	scanner.Scan() // skip header
+
+	found := false
+	// read data
+	for scanner.Scan() {
+		// check for soil id
+		if HasPrefixWithSeperator(scanner.Text(), sid) {
+			tokens := Explode(scanner.Text(), []rune{',', ';'})
+			// read date
+			_, date := g.Datum(tokens[groundWaterHeader["Date"]])
+			// read ground water level
+			level := ValAsFloat(tokens[groundWaterHeader["Level"]], hPath.gwtimeseries, scanner.Text())
+			g.GWTimeSeriesValues[date] = level
+			g.GWTimestamps = append(g.GWTimestamps, date)
+			found = true
+		}
+	}
+	if !found {
+		return fmt.Errorf("soil id '%s' not found in ground water time series file '%s'", sid, hPath.gwtimeseries)
+	}
+	return nil
+}
+
+func HasPrefixWithSeperator(s, prefix string) bool {
+	return len(s) >= len(prefix) && s[0:len(prefix)] == prefix && (s[len(prefix)] == ',' || s[len(prefix)] == ';' || s[len(prefix)] == ' ')
+}
+
+// GetGroundWaterLevel returns ground water level for a given date
+// if no ground water level is found, a ground water level is calculated from the previous and next date
+func GetGroundWaterLevel(g *GlobalVarsMain, date int) (float64, error) {
+
+	// check if ground water level is given for date
+	if level, ok := g.GWTimeSeriesValues[date]; ok {
+		return level, nil
+	}
+	// no ground water level is given for date
+	// calculate ground water level from previous and next date
+	var prevDate, nextDate int
+	for _, d := range g.GWTimestamps {
+		if d < date {
+			prevDate = d
+		} else if d > date {
+			nextDate = d
+			break
+		}
+	}
+	if prevDate == 0 && nextDate == 0 {
+		return 0, fmt.Errorf("no ground water level found for date %d", date)
+	} else if prevDate == 0 {
+		return g.GWTimeSeriesValues[nextDate], nil
+	} else if nextDate == 0 {
+		return g.GWTimeSeriesValues[prevDate], nil
+	}
+	// calculate ground water level
+	level := (g.GWTimeSeriesValues[nextDate]-g.GWTimeSeriesValues[prevDate])/float64(nextDate-prevDate)*float64(date-prevDate) + g.GWTimeSeriesValues[prevDate]
+	return level, nil
 }

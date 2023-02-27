@@ -23,19 +23,18 @@ type InputSharedVars struct {
 	IRRIGAT bool
 	ANZBREG int
 	FLAEID  string
-	SSAND   [10]float64
-	SLUF    [10]float64
-	TON     [10]float64
+	SSAND   [10]float64 // sand in %
+	SLUF    [10]float64 // silt(schluf) in %
+	TON     [10]float64 // clay(ton) in %
 }
 
 // Input modul for reading soil data, crop rotation, cultivation data (Fertilization, tillage) of fields and ploygon units
-func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *Config, soilID string) error {
+func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *Config, soilID, gwId string) error {
 	//! ------Modul zum Einlesen von Boden-, Fruchtfolge und Bewirtschaftungsdaten (Duengung, Bodenbearbeitung) von Feldern und Polygonen ---------
 	var ERNT, SAT string
 	var winit [6]float64
 
 	//!  Einleseprogramm für Schlagdaten
-	g.WRED = 0
 	// ! ----------------------- Beginn Lesen der Polygondatei ------------------------
 	// ! Inputs:
 	// ! FLAEID$        = Polygon-ID /plot ID /Schlag-ID
@@ -54,12 +53,34 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 			punr := int(ValAsInt(tokens[0], "none", tokens[0])) // Plot-ID / Polygon-ID
 			l.FLAEID = tokens[0]
 			if punr == g.SLNR {
+				sid := soilID
+				if soilID == "" {
+					sid = tokens[1] // second entry SID in poly file
+				}
+				groundWaterID := gwId
+				if gwId == "" {
+					groundWaterID = sid
+				}
 				if g.GROUNDWATERFROM == Polygonfile {
 					g.GRHI = int(ValAsInt(tokens[3], "none", tokens[3]))
 					g.GRLO = int(ValAsInt(tokens[4], "none", tokens[4]))
 					g.GRW = float64(g.GRLO+g.GRHI) / 2
 					g.GW = float64(g.GRLO+g.GRHI) / 2
 					g.AMPL = g.GRLO - g.GRHI
+				} else if g.GROUNDWATERFROM == GWTimeSeries {
+					err := ReadGroundWaterTimeSeries(g, hPath, groundWaterID)
+					if err != nil {
+						return fmt.Errorf("%s %v", g.LOGID, err)
+					}
+					// use start value of groundwater time series
+					g.GW, err = GetGroundWaterLevel(g, g.GWTimestamps[0])
+					if err != nil {
+						return fmt.Errorf("%s %v", g.LOGID, err)
+					}
+					g.GRHI = int(g.GW)
+					g.GRLO = int(g.GW)
+					g.GRW = g.GW
+					g.AMPL = 0
 				}
 
 				g.PKT = tokens[2]                                   // Feld_ID / Field_ID
@@ -88,10 +109,6 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 				// ! NGEHALT(I)     = Norg-Gehalt (Gew. %)
 				// ! HUMUS(I)       = Humusgehalt in Hor. I (Gew.%)
 				// ! ------------------------------------------------------------------------------------------------
-				sid := soilID
-				if soilID == "" {
-					sid = tokens[1] // second entry SID in poly file
-				}
 				var currentSoil SoilFileData
 				var soilLoadError error
 				groundwaterFormSoilfile := g.GROUNDWATERFROM == Soilfile
@@ -153,7 +170,7 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 
 				for L := 1; L <= g.AZHO; L++ {
 					lindex := L - 1
-					BDART := Hydro(L, g, l, hPath)
+					Hydro(L, g, l, hPath)
 					if g.FELDW[lindex] == 0 {
 						g.FELDW[lindex] = g.FELDW[lindex-1]
 					}
@@ -164,31 +181,24 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 							if g.FKA[lindex] > 0 {
 								g.CAPPAR = 1
 								if LT < g.N+1 {
-									g.BD[LTindex] = g.BULK[lindex]
+
 									g.W[LTindex] = g.FKA[lindex] / 100
 									g.WMIN[LTindex] = g.WP[lindex] / 100
 									g.PORGES[LTindex] = g.GPV[lindex] / 100
 									g.WNOR[LTindex] = g.FKA[lindex] / 100
 
 									if L == 1 {
-										if BDART[0] == 'S' { // if main soil component is sand
-											g.WRED = g.WP[lindex] + 0.6*(g.FKA[lindex]-g.WP[lindex])
-										} else {
-											g.WRED = g.WP[lindex] + 0.66*(g.FKA[lindex]-g.WP[lindex])
-										}
+										calcWRed(g.WP[lindex], g.FKA[lindex], g)
 									}
 								}
 							} else {
 								g.CAPPAR = 0
 								if LT < g.N+1 {
-									g.BD[LTindex] = g.BULK[lindex]
+
 									g.W[LTindex] = g.FELDW[lindex] * (1 - g.STEIN[lindex])
 									g.WMIN[LTindex] = g.LIM[lindex] * (1 - g.STEIN[lindex])
 									g.PORGES[LTindex] = g.PRGES[lindex] * (1 - g.STEIN[lindex])
 									g.WNOR[LTindex] = g.NORMFK[lindex] * (1 - g.STEIN[lindex])
-									g.SAND[LTindex] = l.SSAND[lindex]
-									g.SILT[LTindex] = l.SLUF[lindex]
-									g.CLAY[LTindex] = l.TON[lindex]
 								}
 							}
 						} else {
@@ -224,25 +234,29 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 									g.W[LTindex], g.WMIN[LTindex] = PTF4(g.CGEHALT[lindex], l.TON[lindex], l.SSAND[lindex])
 								}
 								g.PORGES[LTindex] = g.GPV[lindex] / 100
-								g.BD[LTindex] = g.BULK[lindex]
 								g.WNOR[LTindex] = g.W[LTindex]
+
 								if L == 1 {
-									if BDART[0] == 'S' { // if main soil component is sand
-										g.WRED = (g.WMIN[LTindex] + 0.6*(g.W[LTindex]-g.WMIN[LTindex])) * 100
-									} else {
-										g.WRED = (g.WMIN[LTindex] + 0.66*(g.W[LTindex]-g.WMIN[LTindex])) * 100
-									}
+									calcWRed(g.WMIN[LTindex], g.W[LTindex], g)
 								}
 							}
 						}
+						g.BD[LTindex] = g.BULK[lindex]
 					}
 				}
-				g.WRED = g.WRED / 100
+				// save soil parameters for GW fluctuations
+				for i := 0; i < g.N; i++ {
+					g.W_Backup[i] = g.W[i]
+					g.WMIN_Backup[i] = g.WMIN[i]
+					g.PORGES_Backup[i] = g.PORGES[i]
+					g.WNOR_Backup[i] = g.WNOR[i]
+				}
+
 				// ! -- Unterhalb Grundwasserspiegel wird FK auf GPV gesetzt --
-				// below groundwater level FK will be set to GPV
+				// below groundwater level field capacity will be set to GPV
 				if g.GW < float64(g.N) {
-					maxVal := math.Max(g.GW, 1)
-					for l := int(math.Round(maxVal)); l <= g.N; l++ {
+					maxVal := int(math.Round(math.Max(g.GW, 1)))
+					for l := maxVal; l <= g.N; l++ {
 						index := l - 1
 						g.W[index] = g.PORGES[index]
 					}
@@ -850,9 +864,9 @@ func PTF4(CGEHALT, TON, SSAND float64) (fc float64, wmin float64) {
 }
 
 // Hydro reads hydro parameter
-func Hydro(las1 int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFilePath) (BDART string) {
+func Hydro(las1 int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFilePath) {
 	lIndex := las1 - 1
-	BDART = g.BART[lIndex]
+	BDART := g.BART[lIndex]
 	if las1 == g.AZHO {
 		_, scannerParCap, _ := Open(&FileDescriptior{FilePath: hPath.parcap, UseFilePool: true})
 
@@ -899,11 +913,7 @@ func Hydro(las1 int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFilePath
 
 			g.WUMAX[lIndex] = ValAsFloat(wa[31:33], hyparName, wa)
 			if las1 == 1 {
-				if BDART[0:1] == "S" {
-					g.WRED = (g.LIM[lIndex] + 0.6*(local.FK[lIndex]-g.LIM[lIndex])) * 100
-				} else {
-					g.WRED = (g.LIM[lIndex] + 0.66*(local.FK[lIndex]-g.LIM[lIndex])) * 100
-				}
+				calcWRed(g.LIM[lIndex]*100, local.FK[lIndex]*100, g)
 			}
 			break
 		}
@@ -911,11 +921,11 @@ func Hydro(las1 int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFilePath
 	var KRR, KRG float64
 	if BDART[0] == 'S' {
 		g.AD = .004
-		if g.GW < 9 {
+		if g.GRW < 9 {
 			KRR = 2
-		} else if g.GW >= 20 && g.GW < 30 {
+		} else if g.GRW >= 20 && g.GRW < 30 {
 			KRR = -1
-		} else if g.GW >= 30 {
+		} else if g.GRW >= 30 {
 			KRR = -2
 		} else {
 			KRR = 0
@@ -978,9 +988,9 @@ func Hydro(las1 int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFilePath
 		}
 	} else if BDART[0] == 'U' {
 		g.AD = .002
-		if g.GW < 8 {
+		if g.GRW < 8 {
 			KRR = 1
-		} else if g.GW > 35 {
+		} else if g.GRW > 35 {
 			KRR = -1
 		} else {
 			KRR = 0
@@ -1008,7 +1018,7 @@ func Hydro(las1 int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFilePath
 		}
 	} else if BDART[0] == 'L' {
 		g.AD = .005
-		if g.GW < 8 {
+		if g.GRW < 8 {
 			KRR = 1
 		} else {
 			KRR = 0
@@ -1052,7 +1062,7 @@ func Hydro(las1 int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFilePath
 			g.IZM = 20
 		}
 		g.AD = .001
-		if g.GW < 8 {
+		if g.GRW < 8 {
 			KRR = 1
 		} else {
 			KRR = 0
@@ -1065,7 +1075,7 @@ func Hydro(las1 int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFilePath
 			g.IZM = 20
 		}
 		g.AD = .001
-		if g.GW < 8 {
+		if g.GRW < 8 {
 			KRR = 1
 		} else {
 			KRR = 0
@@ -1105,7 +1115,7 @@ func Hydro(las1 int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFilePath
 	g.FELDW[lIndex] = local.FK[lIndex] + KRR/100
 	g.NORMFK[lIndex] = local.FK[lIndex]
 	g.PRGES[lIndex] = g.PRGES[lIndex] + KRG/100
-	return BDART
+
 }
 
 // residi loads potential mineralization from previous crops

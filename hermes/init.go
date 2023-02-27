@@ -8,30 +8,28 @@ import (
 func Init(g *GlobalVarsMain) {
 
 	g.TAG.SetByIndex(g.ITAG - 2)
-	g.GRW = g.GW - (float64(g.AMPL) * math.Sin((g.TAG.Num+80)*math.Pi/180))
+	if g.GROUNDWATERFROM == Polygonfile {
+		g.GRW = g.GW - (float64(g.AMPL) * math.Sin((g.TAG.Num+float64(g.GWPhase))*math.Pi/180))
+	} else if g.GROUNDWATERFROM == GWTimeSeries {
+		g.GRW, _ = GetGroundWaterLevel(g, g.BEGINN-2)
+	}
 	g.TSOIL[0][0] = (g.TMIN[g.ITAG-1] + g.TMAX[g.ITAG-1]) / 2
 	initp := (g.TSOIL[0][0] - g.TBASE) / float64(g.N)
 	for i := 1; i <= g.N; i++ {
 		g.TSOIL[0][i] = g.TSOIL[0][0] - initp*float64(i)
 	}
 	g.ALBEDO = 0.2
-	for l := int(g.GRW + 1); l <= g.N; l++ {
-		if l == int(g.GRW+1) {
-			g.W[l-1] = (1-math.Mod(g.GRW+1, 1))*g.PORGES[l-1] + g.W[l-1]*(math.Mod(g.GRW+1, 1))
-		} else {
-			g.W[l-1] = g.PORGES[l-1]
-		}
-	}
+	setFieldCapacityWithGW(g)
 
 	var FKPROZ float64
 	if g.TAG.Num < 275 {
-		if g.GW < 10 {
+		if g.GRW < 10 {
 			FKPROZ = .5
 		} else {
 			FKPROZ = .4
 		}
 	} else {
-		if g.GW < 10 {
+		if g.GRW < 10 {
 			FKPROZ = .65
 		} else {
 			FKPROZ = .6
@@ -56,7 +54,7 @@ func Init(g *GlobalVarsMain) {
 			}
 		}
 		PG := g.PORGES[z]
-		if zNum >= g.GW {
+		if zNum >= g.GRW {
 			g.WG[0][z] = PG
 		}
 		g.C1[z] = g.CN[0][z]
@@ -87,4 +85,25 @@ func Init(g *GlobalVarsMain) {
 	g.DRAINLOSS = 0
 	g.NFIX = 0
 	g.SCHNORR = 0
+}
+
+func setFieldCapacityWithGW(g *GlobalVarsMain) {
+	for l := int(g.GRW + 1); l <= g.N; l++ {
+		if l == int(g.GRW+1) {
+			g.W[l-1] = (1-math.Mod(g.GRW+1, 1))*g.PORGES[l-1] + g.W[l-1]*(math.Mod(g.GRW+1, 1))
+		} else {
+			g.W[l-1] = g.PORGES[l-1]
+		}
+	}
+}
+
+// setWRed calc reduced Field Capacity
+// takes soil texture, wilting point and field capacity from top layer
+func calcWRed(wiltingPoint float64, fieldCapacity float64, g *GlobalVarsMain) {
+	if g.BART[0][0] == 'S' { // if main soil component is sand
+		g.WRED = wiltingPoint + 0.6*(fieldCapacity-wiltingPoint)
+	} else {
+		g.WRED = wiltingPoint + 0.66*(fieldCapacity-wiltingPoint)
+	}
+	g.WRED = g.WRED / 100
 }

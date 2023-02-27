@@ -50,7 +50,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		}
 		fileExtension := "txt"
 
-		var LOCID, SOID string
+		var LOCID, SOID, gwId string
 		var parameterFolderOverride, resultOverride string
 		for key, value := range argValues {
 			var err error
@@ -71,6 +71,8 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				parameterFolderOverride = value
 			case "resultfolder":
 				resultOverride = value
+			case "gwId":
+				gwId = value
 			}
 
 			if err != nil {
@@ -160,7 +162,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 
 		//************ AUFRUFEN DES EINGABE UND UMRECHNUNGSMODULS **************
 
-		errSoil := Input(&herInputVars, &g, &herPath, &driConfig, SOID)
+		errSoil := Input(&herInputVars, &g, &herPath, &driConfig, SOID, gwId)
 		if errSoil != nil {
 			return errSoil
 		}
@@ -325,40 +327,57 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			}
 			g.AKTUELL = g.Kalender(ZEIT)
 
-			g.GRW = g.GW - (float64(g.AMPL) * math.Sin((g.TAG.Num+80)*math.Pi/180))
-
+			oldGrW := g.GRW
+			if g.GROUNDWATERFROM == Polygonfile {
+				g.GRW = g.GW - (float64(g.AMPL) * math.Sin((g.TAG.Num+float64(g.GWPhase))*math.Pi/180))
+			} else if g.GROUNDWATERFROM == GWTimeSeries {
+				var err error
+				g.GRW, err = GetGroundWaterLevel(&g, ZEIT)
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
 			// --------------------- ABRUFEN DER HYDROLOGISCHEN PARAMETER ----------------
-			if g.AMPL > 0 && g.CAPPAR == 0 {
-				for L := 1; L <= g.AZHO; L++ {
-					Lindex := L - 1
-					Hydro(L, &g, &herInputVars, &herPath)
-					if g.FELDW[Lindex] == 0 {
-						g.FELDW[Lindex] = g.FELDW[Lindex-1]
-					}
+			// ground water level has changed
+			if g.GRW != oldGrW {
+				if g.PTF == 0 && g.CAPPAR == 0 {
+					for L := 1; L <= g.AZHO; L++ {
+						Lindex := L - 1
+						Hydro(L, &g, &herInputVars, &herPath)
+						if g.FELDW[Lindex] == 0 {
+							g.FELDW[Lindex] = g.FELDW[Lindex-1]
+						}
 
-					for LT := g.UKT[L-1] + 1; LT <= g.UKT[L]; LT++ {
-						LTindex := LT - 1
-						if LT < g.N+1 {
-							g.W[LTindex] = g.FELDW[Lindex] * (1 - g.STEIN[Lindex])
-							g.WMIN[LTindex] = g.LIM[Lindex] * (1 - g.STEIN[Lindex])
-							g.PORGES[LTindex] = g.PRGES[Lindex] * (1 - g.STEIN[Lindex])
-							g.WNOR[LTindex] = g.NORMFK[Lindex] * (1 - g.STEIN[Lindex])
-							g.WNOR[LTindex] = g.NORMFK[Lindex]
+						for LT := g.UKT[L-1] + 1; LT <= g.UKT[L]; LT++ {
+							LTindex := LT - 1
+							if LT < g.N+1 {
+								g.W[LTindex] = g.FELDW[Lindex] * (1 - g.STEIN[Lindex])
+								g.WMIN[LTindex] = g.LIM[Lindex] * (1 - g.STEIN[Lindex])
+								g.PORGES[LTindex] = g.PRGES[Lindex] * (1 - g.STEIN[Lindex])
+								g.WNOR[LTindex] = g.NORMFK[Lindex] * (1 - g.STEIN[Lindex])
+							}
 						}
 					}
+				} else {
+					// restore soil parameters
+					for idxLayer := 0; idxLayer < g.N; idxLayer++ {
+						g.W[idxLayer] = g.W_Backup[idxLayer]
+						g.WMIN[idxLayer] = g.WMIN_Backup[idxLayer]
+						g.PORGES[idxLayer] = g.PORGES_Backup[idxLayer]
+						g.WNOR[idxLayer] = g.WNOR_Backup[idxLayer]
+					}
+					calcWRed(g.WMIN[0], g.W[0], &g)
 				}
-				g.WRED = g.WRED / 100
-
-				for L := int(g.GRW + 1); L <= g.N; L++ {
-					Lindex := L - 1
-					if L == int(g.GRW+1) {
-						g.W[Lindex] = (1-math.Mod(g.GRW+1, 1))*g.PORGES[Lindex] + g.W[Lindex]*(math.Mod(g.GRW+1, 1))
-					} else {
-						g.W[Lindex] = g.PORGES[Lindex]
+				setFieldCapacityWithGW(&g)
+				// set water content in the sub ground water zone to maximum Field Capacity
+				for z := 0; z < g.N; z++ {
+					zNum := float64(z) + 1
+					if zNum >= g.GRW {
+						g.WG[1][z] = g.W[z]
 					}
 				}
-
 			}
+
 			// +++++++++++++++++++++++++++++++++++ AUTOMATIC IRRIGATION (INCL. 2 DAY FORECAST) +++++++++++
 			if g.AUTOIRRI {
 				if g.SAAT[g.AKF.Index] > 0 {
