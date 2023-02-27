@@ -1,0 +1,10 @@
+go 1.19
+
+use (
+    ./src/hermes2go
+    ./src/renderservice
+    ./hermes
+    ./src/calcHermesBatch
+    ./src/ptf_testing
+    ./src/climatefileconverter
+)

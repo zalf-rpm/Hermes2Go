@@ -18,3 +18,6 @@ src/calcHermesBatch/calcHermesBatch
 src/hermes2go/hermes2go
 src/hermes2go/hermestogo
 src/hermes2go/version.txt
+.vscode/settings.json
+src/renderservice/last_run.html
+src/renderservice/sulfonie_last_run.html
