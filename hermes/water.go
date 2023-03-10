@@ -480,7 +480,7 @@ func Evatra(l *WaterSharedVars, g *GlobalVarsMain, hPath *HFilePath, zeit int) {
 	// ! Input: PROP       = Verteilungsfaktor Exponentialfunktion (abh. von Hauptbodenart)
 	if l.EVA[g.TAG.Index] > 0 {
 		SUMVAR := 0.
-		// ! ++++++++++++ Neu: Bei �berstau Entnahme aus Ueberstauwasser bzw. 1. Schicht ++++++++++++++
+		// ! ++++++++++++ Neu: Bei Überstau Entnahme aus Ueberstauwasser bzw. 1. Schicht ++++++++++++++
 		// IF Storage > 0 then
 		if g.STORAGE > 0 {
 			//    IF storage > EVa(tag)*dt then
@@ -523,6 +523,9 @@ func Evatra(l *WaterSharedVars, g *GlobalVarsMain, hPath *HFilePath, zeit int) {
 			}
 		}
 	} else {
+		g.STORAGE = g.STORAGE - l.EVA[g.TAG.Index]*g.DT.Num
+		l.EVA[g.TAG.Index] = -g.STORAGE
+
 		for i := 0; i < g.N; i++ {
 			l.EV[i] = 0
 		}
@@ -603,7 +606,7 @@ func Evatra(l *WaterSharedVars, g *GlobalVarsMain, hPath *HFilePath, zeit int) {
 		if g.LURED > 1 {
 			g.LURED = 1
 		}
-		// ! Verteilung der pot. Tranpiration und Einschr�nkung der Transpiration bei Luftmangel
+		// ! Verteilung der pot. Tranpiration und Einschränkung der Transpiration bei Luftmangel
 		// ! WURZ = Wurzeltiefe
 		// ! GRW  = Grundwasserstand (Wasseraufnahme nur bis zur ersten GW Schicht)
 		// ! TP(I)= Wasseraufnahme in Schicht I
@@ -681,7 +684,7 @@ func Evatra(l *WaterSharedVars, g *GlobalVarsMain, hPath *HFilePath, zeit int) {
 	}
 }
 
-// -------- Unterprogramm Stomatawiderstand in Abh. C-Assimilation, S�ttigungsdefizit und CO2 -------------------------
+// -------- Unterprogramm Stomatawiderstand in Abh. C-Assimilation, Sättigungsdefizit und CO2 -------------------------
 
 func stomat(l *WaterSharedVars, zeit int, g *GlobalVarsMain) {
 
@@ -747,7 +750,7 @@ func stomat(l *WaterSharedVars, zeit int, g *GlobalVarsMain) {
 		KCO2 := ((g.CO2KONZ - coco) / (KCo1 + g.CO2KONZ - coco)) / ((350 - coco) / (KCo1 + 350 - coco))
 		amax = amax * KCO2
 	}
-	// ! ----------------------- STrahlungsinterception nach Penning de Vries ---------------------
+	// ! ----------------------- Strahlungsinterception nach Penning de Vries ---------------------
 	if amax < .1 {
 		amax = .1
 	}
@@ -870,7 +873,7 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 		//        LET qmax = PORGES(1)*dz - WATER(0,1) + qm(1)
 		qmax := g.PORGES[0]*g.DZ.Num - WATER[0][0] + g.QM[0]
 		//       LET storage = storage + fluss0 * wdt
-		g.STORAGE = g.FLUSS0 * wdt
+		// g.STORAGE = g.FLUSS0 * wdt
 		//       Let maxinfil = Min(storage,qmax*wdt)
 		maxinfil := math.Min(g.STORAGE, qmax*wdt)
 		//       Let storage = storage - maxinfil
@@ -895,13 +898,24 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 				// }
 				// break
 			} else {
+
+				var qma float64
+				//IF k1 < n then
+				if k1 < g.N {
+					// LET qma = PORGES(k1+1)*dz - WATER(0,k1+1) + qm(k1+1)
+					qma = g.PORGES[k1INdex+1]*g.DZ.Num - WATER[0][k1INdex+1] + g.QM[k1INdex+1]
+				} else {
+					// LET qma = qm(k1)
+					qma = g.QM[k1INdex]
+					// end if
+				}
 				if k1 == g.DRAIDEP {
 					// g.Q1[k1] = (1 - g.DRAIFAK) * a
 					// g.QDRAIN = g.DRAIFAK * a
 					// a = g.Q1[k1]
 
 					// LET Q1(k1) = MIN((1-draifak) * a,qm(k1))
-					g.Q1[k1] = math.Min((1-g.DRAIFAK)*a, g.QM[k1])
+					g.Q1[k1] = math.Min((1-g.DRAIFAK)*a, qma)
 					// LET qdrain = a-q1(k1)  !draifak * a
 					g.QDRAIN = a - g.Q1[k1]
 					// LET a = q1(k1)
@@ -912,7 +926,7 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 					// g.Q1[k1] = a
 
 					// LET Q1(k1) = MIN(a,qm(k1))
-					g.Q1[k1] = math.Min(a, g.QM[k1])
+					g.Q1[k1] = math.Min(a, qma)
 					// LET a = q1(k1)
 					a = g.Q1[k1]
 					// LET WATER(1,k1) = b-a  ! W(K1) * dz
