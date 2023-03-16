@@ -1,0 +1,5 @@
+SID,C_org,Texture,LayerDepth,BulkDensityClass,BulkDensity,Stone,C/N,C/S,RootDepth,NumberHorizon,FieldCapacity,WiltingPoint,PoreVolume,Sand,Silt,Clay,DrainageDepth,Drainage%,GroundWaterLevel
+002,1.14,ULS,03,2,1.36,00,10,00,05,02,31,16,45,26,63,11,20,00,99
+002,0.40,ULS,20,2,1.4,00,10,00,,,29,19,45,26,63,11,20,00,   
+005,0.70,SL3,03,3,1.52,00,10,00,05,02,20,09,40,78,13,09,20,00,99
+005,0.31,SL3,20,3,1.56,00,10,00,,,18,09,40,77,13,10,20,00,   

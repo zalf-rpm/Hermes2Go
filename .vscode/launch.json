@@ -63,6 +63,20 @@
             ]
         },
         {
+            "name": "Launch Hermes batch mode buld density",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "src/hermes2go",
+            "cwd": "examples/",
+            "args": [
+                "-module", "batch",
+                "-concurrent", "1",
+                "-logoutput",
+                "-batch", "bd_muencheberg_batch.txt" ,
+            ]
+        },
+        {
             "name": "Launch http render service",
             "type": "go",
             "request": "launch",
@@ -81,6 +95,17 @@
                 "-concurrent", "1",
                 "-logoutput",
                 "-batch", "nan_test.txt" ,
+            ]
+        },
+        {
+            "name": "Convert Soil File",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "src/calcSoil",
+            "args": [
+                "-input", "C:/Users/sschulz/go/src/github.com/zalf-rpm/Hermes2Go/examples/project/ex2/soil_ex2.txt",
+                "-output", "C:/Users/sschulz/go/src/github.com/zalf-rpm/Hermes2Go/examples/project/ex2/soil_ex2_new.csv",
             ]
         },
     ]

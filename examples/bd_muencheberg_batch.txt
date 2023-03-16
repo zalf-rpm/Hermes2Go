@@ -1,0 +1,2 @@
+project=bulk WeatherFolder=historical soilId=002 fcode=109_120 plotNr=10001 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_BD/bd
+project=bulk WeatherFolder=historical soilId=005 fcode=109_120 plotNr=10002 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_BD/bd

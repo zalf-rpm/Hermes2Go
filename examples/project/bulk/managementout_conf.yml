@@ -1,0 +1,40 @@
+eventformats:
+  tillage:
+    eventname: tillage
+    enabled: true
+    additionalfields:
+      Depth: '%dcm'
+      Type: '%d'
+      NminLayer1: '%1.2f'
+      NminLayer2: '%1.2f'
+      NminLayer3: '%1.2f'
+      NFOSLayer1: '%1.1f'
+      NFOSLayer2: '%1.1f'
+      NFOSLayer3: '%1.1f'
+      NAOSLayer1: '%1.1f'
+      NAOSLayer2: '%1.1f'
+      NAOSLayer3: '%1.1f'
+  irrigation:
+    eventname: irrigation
+    enabled: false
+    additionalfields:
+      Amount: '%dmm'
+      N03: '%2.1fmg/l'
+  sowing:
+    eventname: sowing
+    enabled: false
+    additionalfields:
+      Crop: '%s'
+  harvest:
+    eventname: harvest
+    enabled: false
+    additionalfields:
+      Crop: '%s'
+      Residue: '%2.1f'
+  fertilization:
+    eventname: fertilization
+    enabled: false
+    additionalfields:
+      Amount: '%d'
+      Name: '%2.1f'
+seperatorrune: 32
