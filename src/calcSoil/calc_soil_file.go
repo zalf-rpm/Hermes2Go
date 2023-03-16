@@ -23,7 +23,7 @@ func main() {
 	calcWP := flag.Bool("wp", false, "calculate wilting point")
 	calcGPV := flag.Bool("gpv", false, "calculate gpv")
 	ptf := flag.Int("ptf", 0, "calculate with ptf")
-	calBulkDensity := flag.Bool("bulk", false, "calculate bulk density")
+	calBulkDensity := flag.Bool("stdbulk", false, "set standard bulk density")
 
 	flag.Parse()
 
@@ -200,7 +200,7 @@ func WriteSoilCSV(soilData hermes.SoilFileData, out *hermes.Fout) error {
 		if layer == 0 {
 			//001 2.09 LS3 03 1 00 10      00 10 04   0  0  0  35 44 21 00  20   00 55
 
-			_, err := out.Write(fmt.Sprintf("%s,f%4.2f,%s,%02d,%d,%02d,%02d,,%02d,%02d,%02d,%d,%d,%d,%02d,%02d,%02d,%02d,%02d,%02d %02d\n",
+			_, err := out.Write(fmt.Sprintf("%s,%4.2f,%s,%02d,%d,%02d,%02d,00,%02d,%02d,%d,%d,%d,%02d,%02d,%02d,%02d,%02d,%02d\n",
 				soilData.SoilID,
 				soilData.CGEHALT[layer],
 				soilData.BART[layer],
@@ -208,7 +208,6 @@ func WriteSoilCSV(soilData hermes.SoilFileData, out *hermes.Fout) error {
 				soilData.LD[layer],
 				int(soilData.STEIN[layer]*100),
 				int(soilData.CNRATIO[layer]),
-				0,
 				int(soilData.WURZMAX),
 				int(soilData.AZHO),
 				int(soilData.FKA[layer]),
@@ -217,7 +216,6 @@ func WriteSoilCSV(soilData hermes.SoilFileData, out *hermes.Fout) error {
 				int(soilData.SSAND[layer]),
 				int(soilData.SLUF[layer]),
 				int(soilData.TON[layer]),
-				0,
 				int(soilData.DRAIDEP),
 				int(soilData.DRAIFAK),
 				int(soilData.GW)))
@@ -227,7 +225,7 @@ func WriteSoilCSV(soilData hermes.SoilFileData, out *hermes.Fout) error {
 
 		} else {
 
-			_, err := out.Write(fmt.Sprintf("%s,f%4.2f,%s,%02d,%d,%02d,%02d,,%02d,,,%d,%d,%d,%02d,%02d,%02d,%02d,%02d,%02d,\n",
+			_, err := out.Write(fmt.Sprintf("%s,%4.2f,%s,%02d,%d,%02d,%02d,00,,,%d,%d,%d,%02d,%02d,%02d,%02d,%02d,\n",
 				soilData.SoilID,
 				soilData.CGEHALT[layer],
 				soilData.BART[layer],
@@ -235,14 +233,12 @@ func WriteSoilCSV(soilData hermes.SoilFileData, out *hermes.Fout) error {
 				soilData.LD[layer],
 				int(soilData.STEIN[layer]*100),
 				int(soilData.CNRATIO[layer]),
-				0,
 				int(soilData.FKA[layer]),
 				int(soilData.WP[layer]),
 				int(soilData.GPV[layer]),
 				int(soilData.SSAND[layer]),
 				int(soilData.SLUF[layer]),
 				int(soilData.TON[layer]),
-				0,
 				int(soilData.DRAIDEP),
 				int(soilData.DRAIFAK)))
 
