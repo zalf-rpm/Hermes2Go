@@ -130,6 +130,7 @@ func LoadSoil(withGroundwater bool, LOGID string, hPath *HFilePath, soilID strin
 				soildata.BART[i] = bodenLine[9:12]
 				soildata.UKT[i+1] = int(ValAsInt(bodenLine[13:15], "none", bodenLine))
 				soildata.LD[i] = int(ValAsInt(bodenLine[16:17], "none", bodenLine))
+
 				// read buld density classes (LD = Lagerungsdichte) set bulk density values
 				(&soildata).BulkDensityClassToDensity(i)
 				// C-content soil class specific in %
@@ -233,8 +234,15 @@ func LoadSoilCSV(withGroundwater bool, LOGID string, hPath *HFilePath, soilID st
 				}
 				soildata.UKT[i+1] = int(ValAsInt(tokens[header[layerdepth]], "none", bodenLine))
 				soildata.LD[i] = int(ValAsInt(tokens[header[bulkdensityclass]], "none", bodenLine))
-				// read buld density classes (LD = Lagerungsdichte) set bulk density values
-				(&soildata).BulkDensityClassToDensity(i)
+				if _, ok := header[bulkdensity]; ok {
+					bdToken := tokens[header[bulkdensity]]
+					if bdToken != "" {
+						soildata.BULK[i] = ValAsFloat(bdToken, "none", bodenLine)
+					}
+				} else {
+					// read buld density classes (LD = Lagerungsdichte) set bulk density values
+					(&soildata).BulkDensityClassToDensity(i)
+				}
 				// C-content soil class specific in %
 				soildata.CGEHALT[i] = ValAsFloat(tokens[header[corg]], "none", bodenLine)
 				// C/N ratio
@@ -622,6 +630,7 @@ const (
 	texture
 	layerdepth
 	bulkdensityclass
+	bulkdensity
 	stone
 	c_n
 	c_s
@@ -644,6 +653,7 @@ var soilHeaderNames = map[string]SoilHeader{
 	"Texture":          texture,
 	"LayerDepth":       layerdepth,
 	"BulkDensityClass": bulkdensityclass,
+	"BulkDensity":      bulkdensity,
 	"Stone":            stone,
 	"C/N":              c_n,
 	"C/S":              c_s,
