@@ -214,10 +214,8 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 		var NFOSUM, NAOSUM, nmifosum, nmiaosum, CSUM float64
 		if g.EINT[g.NTIL.Index] > 0 {
 			mixtief := math.Round(g.EINT[g.NTIL.Index] / g.DZ.Num)
-			runErr = g.managementConfig.WriteManagementEvent(NewManagementEvent(Tillage, zeit, make(map[string]interface{}), g))
-			if runErr != nil {
-				return finishedCycle, runErr
-			}
+
+			layerList := make(map[string]interface{})
 			for z := 0; z < int(mixtief); z++ {
 				// Vollstaendige Durchmischung bis Bearbeitungstiefe
 				NFOSUM = NFOSUM + g.NFOS[z]
@@ -233,10 +231,18 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 					g.MINFOS[z] = nmifosum / mixtief
 					g.MINAOS[z] = nmiaosum / mixtief
 					g.C1[z] = CSUM / mixtief
-					if g.C1[0] < 0 {
-						g.C1[0] = 0
+					if g.C1[z] < 0 {
+						g.C1[z] = 0
 					}
+					layerList[fmt.Sprintf("NminLayer%d", z+1)] = g.C1[z]
+					layerList[fmt.Sprintf("NFOSLayer%d", z+1)] = g.NFOS[z]
+					layerList[fmt.Sprintf("NAOSLayer%d", z+1)] = g.NAOS[z]
 				}
+			}
+
+			runErr = g.managementConfig.WriteManagementEvent(NewManagementEvent(Tillage, zeit, layerList, g))
+			if runErr != nil {
+				return finishedCycle, runErr
 			}
 		}
 		g.NTIL.Inc()
