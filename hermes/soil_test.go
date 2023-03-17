@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"image/png"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -141,4 +142,100 @@ func saveImg(img *image.RGBA, imgName string) {
 	// Encode as PNG.
 	f, _ := os.Create(imgName)
 	png.Encode(f, img)
+}
+
+func TestSandAndClayToKa5TextureInHypar(t *testing.T) {
+
+	// generate all possible textures
+	// from 0 to 100% sand and clay
+
+	allTextures := make(map[string]bool)
+	for clayIdx := 0; clayIdx < 100; clayIdx++ {
+		for sandIdx := 99; sandIdx >= 0; sandIdx-- {
+			if sandIdx+clayIdx <= 100 {
+				texture := SandAndClayToKa5Texture(sandIdx, clayIdx)
+				if texture == "" {
+					continue
+				}
+				allTextures[texture] = true
+			}
+		}
+	}
+	type args struct {
+		texture string
+		path    string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{}
+	root := AskDirectory()
+	hyparName := filepath.Join(root, "../examples/parameter/HYPAR.TRU")
+	hyparName, err := filepath.Abs(hyparName)
+	if err != nil {
+		t.Errorf("Hypar() = %v, File %v", err, hyparName)
+	}
+	for texture := range allTextures {
+		tests = append(tests, struct {
+			name string
+			args args
+			want string
+		}{texture, args{texture, hyparName}, texture})
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := FindTextureInHypar(tt.args.texture, tt.args.path); got != tt.want {
+				t.Errorf("Hypar() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSandAndClayToKa5TextureInParcap(t *testing.T) {
+
+	// generate all possible textures
+	// from 0 to 100% sand and clay
+
+	allTextures := make(map[string]bool)
+	for clayIdx := 0; clayIdx < 100; clayIdx++ {
+		for sandIdx := 99; sandIdx >= 0; sandIdx-- {
+			if sandIdx+clayIdx <= 100 {
+				texture := SandAndClayToKa5Texture(sandIdx, clayIdx)
+				if texture == "" {
+					continue
+				}
+				allTextures[texture] = true
+			}
+		}
+	}
+	type args struct {
+		texture string
+		path    string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{}
+	root := AskDirectory()
+	hyparName := filepath.Join(root, "../examples/parameter/PARCAP.TRU")
+	hyparName, err := filepath.Abs(hyparName)
+	if err != nil {
+		t.Errorf("PARCAP() = %v, File %v", err, hyparName)
+	}
+	for texture := range allTextures {
+		tests = append(tests, struct {
+			name string
+			args args
+			want string
+		}{texture, args{texture, hyparName}, texture})
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := FindTextureInPARCAP(tt.args.texture, tt.args.path); got != tt.want {
+				t.Errorf("PARCAP() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }

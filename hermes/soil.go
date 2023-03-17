@@ -759,3 +759,30 @@ func GetGroundWaterLevel(g *GlobalVarsMain, date int) (float64, error) {
 	level := (g.GWTimeSeriesValues[nextDate]-g.GWTimeSeriesValues[prevDate])/float64(nextDate-prevDate)*float64(date-prevDate) + g.GWTimeSeriesValues[prevDate]
 	return level, nil
 }
+
+func FindTextureInHypar(textureIn, hyparName string) string {
+	_, scannerHyPar, _ := Open(&FileDescriptior{FilePath: hyparName, UseFilePool: true})
+
+	for scannerHyPar.Scan() {
+		wa := scannerHyPar.Text()
+
+		if len(wa) > 3 && wa[0:3] == textureIn {
+			return wa[0:3]
+		}
+	}
+	return "not found"
+}
+func FindTextureInPARCAP(textureIn, filepath string) string {
+	_, scanner, _ := Open(&FileDescriptior{FilePath: filepath, UseFilePool: true})
+
+	for scanner.Scan() {
+		first := scanner.Text()
+		if ok := scanner.Scan(); !ok {
+			break
+		}
+		if len(first) > 3 && first[0:3] == textureIn {
+			return first[0:3]
+		}
+	}
+	return "not found"
+}
