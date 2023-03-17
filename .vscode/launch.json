@@ -104,8 +104,9 @@
             "mode": "auto",
             "program": "src/calcSoil",
             "args": [
-                "-input", "C:/Users/sschulz/go/src/github.com/zalf-rpm/Hermes2Go/examples/project/ex2/soil_ex2.txt",
-                "-output", "C:/Users/sschulz/go/src/github.com/zalf-rpm/Hermes2Go/examples/project/ex2/soil_ex2_new.csv",
+                "-input", "soil_ex2.txt",
+                "-output", "soil_ex2_new.csv",
+                "-withBD"
             ]
         },
     ]
