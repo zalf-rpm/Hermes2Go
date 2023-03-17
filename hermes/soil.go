@@ -46,7 +46,7 @@ type SoilFileData struct {
 	UKT                        [11]int
 	BART                       [10]string  // soil texture (Bodenart)
 	LD                         [10]int     // bulk density class (Lagerungsdichteklasse)
-	BULK                       [10]float64 // bulk density
+	BULK                       [10]float64 // bulk density (g/cm^3)
 	CGEHALT                    [10]float64 // C-content soil class specific in %
 	CNRATIO                    [10]float64 // C/N ratio
 	CNRAT1                     float64     // C/N ratio in top layer
@@ -234,11 +234,10 @@ func LoadSoilCSV(withGroundwater bool, LOGID string, hPath *HFilePath, soilID st
 				}
 				soildata.UKT[i+1] = int(ValAsInt(tokens[header[layerdepth]], "none", bodenLine))
 				soildata.LD[i] = int(ValAsInt(tokens[header[bulkdensityclass]], "none", bodenLine))
-				if _, ok := header[bulkdensity]; ok {
-					bdToken := tokens[header[bulkdensity]]
-					if bdToken != "" {
-						soildata.BULK[i] = ValAsFloat(bdToken, "none", bodenLine)
-					}
+
+				if _, ok := header[bulkdensity]; ok && tokens[header[bulkdensity]] != "" {
+					// read bulk density (g/cm^3)
+					soildata.BULK[i] = ValAsFloat(tokens[header[bulkdensity]], "none", bodenLine)
 				} else {
 					// read buld density classes (LD = Lagerungsdichte) set bulk density values
 					(&soildata).BulkDensityClassToDensity(i)
@@ -299,7 +298,7 @@ func LoadSoilCSV(withGroundwater bool, LOGID string, hPath *HFilePath, soilID st
 	return soildata, nil
 }
 
-// BulkDensityClassToDensity set bulk density from class
+// BulkDensityClassToDensity set bulk density from class (Lagerungsdichtestufe nach KA5 (1-5))
 func (soildata *SoilFileData) BulkDensityClassToDensity(i int) {
 	// read buld density classes (LD = Lagerungsdichte) set bulk density values
 	if soildata.LD[i] == 1 {
