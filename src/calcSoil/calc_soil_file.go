@@ -14,16 +14,17 @@ func main() {
 	// calculate FC, WP, and GPV(PS)
 
 	// input file
-	inputFile := flag.String("input", "", "input file")
+	inputFile := flag.String("input", "", "input file (as .txt or .csv)")
 	// output file
-	outputFile := flag.String("output", "", "output file")
+	outputFile := flag.String("output", "", "output file (as .txt or .csv)")
 
-	calcTexture := flag.Bool("texture", false, "calculate texture")
-	calcFC := flag.Bool("fc", false, "calculate field capacity")
-	calcWP := flag.Bool("wp", false, "calculate wilting point")
-	calcGPV := flag.Bool("gpv", false, "calculate gpv")
-	ptf := flag.Int("ptf", 0, "calculate with ptf")
-	calBulkDensity := flag.Bool("stdbulk", false, "set standard bulk density")
+	calcTexture := flag.Bool("texture", false, "calculate texture (Ka5 Textur)")
+	calcFC := flag.Bool("fc", false, "calculate field capacity %(Feldkapazität)")
+	calcWP := flag.Bool("wp", false, "calculate wilting point % (Welke Punkt)")
+	calcGPV := flag.Bool("gpv", false, "calculate total pore volume % (Gesamtporenvolumen)")
+	ptf := flag.Int("ptf", 0, "calculate with ptf (1,2,3,4) 0=none (Pedotransferfunktion see Hermes2Go)")
+	calBulkDensity := flag.Bool("stdbulk", false, "set default bulk density class (Lagerungsdichtenklasse)")
+	withBulkDensity := flag.Bool("withBD", false, "add a BulkDensity column for measured values, set to defaults (Lagerungsdichte für gemessene Werte)")
 
 	flag.Parse()
 
@@ -54,9 +55,9 @@ func main() {
 		}
 	}
 
-	// calculate texture
 	for i := range soilData {
 		for layer := 0; layer < soilData[i].AZHO; layer++ {
+			// calculate texture
 			if *calcTexture {
 				soilData[i].BART[layer] = hermes.SandAndClayToKa5Texture(int(soilData[i].SSAND[layer]), int(soilData[i].TON[layer]))
 			}
@@ -97,7 +98,11 @@ func main() {
 					soilData[i].WP[layer] = wp * 100
 				}
 			}
+			if *withBulkDensity {
+				soilData[i].BulkDensityClassToDensity(layer)
+			}
 		}
+
 	}
 	out := hermes.OpenResultFile(*outputFile, false)
 	defer out.Close()
@@ -105,10 +110,14 @@ func main() {
 	// write output file
 	if strings.HasSuffix(*outputFile, ".csv") {
 		// write soil file header
-		out.Write("SID,C_org,Texture,LayerDepth,BulkDensityClass,Stone,C/N,C/S,RootDepth,NumberHorizon,FieldCapacity,WiltingPoint,PoreVolume,Sand,Silt,Clay,DrainageDepth,Drainage%,GroundWaterLevel\n")
+		if *withBulkDensity {
+			out.Write("SID,C_org,Texture,LayerDepth,BulkDensityClass,BulkDensity,Stone,C/N,C/S,RootDepth,NumberHorizon,FieldCapacity,WiltingPoint,PoreVolume,Sand,Silt,Clay,DrainageDepth,Drainage%,GroundWaterLevel\n")
+		} else {
+			out.Write("SID,C_org,Texture,LayerDepth,BulkDensityClass,Stone,C/N,C/S,RootDepth,NumberHorizon,FieldCapacity,WiltingPoint,PoreVolume,Sand,Silt,Clay,DrainageDepth,Drainage%,GroundWaterLevel\n")
+		}
 		// write csv file
 		for _, soilData := range soilData {
-			err := WriteSoilCSV(soilData, out)
+			err := WriteSoilCSV(soilData, out, *withBulkDensity)
 			if err != nil {
 				panic(err)
 			}
@@ -195,55 +204,108 @@ func WriteSoil(soilData hermes.SoilFileData, out *hermes.Fout) error {
 	return nil
 }
 
-func WriteSoilCSV(soilData hermes.SoilFileData, out *hermes.Fout) error {
+func WriteSoilCSV(soilData hermes.SoilFileData, out *hermes.Fout, withBulkdensityColumn bool) error {
 	for layer := 0; layer < soilData.AZHO; layer++ {
-		if layer == 0 {
-			//001 2.09 LS3 03 1 00 10      00 10 04   0  0  0  35 44 21 00  20   00 55
 
-			_, err := out.Write(fmt.Sprintf("%s,%4.2f,%s,%02d,%d,%02d,%02d,00,%02d,%02d,%d,%d,%d,%02d,%02d,%02d,%02d,%02d,%02d\n",
-				soilData.SoilID,
-				soilData.CGEHALT[layer],
-				soilData.BART[layer],
-				soilData.UKT[layer+1],
-				soilData.LD[layer],
-				int(soilData.STEIN[layer]*100),
-				int(soilData.CNRATIO[layer]),
-				int(soilData.WURZMAX),
-				int(soilData.AZHO),
-				int(soilData.FKA[layer]),
-				int(soilData.WP[layer]),
-				int(soilData.GPV[layer]),
-				int(soilData.SSAND[layer]),
-				int(soilData.SLUF[layer]),
-				int(soilData.TON[layer]),
-				int(soilData.DRAIDEP),
-				int(soilData.DRAIFAK),
-				int(soilData.GW)))
-			if err != nil {
-				return err
+		if !withBulkdensityColumn {
+			if layer == 0 {
+				//001 2.09 LS3 03 1 00 10      00 10 04   0  0  0  35 44 21 00  20   00 55
+				_, err := out.Write(fmt.Sprintf("%s,%4.2f,%s,%02d,%d,%02d,%02d,00,%02d,%02d,%d,%d,%d,%02d,%02d,%02d,%02d,%02d,%02d\n",
+					soilData.SoilID,
+					soilData.CGEHALT[layer],
+					soilData.BART[layer],
+					soilData.UKT[layer+1],
+					soilData.LD[layer],
+					int(soilData.STEIN[layer]*100),
+					int(soilData.CNRATIO[layer]),
+					int(soilData.WURZMAX),
+					int(soilData.AZHO),
+					int(soilData.FKA[layer]),
+					int(soilData.WP[layer]),
+					int(soilData.GPV[layer]),
+					int(soilData.SSAND[layer]),
+					int(soilData.SLUF[layer]),
+					int(soilData.TON[layer]),
+					int(soilData.DRAIDEP),
+					int(soilData.DRAIFAK),
+					int(soilData.GW)))
+				if err != nil {
+					return err
+				}
+
+			} else {
+
+				_, err := out.Write(fmt.Sprintf("%s,%4.2f,%s,%02d,%d,%02d,%02d,00,,,%d,%d,%d,%02d,%02d,%02d,%02d,%02d,\n",
+					soilData.SoilID,
+					soilData.CGEHALT[layer],
+					soilData.BART[layer],
+					soilData.UKT[layer+1],
+					soilData.LD[layer],
+					int(soilData.STEIN[layer]*100),
+					int(soilData.CNRATIO[layer]),
+					int(soilData.FKA[layer]),
+					int(soilData.WP[layer]),
+					int(soilData.GPV[layer]),
+					int(soilData.SSAND[layer]),
+					int(soilData.SLUF[layer]),
+					int(soilData.TON[layer]),
+					int(soilData.DRAIDEP),
+					int(soilData.DRAIFAK)))
+
+				if err != nil {
+					return err
+				}
 			}
-
 		} else {
+			if layer == 0 {
+				//001 2.09 LS3 03 1 00 10      00 10 04   0  0  0  35 44 21 00  20   00 55
+				_, err := out.Write(fmt.Sprintf("%s,%4.2f,%s,%02d,%d,%1.2f,%02d,%02d,00,%02d,%02d,%d,%d,%d,%02d,%02d,%02d,%02d,%02d,%02d\n",
+					soilData.SoilID,
+					soilData.CGEHALT[layer],
+					soilData.BART[layer],
+					soilData.UKT[layer+1],
+					soilData.LD[layer],
+					soilData.BULK[layer],
+					int(soilData.STEIN[layer]*100),
+					int(soilData.CNRATIO[layer]),
+					int(soilData.WURZMAX),
+					int(soilData.AZHO),
+					int(soilData.FKA[layer]),
+					int(soilData.WP[layer]),
+					int(soilData.GPV[layer]),
+					int(soilData.SSAND[layer]),
+					int(soilData.SLUF[layer]),
+					int(soilData.TON[layer]),
+					int(soilData.DRAIDEP),
+					int(soilData.DRAIFAK),
+					int(soilData.GW)))
+				if err != nil {
+					return err
+				}
 
-			_, err := out.Write(fmt.Sprintf("%s,%4.2f,%s,%02d,%d,%02d,%02d,00,,,%d,%d,%d,%02d,%02d,%02d,%02d,%02d,\n",
-				soilData.SoilID,
-				soilData.CGEHALT[layer],
-				soilData.BART[layer],
-				soilData.UKT[layer+1],
-				soilData.LD[layer],
-				int(soilData.STEIN[layer]*100),
-				int(soilData.CNRATIO[layer]),
-				int(soilData.FKA[layer]),
-				int(soilData.WP[layer]),
-				int(soilData.GPV[layer]),
-				int(soilData.SSAND[layer]),
-				int(soilData.SLUF[layer]),
-				int(soilData.TON[layer]),
-				int(soilData.DRAIDEP),
-				int(soilData.DRAIFAK)))
+			} else {
 
-			if err != nil {
-				return err
+				_, err := out.Write(fmt.Sprintf("%s,%4.2f,%s,%02d,%d,%1.2f,%02d,%02d,00,,,%d,%d,%d,%02d,%02d,%02d,%02d,%02d,\n",
+					soilData.SoilID,
+					soilData.CGEHALT[layer],
+					soilData.BART[layer],
+					soilData.UKT[layer+1],
+					soilData.LD[layer],
+					soilData.BULK[layer],
+					int(soilData.STEIN[layer]*100),
+					int(soilData.CNRATIO[layer]),
+					int(soilData.FKA[layer]),
+					int(soilData.WP[layer]),
+					int(soilData.GPV[layer]),
+					int(soilData.SSAND[layer]),
+					int(soilData.SLUF[layer]),
+					int(soilData.TON[layer]),
+					int(soilData.DRAIDEP),
+					int(soilData.DRAIFAK)))
+
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
