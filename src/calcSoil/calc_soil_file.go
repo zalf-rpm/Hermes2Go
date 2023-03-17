@@ -149,7 +149,7 @@ func WriteSoil(soilData hermes.SoilFileData, out *hermes.Fout) error {
 		if layer == 0 {
 			//001 2.09 LS3 03 1 00 10      00 10 04   0  0  0  35 44 21 00  20   00 55
 
-			_, err := out.Write(fmt.Sprintf("%s %s %s %02d %d %02d %02d      %02d %02d %02d   %02d %02d %02d  %02d %02d %02d %02d  %02d   %02d %02d\n",
+			_, err := out.Write(fmt.Sprintf("%s %s %s %02d %d %02d %02d      %02d %02d %02d   %02d %02d %02d %02d %02d %02d %02d  %02d   %02d %02d\n",
 				soilData.SoilID,
 				formatCGEHALT(soilData.CGEHALT[layer]),
 				soilData.BART[layer],
@@ -176,7 +176,7 @@ func WriteSoil(soilData hermes.SoilFileData, out *hermes.Fout) error {
 
 		} else {
 
-			_, err := out.Write(fmt.Sprintf("%s %s %s %02d %d %02d %02d      %02d         %02d %02d %02d  %02d %02d %02d %02d  %02d   %02d\n",
+			_, err := out.Write(fmt.Sprintf("%s %s %s %02d %d %02d %02d      %02d         %02d %02d %02d %02d %02d %02d %02d  %02d   %02d\n",
 				soilData.SoilID,
 				formatCGEHALT(soilData.CGEHALT[layer]),
 				soilData.BART[layer],
