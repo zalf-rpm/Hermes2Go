@@ -903,10 +903,10 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 				//IF k1 < n then
 				if k1 < g.N {
 					// LET qma = PORGES(k1+1)*dz - WATER(0,k1+1) + qm(k1+1)
-					qma = g.PORGES[k1INdex+1]*g.DZ.Num - WATER[0][k1INdex+1] + g.QM[k1INdex+1]
+					qma = g.PORGES[k1INdex+1]*g.DZ.Num - WATER[0][k1INdex+1] + g.QM[k1INdex+1]*wdt
 				} else {
 					// LET qma = qm(k1)
-					qma = g.QM[k1INdex]
+					qma = g.QM[k1INdex] * wdt
 					// end if
 				}
 				if k1 == g.DRAIDEP {
