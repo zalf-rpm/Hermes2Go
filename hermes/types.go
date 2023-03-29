@@ -121,7 +121,7 @@ type GlobalVarsMain struct {
 	ZTDG     [300]int
 	FKU      [12]float64
 	CN       [2][21]float64 // (0:1,21) all 21 slots used!
-	WG       [3][21]float64 //(0:2,21) all 21 slots used!
+	WG       [3][21]float64 //(0:2,21) all 21 slots used! // water content in soil layer (cm^3/cm^3)
 	NMESS    int
 	MES      [100]string // Should be a local array
 	MESS     [100]int
@@ -148,7 +148,7 @@ type GlobalVarsMain struct {
 	RH        [367]float64 // relative humidity
 	VERD      [367]float64 // Verdunstung, Evaporation, required for ETMETH = 1
 	WIND      [367]float64 // wind
-	REGEN     [368]float64 // TODO: set to 368 for irrigation calculation (FIXME: last value is 0, load data from next year)
+	REGEN     [368]float64 // TODO: set to 368 for irrigation calculation (FIXME: last value is 0, load data from next year) (internal cm)
 	SUND      [367]float64 // Sun shine hours, required if RAD is 0
 	RAD       [367]float64 // photosynthetic active radiation
 	ALBEDO    float64
@@ -162,7 +162,7 @@ type GlobalVarsMain struct {
 	MZ        int
 	NBR       int
 	NTIL      DualType
-	REGENSUM  float64
+	REGENSUM  float64 // sum of rain fall (in mm)
 	MINSUM    float64
 	RADSUM    float64
 	BLATTSUM  float64
@@ -208,10 +208,10 @@ type GlobalVarsMain struct {
 	WUDICH          [21]float64
 	LUKRIT          [10]float64
 	LUMDAY          int
-	TP              [21]float64
-	TRREL           float64 // Water stress factor (1 = no stress, 0 = full stress)
-	REDUK           float64 // Nitrogen stress factor (1 = no stress, 0 = full stress)
-	ETA             float64 // Potential/actual Evapotranspiration (mm)
+	TP              [21]float64 // Wasseraufnahme in Schicht I /water uptake in layer I
+	TRREL           float64     // Water stress factor (1 = no stress, 0 = full stress)
+	REDUK           float64     // Nitrogen stress factor (1 = no stress, 0 = full stress)
+	ETA             float64     // Potential/actual Evapotranspiration (mm)
 	HEATCOND        [21]float64
 	HEATCAP         [21]float64
 	TDSUM           [20]float64
@@ -385,7 +385,7 @@ type GlobalVarsMain struct {
 	RADdaily       float64 // GlobalRadiation at current day (from input)
 	WINDdaily      float64 // WIND at current day
 	REGENdaily     float64 // REGEN at current day without irrigation
-	EffectiveIRRIG float64 // irrigation that is added to general precipitation REGEN
+	EffectiveIRRIG float64 // irrigation that is added to general precipitation REGEN (in cm)
 
 	DRflowsum    float64
 	Ndrflow      float64
@@ -413,7 +413,7 @@ type GlobalVarsMain struct {
 	CropTypeLookup  map[string]CropType    `yaml:"-"`
 }
 
-//CropOutputVars at harvest
+// CropOutputVars at harvest
 type CropOutputVars struct {
 	SowDate      string
 	SowDOY       int
