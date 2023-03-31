@@ -973,7 +973,7 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 			//    IF WATER(1,k1) > W(k1)*dz then
 			if WATER[1][k1] > g.W[k1]*g.DZ.Num {
 				//LET a = MIN(WATER(1,k1) - W(K1) * dz,qm(k1))
-				a = math.Min(WATER[1][k1]-g.W[k1]*g.DZ.Num, g.QM[k1])
+				a = math.Min(WATER[1][k1]-g.W[k1]*g.DZ.Num, g.QM[k1]*wdt)
 				//LET WATER(1,k1) = WATER(1,k1)-a
 				WATER[1][k1] = WATER[1][k1] - a
 				//LET Q1(k1) = q1(k1) + a
