@@ -1,0 +1,9 @@
+go 1.20
+
+use (
+	./hermes
+	./src/calcHermesBatch
+	./src/hermes2go
+	./src/ptf_testing
+	./src/renderservice
+)
