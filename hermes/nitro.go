@@ -451,7 +451,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 	return finishedCycle
 }
 
-//mineral
+// mineral
 func mineral(wdt float64, subd int, g *GlobalVarsMain, l *NitroSharedVars) {
 	//! ------------------------------------- Mineralisation in Abh. von Temperatur und Wassergehalt ------------
 	//! Inputs:
@@ -661,8 +661,9 @@ func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			l.KONV[z0] = (Carray[z+1]*g.Q1[z] - Carray[z-1]*g.Q1[z-1]) / g.DZ.Num
 		}
 	}
-	g.DRAINLOSS = g.DRAINLOSS + g.QDRAIN*Carray[g.DRAIDEP]/g.DZ.Num*100*g.DZ.Num
-
+	if g.DRAIDEP < g.N {
+		g.DRAINLOSS = g.DRAINLOSS + g.QDRAIN*Carray[g.DRAIDEP]/g.DZ.Num*100*g.DZ.Num
+	}
 	g.C1NotStable = ""
 	for z := 0; z < g.N; z++ {
 		cKonz := (Carray[z+1]*g.WG[0][z] + l.DISP[z] - l.KONV[z]) * g.DZ.Num * 100
@@ -719,7 +720,7 @@ func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 	}
 }
 
-//resid
+// resid
 func resid(g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath *HFilePath) (NDI, NSA, NLA, NRESID float64) {
 	// ------------------------------- Mineralisationspotentiale aus Vorfruchtresiduen ---------------------------------------
 	// Input:
@@ -786,7 +787,7 @@ func resid(g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath 
 	return NDI, NSA, NLA, NRESID
 }
 
-//pinit
+// pinit
 func pinit(g *GlobalVarsMain) {
 
 	if g.DAUERKULT != 'D' {
