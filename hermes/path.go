@@ -206,7 +206,7 @@ func (fp *FilePool) Close() {
 	fp.mux.Unlock()
 }
 
-//Fout bufferd file writer
+// Fout bufferd file writer
 type Fout struct {
 	file    *os.File
 	fwriter *bufio.Writer
@@ -277,6 +277,26 @@ type TransferEnvWdt struct {
 	REGEN float64
 }
 
+type WaterBalance struct {
+	Zeit            int
+	WDT             float64
+	N               int
+	WG              [3][21]float64
+	W               [21]float64
+	DZ              float64
+	REGEN           float64
+	SumWaterContent float64 // sum of all layers
+	TPSumDaily      float64 // sum of all layers
+	Irrigation      float64 // irrigation: g.IRRIGATION[g.TAG.Index],
+	Infiltration    float64
+	CapillaryRise   float64
+	Evaporation     float64
+	SickerLoss      float64
+	Drainage        float64
+	Storage         float64
+	WaterDiff       float64
+}
+
 func (rs *RPCService) SendWdt(g *GlobalVarsMain, zeit int, wdt float64) error {
 	if rs.client != nil {
 		wdtData := TransferEnvWdt{
@@ -290,6 +310,35 @@ func (rs *RPCService) SendWdt(g *GlobalVarsMain, zeit int, wdt float64) error {
 		}
 		if err := rs.client.Call("RPCHandler.DumpWdtCalc", wdtData, nil); err != nil {
 			return fmt.Errorf("DumpWdtCalc %+v", err)
+		}
+	}
+
+	return nil
+}
+
+func (rs *RPCService) SendWaterBalance(g *GlobalVarsMain, zeit int, wdt float64) error {
+	if rs.client != nil {
+		data := WaterBalance{
+			Zeit:            zeit,
+			WDT:             wdt,
+			N:               g.N,
+			WG:              g.WG,
+			W:               g.W, // field capacity
+			DZ:              g.DZ.Num,
+			REGEN:           g.REGEN[g.TAG.Index],
+			SumWaterContent: g.SumWaterContent, // sum of all layers
+			TPSumDaily:      g.TPSumDaily,
+			Irrigation:      g.EffectiveIRRIG,
+			Infiltration:    g.InfilDaily,
+			CapillaryRise:   g.CAPSUM,
+			Evaporation:     g.EvapoLoss,
+			Drainage:        g.DRAISUM,
+			SickerLoss:      g.SickerLoss,
+			Storage:         g.STORAGE,
+			WaterDiff:       g.WaterDiff / 10,
+		}
+		if err := rs.client.Call("RPCHandler.DumpWaterBalance", data, nil); err != nil {
+			return fmt.Errorf("DumpWaterBalance %+v", err)
 		}
 	}
 

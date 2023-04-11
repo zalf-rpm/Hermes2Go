@@ -6,12 +6,13 @@ import (
 
 // WaterSharedVars is a struct of shared variables for this module
 type WaterSharedVars struct {
-	LIMIT  [21]float64
-	EVA    [366]float64
-	NFK    [21]float64
-	GWAUF  float64
-	EV     [21]float64
-	SATDEF float64
+	LIMIT    [21]float64
+	EVA      [366]float64
+	NFK      [21]float64
+	GWAUF    float64
+	EV       [21]float64
+	SATDEF   float64
+	Maxinfil float64
 }
 
 // Evatra handles evapotansiration and hydrological processes in soil
@@ -488,7 +489,8 @@ func Evatra(l *WaterSharedVars, g *GlobalVarsMain, hPath *HFilePath, zeit int) {
 				// 	  LET storage = Storage - Eva(Tag) *dt
 				g.STORAGE = g.STORAGE - l.EVA[g.TAG.Index]*g.DT.Num
 				// 	  LET EVA(Tag) = 0
-				l.EVA[g.TAG.Index] = 0
+				// l.EVA[g.TAG.Index] = 0
+				l.EVA[g.TAG.Index] = -g.STORAGE
 				//    ELSE
 			} else {
 				// 	  LET EVA(TAG) = eva(tag)*dt-storage
@@ -845,6 +847,10 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 	// !**************************************************************
 	var WATER [2][21]float64
 	if subd == 1 {
+		g.EvapoLoss = 0
+		g.SickerLoss = 0
+		g.InfilDaily = 0
+		g.WaterDiff = 0
 		gwtab := 0
 		for i := 0; i < g.N; i++ {
 			if g.TP[i] > (g.WG[0][i]-g.WMIN[i])*g.DZ.Num {
@@ -855,39 +861,71 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 				}
 			}
 			WATER[0][i] = g.WG[0][i]*g.DZ.Num - g.TP[i]*wdt
+			g.WaterDiff = g.WaterDiff - g.TP[i]*wdt
 			//! -------- Definition des Stauwasserhorizonts ----------
 			if WATER[0][i]/g.DZ.Num >= g.PORGES[i]-g.TP[i]*wdt && gwtab == 0 {
 				gwtab = i
 			}
 		}
+		// meins
+		if g.STORAGE > 0 {
+			qmax := g.PORGES[0]*g.DZ.Num - WATER[0][0] + g.QM[0]
+			l.Maxinfil = math.Min(g.STORAGE, qmax)
+		} else {
+			l.Maxinfil = 0
+		}
 	} else {
 		for i := 0; i < g.N; i++ {
 			g.WG[0][i] = g.WG[1][i]
 			WATER[0][i] = g.WG[0][i]*g.DZ.Num - g.TP[i]*wdt
+			g.WaterDiff = g.WaterDiff - g.TP[i]*wdt
 		}
 	}
 	g.QDRAIN = 0
 	if g.FLUSS0 > 0 {
+
 		// ! Bei Wassersättigung und Überstau Infiltration bis kleinste Profilleitfähigkeit
 		//    !IF storage > 0 or gwtab = 1 then
 		//        LET qmax = PORGES(1)*dz - WATER(0,1) + qm(1)
-		qmax := g.PORGES[0]*g.DZ.Num - WATER[0][0] + g.QM[0]
+		//his
+		//qmax := g.PORGES[0]*g.DZ.Num - WATER[0][0] + g.QM[0]
 		//       LET storage = storage + fluss0 * wdt
 		// g.STORAGE = g.FLUSS0 * wdt
 		//       Let maxinfil = Min(storage,qmax*wdt)
-		maxinfil := math.Min(g.STORAGE, qmax*wdt)
+		//his
+		//maxinfil := math.Min(g.STORAGE, qmax*wdt)
+		// maxinfil := math.Min(g.STORAGE*wdt, qmax)
+		// if wdt < 1 {
+		// 	fmt.Println(g.PORGES[0]*g.DZ.Num, WATER[0][0], g.QM[0], wdt, g.STORAGE, l.Maxinfil)
+		// }
 		//       Let storage = storage - maxinfil
-		g.STORAGE = g.STORAGE - maxinfil
-		//       LET a = maxinfil   !qmax * wdt
-		a := maxinfil
+
+		//his
+		//g.STORAGE = g.STORAGE - maxinfil
+		//a := maxinfil
+
+		// g.STORAGE = g.STORAGE - l.Maxinfil
+		// a := l.Maxinfil
+
+		// meins
+		a := l.Maxinfil * wdt
+		if l.Maxinfil*wdt >= g.STORAGE {
+			a = g.STORAGE
+			g.STORAGE = 0
+		} else {
+			g.STORAGE = g.STORAGE - l.Maxinfil*wdt
+		}
+
 		//a := g.FLUSS0 * wdt
 		g.Q1[0] = a
+		g.InfilDaily += a / 10
 		//------------------------ Infiltration------------------------
 		for k1 := 1; k1 <= g.N; k1++ {
 			k1INdex := k1 - 1
 			b := a + WATER[0][k1INdex]
 			a = b - g.W[k1INdex]*g.DZ.Num
 			if a < 0 {
+				g.WaterDiff = g.WaterDiff + b - WATER[0][k1INdex]
 				WATER[1][k1INdex] = b
 				g.Q1[k1] = 0
 				a = 0
@@ -922,6 +960,7 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 					a = g.Q1[k1]
 					//LET WATER(1,k1) = W(K1) * dz
 					WATER[1][k1INdex] = g.W[k1INdex] * g.DZ.Num
+
 				} else {
 					// g.Q1[k1] = a
 
@@ -931,12 +970,15 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 					a = g.Q1[k1]
 					// LET WATER(1,k1) = b-a  ! W(K1) * dz
 					WATER[1][k1INdex] = b - a
+					g.WaterDiff = g.WaterDiff + (b - WATER[0][k1INdex] - a)
 				}
 				// WATER[1][k1INdex] = g.W[k1INdex] * g.DZ.Num
 				// g.Q1[k1] = a
 			}
 		}
-
+		// if wdt < 1 {
+		// 	fmt.Println(g.PORGES[0]*g.DZ.Num, WATER[0][0], g.STORAGE)
+		// }
 		//--------------------------Evaporation------------------------
 	} else if g.FLUSS0 < 0 {
 		a := math.Abs(g.FLUSS0) * wdt
@@ -969,6 +1011,8 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 				g.Q1[k1IdxQ] = -a1
 			}
 			WATER[1][k1] = WATER[0][k1] - wlost
+			g.EvapoLoss += wlost / 10
+			g.WaterDiff = g.WaterDiff - wlost
 			//! ++++++++downward water flow of excessive water over FC from previous time steps+++++++++++++++++++++++++
 			//    IF WATER(1,k1) > W(k1)*dz then
 			if WATER[1][k1] > g.W[k1]*g.DZ.Num {
@@ -976,6 +1020,7 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 				a = math.Min(WATER[1][k1]-g.W[k1]*g.DZ.Num, g.QM[k1]*wdt)
 				//LET WATER(1,k1) = WATER(1,k1)-a
 				WATER[1][k1] = WATER[1][k1] - a
+				g.WaterDiff = g.WaterDiff - a
 				//LET Q1(k1) = q1(k1) + a
 				g.Q1[k1IdxQ] = g.Q1[k1IdxQ] + a
 				//IF q1(k1) > 0 then
@@ -1038,6 +1083,7 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 				if GWDIST > .9 {
 					GWDISTindex := int(math.Round(math.Max(GWDIST, 1))) - 1
 					WATER[1][caplayIndex] = WATER[1][caplayIndex] + g.CAPS[GWDISTindex]*g.DZ.Num*wdt
+					g.WaterDiff = g.WaterDiff + g.CAPS[GWDISTindex]*g.DZ.Num*wdt
 					for i := caplay; i <= g.N; i++ {
 						g.Q1[i] = g.Q1[i] - g.CAPS[GWDISTindex]*g.DZ.Num*wdt
 					}
@@ -1087,6 +1133,7 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 	}
 	if g.Q1[g.OUTN] > 0 {
 		g.SICKER = g.SICKER + g.Q1[g.OUTN]*10
+		g.SickerLoss = g.SickerLoss + g.Q1[g.OUTN]/10
 	} else {
 		g.CAPSUM = g.CAPSUM + g.Q1[g.OUTN]*10
 	}

@@ -371,6 +371,12 @@ type GlobalVarsMain struct {
 	Nmin9to20       float64 // sum of C1 from layer 9 to 20
 	SickerDaily     float64 // sicker - capsum daily update
 	SickerDailyDiff float64 // sicker - capsum daily difference
+	SumWaterContent float64 // sum of water content for layers 1 to N
+	TPSumDaily      float64 // sum of daily crop water uptake
+	EvapoLoss       float64 // evaporation loss
+	SickerLoss      float64 // sicker loss
+	InfilDaily      float64 // infiltration daily
+	WaterDiff       float64 // water difference
 	HARVEST         float64 // potential harvest daily
 	NAOSAKT         float64 // sum NAOS
 	NFOSAKT         float64 // sum NFOS
