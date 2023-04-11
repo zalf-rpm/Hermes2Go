@@ -43,6 +43,7 @@ type RPCHandler struct {
 	receivedDumps      map[int]hermes.TransferEnvGlobal // GlobalVarsMain - global vars
 	receivedNitroDumps map[int]hermes.TransferEnvNitro  // NitroSharedVars - local Nitro vars
 	wdtDumps           map[int]hermes.TransferEnvWdt    // wdt calc dump
+	waterBalanceDumps  map[int]hermes.WaterBalance      // water balance dump
 	mux                sync.Mutex
 }
 
@@ -62,6 +63,7 @@ func StartRPCHandler() {
 		receivedDumps:      make(map[int]hermes.TransferEnvGlobal, 11000),
 		receivedNitroDumps: make(map[int]hermes.TransferEnvNitro, 11000),
 		wdtDumps:           make(map[int]hermes.TransferEnvWdt, 11000),
+		waterBalanceDumps:  make(map[int]hermes.WaterBalance, 11000),
 		mux:                sync.Mutex{},
 	}
 	err = rpc.Register(globalHandler)
@@ -109,12 +111,20 @@ func (rh *RPCHandler) DumpWdtCalc(payload hermes.TransferEnvWdt, reply *string) 
 
 }
 
+func (rh *RPCHandler) DumpWaterBalance(payload hermes.WaterBalance, reply *string) error {
+	id := payload.Zeit
+	rh.mux.Lock()
+	rh.waterBalanceDumps[id] = payload
+	rh.mux.Unlock()
+	return nil
+}
+
 // c1debughttpserver for web interface, to render the stuff that has been recieved
 func c1debughttpserver(w http.ResponseWriter, _ *http.Request) {
 
 	page := components.NewPage()
 	keys := extractSortedKeys()
-	dates := keysAsDate(Kalender, keys)
+	dates := keysAsDate(Kalender, keys, false)
 	errKeys := generateErrorItems(keys)
 
 	page.AddCharts(
@@ -141,7 +151,7 @@ func n2odebughttpserver(w http.ResponseWriter, _ *http.Request) {
 
 	page := components.NewPage()
 	keys := extractSortedKeys()
-	dates := keysAsDate(Kalender, keys)
+	dates := keysAsDate(Kalender, keys, false)
 	errKeys := generateErrorItems(keys)
 
 	//NH4N
@@ -354,6 +364,17 @@ func extractSortedKeys() []int {
 	return keys
 }
 
+func extractDailyKeys() []int {
+	globalHandler.mux.Lock()
+	keys := make([]int, 0, len(globalHandler.waterBalanceDumps))
+	for k := range globalHandler.waterBalanceDumps {
+		keys = append(keys, k)
+	}
+	globalHandler.mux.Unlock()
+	sort.Ints(keys)
+	return keys
+}
+
 func makeMultiLine(title string) *charts.Line {
 	line := charts.NewLine()
 	line.SetGlobalOptions(
@@ -390,7 +411,7 @@ func lineMultiC1(keys, errKeys []int, dates []string) *charts.Line {
 	return line
 }
 func errorMarker(errKeys []int, offset float64) charts.SeriesOpts {
-	dates := keysAsDate(Kalender, errKeys)
+	dates := keysAsDate(Kalender, errKeys, false)
 
 	marker := make([]opts.MarkPointNameCoordItem, 0, len(dates))
 	for _, date := range dates {
@@ -510,14 +531,19 @@ func lineMultiWDT() *charts.Line {
 	return line
 }
 
-func keysAsDate(dateConverter func(int) string, keys []int) []string {
+func keysAsDate(dateConverter func(int) string, keys []int, noSteps bool) []string {
 	asDate := make([]string, 0, len(keys))
 
 	for _, key := range keys {
-		date := key / 100
-		steps := key % 100
+		if noSteps {
+			asDate = append(asDate, dateConverter(key))
+		} else {
 
-		asDate = append(asDate, fmt.Sprintf("%s_%d", dateConverter(date), steps))
+			date := key / 100
+			steps := key % 100
+
+			asDate = append(asDate, fmt.Sprintf("%s_%d", dateConverter(date), steps))
+		}
 	}
 	return asDate
 }
