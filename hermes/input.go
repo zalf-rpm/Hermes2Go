@@ -974,7 +974,7 @@ func Hydro(las1 int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFilePath
 			}
 		} else if BDART[1] == 'T' || BDART[1] == 't' {
 			if las1 == 1 {
-				g.IZM = 20
+				g.IZM = 30
 			}
 		}
 	} else if BDART[0] == 'L' {
