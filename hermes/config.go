@@ -74,6 +74,7 @@ type Config struct {
 	AutoFertilization FeatureSwitch `yaml:"AutoFertilization"` // automatic fertilization (0=no, 1=on demand)
 	AutoIrrigation    FeatureSwitch `yaml:"AutoIrrigation"`    // automatic irrigation (0=no, 1= on demand)
 	AutoHarvest       FeatureSwitch `yaml:"AutoHarvest"`       // automatic harvest (0=no, 1= on demand)
+	TillagePoreSpace  FeatureSwitch `yaml:"TillagePoreSpace"`  // tillage pore space (0=no, 1= yes)
 }
 
 func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) Config {
@@ -135,6 +136,7 @@ func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) C
 		}
 	}
 	g.PotMineralisationMethod = hconfig.PotMineralisation
+	g.TillagePoreSpace = bool(hconfig.TillagePoreSpace)
 
 	return hconfig
 }
@@ -244,6 +246,7 @@ func NewDefaultConfig() Config {
 		AutoFertilization:               true,
 		AutoIrrigation:                  true,
 		AutoHarvest:                     true,
+		TillagePoreSpace:                false,
 	}
 }
 

@@ -1,11 +1,16 @@
 package hermes
 
 import (
+	"encoding/csv"
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
+	"io"
+	"math"
 	"os"
 	"path/filepath"
+	"strconv"
 	"testing"
 )
 
@@ -235,6 +240,172 @@ func TestSandAndClayToKa5TextureInParcap(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := FindTextureInPARCAP(tt.args.texture, tt.args.path); got != tt.want {
 				t.Errorf("PARCAP() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSoilCompressionOverTime(t *testing.T) {
+	type args struct {
+		sumke      float64
+		startBD    float64
+		currentBD  float64
+		cOrg       float64
+		fc         float64
+		layerDepth float64
+		precip     float64
+	}
+	// load csv file with test data
+	path := "test_data/test_setup_tillage.csv"
+	file, err := os.Open(path)
+	if err != nil {
+		t.Errorf("Error opening file %v", err)
+	}
+	defer file.Close()
+	reader := csv.NewReader(file)
+	reader.Comma = ','
+	startBDGoodSoil := make([]float64, 4)
+	startBDBadSoil := make([]float64, 4)
+	layerdepth := make([]float64, 4)
+	bdgood := make([][]float64, 172)
+	bdbad := make([][]float64, 172)
+	mineralizationGood := make([][]float64, 172)
+	mineralizationBad := make([][]float64, 172)
+	airVolGood := make([][]float64, 172)
+	airVolBad := make([][]float64, 172)
+	sumke := make([]float64, 0, 172)
+	precip := make([]float64, 0, 172)
+	index := -1
+	for line, err := reader.Read(); err != io.EOF; line, err = reader.Read() {
+		index++
+		// skip header
+		if index == 0 {
+			for i := 0; i < 4; i++ {
+				layerdepth[i], err = strconv.ParseFloat(line[19+i], 64)
+				if err != nil {
+					t.Errorf("Error reading layerdepth %v layer %d", err, i)
+				}
+			}
+			continue
+		}
+		if index == 1 {
+			for i := 0; i < 4; i++ {
+				startBDGoodSoil[i], err = strconv.ParseFloat(line[3+i], 64)
+				if err != nil {
+					t.Errorf("Error reading good startBD %v layer %d", err, i)
+				}
+				startBDBadSoil[i], err = strconv.ParseFloat(line[7+i], 64)
+				if err != nil {
+					t.Errorf("Error reading startBD %v layer %d", err, i)
+				}
+			}
+			continue
+		}
+		bdgood[index-2] = make([]float64, 4)
+		bdbad[index-2] = make([]float64, 4)
+		mineralizationGood[index-2] = make([]float64, 4)
+		mineralizationBad[index-2] = make([]float64, 4)
+		airVolGood[index-2] = make([]float64, 4)
+		airVolBad[index-2] = make([]float64, 4)
+		for i := 0; i < 4; i++ {
+
+			bdgood[index-2][i], err = strconv.ParseFloat(line[3+i], 64)
+			if err != nil {
+				t.Errorf("Error reading good bd %v layer %d", err, i)
+			}
+			bdbad[index-2][i], err = strconv.ParseFloat(line[7+i], 64)
+			if err != nil {
+				t.Errorf("Error reading bd %v layer %d", err, i)
+			}
+			airVolGood[index-2][i], err = strconv.ParseFloat(line[11+i], 64)
+			if err != nil {
+				t.Errorf("Error reading good airVol %v layer %d", err, i)
+			}
+			airVolBad[index-2][i], err = strconv.ParseFloat(line[15+i], 64)
+			if err != nil {
+				t.Errorf("Error reading airVol %v layer %d", err, i)
+			}
+			mineralizationGood[index-2][i], err = strconv.ParseFloat(line[19+i], 64)
+			if err != nil {
+				t.Errorf("Error reading good mineralization %v layer %d", err, i)
+			}
+			mineralizationBad[index-2][i], err = strconv.ParseFloat(line[24+i], 64)
+			if err != nil {
+				t.Errorf("Error reading mineralization %v layer %d", err, i)
+			}
+
+		}
+		ke, err := strconv.ParseFloat(line[2], 64)
+		if err != nil {
+			t.Errorf("Error reading ke %v", err)
+		}
+		sumke = append(sumke, ke)
+		precipVal, err := strconv.ParseFloat(line[1], 64)
+		if err != nil {
+			t.Errorf("Error reading precip %v", err)
+		}
+		precip = append(precip, precipVal)
+
+	}
+	type testStruct struct {
+		name                     string
+		args                     args
+		wantNewBD                float64
+		wantNewSumke             float64
+		wantAirPoreVolume        float64
+		wantMineralisationFactor float64
+	}
+	tests := make([]testStruct, 0, len(precip)*2)
+	for i := 1; i < len(precip); i++ {
+		for j := 0; j < 4; j++ {
+			tests = append(tests, testStruct{
+				name: fmt.Sprintf("Test good soil day %d layer depth %f", i+1, layerdepth[j]),
+				args: args{
+					sumke:      sumke[i-1],
+					startBD:    startBDGoodSoil[j],
+					currentBD:  bdgood[i-1][j],
+					cOrg:       1.17,
+					fc:         0.33,
+					layerDepth: layerdepth[j],
+					precip:     precip[i],
+				},
+				wantNewBD:                bdgood[i][j],
+				wantNewSumke:             sumke[i],
+				wantAirPoreVolume:        airVolGood[i][j],
+				wantMineralisationFactor: mineralizationGood[i][j],
+			}, testStruct{
+				name: fmt.Sprintf("Test bad soil day %d layer depth %f", i+1, layerdepth[j]),
+				args: args{
+					sumke:      sumke[i-1],
+					startBD:    startBDBadSoil[j],
+					currentBD:  bdbad[i-1][j],
+					cOrg:       1.03,
+					fc:         0.24,
+					layerDepth: layerdepth[j],
+					precip:     precip[i],
+				},
+				wantNewBD:                bdbad[i][j],
+				wantNewSumke:             sumke[i],
+				wantAirPoreVolume:        airVolBad[i][j],
+				wantMineralisationFactor: mineralizationBad[i][j],
+			})
+		}
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotNewBD, gotNewSumke, gotAirPoreVolume, gotMineralisationFactor := SoilCompressionOverTime(tt.args.sumke, tt.args.startBD, tt.args.currentBD, tt.args.cOrg, tt.args.fc, tt.args.layerDepth, tt.args.precip)
+			if math.Abs(gotNewBD-tt.wantNewBD) > 0.00001 {
+				t.Errorf("SoilCompressionOverTime() gotNewBD = %v, want %v", gotNewBD, tt.wantNewBD)
+			}
+			if math.Abs(gotNewSumke-tt.wantNewSumke) > 0.00001 {
+				t.Errorf("SoilCompressionOverTime() gotNewSumke = %v, want %v", gotNewSumke, tt.wantNewSumke)
+			}
+			if math.Abs(gotAirPoreVolume-tt.wantAirPoreVolume) > 0.00001 {
+				t.Errorf("SoilCompressionOverTime() gotAirPoreVolume = %v, want %v", gotAirPoreVolume, tt.wantAirPoreVolume)
+			}
+			if math.Abs(gotMineralisationFactor-tt.wantMineralisationFactor) > 0.00001 {
+				t.Errorf("SoilCompressionOverTime() gotMineralisationFactor = %v, want %v", gotMineralisationFactor, tt.wantMineralisationFactor)
 			}
 		})
 	}

@@ -317,14 +317,13 @@ func (soildata *SoilFileData) BulkDensityClassToDensity(i int) {
 // BulkDensityToClass get bulk density class from bulk density
 func (soildata *SoilFileData) BulkDensityToClass(bulkDensity float64) (bulkDensityClass int) {
 	bulkDensityClass = 1
-	bd := bulkDensity / 1000
-	if bd < 1.3 {
+	if bulkDensity < 1.3 {
 		bulkDensityClass = 1
-	} else if bd < 1.5 {
+	} else if bulkDensity < 1.5 {
 		bulkDensityClass = 2
-	} else if bd < 1.7 {
+	} else if bulkDensity < 1.7 {
 		bulkDensityClass = 3
-	} else if bd < 1.85 {
+	} else if bulkDensity < 1.85 {
 		bulkDensityClass = 4
 	} else {
 		bulkDensityClass = 5
@@ -334,7 +333,7 @@ func (soildata *SoilFileData) BulkDensityToClass(bulkDensity float64) (bulkDensi
 
 // CalculatePoreSpace calculate pore volume from bulk density
 func CalculatePoreSpace(bulkDensity float64) float64 {
-	return 1 - ((bulkDensity / 1000) / 2.65)
+	return 1 - ((bulkDensity) / 2.65)
 }
 
 func CalculatePoreSpacePTF1(CGehalt, Ton, Sluf, BD, tsRat float64) float64 {
@@ -785,4 +784,66 @@ func FindTextureInPARCAP(textureIn, filepath string) string {
 		}
 	}
 	return "not found"
+}
+
+// change soil porespace on tillage
+func ChangeSoilPorespaceOnTillage(g *GlobalVarsMain, tillageDepth float64) {
+	if g.TillagePoreSpace {
+		for i := 0; i < g.N; i++ {
+
+		}
+	}
+
+}
+
+func GetPoreVolMultiplier1(g *GlobalVarsMain, layer int) float64 {
+	multiPl := 1.0
+	if !g.TillagePoreSpace || layer > 10 {
+		return multiPl
+	}
+	layerDepth := float64(layer)*10 - 5 // 10 cm layer
+
+	if g.PORGES[layer] >= 0.3 {
+		//=0,04+EXP(-(G$1+0,1)/100*($A2))^1,8
+		multiPl = 0.04 + math.Pow(math.Exp(-(g.PORGES[layer]+0.1)/100*layerDepth), 1.8)
+	} else {
+		// 0,03+EXP((F$1)/100*(-$A2))^1,8
+		multiPl = 0.03 + math.Pow(math.Exp((g.PORGES[layer])/100*(-1*layerDepth)), 1.8)
+	}
+	return multiPl
+}
+
+func IncAirVolumneOnTillage(sumke, currentBD, layerDepth, fc, precip float64) (newBD, newSumke, airPoreVolume, mineralisationFactor float64) {
+
+	newSumke = sumke + 0.00217*precip
+	newBD = currentBD * 0.9
+
+	poreVol := CalculatePoreSpace(newBD)
+	airPoreVolume = poreVol - fc
+
+	mineralisationFactor = math.Pow(math.Pow(math.Exp(-0.001*layerDepth), 3.1-10*airPoreVolume), 3)
+	return
+}
+
+// soil compression function
+func SoilCompressionOverTime(sumke, startBD, currentBD, cOrg, fc, layerDepth, precip float64) (newBD, newSumke, airPoreVolume, mineralisationFactor float64) {
+	// bd  			bulk density
+	// cOrg  		organic carbon content
+	// fc 			field capacity
+	// precip 		precipitation in cm
+	// layerDepth 	depth of layer in cm
+
+	// =(1-0,005*F10)*10
+	RSLT := (1 - 0.005*cOrg) * 10
+	// Sumke (cumulative kinetische Energie Niederschlag) seit Bearbeitung = Niederschlag (mm) * 0.00217
+	newSumke = sumke + 0.00217*precip
+	// bulk density
+	newBD = currentBD - ((currentBD - startBD) * (1 - math.Exp(-RSLT*newSumke*math.Exp(-0.15*layerDepth))))
+	newBD = math.Min(newBD, startBD) // new BD can not be higher than start BD
+
+	poreVol := CalculatePoreSpace(newBD)
+	airPoreVolume = poreVol - fc
+	// mineralisation factor
+	mineralisationFactor = math.Pow(math.Pow(math.Exp(-0.001*layerDepth), 3.1-10*airPoreVolume), 3)
+	return
 }
