@@ -106,3 +106,5 @@ AutoIrrigation: 1
 AutoHarvest: 1
 # write management events
 ManagementEvents: 1
+# alter pore space on tillage
+TillagePoreSpace: 1

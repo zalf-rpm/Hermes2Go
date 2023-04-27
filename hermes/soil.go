@@ -814,13 +814,13 @@ func GetPoreVolMultiplier1(g *GlobalVarsMain, layer int) float64 {
 }
 
 // increase air volume on tillage
-func IncAirVolumneOnTillage(currentBD float64) (newBD float64) {
-	newBD = currentBD * 0.9 // decrease bulk density by 10%
+func IncAirVolumneOnTillage(currentBD, factor float64) (newBD float64) {
+	newBD = currentBD * factor // decrease bulk density by 10%
 	return
 }
 
 // soil compression function
-func SoilCompressionOverTime(sumke, startBD, currentBD, cOrg, fc, layerDepth, precip float64, tillageDay bool) (newBD, newSumke, airPoreVolume, mineralisationFactor float64) {
+func SoilCompressionOverTime(sumke, startBD, currentBD, cOrg, fc, layerDepth, precip, recompactingFactor float64, tillageDay bool) (newBD, newSumke, airPoreVolume, mineralisationFactor float64) {
 	// bd  			bulk density
 	// cOrg  		organic carbon content top layer
 	// fc 			field capacity
@@ -836,7 +836,7 @@ func SoilCompressionOverTime(sumke, startBD, currentBD, cOrg, fc, layerDepth, pr
 		newBD = currentBD
 	} else {
 		newBD = currentBD - ((currentBD - startBD) * (1 - math.Exp(-RSLT*newSumke*math.Exp(-0.15*layerDepth))))
-		newBD = math.Min(newBD, startBD) // new BD can not be higher than start BD
+		newBD = math.Min(newBD, startBD*recompactingFactor) // new BD can not be higher than (start BD * recompacting factor)
 	}
 	// air pore volume
 	poreVol := CalculatePoreSpace(newBD)

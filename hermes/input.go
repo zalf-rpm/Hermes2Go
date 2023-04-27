@@ -173,6 +173,7 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 				// init MineralzFactor with 1.0
 				for i := 0; i < g.N; i++ {
 					g.MineralzFactor[i] = 1.0
+					g.RecompactingPerLayer[i] = 0.0
 				}
 
 				for L := 1; L <= g.AZHO; L++ {
@@ -755,23 +756,37 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 				if err == nil {
 					LineInut(scannertilage)
 					LineInut(scannertilage)
-					NRTIL := 0
-
+					NRTIL := 0 // Number of tillage operations
+					g.TilBDdec = make([]float64, 0, 200)
+					g.TilRecompacting = make([]float64, 0, 200)
 					for SCHLAG, tilageTokens, valid := NextLineInut(0, scannertilage, strings.Fields); valid; SCHLAG, tilageTokens, valid = NextLineInut(0, scannertilage, strings.Fields) {
 						if SCHLAG == g.PKT {
 							for ok := true; ok; ok = SCHLAG == g.PKT && valid {
 								// Tokens: Schlag/FieldID(0) depth(1) type(2) date(3)
-								NRTIL++
-								NRTILindex := NRTIL - 1
-								g.TILDAT[NRTILindex] = tilageTokens[3]
-								g.EINT[NRTILindex] = ValAsFloat(tilageTokens[1], til, tilageTokens[1])
-								g.TILART[NRTILindex] = int(ValAsInt(tilageTokens[2], til, tilageTokens[2]))
-								_, valEinte := g.Datum(g.TILDAT[NRTILindex])
-								g.EINTE[NRTIL] = valEinte
-								if g.EINTE[NRTIL] < g.BEGINN {
-									NRTIL--
+
+								tillageDateStr := tilageTokens[3]
+								_, tillageDate := g.Datum(tillageDateStr)
+								if tillageDate < g.BEGINN {
+									// skip tillage operations before simulation start
+									SCHLAG, tilageTokens, valid = NextLineInut(0, scannertilage, strings.Fields)
+								} else {
+									NRTIL++
+									NRTILindex := NRTIL - 1
+									g.TILDAT[NRTILindex] = tillageDateStr
+									g.EINT[NRTILindex] = ValAsFloat(tilageTokens[1], til, tilageTokens[1])
+									g.TILART[NRTILindex] = int(ValAsInt(tilageTokens[2], til, tilageTokens[2]))
+									g.EINTE[NRTIL] = tillageDate
+									if len(tilageTokens) > 4 { // if there is a 5th token, it is the recompacting factor
+										g.TilBDdec = append(g.TilBDdec, ValAsFloat(tilageTokens[4], til, tilageTokens[4]))
+										g.TilRecompacting = append(g.TilRecompacting, ValAsFloat(tilageTokens[5], til, tilageTokens[5]))
+									} else {
+										// set to default values
+										g.TilBDdec = append(g.TilBDdec, 0.9)
+										g.TilRecompacting = append(g.TilRecompacting, 1.0)
+									}
+
+									SCHLAG, tilageTokens, valid = NextLineInut(0, scannertilage, strings.Fields)
 								}
-								SCHLAG, tilageTokens, valid = NextLineInut(0, scannertilage, strings.Fields)
 							}
 						}
 					}

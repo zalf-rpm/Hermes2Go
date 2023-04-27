@@ -247,7 +247,8 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			}
 			if g.TillagePoreSpace {
 				for z := 0; z < int(mixtief); z++ {
-					g.BDafterTil[z] = IncAirVolumneOnTillage(g.BD[z])
+					g.BDafterTil[z] = IncAirVolumneOnTillage(g.BD[z], g.TilBDdec[g.NTIL.Index])
+					g.RecompactingPerLayer[z] = g.TilRecompacting[g.NTIL.Index]
 				}
 				// reset SUMKE on tillage
 				g.SUMKE = 0
@@ -270,7 +271,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			for z := 0; z < g.N; z++ {
 				layerDepth := 5.0 * float64(z+1)
 				fc := g.W[z]
-				g.BDafterTil[z], g.SUMKE, _, g.MineralzFactor[z] = SoilCompressionOverTime(currentSumke, g.BD[z], g.BDafterTil[z], g.CGEHALT[z], fc, layerDepth, precip, isTillageDay)
+				g.BDafterTil[z], g.SUMKE, _, g.MineralzFactor[z] = SoilCompressionOverTime(currentSumke, g.BD[z], g.BDafterTil[z], g.CGEHALT[z], fc, layerDepth, precip, g.RecompactingPerLayer[z], isTillageDay)
 			}
 		}
 		// Aufruf Mineralisations Subroutine
