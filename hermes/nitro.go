@@ -210,9 +210,11 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------
+	isTillageDay := false
 	if zeit == g.EINTE[g.NTIL.Index+1]+1 && subd == 1 {
 		var NFOSUM, NAOSUM, nmifosum, nmiaosum, CSUM float64
 		if g.EINT[g.NTIL.Index] > 0 {
+			isTillageDay = true
 			mixtief := math.Round(g.EINT[g.NTIL.Index] / g.DZ.Num)
 
 			layerList := make(map[string]interface{})
@@ -239,6 +241,11 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 					layerList[fmt.Sprintf("NAOSLayer%d", z+1)] = g.NAOS[z]
 				}
 			}
+			if g.TillagePoreSpace {
+				for z := 0; z < int(mixtief); z++ {
+					g.BDafterTil[z] = IncAirVolumneOnTillage(g.BD[z])
+				}
+			}
 
 			runErr = g.managementConfig.WriteManagementEvent(NewManagementEvent(Tillage, zeit, layerList, g))
 			if runErr != nil {
@@ -248,6 +255,18 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 		g.NTIL.Inc()
 	}
 	if subd == 1 {
+		if g.TillagePoreSpace {
+			// g.MineralzFactor
+			// g.SUMKE
+			// g.BDafterTil
+			precip := g.REGEN[g.TAG.Index]
+			currentSumke := g.SUMKE
+			for z := 0; z < 4; z++ {
+				layerDepth := 5.0 * float64(z+1)
+				fc := g.W[z]
+				g.BDafterTil[z], g.SUMKE, _, g.MineralzFactor[z] = SoilCompressionOverTime(currentSumke, g.BD[z], g.BDafterTil[z], g.CGEHALT[0], fc, layerDepth, precip, isTillageDay)
+			}
+		}
 		// Aufruf Mineralisations Subroutine
 		mineral(wdt, subd, g, l)
 	}

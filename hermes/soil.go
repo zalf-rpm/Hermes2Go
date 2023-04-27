@@ -813,34 +813,32 @@ func GetPoreVolMultiplier1(g *GlobalVarsMain, layer int) float64 {
 	return multiPl
 }
 
-func IncAirVolumneOnTillage(sumke, currentBD, layerDepth, fc, precip float64) (newBD, newSumke, airPoreVolume, mineralisationFactor float64) {
-
-	newSumke = sumke + 0.00217*precip
-	newBD = currentBD * 0.9
-
-	poreVol := CalculatePoreSpace(newBD)
-	airPoreVolume = poreVol - fc
-
-	mineralisationFactor = math.Pow(math.Pow(math.Exp(-0.001*layerDepth), 3.1-10*airPoreVolume), 3)
+// increase air volume on tillage
+func IncAirVolumneOnTillage(currentBD float64) (newBD float64) {
+	newBD = currentBD * 0.9 // decrease bulk density by 10%
 	return
 }
 
 // soil compression function
-func SoilCompressionOverTime(sumke, startBD, currentBD, cOrg, fc, layerDepth, precip float64) (newBD, newSumke, airPoreVolume, mineralisationFactor float64) {
+func SoilCompressionOverTime(sumke, startBD, currentBD, cOrg, fc, layerDepth, precip float64, tillageDay bool) (newBD, newSumke, airPoreVolume, mineralisationFactor float64) {
 	// bd  			bulk density
-	// cOrg  		organic carbon content
+	// cOrg  		organic carbon content top layer
 	// fc 			field capacity
 	// precip 		precipitation in cm
 	// layerDepth 	depth of layer in cm
 
-	// =(1-0,005*F10)*10
 	RSLT := (1 - 0.005*cOrg) * 10
-	// Sumke (cumulative kinetische Energie Niederschlag) seit Bearbeitung = Niederschlag (mm) * 0.00217
+	// Sumke (culmulative kinetic energy of precipitation) since tillage = precipitation (mm) * 0.00217
 	newSumke = sumke + 0.00217*precip
 	// bulk density
-	newBD = currentBD - ((currentBD - startBD) * (1 - math.Exp(-RSLT*newSumke*math.Exp(-0.15*layerDepth))))
-	newBD = math.Min(newBD, startBD) // new BD can not be higher than start BD
-
+	if tillageDay {
+		// do not calculate a new BD on tillage day
+		newBD = currentBD
+	} else {
+		newBD = currentBD - ((currentBD - startBD) * (1 - math.Exp(-RSLT*newSumke*math.Exp(-0.15*layerDepth))))
+		newBD = math.Min(newBD, startBD) // new BD can not be higher than start BD
+	}
+	// air pore volume
 	poreVol := CalculatePoreSpace(newBD)
 	airPoreVolume = poreVol - fc
 	// mineralisation factor

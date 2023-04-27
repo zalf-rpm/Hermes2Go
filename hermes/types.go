@@ -362,7 +362,9 @@ type GlobalVarsMain struct {
 	N2onitsum        float64
 	AKTUELL          string // current Date string
 	SoilID           string
-	PoreVolMult      []float64
+	MineralzFactor   []float64 // mineralization factor
+	SUMKE            float64   // culmulative kinetic energy of precipitation
+	BDafterTil       []float64 // bulk density after tillage
 
 	// output parameters
 	PerY            float64 // accumulated output
