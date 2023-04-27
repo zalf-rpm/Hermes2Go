@@ -168,6 +168,13 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 				// ! PORGES(LT)         = Gesamtporenvolumen (cm^3/cm^3)
 				// ! WNOR(LT)           = Wassergehalt bei Feldkapazität unkorrigiert (cm^3/cm^3)
 
+				g.BDafterTil = make([]float64, g.N)
+				g.MineralzFactor = make([]float64, g.N)
+				// init MineralzFactor with 1.0
+				for i := 0; i < g.N; i++ {
+					g.MineralzFactor[i] = 1.0
+				}
+
 				for L := 1; L <= g.AZHO; L++ {
 					lindex := L - 1
 					Hydro(L, g, l, hPath)
@@ -242,6 +249,7 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 							}
 						}
 						g.BD[LTindex] = g.BULK[lindex]
+						g.BDafterTil[LTindex] = g.BULK[lindex]
 					}
 				}
 				// save soil parameters for GW fluctuations
