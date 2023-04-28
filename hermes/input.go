@@ -251,6 +251,7 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 						}
 						g.BD[LTindex] = g.BULK[lindex]
 						g.BDafterTil[LTindex] = g.BULK[lindex]
+						g.Corg[LTindex] = g.CGEHALT[lindex]
 					}
 				}
 				// save soil parameters for GW fluctuations

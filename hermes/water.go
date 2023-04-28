@@ -654,7 +654,7 @@ func Evatra(l *WaterSharedVars, g *GlobalVarsMain, hPath *HFilePath, zeit int) {
 	}
 }
 
-// -------- Unterprogramm Stomatawiderstand in Abh. C-Assimilation, S�ttigungsdefizit und CO2 -------------------------
+// -------- Unterprogramm Stomatawiderstand in Abh. C-Assimilation, Sättigungsdefizit und CO2 -------------------------
 
 func stomat(l *WaterSharedVars, zeit int, g *GlobalVarsMain) {
 

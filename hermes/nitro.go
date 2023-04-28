@@ -269,9 +269,9 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			precip := g.REGEN[g.TAG.Index]
 			currentSumke := g.SUMKE
 			for z := 0; z < g.N; z++ {
-				layerDepth := 5.0 * float64(z+1)
+				layerDepth := (float64(z+1) * g.DZ.Num) - (0.5 * g.DZ.Num)
 				fc := g.W[z]
-				g.BDafterTil[z], g.SUMKE, _, g.MineralzFactor[z] = SoilCompressionOverTime(currentSumke, g.BD[z], g.BDafterTil[z], g.CGEHALT[z], fc, layerDepth, precip, g.RecompactingPerLayer[z], isTillageDay)
+				g.BDafterTil[z], g.SUMKE, _, g.MineralzFactor[z] = SoilCompressionOverTime(currentSumke, g.BD[z], g.BDafterTil[z], g.Corg[z], fc, layerDepth, precip, g.RecompactingPerLayer[z], isTillageDay)
 			}
 		}
 		// Aufruf Mineralisations Subroutine
@@ -542,9 +542,9 @@ func mineral(wdt float64, subd int, g *GlobalVarsMain, l *NitroSharedVars) {
 		KTD := .4
 		if TEMPBO > 0 {
 			// Reaktionskoeffizient der schwer abbaubaren Fraktion
-			kt0 := 4000000000. * math.Exp(-8400./(TEMPBO+273.16))
+			kt0 := 4000000000. * math.Exp(-8400./(TEMPBO+273.16)) * g.MineralzFactor[zIndex]
 			// Reaktionskoeffizient der leicht abbaubaren Fraktion
-			kt1 := 5.6e+12 * math.Exp(-9800./(TEMPBO+273.16))
+			kt1 := 5.6e+12 * math.Exp(-9800./(TEMPBO+273.16)) * g.MineralzFactor[zIndex]
 			// Reduktionsfaktoren bei suboptimalem Wassergehalt
 			if g.WG[0][zIndex] <= g.WNOR[zIndex] && g.WG[0][zIndex] >= g.WRED {
 				MIRED[zIndex] = 1

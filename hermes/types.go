@@ -51,12 +51,12 @@ func NewDualType(baseIndex int, offset int) DualType {
 // GlobalVarsMain contains all variables that are use by multiple sub modules
 type GlobalVarsMain struct {
 	IZM                  int
-	DT                   DualType
-	DZ                   DualType //= 10 (cm to mm)
+	DT                   DualType // time step (Zeitschritt)
+	DZ                   DualType //= 10 (cm to mm) (Schichtdicke)
 	N                    int      // max number of layer (changed by soil file)
 	DV                   float64
-	ALPH                 float64
-	SATBETA              float64
+	ALPH                 float64     // calc for YU/Allen (alpha)
+	SATBETA              float64     // calc for YU/Allen (saturation beta)
 	AKF                  DualType    // current crop index (aktuelle frucht)
 	SLNR                 int         // Schlag Nummer, plot number
 	NFOS                 [21]float64 // Nitrogen in fast decomposable fraction (kg N ha-1)
@@ -76,7 +76,8 @@ type GlobalVarsMain struct {
 	BART                 [10]string  // soil type by KA5(Bodenkundlichen Kartieranleitung 5. Auflage) (special spelling convertions)
 	LD                   [10]int     // bulk density KA5 (1-5) (Lagerungsdichtestufe nach KA5 (1-5))
 	BULK                 [10]float64 // avarage bulk density (Zuweisung mittlere Lagerungsdichte von LD(I) (g/cm^3))
-	CGEHALT              [10]float64 // C organic content in soil layer (Corg-Gehalt in Horizont I (Gew.%))
+	CGEHALT              [10]float64 // C organic content in soil horizon (C org Gehalt in Horizont I (Gew.%))
+	Corg                 [20]float64 // C organic content in soil layer (C org Gehalt in Schicht I (Gew.%))
 	HUMUS                [21]float64 // humus content in soil layer (Humusgehalt in Hor. I (Gew.%))
 	STEIN                [10]float64 // stone content in soil layer (%)
 	FKA                  [10]float64 // water content at field capacity (Wassergehalt bei Feldkapazität) (Vol. %)
