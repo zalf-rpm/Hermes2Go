@@ -173,7 +173,7 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 				// init MineralzFactor with 1.0
 				for i := 0; i < g.N; i++ {
 					g.MineralzFactor[i] = 1.0
-					g.RecompactingPerLayer[i] = 0.0
+					g.RecompactingPerLayer[i] = 1.0
 				}
 
 				for L := 1; L <= g.AZHO; L++ {
