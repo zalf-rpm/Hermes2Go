@@ -2146,6 +2146,18 @@ func (c *OutputConfig) WriteLine(file *Fout) error {
 				val = val * col.Modifier
 			}
 			outLine.Add(col.FormatStr, val)
+		case *[]float64:
+			val := *v
+			idx := col.VarIndex1
+			if idx >= len(val) {
+				fmt.Println("unknown index")
+			}
+			valAtIdx := val[idx]
+			if col.Modifier != 0 {
+				valAtIdx = valAtIdx * col.Modifier
+			}
+			outLine.Add(col.FormatStr, valAtIdx)
+
 		default:
 			fmt.Println("unknown")
 		}
