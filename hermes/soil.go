@@ -820,12 +820,14 @@ func IncAirVolumneOnTillage(currentBD, factor float64) (newBD float64) {
 }
 
 // soil compression function
-func SoilCompressionOverTime(sumke, startBD, currentBD, cOrg, fc, layerDepth, precip, recompactingFactor float64, tillageDay bool) (newBD, newSumke, airPoreVolume, mineralisationFactor float64) {
+func SoilCompressionOverTime(sumke, startBD, currentBD, cOrg, wc, layerDepth, precip, recompactingFactor, tilPSF float64, tillageDay bool) (newBD, newSumke, airPoreVolume, mineralisationFactor float64) {
 	// bd  			bulk density
 	// cOrg  		organic carbon content top layer
-	// fc 			field capacity
+	// wc 			water content
 	// precip 		precipitation in cm
 	// layerDepth 	depth of layer in cm
+	// recompactingFactor 	recompacting factor
+	// tilPSF 		tillage pore space factor
 
 	RSLT := (1 - 0.005*cOrg) * 10
 	// Sumke (culmulative kinetic energy of precipitation) since tillage = precipitation (mm) * 0.00217
@@ -840,8 +842,12 @@ func SoilCompressionOverTime(sumke, startBD, currentBD, cOrg, fc, layerDepth, pr
 	}
 	// air pore volume
 	poreVol := CalculatePoreSpace(newBD)
-	airPoreVolume = poreVol - fc
+	airPoreVolume = poreVol - wc
+
 	// mineralisation factor
-	mineralisationFactor = math.Pow(math.Pow(math.Exp(-0.001*layerDepth), 3.1-10*airPoreVolume), 3)
+	mineralisationFactor = math.Pow(math.Pow(math.Exp(-(tilPSF)*layerDepth), 3.1-10*airPoreVolume), 3)
+	// limit mineralisation factor to 1
+	mineralisationFactor = math.Min(mineralisationFactor, 1.0)
+
 	return
 }

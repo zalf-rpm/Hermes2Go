@@ -69,12 +69,13 @@ type Config struct {
 	GroundWaterPhase               int     `yaml:"GroundWaterPhase,omitempty"`     // Ground water phase in days (80= standard)
 
 	//***** Management *****
-	Fertilization     float64       `yaml:"Fertilization"`     // fertilization scenario (fertilization in %)
-	AutoSowingHarvest FeatureSwitch `yaml:"AutoSowingHarvest"` // automatic sowing/harvest (0=no, 1 = yes)
-	AutoFertilization FeatureSwitch `yaml:"AutoFertilization"` // automatic fertilization (0=no, 1=on demand)
-	AutoIrrigation    FeatureSwitch `yaml:"AutoIrrigation"`    // automatic irrigation (0=no, 1= on demand)
-	AutoHarvest       FeatureSwitch `yaml:"AutoHarvest"`       // automatic harvest (0=no, 1= on demand)
-	TillagePoreSpace  FeatureSwitch `yaml:"TillagePoreSpace"`  // tillage pore space (0=no, 1= yes)
+	Fertilization          float64       `yaml:"Fertilization"`          // fertilization scenario (fertilization in %)
+	AutoSowingHarvest      FeatureSwitch `yaml:"AutoSowingHarvest"`      // automatic sowing/harvest (0=no, 1 = yes)
+	AutoFertilization      FeatureSwitch `yaml:"AutoFertilization"`      // automatic fertilization (0=no, 1=on demand)
+	AutoIrrigation         FeatureSwitch `yaml:"AutoIrrigation"`         // automatic irrigation (0=no, 1= on demand)
+	AutoHarvest            FeatureSwitch `yaml:"AutoHarvest"`            // automatic harvest (0=no, 1= on demand)
+	TillagePoreSpace       FeatureSwitch `yaml:"TillagePoreSpace"`       // tillage pore space (0=no, 1= yes)
+	TillagePoreSpaceFactor float64       `yaml:"TillagePoreSpaceFactor"` // tillage pore space factor default 0.007
 }
 
 func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) Config {
@@ -137,6 +138,7 @@ func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) C
 	}
 	g.PotMineralisationMethod = hconfig.PotMineralisation
 	g.TillagePoreSpace = bool(hconfig.TillagePoreSpace)
+	g.TillagePoreSpaceFactor = hconfig.TillagePoreSpaceFactor
 
 	return hconfig
 }
@@ -247,6 +249,7 @@ func NewDefaultConfig() Config {
 		AutoIrrigation:                  true,
 		AutoHarvest:                     true,
 		TillagePoreSpace:                false,
+		TillagePoreSpaceFactor:          0.007,
 	}
 }
 

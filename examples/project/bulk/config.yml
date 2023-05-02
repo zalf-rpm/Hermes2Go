@@ -108,3 +108,5 @@ AutoHarvest: 1
 ManagementEvents: 1
 # alter pore space on tillage
 TillagePoreSpace: 1
+# factor for mineralization in porespace
+TillagePoreSpaceFactor: 0.007

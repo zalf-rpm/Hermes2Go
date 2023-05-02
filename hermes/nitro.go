@@ -270,12 +270,12 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			currentSumke := g.SUMKE
 			for z := 0; z < g.N; z++ {
 				layerDepth := (float64(z+1) * g.DZ.Num) - (0.5 * g.DZ.Num)
-				fc := g.W[z]
-				g.BDafterTil[z], g.SUMKE, _, g.MineralzFactor[z] = SoilCompressionOverTime(currentSumke, g.BD[z], g.BDafterTil[z], g.Corg[z], fc, layerDepth, precip, g.RecompactingPerLayer[z], isTillageDay)
+				wc := g.WG[0][z]
+				g.BDafterTil[z], g.SUMKE, _, g.MineralzFactor[z] = SoilCompressionOverTime(currentSumke, g.BD[z], g.BDafterTil[z], g.Corg[z], wc, layerDepth, precip, g.RecompactingPerLayer[z], g.TillagePoreSpaceFactor, isTillageDay)
 			}
 		}
 		// Aufruf Mineralisations Subroutine
-		mineral(wdt, subd, g, l)
+		mineral(g, l)
 	}
 	if zeit == g.ERNTE[g.AKF.Index] && subd == 1 {
 		var NDI, NSA, NLA float64
@@ -511,7 +511,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 }
 
 // mineral
-func mineral(wdt float64, subd int, g *GlobalVarsMain, l *NitroSharedVars) {
+func mineral(g *GlobalVarsMain, l *NitroSharedVars) {
 	//! ------------------------------------- Mineralisation in Abh. von Temperatur und Wassergehalt ------------
 	//! Inputs:
 	//! IZM                       = bodenartspezifische Mineralisierungstiefe

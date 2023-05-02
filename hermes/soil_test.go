@@ -247,13 +247,14 @@ func TestSandAndClayToKa5TextureInParcap(t *testing.T) {
 
 func TestSoilCompressionOverTime(t *testing.T) {
 	type args struct {
-		sumke      float64
-		startBD    float64
-		currentBD  float64
-		cOrg       float64
-		fc         float64
-		layerDepth float64
-		precip     float64
+		sumke                  float64
+		startBD                float64
+		currentBD              float64
+		cOrg                   float64
+		fc                     float64
+		layerDepth             float64
+		precip                 float64
+		tillagePoreSpaceFactor float64
 	}
 	// load csv file with test data
 	path := "test_data/test_setup_tillage.csv"
@@ -361,13 +362,14 @@ func TestSoilCompressionOverTime(t *testing.T) {
 			tests = append(tests, testStruct{
 				name: fmt.Sprintf("Test good soil day %d layer depth %f", i+1, layerdepth[j]),
 				args: args{
-					sumke:      sumke[i-1],
-					startBD:    startBDGoodSoil[j],
-					currentBD:  bdgood[i-1][j],
-					cOrg:       1.17,
-					fc:         0.33,
-					layerDepth: layerdepth[j],
-					precip:     precip[i],
+					sumke:                  sumke[i-1],
+					startBD:                startBDGoodSoil[j],
+					currentBD:              bdgood[i-1][j],
+					cOrg:                   1.17,
+					fc:                     0.33,
+					layerDepth:             layerdepth[j],
+					precip:                 precip[i],
+					tillagePoreSpaceFactor: 0.001,
 				},
 				wantNewBD:                bdgood[i][j],
 				wantNewSumke:             sumke[i],
@@ -376,13 +378,14 @@ func TestSoilCompressionOverTime(t *testing.T) {
 			}, testStruct{
 				name: fmt.Sprintf("Test bad soil day %d layer depth %f", i+1, layerdepth[j]),
 				args: args{
-					sumke:      sumke[i-1],
-					startBD:    startBDBadSoil[j],
-					currentBD:  bdbad[i-1][j],
-					cOrg:       1.03,
-					fc:         0.24,
-					layerDepth: layerdepth[j],
-					precip:     precip[i],
+					sumke:                  sumke[i-1],
+					startBD:                startBDBadSoil[j],
+					currentBD:              bdbad[i-1][j],
+					cOrg:                   1.03,
+					fc:                     0.24,
+					layerDepth:             layerdepth[j],
+					precip:                 precip[i],
+					tillagePoreSpaceFactor: 0.001,
 				},
 				wantNewBD:                bdbad[i][j],
 				wantNewSumke:             sumke[i],
@@ -394,7 +397,7 @@ func TestSoilCompressionOverTime(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotNewBD, gotNewSumke, gotAirPoreVolume, gotMineralisationFactor := SoilCompressionOverTime(tt.args.sumke, tt.args.startBD, tt.args.currentBD, tt.args.cOrg, tt.args.fc, tt.args.layerDepth, tt.args.precip, 1.0, false)
+			gotNewBD, gotNewSumke, gotAirPoreVolume, gotMineralisationFactor := SoilCompressionOverTime(tt.args.sumke, tt.args.startBD, tt.args.currentBD, tt.args.cOrg, tt.args.fc, tt.args.layerDepth, tt.args.precip, 1.0, tt.args.tillagePoreSpaceFactor, false)
 			if math.Abs(gotNewBD-tt.wantNewBD) > 0.00001 {
 				t.Errorf("SoilCompressionOverTime() gotNewBD = %v, want %v", gotNewBD, tt.wantNewBD)
 			}
