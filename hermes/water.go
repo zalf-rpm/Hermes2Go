@@ -918,7 +918,7 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 
 		//a := g.FLUSS0 * wdt
 		g.Q1[0] = a
-		g.InfilDaily += a / 10
+		g.InfilDaily += a
 		//------------------------ Infiltration------------------------
 		for k1 := 1; k1 <= g.N; k1++ {
 			k1INdex := k1 - 1
