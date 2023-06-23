@@ -210,7 +210,7 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 									// PTF by Toth 2015
 									fk := 0.2449 - 0.1887*(1/(g.CGEHALT[lindex]+1)) + 0.004527*l.TON[lindex] + 0.001535*l.SLUF[lindex] + 0.001442*l.SLUF[lindex]*(1/(g.CGEHALT[lindex]+1)) - 0.0000511*l.SLUF[lindex]*l.TON[lindex] + 0.0008676*l.TON[lindex]*(1/(g.CGEHALT[lindex]+1))
 									g.W[LTindex] = fk
-									pwp := 0.09878 + 0.002127*l.TON[lindex] - 0.0008366*l.SLUF[lindex] - 0.0767*(1/(g.CGEHALT[lindex]+1)) + 0.00003853*l.SLUF[lindex]*l.TON[lindex] + 0.00233*l.SLUF[lindex]*(1/(g.CGEHALT[lindex]+1)) + 0.0009498*l.SLUF[lindex]*(1/(g.CGEHALT[lindex]+1))
+									pwp := 0.09878 + 0.002127*l.TON[lindex] - 0.0008366*l.SLUF[lindex] - 0.0767*(1/(g.CGEHALT[lindex]+1)) + 0.00003853*l.SLUF[lindex]*l.TON[lindex] + 0.00233*l.TON[lindex]*(1/(g.CGEHALT[lindex]+1)) + 0.0009498*l.SLUF[lindex]*(1/(g.CGEHALT[lindex]+1))
 									g.WMIN[LTindex] = pwp
 								} else if g.PTF == 2 {
 									// PTF by Batjes for pF 2.5
