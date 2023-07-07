@@ -82,7 +82,6 @@ jobs:
         Compress-Archive -Path ./Hermes2Go_${{ github.ref_name }}/* -Destination Hermes2Go_win_${{ github.ref_name }}.zip
   
     - name: Create release
-      working-directory: ./monica
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         tag: ${{ github.ref_name }}
