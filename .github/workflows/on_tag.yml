@@ -1,0 +1,99 @@
+name: Tag Created Workflow
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+
+  docker:
+
+    runs-on: ubuntu-latest
+
+    steps:
+        
+        - name: Checkout repository
+          uses: actions/checkout@v3
+
+        - name: Set up Docker Buildx
+          uses: docker/setup-buildx-action@v2
+
+        # login to docker hub
+        - name: Login to DockerHub
+          uses: docker/login-action@v2
+          with:
+            username: ${{ secrets.DOCKER_USERNAME }}
+            password: ${{ secrets.DOCKER_PASSWORD }}
+            
+        - name: Build and push Docker image
+          uses: docker/build-push-action@v4
+          with:
+              context: .
+              push: true
+              # push with just the tag
+              tags: zalfrpm/hermes2go:${{ github.ref_name }}    
+
+  gitrelease:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version-file: 'go.work'  
+    - run: go version
+        
+    - name: Install dependencies
+      working-directory: ./src/hermes2go
+      run: |
+        go mod download
+    
+    - name: Build Hermes2go
+      working-directory: ./src/hermes2go
+      run: |
+       go build -v -o hermes2go.exe
+
+    - name: Build Soil calcualtor
+      working-directory: ./src/calcSoil
+      run: |
+       go build -v -o calcSoil.exe
+    
+    - name: Make Release Package folder
+      run : |
+        mkdir Hermes2Go_${{ github.ref_name }}
+    - name: Copy Hermes2Go
+      run : |
+        cp ./src/hermes2go/hermes2go.exe ./Hermes2Go_${{ github.ref_name }}
+    - name: Copy Soil calcualtor
+      run : |
+        cp ./src/calcSoil/calcSoil.exe ./Hermes2Go_${{ github.ref_name }}
+    - name: Copy Example
+      run : |
+        mkdir ./Hermes2Go_${{ github.ref_name }}/project
+        mkdir ./Hermes2Go_${{ github.ref_name }}/project/myP
+        mkdir ./Hermes2Go_${{ github.ref_name }}/weather/historical
+        mkdir ./Hermes2Go_${{ github.ref_name }}/parameter
+        cp ./examples/project/modinp_myP.txt ./Hermes2Go_${{ github.ref_name }}/project/modinp.txt
+        cp ./examples/weather/historical/109_120.csv ./Hermes2Go_${{ github.ref_name }}/weather/historical
+        cp ./examples/project/myP/* ./Hermes2Go_${{ github.ref_name }}/project/myP
+        cp ./examples/parameter/* ./Hermes2Go_${{ github.ref_name }}/parameter
+        
+        Compress-Archive -Path ./Hermes2Go_${{ github.ref_name }}/* -Destination Hermes2Go_win_${{ github.ref_name }}.zip
+  
+    - name: Create release
+      working-directory: ./monica
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ github.ref_name }}
+      run: |
+        gh release create ${{ github.ref_name }} --draft --title="Hermes2Go ${{ github.ref_name }}" 
+
+    - name: Upload executable
+      working-directory: ./Hermes2Go_${{ github.ref_name }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        tag: ${{ github.ref_name }}
+      run: |
+        gh release upload ${{ github.ref_name }} ${{ github.workspace }}/Hermes2Go_win_${{ github.ref_name }}.zip
+
