@@ -284,7 +284,8 @@ type GlobalVarsMain struct {
 	NDRAINTAG  float64
 	CUMDENIT   float64
 
-	N2Odencum float64
+	N2Odencum   float64
+	N2OdenDaily float64
 
 	AUFNA   [131]float64 //(0:130)
 	SIC     [131]float64 //(0:130)
@@ -296,71 +297,72 @@ type GlobalVarsMain struct {
 	PROGDAT string
 	SLNAM   string // not assigned
 	// new
-	TJBAS     [300]float64
-	IRRST1    [300]float64
-	IRRST2    [300]float64
-	IRRDEP    [300]float64
-	IRRLOW    [300]float64
-	IRRMAX    [300]float64
-	IRRISIM   float64
-	TSLWINDOW [300]float64
-	TSLMIN    [300]float64
-	TSLMAX    [300]float64
-	SAAT1     [300]int
-	SAAT2     [300]int
-	TJAHRSUM  float64
-	TJAHR     [300]float64
-	MAXMOI    [300]float64
-	MINMOI    [300]float64
-	ETAG      float64
-	SWCS1     float64 // sum of water content for upper 3 layers on sowing date
-	SWCS2     float64 // sum of water content for upper 15 layers on sowing date
-	SWCA1     float64 // sum of water content for upper 3 layers start of fruit growing
-	SWCA2     float64 // sum of water content for upper 15 layers start of fruit growing
-	SWCM1     float64 // sum of water content for upper 3 layers on maturity
-	SWCM2     float64 // sum of water content for upper 15 layers on maturity
-	DRYD1     float64
-	DRYD2     float64
-	ERNTE2    [300]int
-	ETC0      float64
-	RDTSUM    float64
-	REDSUM    float64
-	TRAG      float64
-	TRAY      float64
-	AUTOMAN   bool // automatic management
-	AUTOFERT  bool // automatic fertilization
-	AUTOIRRI  bool // automatic irrigation
-	AUTOHAR   bool // automatic harvest
-	CNRAT1    float64
-	PERG      float64
-	ETREL     float64
-	MAXHMOI   [300]float64
-	MINHMOI   [300]float64
-	RAINLIM   [300]float64
-	RAINACT   [300]float64
-	DEV       [10]int // day of year (like sowing, maturity, harvest)
-	REDUKSUM  float64
-	TRRELSUM  float64
-	LAIMAX    float64
-	ODU       [300]float64
-	NDEM1     [300]float64
-	NDEM2     [300]float64
-	NDEM3     [300]float64
-	ORGDOY    [300]int
-	ORGTIME   [300]string
-	NDOY1     [300]float64
-	NDOY2     [300]float64
-	NDOY3     [300]float64
-	KNZ4      [100]float64
-	KNZ5      [100]float64
-	KNZ6      [100]float64
-	NLEAG     float64
-	NFERTSIM  float64
-	NH4Sum    float64
-	NH4UMS    float64
-	N2onitsum float64
-	AKTUELL   string // current Date string
-	SoilID    string
+	TJBAS       [300]float64
+	IRRST1      [300]float64
+	IRRST2      [300]float64
+	IRRDEP      [300]float64
+	IRRLOW      [300]float64
+	IRRMAX      [300]float64
+	IRRISIM     float64
+	TSLWINDOW   [300]float64
+	TSLMIN      [300]float64
+	TSLMAX      [300]float64
+	SAAT1       [300]int
+	SAAT2       [300]int
+	TJAHRSUM    float64
+	TJAHR       [300]float64
+	MAXMOI      [300]float64
+	MINMOI      [300]float64
+	ETAG        float64
+	SWCS1       float64 // sum of water content for upper 3 layers on sowing date
+	SWCS2       float64 // sum of water content for upper 15 layers on sowing date
+	SWCA1       float64 // sum of water content for upper 3 layers start of fruit growing
+	SWCA2       float64 // sum of water content for upper 15 layers start of fruit growing
+	SWCM1       float64 // sum of water content for upper 3 layers on maturity
+	SWCM2       float64 // sum of water content for upper 15 layers on maturity
+	DRYD1       float64
+	DRYD2       float64
+	ERNTE2      [300]int
+	ETC0        float64
+	RDTSUM      float64
+	REDSUM      float64
+	TRAG        float64
+	TRAY        float64
+	AUTOMAN     bool // automatic management
+	AUTOFERT    bool // automatic fertilization
+	AUTOIRRI    bool // automatic irrigation
+	AUTOHAR     bool // automatic harvest
+	CNRAT1      float64
+	PERG        float64
+	ETREL       float64
+	MAXHMOI     [300]float64
+	MINHMOI     [300]float64
+	RAINLIM     [300]float64
+	RAINACT     [300]float64
+	DEV         [10]int // day of year (like sowing, maturity, harvest)
+	REDUKSUM    float64
+	TRRELSUM    float64
+	LAIMAX      float64
+	ODU         [300]float64
+	NDEM1       [300]float64
+	NDEM2       [300]float64
+	NDEM3       [300]float64
+	ORGDOY      [300]int
+	ORGTIME     [300]string
+	NDOY1       [300]float64
+	NDOY2       [300]float64
+	NDOY3       [300]float64
+	KNZ4        [100]float64
+	KNZ5        [100]float64
+	KNZ6        [100]float64
+	NLEAG       float64
+	NFERTSIM    float64
+	NH4Sum      float64
+	NH4UMS      float64
+	N2onitsum   float64
+	N2onitDaily float64
+	AKTUELL     string // current Date string
+	SoilID      string
 
 	// output parameters
 	PerY            float64 // accumulated output
