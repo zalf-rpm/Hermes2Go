@@ -489,6 +489,7 @@ func NewGlobalVarsMain() GlobalVarsMain {
 		SATBETA:        2.5,
 		C1stabilityVal: -1.5, // Threashold, when becomes negative C1 an error: must be a value below 0
 		CropTypeLookup: map[string]CropType{},
+		FCODE:          "",
 	}
 	main.DEBUGOUT = main.printToLimit(100)
 	return main
