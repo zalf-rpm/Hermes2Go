@@ -78,7 +78,8 @@ jobs:
         cp ./examples/weather/historical/109_120.csv ./Hermes2Go_${{ github.ref_name }}/weather/historical
         cp ./examples/project/myP/* ./Hermes2Go_${{ github.ref_name }}/project/myP
         cp ./examples/parameter/* ./Hermes2Go_${{ github.ref_name }}/parameter
-        
+        cp ./examples/myP_batch.txt ./Hermes2Go_${{ github.ref_name }}/
+        cp ./examples/README.md ./Hermes2Go_${{ github.ref_name }}/
         Compress-Archive -Path ./Hermes2Go_${{ github.ref_name }}/* -Destination Hermes2Go_win_${{ github.ref_name }}.zip
   
     - name: Create release
