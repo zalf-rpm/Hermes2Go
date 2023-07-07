@@ -52,7 +52,7 @@ jobs:
     - name: Build Hermes2go
       working-directory: ./src/hermes2go
       run: |
-       go build -v -o hermes2go.exe
+       .\build.cmd
 
     - name: Build Soil calcualtor
       working-directory: ./src/calcSoil
