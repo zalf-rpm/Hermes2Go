@@ -553,6 +553,9 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 						}
 					}
 				}
+				if SLFIND == 0 {
+					return fmt.Errorf("Feld_ID / Field_ID %s not found", g.PKT)
+				}
 				// ! -- Setzen des Simulationsbeginns für Zeitschleife
 				// set simulation start for time loop
 				g.BEGINN = g.ERNTE[0]
