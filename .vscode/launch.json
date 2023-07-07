@@ -63,6 +63,20 @@
             ]
         },
         {
+            "name": "Launch Hermes batch mode myP",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "src/hermes2go",
+            "cwd": "examples/",
+            "args": [
+                "-module", "batch",
+                "-concurrent", "1",
+                "-logoutput",
+                "-batch", "myP_batch.txt" ,
+            ]
+        },
+        {
             "name": "Launch Hermes batch mode buld density",
             "type": "go",
             "request": "launch",
