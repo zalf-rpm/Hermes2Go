@@ -76,5 +76,5 @@ fi
 # create a git tag with the version number
 echo "TAG: ${NEW_VERSION}"
 git tag -a ${NEW_VERSION} -m "version ${NEW_VERSION}"
-push the tag to the remote repository
+# push the tag to the remote repository
 git push origin ${NEW_VERSION}
