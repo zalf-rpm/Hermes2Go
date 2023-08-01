@@ -48,8 +48,8 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		if _, hasPlotNr := argValues["plotNr"]; !hasPlotNr {
 			return fmt.Errorf("arguments requrired: project=<projectfolder> plotNr=<polygon/plot/schlag>")
 		}
-		fileExtension := "txt"
-
+		fileExtension := ""
+		setFileExtension := false
 		var LOCID, SOID, gwId string
 		var parameterFolderOverride, resultOverride string
 		for key, value := range argValues {
@@ -63,6 +63,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				g.FCODE = value
 			case "fileExtension":
 				fileExtension = value
+				setFileExtension = true
 			case "plotNr":
 				g.SNAM = value
 			case "poligonID":
@@ -85,11 +86,28 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			ROOTstr = AskDirectory()
 		}
 		herPath := NewHermesFilePath(ROOTstr, LOCID, g.SNAM, parameterFolderOverride, resultOverride)
-		herPath.crop = path.Join(herPath.path, "crop_"+herPath.locid+"."+fileExtension)
-		herPath.obs = path.Join(herPath.path, "endit_"+herPath.locid+".txt")
-		herPath.auto = path.Join(herPath.path, "automan"+"."+fileExtension)
-
 		driConfig := readConfig(&g, argValues, &herPath)
+
+		if setFileExtension {
+			// handle file extension override
+			herPath.crop = path.Join(herPath.path, "crop_"+herPath.locid+"."+fileExtension)
+			herPath.auto = path.Join(herPath.path, "automan"+"."+fileExtension)
+			herPath.polnamTemplate = path.Join(herPath.path, "%s_"+herPath.locid+"."+fileExtension)
+		} else {
+			// default file extension is txt
+			herPath.crop = path.Join(herPath.path, "crop_"+herPath.locid+".txt")
+			herPath.auto = path.Join(herPath.path, "automan"+".txt")
+			herPath.polnamTemplate = path.Join(herPath.path, "%s_"+herPath.locid+".txt")
+			if driConfig.CropFileFormat == "csv" {
+				herPath.crop = path.Join(herPath.path, "crop_"+herPath.locid+".csv")
+			}
+		}
+		herPath.SetPolnam(driConfig.PolygonGridFileName)
+		if driConfig.MeasurementFileFormat == "csv" {
+			herPath.obs = path.Join(herPath.path, "endit_"+herPath.locid+".csv")
+		} else {
+			herPath.obs = path.Join(herPath.path, "endit_"+herPath.locid+".txt")
+		}
 
 		if _, err := os.Stat(herPath.config); err != nil {
 			fmt.Println("Generate config", herPath.config)
@@ -106,11 +124,6 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		} else {
 			g.KCOA = 0.5 + driConfig.CoastDistance/100
 		}
-
-		// override template for polygon file
-		herPath.polnamTemplate = path.Join(herPath.path, "%s_"+LOCID+"."+fileExtension)
-
-		herPath.SetPolnam(driConfig.PolygonGridFileName)
 
 		//----------- EINGABE AKTUELLES DATUM FÜR DÜNGEEMPFEHLUNG ----------
 
@@ -147,10 +160,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 
 		pnamFile := OpenResultFile(herPath.pnam, false)
 		defer pnamFile.Close()
-
-		if g.SLNR >= 1 {
-			yearlyOutConfig.WriteHeader(pnamFile)
-		}
+		yearlyOutConfig.WriteHeader(pnamFile)
 
 		// ***************** ÜBERNAHME DES AKTUELLEN DATUMS FÜR PROGNOSE *************
 		if PR {

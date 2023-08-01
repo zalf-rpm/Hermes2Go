@@ -1,6 +1,7 @@
 package hermes
 
 import (
+	"bufio"
 	"fmt"
 	"math"
 	"strings"
@@ -11,15 +12,15 @@ type InputSharedVars struct {
 	NORG    [300]float64
 	DGMG    [300]float64
 	NGEHALT [10]float64
-	Jstr    string
-	MK      [70]string
-	FK      [10]float64
-	KONZ1   float64
-	KONZ3   float64
-	KONZ4   float64
-	KONZ5   float64
-	KONZ6   float64
-	KONZ7   float64
+	//Jstr    string
+	//MK [70]string
+	FK [10]float64
+	// KONZ1   float64
+	// KONZ3   float64
+	// KONZ4   float64
+	// KONZ5   float64
+	// KONZ6   float64
+	// KONZ7   float64
 	IRRIGAT bool
 	ANZBREG int
 	FLAEID  string
@@ -32,7 +33,6 @@ type InputSharedVars struct {
 func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *Config, soilID, gwId string) error {
 	//! ------Modul zum Einlesen von Boden-, Fruchtfolge und Bewirtschaftungsdaten (Duengung, Bodenbearbeitung) von Feldern und Polygonen ---------
 	var ERNT, SAT string
-	var winit [6]float64
 
 	//!  Einleseprogramm für Schlagdaten
 	// ! ----------------------- Beginn Lesen der Polygondatei ------------------------
@@ -596,146 +596,10 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 				} else if g.INIWAHL == 3 {
 					Fident = l.FLAEID
 				}
-				LineInut(scannerObserv)
-				g.NMESS = 0
-				for SCHLAG, OBSERtoken, valid := NextLineInut(0, scannerObserv, strings.Fields); valid; SCHLAG, OBSERtoken, valid = NextLineInut(0, scannerObserv, strings.Fields) {
-					for ok := SCHLAG == Fident; ok; ok = SCHLAG == Fident && valid {
-						g.NMESS++
-						l.MK[g.NMESS-1] = OBSERtoken[1]
-						if g.NMESS == 1 {
-							g.MES[g.NMESS-1] = l.MK[g.NMESS-1]
-							_, g.MESS[g.NMESS-1] = g.Datum(g.MES[g.NMESS-1])
-
-							//! +++++++++++++++ Ueberschreiben des Erntedatums der Vorfrucht aus der Rotationsdatei ++++++++++++++++++++
-							//if g.AUTOHAR {
-							// commentented out by Christians newest version
-							// var ERNDAT int
-							// ERNDAT, gloInput.ERNTE[0] = Datum(gloInput.MES[gloInput.NMESS-1], gloInput.CENT)
-							// gloInput.ITAG = ERNDAT
-							// gloInput.BEGINN = gloInput.ERNTE[0]
-							//}
-							if g.AUTOFERT {
-								if g.ORGTIME[0] == "H" {
-									g.ZTDG[0] = g.ERNTE[0] + 1
-								}
-							}
-
-							l.KONZ1 = ValAsFloat(OBSERtoken[2], obs, OBSERtoken[2])
-							l.KONZ3 = ValAsFloat(OBSERtoken[3], obs, OBSERtoken[3])
-							l.KONZ4 = ValAsFloat(OBSERtoken[4], obs, OBSERtoken[4])
-							if len(OBSERtoken) > 9 {
-								l.KONZ5 = ValAsFloat(OBSERtoken[9], obs, OBSERtoken[9])
-								l.KONZ6 = ValAsFloat(OBSERtoken[10], obs, OBSERtoken[10])
-								l.KONZ7 = ValAsFloat(OBSERtoken[11], obs, OBSERtoken[11])
-							}
-							l.Jstr = OBSERtoken[5]
-							winit[0] = ValAsFloat(OBSERtoken[6], obs, OBSERtoken[6])
-							winit[1] = ValAsFloat(OBSERtoken[7], obs, OBSERtoken[7])
-							winit[2] = ValAsFloat(OBSERtoken[8], obs, OBSERtoken[8])
-
-							if len(OBSERtoken) > 9 {
-								winit[3] = ValAsFloat(OBSERtoken[12], obs, OBSERtoken[12])
-								winit[4] = ValAsFloat(OBSERtoken[13], obs, OBSERtoken[13])
-								winit[5] = ValAsFloat(OBSERtoken[14], obs, OBSERtoken[14])
-							}
-							if g.MES[0] != "------" {
-								for zi := 1; zi <= g.N; zi++ {
-									ziIndex := zi - 1
-									if zi < 4 {
-										if l.Jstr == "3" {
-											g.WG[g.NMESS+1][ziIndex] = winit[0]
-										} else if l.Jstr == "2" {
-											g.WG[g.NMESS+1][ziIndex] = winit[0] * 1.4
-										} else {
-											g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[0]
-										}
-									} else if zi > 3 && zi < 7 {
-										if l.Jstr == "3" {
-											g.WG[g.NMESS+1][ziIndex] = winit[1]
-										} else if l.Jstr == "2" {
-											g.WG[g.NMESS+1][ziIndex] = winit[1] * 1.5
-										} else {
-											g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[1]
-										}
-									} else if zi > 6 && zi < 10 {
-										if l.Jstr == "3" {
-											g.WG[g.NMESS+1][ziIndex] = winit[2]
-										} else if l.Jstr == "2" {
-											g.WG[g.NMESS+1][ziIndex] = winit[2] * 1.6
-										} else {
-											g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[2]
-										}
-									} else if zi > 9 && zi < 13 {
-										if l.Jstr == "3" {
-											g.WG[g.NMESS+1][ziIndex] = winit[3]
-										} else if l.Jstr == "2" {
-											g.WG[g.NMESS+1][ziIndex] = winit[3] * 1.6
-										} else {
-											g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[3]
-										}
-									} else if zi > 12 && zi < 16 {
-										if l.Jstr == "3" {
-											g.WG[g.NMESS+1][ziIndex] = winit[4]
-										} else if l.Jstr == "2" {
-											g.WG[g.NMESS+1][ziIndex] = winit[4] * 1.6
-										} else {
-											g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[4]
-										}
-									} else if zi > 15 {
-										if l.Jstr == "3" {
-											g.WG[g.NMESS+1][ziIndex] = winit[5]
-										} else if l.Jstr == "2" {
-											g.WG[g.NMESS+1][ziIndex] = winit[5] * 1.6
-										} else {
-											g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[5]
-										}
-
-										//g.WG[g.NMESS+1][ziIndex] = winit[5]
-									}
-								}
-								g.WG[g.NMESS+1][g.N] = g.WG[g.NMESS+1][g.N-1]
-								if g.NMESS == 1 {
-									if l.Jstr == "3" {
-										g.WNZ[0] = (winit[0] + winit[1] + winit[2]) * 300
-									} else if l.Jstr == "2" {
-										g.WNZ[0] = (winit[0]*1.4 + winit[1]*1.5 + winit[2]*1.6) * 300
-									} else {
-										g.WNZ[0] = (g.WG[2][0] + g.WG[2][1] + g.WG[2][2] + g.WG[2][3] + g.WG[2][4] + g.WG[2][5] + g.WG[2][6] + g.WG[2][7] + g.WG[2][8]) * 100
-									}
-								}
-								g.KNZ1[0] = l.KONZ1
-								g.KNZ2[0] = l.KONZ3
-								g.KNZ3[0] = l.KONZ4
-								g.KNZ4[0] = l.KONZ5
-								g.KNZ5[0] = l.KONZ6
-								g.KNZ6[0] = l.KONZ7
-								for i := 1; i <= g.N; i++ {
-									iIndex := i - 1
-									if i < 4 {
-										g.CN[g.NMESS][iIndex] = g.KNZ1[0] / 3
-									} else if i > 3 && i < 7 {
-										g.CN[g.NMESS][iIndex] = g.KNZ2[0] / 3
-									} else if i > 6 && i < 10 {
-										g.CN[g.NMESS][iIndex] = g.KNZ3[0] / 3
-									} else if i > 9 && i < 13 {
-										g.CN[g.NMESS][iIndex] = g.KNZ4[0] / 3
-									} else if i > 12 && i < 16 {
-										g.CN[g.NMESS][iIndex] = g.KNZ5[0] / 3
-									} else {
-										g.CN[g.NMESS][iIndex] = g.KNZ6[0] / 5
-									}
-								}
-							} else {
-								g.MESS[0] = g.BEGINN
-								for i := 0; i < g.N; i++ {
-									g.CN[1][i] = g.CN[0][i]
-								}
-							}
-						}
-
-						SCHLAG, OBSERtoken, valid = NextLineInut(0, scannerObserv, strings.Fields)
-
-					}
+				if driConfig.MeasurementFileFormat == "txt" {
+					ExtractMeasuredDataTxt(scannerObserv, g, Fident, obs)
+				} else {
+					ExtractMeasuredDataCSV(scannerObserv, g, Fident, obs)
 				}
 
 				for i := 0; i < g.N+1; i++ {
@@ -825,6 +689,387 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 		potmin0(g, l)
 	}
 	return nil
+}
+
+func ExtractMeasuredDataTxt(scannerObserv *bufio.Scanner, g *GlobalVarsMain, Fident string, obs string) {
+	var winit [6]float64 // water init
+	var KONZ1 float64
+	var KONZ3 float64
+	var KONZ4 float64
+	var KONZ5 float64
+	var KONZ6 float64
+	var KONZ7 float64
+	var Jstr string
+	var MK [70]string
+
+	LineInut(scannerObserv)
+	g.NMESS = 0
+	for SCHLAG, OBSERtoken, valid := NextLineInut(0, scannerObserv, strings.Fields); valid; SCHLAG, OBSERtoken, valid = NextLineInut(0, scannerObserv, strings.Fields) {
+		for ok := SCHLAG == Fident; ok; ok = SCHLAG == Fident && valid {
+			g.NMESS++
+			MK[g.NMESS-1] = OBSERtoken[1]
+			if g.NMESS == 1 {
+				g.MES[g.NMESS-1] = MK[g.NMESS-1]
+				_, g.MESS[g.NMESS-1] = g.Datum(g.MES[g.NMESS-1])
+
+				if g.AUTOFERT {
+					if g.ORGTIME[0] == "H" {
+						g.ZTDG[0] = g.ERNTE[0] + 1
+					}
+				}
+				//! +++++++++++++++ Ueberschreiben des Erntedatums der Vorfrucht aus der Rotationsdatei ++++++++++++++++++++
+				//if g.AUTOHAR {
+				// commentented out by Christians newest version
+				// var ERNDAT int
+				// ERNDAT, gloInput.ERNTE[0] = Datum(gloInput.MES[gloInput.NMESS-1], gloInput.CENT)
+				// gloInput.ITAG = ERNDAT
+				// gloInput.BEGINN = gloInput.ERNTE[0]
+				//}
+				//g.WG[g.NMESS+1][ziIndex] = winit[5]
+				KONZ1 = ValAsFloat(OBSERtoken[2], obs, OBSERtoken[2])
+				KONZ3 = ValAsFloat(OBSERtoken[3], obs, OBSERtoken[3])
+				KONZ4 = ValAsFloat(OBSERtoken[4], obs, OBSERtoken[4])
+				if len(OBSERtoken) > 9 {
+					KONZ5 = ValAsFloat(OBSERtoken[9], obs, OBSERtoken[9])
+					KONZ6 = ValAsFloat(OBSERtoken[10], obs, OBSERtoken[10])
+					KONZ7 = ValAsFloat(OBSERtoken[11], obs, OBSERtoken[11])
+				}
+				Jstr = OBSERtoken[5]
+				winit[0] = ValAsFloat(OBSERtoken[6], obs, OBSERtoken[6])
+				winit[1] = ValAsFloat(OBSERtoken[7], obs, OBSERtoken[7])
+				winit[2] = ValAsFloat(OBSERtoken[8], obs, OBSERtoken[8])
+
+				if len(OBSERtoken) > 9 {
+					winit[3] = ValAsFloat(OBSERtoken[12], obs, OBSERtoken[12])
+					winit[4] = ValAsFloat(OBSERtoken[13], obs, OBSERtoken[13])
+					winit[5] = ValAsFloat(OBSERtoken[14], obs, OBSERtoken[14])
+				}
+				if g.MES[0] != "------" {
+					for zi := 1; zi <= g.N; zi++ {
+						ziIndex := zi - 1
+						if zi < 4 {
+							if Jstr == "3" {
+								g.WG[g.NMESS+1][ziIndex] = winit[0]
+							} else if Jstr == "2" {
+								g.WG[g.NMESS+1][ziIndex] = winit[0] * 1.4
+							} else {
+								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[0]
+							}
+						} else if zi > 3 && zi < 7 {
+							if Jstr == "3" {
+								g.WG[g.NMESS+1][ziIndex] = winit[1]
+							} else if Jstr == "2" {
+								g.WG[g.NMESS+1][ziIndex] = winit[1] * 1.5
+							} else {
+								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[1]
+							}
+						} else if zi > 6 && zi < 10 {
+							if Jstr == "3" {
+								g.WG[g.NMESS+1][ziIndex] = winit[2]
+							} else if Jstr == "2" {
+								g.WG[g.NMESS+1][ziIndex] = winit[2] * 1.6
+							} else {
+								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[2]
+							}
+						} else if zi > 9 && zi < 13 {
+							if Jstr == "3" {
+								g.WG[g.NMESS+1][ziIndex] = winit[3]
+							} else if Jstr == "2" {
+								g.WG[g.NMESS+1][ziIndex] = winit[3] * 1.6
+							} else {
+								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[3]
+							}
+						} else if zi > 12 && zi < 16 {
+							if Jstr == "3" {
+								g.WG[g.NMESS+1][ziIndex] = winit[4]
+							} else if Jstr == "2" {
+								g.WG[g.NMESS+1][ziIndex] = winit[4] * 1.6
+							} else {
+								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[4]
+							}
+						} else if zi > 15 {
+							if Jstr == "3" {
+								g.WG[g.NMESS+1][ziIndex] = winit[5]
+							} else if Jstr == "2" {
+								g.WG[g.NMESS+1][ziIndex] = winit[5] * 1.6
+							} else {
+								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[5]
+							}
+
+						}
+					}
+					g.WG[g.NMESS+1][g.N] = g.WG[g.NMESS+1][g.N-1]
+					if g.NMESS == 1 {
+						if Jstr == "3" {
+							g.WNZ[0] = (winit[0] + winit[1] + winit[2]) * 300
+						} else if Jstr == "2" {
+							g.WNZ[0] = (winit[0]*1.4 + winit[1]*1.5 + winit[2]*1.6) * 300
+						} else {
+							g.WNZ[0] = (g.WG[2][0] + g.WG[2][1] + g.WG[2][2] + g.WG[2][3] + g.WG[2][4] + g.WG[2][5] + g.WG[2][6] + g.WG[2][7] + g.WG[2][8]) * 100
+						}
+					}
+					g.KNZ1[0] = KONZ1
+					g.KNZ2[0] = KONZ3
+					g.KNZ3[0] = KONZ4
+					g.KNZ4[0] = KONZ5
+					g.KNZ5[0] = KONZ6
+					g.KNZ6[0] = KONZ7
+					for i := 1; i <= g.N; i++ {
+						iIndex := i - 1
+						if i < 4 {
+							g.CN[g.NMESS][iIndex] = g.KNZ1[0] / 3
+						} else if i > 3 && i < 7 {
+							g.CN[g.NMESS][iIndex] = g.KNZ2[0] / 3
+						} else if i > 6 && i < 10 {
+							g.CN[g.NMESS][iIndex] = g.KNZ3[0] / 3
+						} else if i > 9 && i < 13 {
+							g.CN[g.NMESS][iIndex] = g.KNZ4[0] / 3
+						} else if i > 12 && i < 16 {
+							g.CN[g.NMESS][iIndex] = g.KNZ5[0] / 3
+						} else {
+							g.CN[g.NMESS][iIndex] = g.KNZ6[0] / 5
+						}
+					}
+				} else {
+					g.MESS[0] = g.BEGINN
+					for i := 0; i < g.N; i++ {
+						g.CN[1][i] = g.CN[0][i]
+					}
+				}
+			}
+
+			SCHLAG, OBSERtoken, valid = NextLineInut(0, scannerObserv, strings.Fields)
+
+		}
+	}
+}
+
+func ExtractMeasuredDataCSV(scannerObserv *bufio.Scanner, g *GlobalVarsMain, Fident string, obs string) {
+
+	var winit [6]float64 // water init
+	var KONZ [6]float64
+	var Jstr string
+	var MK [70]string
+
+	//Plot_ID,Date,Nm03,Nm36,Nm69,M,W0_3,W3_6,W6_9,NM9-12,NM12-15,NM15-20,W9-12,W12-15,W15-20
+	// 0       1   2    3    4   5  6     7     8    9      10      11     12    13     14
+	// optional header names
+	// ID,Date,Nmin0-3,Nmin3-6,Nmin6-9,Nmin9-12,Nmin12-15,Nmin15-20,M,Water0-3,Water3-6,Water6-9,Water9-12,Water12-15,Water15-20
+
+	type MeasurementHeader int
+	const (
+		id     MeasurementHeader = iota // Plot_ID
+		date                            // Date
+		nm03                            // Nm03 // Nmin0-3
+		nm36                            // Nm36 // Nmin3-6
+		nm69                            // Nm69 // Nmin6-9
+		m                               // M
+		w03                             // W0_3 // Water0-3
+		w36                             // W3_6 // Water3-6
+		w69                             // W6_9 // Water6-9
+		nm912                           // NM9-12 // Nmin9-12
+		nm1215                          // NM12-15 // Nmin12-15
+		nm1520                          // NM15-20 // Nmin15-20
+		w912                            // W9-12 // Water9-12
+		w1215                           // W12-15 // Water12-15
+		w1520                           // W15-20 // Water15-20
+	)
+	// map of header names to header index
+	measurementHeaderNames := map[string]MeasurementHeader{
+		"ID":         id,
+		"Plot_ID":    id,
+		"Date":       date,
+		"Nm03":       nm03,
+		"Nmin0-3":    nm03,
+		"Nm36":       nm36,
+		"Nmin3-6":    nm36,
+		"Nm69":       nm69,
+		"Nmin6-9":    nm69,
+		"M":          m,
+		"Water0-3":   w03,
+		"W0_3":       w03,
+		"Water3-6":   w36,
+		"W3_6":       w36,
+		"Water6-9":   w69,
+		"W6_9":       w69,
+		"NM9-12":     nm912,
+		"Nmin9-12":   nm912,
+		"NM12-15":    nm1215,
+		"Nmin12-15":  nm1215,
+		"NM15-20":    nm1520,
+		"Nmin15-20":  nm1520,
+		"W9-12":      w912,
+		"Water9-12":  w912,
+		"W12-15":     w1215,
+		"Water12-15": w1215,
+		"W15-20":     w1520,
+		"Water15-20": w1520,
+	}
+
+	headline := LineInut(scannerObserv)
+	tokens := Explode(headline, []rune{',', ';'})
+	headers := make(map[MeasurementHeader]int)
+
+	for kHeader, vHeader := range measurementHeaderNames {
+		for i, token := range tokens {
+			if token == kHeader {
+				headers[vHeader] = i
+				break
+			}
+		}
+	}
+	g.NMESS = 0
+	// start reading the data
+	for scannerObserv.Scan() {
+		dataLine := scannerObserv.Text()
+		tokens := strings.Split(dataLine, ",")
+		SCHLAG := strings.TrimSpace(tokens[headers[id]])
+		if SCHLAG == Fident {
+
+			g.NMESS++
+			MK[g.NMESS-1] = tokens[headers[date]]
+			if g.NMESS == 1 {
+				g.MES[g.NMESS-1] = MK[g.NMESS-1]
+				_, g.MESS[g.NMESS-1] = g.Datum(g.MES[g.NMESS-1])
+
+				if g.AUTOFERT {
+					if g.ORGTIME[0] == "H" {
+						g.ZTDG[0] = g.ERNTE[0] + 1
+					}
+				}
+				//! +++++++++++++++ Ueberschreiben des Erntedatums der Vorfrucht aus der Rotationsdatei ++++++++++++++++++++
+				//if g.AUTOHAR {
+				// commentented out by Christians newest version
+				// var ERNDAT int
+				// ERNDAT, gloInput.ERNTE[0] = Datum(gloInput.MES[gloInput.NMESS-1], gloInput.CENT)
+				// gloInput.ITAG = ERNDAT
+				// gloInput.BEGINN = gloInput.ERNTE[0]
+				//}
+				//g.WG[g.NMESS+1][ziIndex] = winit[5]
+				KONZ[0] = ValAsFloat(tokens[headers[nm03]], obs, tokens[headers[nm03]])
+				KONZ[1] = ValAsFloat(tokens[headers[nm36]], obs, tokens[headers[nm36]])
+				KONZ[2] = ValAsFloat(tokens[headers[nm69]], obs, tokens[headers[nm69]])
+
+				if val, err := TryValAsFloat(tokens[headers[nm912]]); err == nil {
+					KONZ[3] = val
+				}
+				if val, err := TryValAsFloat(tokens[headers[nm1215]]); err == nil {
+					KONZ[4] = val
+				}
+				if val, err := TryValAsFloat(tokens[headers[nm1520]]); err == nil {
+					KONZ[5] = val
+				}
+
+				Jstr = tokens[headers[m]]
+				winit[0] = ValAsFloat(tokens[headers[w03]], obs, tokens[headers[w03]])
+				winit[1] = ValAsFloat(tokens[headers[w36]], obs, tokens[headers[w36]])
+				winit[2] = ValAsFloat(tokens[headers[w69]], obs, tokens[headers[w69]])
+
+				if val, err := TryValAsFloat(tokens[headers[w912]]); err == nil {
+					winit[3] = val
+				}
+				if val, err := TryValAsFloat(tokens[headers[w1215]]); err == nil {
+					winit[4] = val
+				}
+				if val, err := TryValAsFloat(tokens[headers[w1520]]); err == nil {
+					winit[5] = val
+				}
+				if g.MES[0] != "------" {
+					for zi := 1; zi <= g.N; zi++ {
+						ziIndex := zi - 1
+						if zi < 4 {
+							if Jstr == "3" {
+								g.WG[g.NMESS+1][ziIndex] = winit[0]
+							} else if Jstr == "2" {
+								g.WG[g.NMESS+1][ziIndex] = winit[0] * 1.4
+							} else {
+								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[0]
+							}
+						} else if zi > 3 && zi < 7 {
+							if Jstr == "3" {
+								g.WG[g.NMESS+1][ziIndex] = winit[1]
+							} else if Jstr == "2" {
+								g.WG[g.NMESS+1][ziIndex] = winit[1] * 1.5
+							} else {
+								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[1]
+							}
+						} else if zi > 6 && zi < 10 {
+							if Jstr == "3" {
+								g.WG[g.NMESS+1][ziIndex] = winit[2]
+							} else if Jstr == "2" {
+								g.WG[g.NMESS+1][ziIndex] = winit[2] * 1.6
+							} else {
+								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[2]
+							}
+						} else if zi > 9 && zi < 13 {
+							if Jstr == "3" {
+								g.WG[g.NMESS+1][ziIndex] = winit[3]
+							} else if Jstr == "2" {
+								g.WG[g.NMESS+1][ziIndex] = winit[3] * 1.6
+							} else {
+								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[3]
+							}
+						} else if zi > 12 && zi < 16 {
+							if Jstr == "3" {
+								g.WG[g.NMESS+1][ziIndex] = winit[4]
+							} else if Jstr == "2" {
+								g.WG[g.NMESS+1][ziIndex] = winit[4] * 1.6
+							} else {
+								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[4]
+							}
+						} else if zi > 15 {
+							if Jstr == "3" {
+								g.WG[g.NMESS+1][ziIndex] = winit[5]
+							} else if Jstr == "2" {
+								g.WG[g.NMESS+1][ziIndex] = winit[5] * 1.6
+							} else {
+								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[5]
+							}
+
+						}
+					}
+					g.WG[g.NMESS+1][g.N] = g.WG[g.NMESS+1][g.N-1]
+					if g.NMESS == 1 {
+						if Jstr == "3" {
+							g.WNZ[0] = (winit[0] + winit[1] + winit[2]) * 300
+						} else if Jstr == "2" {
+							g.WNZ[0] = (winit[0]*1.4 + winit[1]*1.5 + winit[2]*1.6) * 300
+						} else {
+							g.WNZ[0] = (g.WG[2][0] + g.WG[2][1] + g.WG[2][2] + g.WG[2][3] + g.WG[2][4] + g.WG[2][5] + g.WG[2][6] + g.WG[2][7] + g.WG[2][8]) * 100
+						}
+					}
+					g.KNZ1[0] = KONZ[0]
+					g.KNZ2[0] = KONZ[1]
+					g.KNZ3[0] = KONZ[2]
+					g.KNZ4[0] = KONZ[3]
+					g.KNZ5[0] = KONZ[4]
+					g.KNZ6[0] = KONZ[5]
+					for i := 1; i <= g.N; i++ {
+						iIndex := i - 1
+						if i < 4 {
+							g.CN[g.NMESS][iIndex] = g.KNZ1[0] / 3
+						} else if i > 3 && i < 7 {
+							g.CN[g.NMESS][iIndex] = g.KNZ2[0] / 3
+						} else if i > 6 && i < 10 {
+							g.CN[g.NMESS][iIndex] = g.KNZ3[0] / 3
+						} else if i > 9 && i < 13 {
+							g.CN[g.NMESS][iIndex] = g.KNZ4[0] / 3
+						} else if i > 12 && i < 16 {
+							g.CN[g.NMESS][iIndex] = g.KNZ5[0] / 3
+						} else {
+							g.CN[g.NMESS][iIndex] = g.KNZ6[0] / 5
+						}
+					}
+				} else {
+					g.MESS[0] = g.BEGINN
+					for i := 0; i < g.N; i++ {
+						g.CN[1][i] = g.CN[0][i]
+					}
+				}
+			}
+
+		}
+	}
 }
 
 // PTF by Toth 2015

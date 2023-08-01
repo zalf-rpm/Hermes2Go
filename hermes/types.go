@@ -50,15 +50,15 @@ func NewDualType(baseIndex int, offset int) DualType {
 
 // GlobalVarsMain contains all variables that are use by multiple sub modules
 type GlobalVarsMain struct {
-	IZM                int
-	DT                 DualType
-	DZ                 DualType //= 10 (cm to mm)
-	N                  int      // max number of layer (changed by soil file)
-	DV                 float64
-	ALPH               float64
-	SATBETA            float64
-	AKF                DualType    // current crop index (aktuelle frucht)
-	SLNR               int         // Schlag Nummer, plot number
+	IZM     int
+	DT      DualType
+	DZ      DualType //= 10 (cm to mm)
+	N       int      // max number of layer (changed by soil file)
+	DV      float64
+	ALPH    float64
+	SATBETA float64
+	AKF     DualType // current crop index (aktuelle frucht)
+
 	NFOS               [21]float64 // Nitrogen in fast decomposable fraction (kg N ha-1)
 	W                  [21]float64 // Field capacity (Feldkapazität pro Schicht ((cm^3/cm^3) (inkl. Stauwasser))
 	WMIN               [21]float64 // Permanent Wilting point (Wassergehalt PWP (cm^3/cm^3) aus Bodenprofildatei 1. Schicht)
@@ -397,8 +397,9 @@ type GlobalVarsMain struct {
 	Crop         string
 	DevStateDate [10]string
 
-	SNAM             string // plot number, PlotID SLAG NR.
-	POLYD            string // polygon number - just for output
+	SNAM             string // plot number, PlotID SLAG NR. (used for output filenames)
+	SLNR             int    // plot number, PlotID SLAG NR. as int
+	POLYD            string // identifier for naming output files- just for output
 	FCODE            string // weather station code
 	C1NotStable      string
 	C1NotStableErr   string
