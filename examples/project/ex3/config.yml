@@ -21,7 +21,7 @@ OutputIntervall: 1
 ManagementEvents: 1
 #From POLY_XXX.txt, Uses: 1= all (if the word ALLE is written in the file),
 # 2= Field_ID, 3= Polyg
-InitSelection: 1
+InitSelection: 3
 # soil profile file name (without projectname)
 SoilFile: soil
 #  soil file extension (txt = hermes soil, csv = csv table format)

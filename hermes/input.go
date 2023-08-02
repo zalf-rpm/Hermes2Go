@@ -876,7 +876,7 @@ func ExtractMeasuredDataCSV(scannerObserv *bufio.Scanner, g *GlobalVarsMain, Fid
 	)
 	// map of header names to header index
 	measurementHeaderNames := map[string]MeasurementHeader{
-		"ID":         id,
+		"Id":         id,
 		"Plot_ID":    id,
 		"Date":       date,
 		"Nm03":       nm03,
