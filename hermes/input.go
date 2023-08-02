@@ -126,6 +126,10 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 				g.N = currentSoil.N
 				g.AZHO = currentSoil.AZHO
 				g.WURZMAX = currentSoil.WURZMAX
+				// fix for thin layer soils, mineralization should only be calculated for the maximum layer depth
+				if g.IZM/g.DZ.Index > g.N {
+					g.IZM = g.N * g.DZ.Index
+				}
 
 				if currentSoil.useGroundwaterFromSoilfile {
 					g.GRHI = currentSoil.GRHI
@@ -1364,6 +1368,9 @@ func Hydro(las1 int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFilePath
 	g.NORMFK[lIndex] = local.FK[lIndex]
 	g.PRGES[lIndex] = g.PRGES[lIndex] + KRG/100
 
+	if g.IZM/g.DZ.Index > g.N {
+		g.IZM = g.N * g.DZ.Index
+	}
 }
 
 // residi loads potential mineralization from previous crops
