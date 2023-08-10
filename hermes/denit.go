@@ -74,6 +74,7 @@ func Denitr(g *GlobalVarsMain, thetasatFromPorges bool) {
 		FN2Oden := FN * FO * MaxN2O
 		//Let N2Oden = Denit * FN2Oden
 		N2Oden := DENIT * FN2Oden
+		g.N2OdenDaily = N2Oden
 		//Let N2Odencum = N2Odencum + N2Oden
 		g.N2Odencum = g.N2Odencum + N2Oden
 
@@ -184,6 +185,7 @@ func Denitmo(g *GlobalVarsMain) {
 	FN2Oden2 := FN2 * FO2 * MaxN2O
 	FN2Oden3 := FN3 * FO3 * MaxN2O
 	N2Oden := Denit1*FN2Oden1 + Denit2*FN2Oden2 + Denit3*FN2Oden3
+	g.N2OdenDaily = N2Oden
 	g.N2Odencum = g.N2Odencum + N2Oden
 
 	// !   /* Denitrifizierte N von Nitrat Pool wegnehmen                    */

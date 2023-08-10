@@ -1,0 +1,2 @@
+project=myP WeatherFolder=historical soilId=075 plotNr=10001 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_myP
+project=myP WeatherFolder=historical soilId=075 plotNr=10002 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_myP

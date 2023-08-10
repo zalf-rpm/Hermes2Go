@@ -21,16 +21,17 @@ type Config struct {
 	Dateformat    DateFormat `yaml:"Dateformat"`
 	DivideCentury int        `yaml:"DivideCentury,omitempty"` // (depends on Date format) Year to divide 20. and 21. Century (YY)
 
-	GroundWaterFrom     GroundWaterFrom `yaml:"GroundWaterFrom"`            // ground water from 'soilfile'=static, 'polygonfile'=dynamic High/Low, 'gwTimeSeries'= measured time series
-	ResultFileFormat    int             `yaml:"ResultFileFormat,omitempty"` // result file format (0= hermes default, 1 = csv)
-	ResultFileExt       string          `yaml:"ResultFileExt,omitempty"`    // result file extensions (default RES, csv)
-	OutputIntervall     int             `yaml:"OutputIntervall"`            // Output intervall (days) (0=no time serie)
-	ManagementEvents    int             `yaml:"ManagementEvents"`           // Management events (0=no management events)
-	InitSelection       int             `yaml:"InitSelection"`              // Init.values all(1),Field_ID(2), Polyg(3) -> POLY_XXX.txt, Uses: 1= all (if the word ALLE is written in the file), 2= Field_ID, 3= Polyg
-	SoilFile            string          `yaml:"SoilFile"`                   // soil profile file name (without projectname)
-	SoilFileExtension   string          `yaml:"SoilFileExtension"`          // soil file extension (txt = hermes soil, csv = csv table format)
-	CropFileFormat      string          `yaml:"CropFileFormat"`             // crop file format (txt = hermes crop, csv = csv table format)
-	PolygonGridFileName string          `yaml:"PolygonGridFileName"`        // Name of Polygon resp. grid file
+	GroundWaterFrom       GroundWaterFrom `yaml:"GroundWaterFrom"`            // ground water from 'soilfile'=static, 'polygonfile'=dynamic High/Low, 'gwTimeSeries'= measured time series
+	ResultFileFormat      int             `yaml:"ResultFileFormat,omitempty"` // result file format (0= hermes default, 1 = csv)
+	ResultFileExt         string          `yaml:"ResultFileExt,omitempty"`    // result file extensions (default RES, csv)
+	OutputIntervall       int             `yaml:"OutputIntervall"`            // Output intervall (days) (0=no time serie)
+	ManagementEvents      int             `yaml:"ManagementEvents"`           // Management events (0=no management events)
+	InitSelection         int             `yaml:"InitSelection"`              // Init.values all(1),Field_ID(2), Polyg(3) -> POLY_XXX.txt, Uses: 1= all (if the word ALLE is written in the file), 2= Field_ID, 3= Polyg
+	SoilFile              string          `yaml:"SoilFile"`                   // soil profile file name (without projectname)
+	SoilFileExtension     string          `yaml:"SoilFileExtension"`          // soil file extension (txt = hermes soil, csv = csv table format)
+	CropFileFormat        string          `yaml:"CropFileFormat"`             // crop file format (txt = hermes crop, csv = csv table format)
+	MeasurementFileFormat string          `yaml:"MeasurementFileFormat"`      // Measurement file (endit_*.) format (txt = old Hermes, csv = csv table format)
+	PolygonGridFileName   string          `yaml:"PolygonGridFileName"`        // Name of Polygon resp. grid file
 
 	//***** Weather *****
 	WeatherFile              string        `yaml:"WeatherFile"`              // weather file name template (without projectname)
@@ -216,6 +217,7 @@ func NewDefaultConfig() Config {
 		SoilFile:                        "soil",
 		SoilFileExtension:               "txt",
 		CropFileFormat:                  "txt",
+		MeasurementFileFormat:           "txt",
 		PolygonGridFileName:             "poly",
 		WeatherFile:                     "%s.csv",
 		WeatherFileFormat:               1,

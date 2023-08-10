@@ -58,7 +58,6 @@ type GlobalVarsMain struct {
 	ALPH                 float64     // calc for YU/Allen (alpha)
 	SATBETA              float64     // calc for YU/Allen (saturation beta)
 	AKF                  DualType    // current crop index (aktuelle frucht)
-	SLNR                 int         // Schlag Nummer, plot number
 	NFOS                 [21]float64 // Nitrogen in fast decomposable fraction (kg N ha-1)
 	W                    [21]float64 // Field capacity (Feldkapazität pro Schicht ((cm^3/cm^3) (inkl. Stauwasser))
 	WMIN                 [21]float64 // Permanent Wilting point (Wassergehalt PWP (cm^3/cm^3) aus Bodenprofildatei 1. Schicht)
@@ -288,7 +287,8 @@ type GlobalVarsMain struct {
 	NDRAINTAG  float64
 	CUMDENIT   float64
 
-	N2Odencum float64
+	N2Odencum   float64
+	N2OdenDaily float64
 
 	AUFNA   [131]float64 //(0:130)
 	SIC     [131]float64 //(0:130)
@@ -365,6 +365,7 @@ type GlobalVarsMain struct {
 	NH4Sum                 float64
 	NH4UMS                 float64
 	N2onitsum              float64
+	N2onitDaily            float64
 	AKTUELL                string // current Date string
 	SoilID                 string
 	MineralzFactor         []float64 // mineralization factor
@@ -404,8 +405,9 @@ type GlobalVarsMain struct {
 	Crop         string
 	DevStateDate [10]string
 
-	SNAM             string // plot number, PlotID SLAG NR.
-	POLYD            string // polygon number - just for output
+	SNAM             string // plot number, PlotID SLAG NR. (used for output filenames)
+	SLNR             int    // plot number, PlotID SLAG NR. as int
+	POLYD            string // identifier for naming output files- just for output
 	FCODE            string // weather station code
 	C1NotStable      string
 	C1NotStableErr   string
@@ -496,6 +498,7 @@ func NewGlobalVarsMain() GlobalVarsMain {
 		SATBETA:        2.5,
 		C1stabilityVal: -1.5, // Threashold, when becomes negative C1 an error: must be a value below 0
 		CropTypeLookup: map[string]CropType{},
+		FCODE:          "",
 	}
 	main.DEBUGOUT = main.printToLimit(100)
 	return main
