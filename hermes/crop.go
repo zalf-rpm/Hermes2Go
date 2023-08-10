@@ -762,8 +762,10 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		rFreshWeight[index] = (g.WUMAS * (1 - math.Exp(-Qrez*Tiefe)) / 100000 * 100 / 7)
 		if i > 1 {
 			rDense[index] = math.Abs(rFreshWeight[index]-rFreshWeight[index-1]) / (math.Pow(WRAD[index], 2) * math.Pi) / g.DZ.Num
+			g.WUANT[index] = (1 - math.Exp(-Qrez*Tiefe)) - g.WUANT[index-1] // share of root in layer
 		} else {
 			rDense[index] = math.Abs(rFreshWeight[index]) / (math.Pow(WRAD[index], 2) * math.Pi) / g.DZ.Num
+			g.WUANT[index] = 1 - math.Exp(-Qrez*Tiefe)
 		}
 
 		// rFreshWeight(i) = g/cm^2 from 0 to lower boundary of layer I
@@ -781,9 +783,9 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		// ---------------  WURZELLÄNGE in cm/cm^2 -----------------------
 		WULAEN = WULAEN + g.WUDICH[i]*g.DZ.Num
 	}
-	for i := 0; i < 3; i++ {
-		g.NFOS[i] = g.NFOS[i] + 0.5*WUMM/3
-		g.NAOS[i] = g.NAOS[i] + 0.5*WUMM/3
+	for i := 0; i < g.WURZ; i++ {
+		g.NFOS[i] = g.NFOS[i] + 0.5*WUMM*g.WUANT[i]
+		g.NAOS[i] = g.NAOS[i] + 0.5*WUMM*g.WUANT[i]
 	}
 	// Limitieren der maximalen N-Aufnahme auf 26-13*10^-14 mol/cm W./sec
 	var maxup float64

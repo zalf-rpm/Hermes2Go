@@ -278,9 +278,16 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 		mineral(g, l)
 	}
 	if zeit == g.ERNTE[g.AKF.Index] && subd == 1 {
-		var NDI, NSA, NLA float64
+
+		//NSA(NDG)  = Oberird. Zufuhr schnell mineralisierbarer org. Substanz aus Ernterückständen (kg N/ha)
+		//NLA(NDG)  = Oberird. Zufuhr langsam mineralisierbarer org. Substanz aus Ernterückständen (kg N/ha)
+		//NDI (NDG) = Unterird. Zufuhr sofort verfügbarer N aus Ernterückständen (kg N/ha)
+		//NUSA(NDG) = Zufuhr schnell mineralisierbarer org. Substanz aus Ernterückständen (kg N/ha) (wird entspr. Wurzelverteilung verteilt)
+		//NULA(NDG) = Unterird. Zufuhr langsam mineralisierbarer org. Substanz aus Ernterückständen (kg N/ha) (wird entspr. Wurzelverteilung verteilt)
+
+		var NDI, NSA, NLA, NUSA, NULA float64
 		if g.AKF.Num != 1 {
-			NDI, NSA, NLA, ln.NRESID = resid(g, l, ln, hPath)
+			NDI, NSA, NLA, NUSA, NULA, ln.NRESID = resid(g, l, ln, hPath)
 			runErr = g.managementConfig.WriteManagementEvent(NewManagementEvent(Harvest, zeit, map[string]interface{}{
 				"Residue": ln.NRESID,
 			}, g))
@@ -290,6 +297,11 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 		}
 		g.NFOS[0] = g.NFOS[0] + NSA
 		g.NAOS[0] = g.NAOS[0] + NLA
+		for i := 0; i < g.WURZ; i++ {
+			g.NFOS[i] = g.NFOS[i] + NUSA*g.WUANT[i]
+			g.NAOS[i] = g.NAOS[i] + NULA*g.WUANT[i]
+		}
+
 		ln.NUPTAKE = g.PESUM
 		g.DSUMM = g.DSUMM + NDI
 		g.PESUM = g.PESUM - (NSA + NLA + NDI)
@@ -780,7 +792,7 @@ func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 }
 
 // resid
-func resid(g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath *HFilePath) (NDI, NSA, NLA, NRESID float64) {
+func resid(g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath *HFilePath) (NDI, NSA, NLA, NUSA, NULA, NRESID float64) {
 	// ------------------------------- Mineralisationspotentiale aus Vorfruchtresiduen ---------------------------------------
 	// Input:
 	// Dauerkult$         = D = Dauerkultur
@@ -810,40 +822,71 @@ func resid(g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath 
 	if ln != nil {
 		ln.NAGB = g.PESUM - (g.PESUM * NWURA)
 	}
-	var DGM float64
+	var DGM, DGU float64
+	//var  CGM,CGU float64 // C Pool in Harvest residues, unused
 	if g.JN[g.AKF.Index] == 0 {
 		if g.DAUERKULT == 'D' {
 			DGM = (g.OBMAS - 820) * g.GEHOB
+			// CGM = (g.OBMAS - 820) * 0.48
+			DGU = 0
+			//CGU = 0
 		} else {
-			DGM = (g.PESUM*NWURA + (1-g.JN[g.AKF.Index])*(g.PESUM-g.PESUM*(1-NWURA)*NERNT/(NERNT+KOSTRO*NKOPP)-g.PESUM*NWURA))
+			DGU = g.PESUM * NWURA
+			DGM = (1 - g.JN[g.AKF.Index]) * (g.PESUM - g.PESUM*(1-NWURA)*NERNT/(NERNT+KOSTRO*NKOPP) - g.PESUM*NWURA)
+			// CGM = g.OBMAS * (1 - g.JN[g.AKF.Index]) * 0.48
+			//CGU = g.WUMAS * 0.48
 		}
 	} else if g.JN[g.AKF.Index] == 1 {
 		if g.DAUERKULT == 'D' {
 			if g.FRUCHT[g.AKF.Index] == AA {
-				DGM = g.PESUM * NWURA * 0.74
+				DGM = 0
+				DGU = g.PESUM * NWURA * 0.74
 			} else {
-				DGM = g.PESUM * NWURA * 0.2
+				DGM = 0
+				DGU = g.PESUM * NWURA * 0.2
 			}
+			//CGM = 0
+			//CGU = g.WUMAS * 0.2 * 0.48
 		} else {
-			DGM = g.PESUM * NWURA
+			DGM = 0
+			DGU = g.PESUM * NWURA
+			//CGM = 0
+			//CGU = g.WUMAS * 0.48
 		}
 	} else if g.JN[g.AKF.Index] == 2 {
-		DGM = g.PESUM
+		DGU = g.PESUM * NWURA
+		DGM = g.PESUM - DGU
+		//CGM = g.OBMAS * 0.48
+		//CGU = g.WUMAS * 0.48
 	} else {
 		if g.DAUERKULT == 'D' {
+			DGU = g.PESUM * NWURA * 0.74
 			DGM = g.PESUM - (g.OBMAS * g.JN[g.AKF.Index] * g.GEHOB)
+			//CGM = g.OBMAS * (1 - g.JN[g.AKF.Index]) * 0.48
+			//CGU = g.WUMAS * 0.48
+
 		} else {
-			DGM = (g.PESUM*NWURA + (1-g.JN[g.AKF.Index])*(g.PESUM-g.PESUM*(1-NWURA)*NERNT/(NERNT+KOSTRO*NKOPP)-g.PESUM*NWURA))
+			DGU = g.PESUM * NWURA
+			DGM = (1 - g.JN[g.AKF.Index]) * (g.PESUM - g.PESUM*(1-NWURA)*NERNT/(NERNT+KOSTRO*NKOPP) - g.PESUM*NWURA)
+			//CGM = g.OBMAS * (1 - g.JN[g.AKF.Index]) * 0.48
+			//CGU = g.WUMAS * 0.48
 		}
 	}
 	if DGM < 0 {
 		DGM = 0
 	}
+	if DGU < 0 {
+		DGU = 0
+	}
 	NSA = DGM * NFAST
+	NUSA = DGU * NFAST
 	NLA = DGM * (1 - NFAST)
+	NULA = DGU * (1 - NFAST)
 	NDI = 0.0
+	// CSA := CGM * NFAST
+	// CLA := CGM * (1 - NFAST)
 	NRESID = DGM - (g.PESUM * NWURA)
-	return NDI, NSA, NLA, NRESID
+	return NDI, NSA, NLA, NUSA, NULA, NRESID
 }
 
 // pinit
