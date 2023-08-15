@@ -62,10 +62,10 @@ type GlobalVarsMain struct {
 	W                    [21]float64 // Field capacity (Feldkapazität pro Schicht ((cm^3/cm^3) (inkl. Stauwasser))
 	WMIN                 [21]float64 // Permanent Wilting point (Wassergehalt PWP (cm^3/cm^3) aus Bodenprofildatei 1. Schicht)
 	PORGES               [21]float64 // Pore volume  (Gesamtporenvolumen Schicht I (cm3/cm3))
-	NAKT                 float64
-	ETMETH               int // evapo transpiration methode selection
-	PTF                  int // pedotransfer function methode selection
-	INIWAHL              int // initial field values setup selection
+	NAKT                 float64     // Mineralisable proportion of organic matter (mineralisierbarer Anteil des organischen Materials)
+	ETMETH               int         // evapo transpiration methode selection
+	PTF                  int         // pedotransfer function methode selection
+	INIWAHL              int         // initial field values setup selection
 	DUNGSZEN             float64
 	AZHO                 int         // number of layer in soil profile (Anzahl Horizonte des Bodenprofils)
 	WURZMAX              int         // effective root depth in profile (effektive Wurzeltiefe des Profils)
@@ -162,8 +162,8 @@ type GlobalVarsMain struct {
 	FEU                     int
 	C1                      [21]float64 // Nitrogen content N-min
 	NAOS                    [21]float64 // Nitrogen in slowly decomposable pool (kg N ha-1)
-	MINAOS                  [4]float64  //  should be size of N
-	MINFOS                  [4]float64  // should be size of N
+	MINAOS                  [10]float64 //  NAOS for each layer to mineralization depth
+	MINFOS                  [10]float64 // NFOS for each layer to mineralization depth
 	CA                      [21]float64
 	NDG                     DualType
 	MZ                      int

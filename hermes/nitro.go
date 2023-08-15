@@ -23,14 +23,14 @@ type NitroBBBSharedVars struct {
 
 // NitroSharedVars shared variables for this module
 type NitroSharedVars struct {
-	DUMS    [4]float64
 	D       [21]float64
 	V       [21]float64
 	KONV    [21]float64
 	DISP    [21]float64
 	DB      [21]float64
 	DM      [21]float64
-	DNH4UMS [4]float64
+	DUMS    [10]float64
+	DNH4UMS [10]float64
 }
 
 // Nitro ...
@@ -541,10 +541,11 @@ func mineral(g *GlobalVarsMain, l *NitroSharedVars) {
 	//! NH4UMS                    = Summe des nitrifizierten Nicht-Nitratanteils des mineralischen Düngers (kg N/ha)
 
 	//! ----------------------------------------------------------------------------------------------------------
-	var DTOTALN, DMINFOS, MIRED [4]float64
+	var DTOTALN, DMINFOS, MIRED [10]float64
 
 	//---------------------  Mineralisation  --------------------
-	num := g.IZM / g.DZ.Index
+	//num := g.IZM / g.DZ.Index // old code
+	num := min(g.N, 10) // mineralisation only in top 10 layers
 	for z := 1; z <= num; z++ {
 		zIndex := z - 1
 		TEMPBO := (g.TD[z] + g.TD[z-1]) / 2
