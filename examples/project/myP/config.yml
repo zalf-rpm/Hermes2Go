@@ -86,6 +86,7 @@ OrganicMatterMineralProportion: 0.13
 PTF: 0
 # kc factor for bare soil
 KcFactorBareSoil: 0.4
+PotMineralisation : 0
 
 #***** Management *****
 # fertilization scenario (fertilization in %)

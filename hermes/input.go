@@ -1439,26 +1439,48 @@ func residi(g *GlobalVarsMain, hPath *HFilePath) {
 }
 
 func potmin0(g *GlobalVarsMain, l *InputSharedVars) {
-	if g.CGEHALT[0] > 14 {
-		g.NALTOS = 5000 * l.NGEHALT[0] * g.NAKT * float64(g.UKT[1])
-	} else if g.CGEHALT[0] > 5 {
-		g.NALTOS = 10600 * l.NGEHALT[0] * g.NAKT * float64(g.UKT[1])
-	} else if g.CGEHALT[0] < 1 {
-		g.NALTOS = 15000 * l.NGEHALT[0] * g.NAKT * float64(g.UKT[1])
-	} else {
-		g.NALTOS = 15000 * l.NGEHALT[0] * g.NAKT * float64(g.UKT[1])
+	for horizont := 1; horizont <= g.AZHO; horizont++ {
+		horizontIndex := horizont - 1
+
+		for layerIdx := g.UKT[horizontIndex]; layerIdx < g.UKT[horizont]; layerIdx++ {
+
+			if g.CGEHALT[horizontIndex] > 14 {
+				g.NALTOSLayer[layerIdx] = 5000 * l.NGEHALT[horizontIndex] * g.NAKT
+			} else if g.CGEHALT[0] > 5 {
+				g.NALTOSLayer[layerIdx] = 10600 * l.NGEHALT[horizontIndex] * g.NAKT
+			} else if g.CGEHALT[0] < 1 {
+				g.NALTOSLayer[layerIdx] = 15000 * l.NGEHALT[horizontIndex] * g.NAKT
+			} else {
+				g.NALTOSLayer[layerIdx] = 15000 * l.NGEHALT[horizontIndex] * g.NAKT
+			}
+		}
+	}
+	topSoilLayer := min(3, g.N)
+	for i := 0; i < topSoilLayer; i++ {
+		g.NALTOS = g.NALTOS + g.NALTOSLayer[i]
 	}
 }
 
 func potmin1(g *GlobalVarsMain, l *InputSharedVars) {
-	if g.CGEHALT[0] > 14 {
-		g.NALTOS = g.BULK[0] * 5000 * l.NGEHALT[0] * g.NAKT * float64(g.UKT[1])
-	} else if g.CGEHALT[0] > 5 {
-		g.NALTOS = g.BULK[0] * 9000 * l.NGEHALT[0] * g.NAKT * float64(g.UKT[1])
-	} else if g.CGEHALT[0] < 1 {
-		g.NALTOS = g.BULK[0] * 10000 * l.NGEHALT[0] * g.NAKT * float64(g.UKT[1])
-	} else {
-		g.NALTOS = g.BULK[0] * 10000 * l.NGEHALT[0] * g.NAKT * float64(g.UKT[1])
+	for horizont := 1; horizont <= g.AZHO; horizont++ {
+		horizontIndex := horizont - 1
+
+		for layerIdx := g.UKT[horizontIndex]; layerIdx < g.UKT[horizont]; layerIdx++ {
+
+			if g.CGEHALT[horizontIndex] > 14 {
+				g.NALTOSLayer[layerIdx] = g.BULK[horizontIndex] * 5000 * l.NGEHALT[horizontIndex] * g.NAKT
+			} else if g.CGEHALT[horizontIndex] > 5 {
+				g.NALTOSLayer[layerIdx] = g.BULK[horizontIndex] * 9000 * l.NGEHALT[horizontIndex] * g.NAKT
+			} else if g.CGEHALT[horizontIndex] < 1 {
+				g.NALTOSLayer[layerIdx] = g.BULK[horizontIndex] * 10000 * l.NGEHALT[horizontIndex] * g.NAKT
+			} else {
+				g.NALTOSLayer[layerIdx] = g.BULK[horizontIndex] * 10000 * l.NGEHALT[horizontIndex] * g.NAKT
+			}
+		}
+	}
+	topSoilLayer := min(3, g.N)
+	for i := 0; i < topSoilLayer; i++ {
+		g.NALTOS = g.NALTOS + g.NALTOSLayer[i]
 	}
 }
 

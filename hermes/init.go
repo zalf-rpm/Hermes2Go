@@ -58,8 +58,8 @@ func Init(g *GlobalVarsMain) {
 			g.WG[0][z] = PG
 		}
 		g.C1[z] = g.CN[0][z]
-		if zNum > 0 && zNum < 40./g.DZ.Num {
-			g.NAOS[z] = g.NALTOS / 30 * g.DZ.Num
+		if zNum < 100./g.DZ.Num {
+			g.NAOS[z] = g.NALTOSLayer[z]
 			g.NFOS[z] = 0
 			g.MINAOS[z] = 0
 			g.MINFOS[z] = 0

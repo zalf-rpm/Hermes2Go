@@ -71,7 +71,7 @@ type GlobalVarsMain struct {
 	WURZMAX              int         // effective root depth in profile (effektive Wurzeltiefe des Profils)
 	DRAIDEP              int         // drainage depth (Tiefe der Drainung)
 	DRAIFAK              float64     // part of drainage water in soakage (Anteil des Drainwassers am Sickerwasseranfakk (fraction))
-	UKT                  [11]int     //(0:10) layer depth (in dm)
+	UKT                  [11]int     //(0:10) horizon layer depth (in dm)
 	BART                 [10]string  // soil type by KA5(Bodenkundlichen Kartieranleitung 5. Auflage) (special spelling convertions)
 	LD                   [10]int     // bulk density KA5 (1-5) (Lagerungsdichtestufe nach KA5 (1-5))
 	BULK                 [10]float64 // avarage bulk density (Zuweisung mittlere Lagerungsdichte von LD(I) (g/cm^3))
@@ -107,10 +107,11 @@ type GlobalVarsMain struct {
 	CAPPAR               int         // used to check if hydrological parameters need to be recalulated on changing ground water
 	BD                   [21]float64 // bulk density
 	WNOR                 [21]float64 // water content at field capacity uncorrected (cm^3/cm^3)
-	NALTOS               float64
-	BREG                 []float64 // irrigation amount (in mm)
-	BRKZ                 []float64 // N-Concentration in irrigation water (in ppm)
-	ZTBR                 []int     // irrigation time (timestamp since 1900)
+	NALTOS               float64     // N in old organic matter (N in altem organischem Material)
+	NALTOSLayer          [20]float64 // N in old organic matter per layer (N in altem organischem Material)
+	BREG                 []float64   // irrigation amount (in mm)
+	BRKZ                 []float64   // N-Concentration in irrigation water (in ppm)
+	ZTBR                 []int       // irrigation time (timestamp since 1900)
 	BEGINN               int
 	ENDE                 int
 	FRUCHT               [300]CropType
