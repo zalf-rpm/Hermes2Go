@@ -762,7 +762,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		rFreshWeight[index] = (g.WUMAS * (1 - math.Exp(-Qrez*Tiefe)) / 100000 * 100 / 7)
 		if i > 1 {
 			rDense[index] = math.Abs(rFreshWeight[index]-rFreshWeight[index-1]) / (math.Pow(WRAD[index], 2) * math.Pi) / g.DZ.Num
-			g.WUANT[index] = (1 - math.Exp(-Qrez*Tiefe)) - g.WUANT[index-1] // share of root in layer
+			g.WUANT[index] = (1 - math.Exp(-Qrez*Tiefe)) - (1 - math.Exp(-Qrez*(Tiefe-g.DZ.Num))) // share of root in layer
 		} else {
 			rDense[index] = math.Abs(rFreshWeight[index]) / (math.Pow(WRAD[index], 2) * math.Pi) / g.DZ.Num
 			g.WUANT[index] = 1 - math.Exp(-Qrez*Tiefe)
