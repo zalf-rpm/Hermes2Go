@@ -329,6 +329,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			output.Nfertil = g.NFERTSIM
 			output.Irrig = g.IRRISIM
 			output.Nuptake = ln.NUPTAKE
+			output.Suptake = g.SUPTAKE
 			output.Nagb = ln.NAGB
 			output.ETcG = g.ETC0
 			output.ETaG = g.ETAG
@@ -343,6 +344,10 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			output.SoilN1 = g.NALTOS/g.NAKT*(1-g.NAKT) + NAOSAKT + NFOSAKT
 			output.Nmin1 = NMIN1
 			output.Nmin2 = NMIN2
+			//Smin1 and Smin2 and Smin3
+			output.Smin1 = g.S1[0] + g.S1[1] + g.S1[2]
+			output.Smin2 = g.S1[3] + g.S1[4] + g.S1[5]
+			output.Smin3 = g.S1[6] + g.S1[7] + g.S1[8]
 			output.NLeaG = g.NLEAG
 			output.TRRel = TRRELAV
 			output.Reduk = REDUKAV
@@ -825,6 +830,7 @@ func pinit(g *GlobalVarsMain) {
 
 	if g.DAUERKULT != 'D' {
 		g.PESUM = 0
+		g.PESUMS = 0
 		g.VERNTAGE = 0
 		g.OBMAS = 0
 		g.WUMAS = 0

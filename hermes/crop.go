@@ -53,9 +53,6 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 	// ! REDUK                     = Stickstoffstressfaktor (0-1)
 	// ! Pflanzenparameter siehe Einleseliste unten
 
-	//var WULAEN float64
-	var MASS, D, DIFF [20]float64
-	//WULAE2, FL, WULAE, WRAD [20]float64
 	//! ------------------------- Einlesen der Parameter für neue Frucht bei deren Aussaat ------------------
 	if zeit == g.SAAT[g.AKF.Index] {
 		output.SowDate = g.Kalender(zeit)
@@ -294,6 +291,8 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		g.FKC = l.kcini + (l.kc[g.INTWICK.Index]-l.kcini)*g.SUM[0]/g.TSUM[0]
 	}
 	var DTGESN float64
+	//var DTGESS float64
+	var DTGESS2 float64
 	var WUMALT float64
 	var OBALT float64
 	var GEHALT float64
@@ -551,6 +550,34 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 				g.GEHMIN = 0.0135 + 0.0403*math.Exp(-0.26*g.OBMAS/1000)
 			}
 		}
+
+		if g.Sulfonie {
+			// calc biomass
+			BM := g.OBMAS / 1000
+			// for _, bioMassPart := range g.WORG {
+			// 	BM += bioMassPart
+			// }
+			SC := g.CRITSGEHALT[g.FRUCHT[g.AKF.Index]]
+			exp := g.CRITSEXP[g.FRUCHT[g.AKF.Index]]
+			// wheat, maize, soybean
+			if g.SGEFKT[g.FRUCHT[g.AKF.Index]] == 1 {
+				if BM > 1.0 {
+					SC = SC * math.Pow((BM), exp)
+				}
+				// oilseed rape
+			} else if g.SGEFKT[g.FRUCHT[g.AKF.Index]] == 2 {
+				if BM > 1.0 {
+					SC = SC * math.Exp(exp*BM)
+				}
+			}
+
+			// SGEHMAX   = maximal möglicher S-Gehalt (Treiber für S-Aufnahme)(kg S/kg Biomasse)
+			// SGEHMIN   = kritischer S-Gehalt der Biomasse (Beginn S-Stress) (kg S/kg Biomasse)
+			g.SGEHMAX = SC * 1.3
+			g.SGEHMIN = SC
+
+		}
+
 		// -------------------------------------------------------
 		//              Trockenmassenproduktion
 		// -------------------------------------------------------
@@ -572,7 +599,13 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			} else {
 				g.REDUK = 1.
 			}
+			if g.SGEHOB < g.SGEHMIN {
+				AUX := g.SGEHOB / g.GEHMIN
+				g.SREDUK = math.Pow((1 - math.Exp(1+1/(AUX-1))), 2)
+			}
 			g.REDUKSUM = g.REDUKSUM + g.REDUK
+			g.SREDUKSUM = g.SREDUKSUM + g.SREDUK
+
 			g.TRRELSUM = g.TRRELSUM + g.TRREL
 			// ************************ DAYS WITH ETA/ETP < 0.4 UNTIL ANTHESIS UND ANTHESIS TO MATURITY
 			if g.ETREL < 0.4 {
@@ -675,6 +708,34 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 				DTGESN = (g.GEHMAX*g.OBMAS + (g.WUMAS+g.WORG[3])*g.WGMAX[g.INTWICK.Index] - g.PESUM) * g.DT.Num
 			} else {
 				DTGESN = (g.GEHMAX*g.OBMAS + g.WUMAS*g.WGMAX[g.INTWICK.Index] - g.PESUM) * g.DT.Num
+			}
+
+			// NMAX := 2.5
+			// // !*******************  S-Aufnahmefunktion  ********************************
+			// // LET SUP = Nmax * 10^(-ZF * (log10(Tempsum/Warmsum))^2)
+			// SUP := NMAX * math.Pow(10, -g.ZF[g.FRUCHT[g.AKF.Index]]) * math.Pow(math.Log10(g.PHYLLO+g.SUM[0]/g.TSUM[g.INTWICK.Index]), 2)
+			// // !*************************************************************************
+			// // LET DTGESS = (SUP - PESUMS)*DT
+			// DTGESS = (SUP - g.PESUMS) * g.DT.Num
+			// // IF DTGESS > 1.5*DT THEN LET DTGESS = 1.5*DT
+			// if DTGESS > 1.5*g.DT.Num {
+			// 	DTGESS = 1.5 * g.DT.Num
+			// }
+			// if DTGESS < 0 {
+			// 	DTGESS = 0.0
+			// }
+			// TODO: S-uptake depending on crop parameters
+			// !*******************  S-Aufnahmefunktion  ********************************
+			//WGSMax := g.WGMAX[g.INTWICK.Index] / g.SNRatio[g.FRUCHT[g.AKF.Index]]
+			//WGSMax := g.WGMAX[g.INTWICK.Index] * g.SWura[g.FRUCHT[g.AKF.Index]]
+			WGSMax := g.WUGEH * g.SWura[g.FRUCHT[g.AKF.Index]]
+			if g.FRUCHT[g.AKF.Index] == ZR || g.FRUCHT[g.AKF.Index] == K {
+				DTGESS2 = (g.SGEHMAX*g.OBMAS + (g.WUMAS+g.WORG[3])*WGSMax - g.PESUMS) * g.DT.Num
+			} else {
+				DTGESS2 = (g.SGEHMAX*g.OBMAS + g.WUMAS*WGSMax - g.PESUMS) * g.DT.Num
+			}
+			if DTGESS2 < 0 {
+				DTGESS2 = 0.0
 			}
 		}
 	}
@@ -781,6 +842,29 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		// ---------------  WURZELLÄNGE in cm/cm^2 -----------------------
 		WULAEN = WULAEN + g.WUDICH[i]*g.DZ.Num
 	}
+
+	// ------------------------------------------------------------
+	// S-uptake from root
+	var SminSUM, TRNSUMS float64
+	var MASS_S [20]float64
+	// FOR I = 1 TO WURZ
+	for i := 0; i < g.WURZ; i++ {
+		//IF I < 11 THEN
+		if i < 10 {
+			//LET NMINSUM = NMINSUM + (S1(I)-.01)
+			SminSUM = SminSUM + (g.S1[i] - 0.01)
+			//LET MASS(I) = TP(I)*(S1(I)/(WG(0,1)*dz))*dt
+			MASS_S[i] = g.TP[i] * (g.S1[i] / (g.WG[0][i] * g.DZ.Num)) * g.DT.Num
+			// TODO: ask Christian about WG(0,1) or WG(0,i)
+
+			//LET TRNSUM = TRNSUM + TP(I)*(S1(I)/(WG(0,I)*dz))*dt
+			TRNSUMS = TRNSUMS + g.TP[i]*(g.S1[i]/(g.WG[0][i]*g.DZ.Num))*g.DT.Num
+
+		}
+
+	}
+	// ------------------------------------------------------------
+
 	for i := 0; i < 3; i++ {
 		g.NFOS[i] = g.NFOS[i] + 0.5*WUMM/3
 		g.NAOS[i] = g.NAOS[i] + 0.5*WUMM/3
@@ -801,6 +885,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			DTGESN = WULAEN * maxup * g.DT.Num
 		}
 	}
+	var MASS, D, DIFF [20]float64
 	var NMINSUM, TRNSUM, SUMDIFF float64
 	min := math.Min(float64(g.WURZ), g.GRW)
 	for index := 0; index < int(min); index++ {
@@ -843,6 +928,36 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		}
 		SUMPE = SUMPE + g.PE[index]
 	}
+	// ------------------------------------------------------------
+	// S-uptake from root
+	var SUMPES float64
+	for index := 0; index < int(min); index++ {
+		if DTGESS2 > 0 {
+			if TRNSUMS >= DTGESS2 {
+				g.PES[index] = DTGESS2 * MASS_S[index] / TRNSUMS
+			} else {
+				if SminSUM > TRNSUMS {
+					//LET PES(I) = MASS(I) + (DTGESS - TRNSUM) * (S1(I)-0.01-MASS(I))/(NMINSUM-TRNSUM)
+					g.PES[index] = MASS_S[index] + (DTGESS2-TRNSUMS)*(g.S1[index]-.01-MASS_S[index])/(SminSUM-TRNSUMS)
+				} else {
+					g.PES[index] = MASS_S[index]
+				}
+			}
+			//IF PES(I) > S1(I)-.01 THEN LET PES(I) = S1(I)-.01
+			if g.PES[index] > g.S1[index]-.01 {
+				g.PES[index] = g.S1[index] - .01
+			}
+			if g.PES[index] < 0 {
+				g.PES[index] = 0
+			}
+		} else {
+			g.PES[index] = 0
+		}
+		SUMPES = SUMPES + g.PES[index]
+	}
+
+	// ------------------------------------------------------------
+
 	if g.LEGUM == 'L' {
 		if DTGESN-SUMPE > 0.74*DTGESN {
 			g.NFIX = 0.74 * DTGESN
@@ -877,6 +992,17 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 	} else {
 		g.GEHOB = (g.PESUM + SUMPE + g.NFIX - g.WUMAS*g.WUGEH) / g.OBMAS
 	}
+
+	// ------------------------------------------------------------
+	//SWUGEH := (g.PESUMS + SUMPES) * g.SWura[g.FRUCHT[g.AKF.Index]]
+	SWUGEH := g.WUGEH / g.SNRatio[g.FRUCHT[g.AKF.Index]]
+	if g.FRUCHT[g.AKF.Index] == ZR || g.FRUCHT[g.AKF.Index] == K {
+
+		g.SGEHOB = (g.PESUMS + SUMPES - SWUGEH) / (g.OBMAS + g.WORG[3])
+	} else {
+		g.SGEHOB = (g.PESUMS + SUMPES - SWUGEH) / g.OBMAS
+	}
+
 }
 
 // radia  Strahlunsinterception, Photosynthese und Erhaltungsatmung nach Penning de Vries 1982

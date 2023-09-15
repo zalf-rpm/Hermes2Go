@@ -50,7 +50,9 @@ type SoilFileData struct {
 	CGEHALT                    [10]float64 // C-content soil class specific in %
 	CNRATIO                    [10]float64 // C/N ratio
 	CNRAT1                     float64     // C/N ratio in top layer
-	NGEHALT                    [10]float64
+	CSRATIO                    [10]float64 // C/S ratio
+	SGEHALT                    [10]float64 // S-content soil class specific in %
+	NGEHALT                    [10]float64 // N-content soil class specific in %
 	HUMUS                      [21]float64
 	STEIN                      [10]float64 // stone content
 	FKA                        [10]float64 // Field capacity
@@ -83,6 +85,8 @@ func NewSoilFileData(soilID string) SoilFileData {
 		CGEHALT:                    [10]float64{},
 		CNRATIO:                    [10]float64{},
 		CNRAT1:                     0,
+		CSRATIO:                    [10]float64{},
+		SGEHALT:                    [10]float64{},
 		NGEHALT:                    [10]float64{},
 		HUMUS:                      [21]float64{},
 		STEIN:                      [10]float64{},
@@ -138,10 +142,16 @@ func LoadSoil(withGroundwater bool, LOGID string, hPath *HFilePath, soilID strin
 				// C/N ratio
 				soildata.CNRATIO[i] = ValAsFloat(bodenLine[21:24], "none", bodenLine)
 				(&soildata).cNSetup(i)
+				// C/S ratio
+				value, err := TryValAsFloat(bodenLine[25:28])
+				if err == nil {
+					soildata.CSRATIO[i] = value
+					(&soildata).cSulforSetup(i)
+				}
 				soildata.STEIN[i] = ValAsFloat(bodenLine[18:20], "none", bodenLine) / 100
 				// Field capacity
 
-				value, err := TryValAsFloat(bodenLine[40:42])
+				value, err = TryValAsFloat(bodenLine[40:42])
 				if err == nil {
 					soildata.FKA[i] = value
 				}
@@ -247,6 +257,9 @@ func LoadSoilCSV(withGroundwater bool, LOGID string, hPath *HFilePath, soilID st
 				// C/N ratio
 				soildata.CNRATIO[i] = ValAsFloat(tokens[header[c_n]], "none", bodenLine)
 				(&soildata).cNSetup(i)
+				soildata.CSRATIO[i] = ValAsFloat(tokens[header[c_s]], "none", bodenLine)
+				(&soildata).cSulforSetup(i)
+
 				soildata.STEIN[i] = ValAsFloat(tokens[header[stone]], "none", bodenLine) / 100
 				// Field capacity
 
@@ -618,6 +631,16 @@ func (soildata *SoilFileData) cNSetup(i int) {
 	}
 	soildata.NGEHALT[i] = soildata.CGEHALT[i] / soildata.CNRATIO[i]
 	soildata.HUMUS[i] = soildata.CGEHALT[i] * 1.72 / 100
+}
+
+func (soildata *SoilFileData) cSulforSetup(i int) {
+
+	if soildata.CSRATIO[i] == 0 {
+		soildata.CSRATIO[i] = 100
+	}
+	if soildata.CSRATIO[i] > 0 {
+		soildata.SGEHALT[i] = soildata.CGEHALT[i] / soildata.CSRATIO[i]
+	}
 }
 
 // Header for csv weather files

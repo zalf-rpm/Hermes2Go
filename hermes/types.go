@@ -52,9 +52,9 @@ func NewDualType(baseIndex int, offset int) DualType {
 type GlobalVarsMain struct {
 	IZM     int
 	DT      DualType
-	DZ      DualType //= 10 (cm to mm)
+	DZ      DualType // layer depth = 10 cm (cm to mm)
 	N       int      // max number of layer (changed by soil file)
-	DV      float64
+	DV      float64  // Dispersion length (Dispersionlänge) (cm) (default = 4.9 cm)
 	ALPH    float64
 	SATBETA float64
 	AKF     DualType // current crop index (aktuelle frucht)
@@ -64,10 +64,10 @@ type GlobalVarsMain struct {
 	WMIN               [21]float64 // Permanent Wilting point (Wassergehalt PWP (cm^3/cm^3) aus Bodenprofildatei 1. Schicht)
 	PORGES             [21]float64 // Pore volume  (Gesamtporenvolumen Schicht I (cm3/cm3))
 	NAKT               float64
-	ETMETH             int // evapo transpiration methode selection
-	PTF                int // pedotransfer function methode selection
-	INIWAHL            int // initial field values setup selection
-	DUNGSZEN           float64
+	ETMETH             int         // evapo transpiration methode selection
+	PTF                int         // pedotransfer function methode selection
+	INIWAHL            int         // initial field values setup selection
+	DUNGSZEN           float64     // percentage of fertilizer applied to the field in relation to what is set in fert_file
 	AZHO               int         // number of layer in soil profile (Anzahl Horizonte des Bodenprofils)
 	WURZMAX            int         // effective root depth in profile (effektive Wurzeltiefe des Profils)
 	DRAIDEP            int         // drainage depth (Tiefe der Drainung)
@@ -109,7 +109,7 @@ type GlobalVarsMain struct {
 	WNOR               [21]float64 // water content at field capacity uncorrected (cm^3/cm^3)
 	NALTOS             float64
 	BREG               []float64 // irrigation amount (in mm)
-	BRKZ               []float64 // N-Concentration in irrigation water (in ppm)
+	BRKZn              []float64 // N-Concentration in irrigation water (in ppm)
 	ZTBR               []int     // irrigation time (timestamp since 1900)
 	BEGINN             int
 	ENDE               int
@@ -162,7 +162,7 @@ type GlobalVarsMain struct {
 	MINAOS                  [4]float64  //  should be size of N
 	MINFOS                  [4]float64  // should be size of N
 	CA                      [21]float64
-	NDG                     DualType
+	NDG                     DualType // Nitrogen fertilization counter
 	MZ                      int
 	NBR                     int
 	NTIL                    DualType
@@ -209,10 +209,10 @@ type GlobalVarsMain struct {
 	WUDICH                  [21]float64
 	LUKRIT                  [10]float64
 	LUMDAY                  int
-	TP                      [21]float64
-	TRREL                   float64 // Water stress factor (1 = no stress, 0 = full stress)
-	REDUK                   float64 // Nitrogen stress factor (1 = no stress, 0 = full stress)
-	ETA                     float64 // Potential/actual Evapotranspiration (mm)
+	TP                      [21]float64 //TP(I) = Water uptake in layer I (mm)
+	TRREL                   float64     // Water stress factor (1 = no stress, 0 = full stress)
+	REDUK                   float64     // Nitrogen stress factor (1 = no stress, 0 = full stress)
+	ETA                     float64     // Potential/actual Evapotranspiration (mm)
 	HEATCOND                [21]float64
 	HEATCAP                 [21]float64
 	TDSUM                   [20]float64
@@ -271,8 +271,8 @@ type GlobalVarsMain struct {
 	AEHR       string
 	BLUEH      string
 	REIFE      string
-	GEHMAX     float64
-	GEHMIN     float64
+	GEHMAX     float64 // maximum of N content (driver for N uptake) (kg N/ha Biomasse)
+	GEHMIN     float64 // critical N content (begin of N stress) (kg N/ha Biomasse)
 	DUNGBED    float64
 	DEFDAT     int
 	ENDSTADIUM DevelopmentStage
@@ -363,6 +363,60 @@ type GlobalVarsMain struct {
 	N2onitDaily float64
 	AKTUELL     string // current Date string
 	SoilID      string
+	// Sulfonie Parameter
+	Sulfonie    bool        // enable Sulfonie
+	SAKT        float64     // mineralizable part of soil organic matter
+	SGEHALT     [10]float64 // S organic content in soil layer (Sorg-Gehalt in Horizont I (Gew.%))
+	SALTOS      float64
+	SFOS        [21]float64
+	S1          [21]float64       // Smin-content in layer Z (kg N/ha)
+	SI          map[int][]float64 // observed Smin-content in layer Z (kg N/ha)
+	sMESS       []int             // date for observed Smin-content
+	sMessIdx    int               // current index for sMESS
+	SDiff       float64           // difference sum between observed and simulated Smin-content
+	SAOS        [21]float64
+	Sminaos     [21]float64
+	Sminfos     [21]float64
+	SDSUMM      float64 // sum of mineral sulphur fertilization
+	SFOSUM      float64
+	SAOSUM      float64
+	SSUM        float64
+	SFSUM       float64     //SF Sum over all layers
+	SF          [21]float64 //SF Smin not in solution in kg S/ha per layer(SF ist die nicht gelöste Smin-Menge in kg S/ha)
+	SSAS        [300]float64
+	SLAS        [300]float64
+	SDIR        [300]float64
+	PESUMS      float64
+	SMINSUM     float64
+	DNS         [21]float64          // source term from mineralisation (kg S/ha) in layer
+	PES         [21]float64          // S-uptake of crop in soil layer Z (kg S/ha)
+	SKSAT       float64              // Saettigungs-Loesungskonzentration in Gramm S/Liter
+	KLOS        float64              // S Loesungskoeffizient (Geschwindigkeit)
+	SDEPOS      float64              // S-Deposition depending on site
+	SOUTSUM     float64              // sum of S-drainage in soil
+	SAUFNASUM   float64              // sum of ...
+	SDV         float64              // Dispersionslänge (cm) for sulfonie
+	BRKZs       []float64            // S-Concentration in irrigation water (in ppm)
+	ZF          map[CropType]float64 // map of ZF increase parameter for S-Uptake curve (Steigungparameter) per crop
+	CRITSGEHALT map[CropType]float64 // map of constants for critical S-Content funktion in crops
+	CRITSEXP    map[CropType]float64 // map of exponents for critical S-Content function in crops
+	SGEFKT      map[CropType]int     // critical S function
+	SGEHMAX     float64              // maximal S-Content in plants
+	SGEHMIN     float64              // minimal S-Content in plants
+	HEGzuNEG    map[CropType]float64 // map Harvest residues ratio for crops (HauptErnteGut NebenErnteGut)
+	TM          map[CropType]float64
+	N_HEG       map[CropType]float64 // map of N-content of main harvest residues for crops
+	S_HEG       map[CropType]float64 // map of S-content of main harvest residues for crops
+	N_NEG       map[CropType]float64 // map of N-content of secondary harvest residues for crops
+	S_NEG       map[CropType]float64 // map of S-content of secondary harvest residues for crops
+	SWura       map[CropType]float64 // map of S in root
+	Nfas        map[CropType]float64 // N fast uptake fraction
+	Sfas        map[CropType]float64 // S fast uptake fraction
+	SNRatio     map[CropType]float64 // S-N-Ratio for crops
+	SGEHOB      float64              //S content in upper plant organs
+	SREDUK      float64              //S reduction factor
+	SREDUKSUM   float64              //S reduction factor sum
+	SUPTAKE     float64              //S-uptake
 
 	// output parameters
 	PerY            float64 // accumulated output
@@ -433,6 +487,7 @@ type CropOutputVars struct {
 	Nfertil      float64
 	Irrig        float64
 	Nuptake      float64
+	Suptake      float64
 	Nagb         float64
 	ETcG         float64
 	ETaG         float64
@@ -447,6 +502,9 @@ type CropOutputVars struct {
 	SoilN1       float64
 	Nmin1        float64
 	Nmin2        float64
+	Smin1        float64
+	Smin2        float64
+	Smin3        float64
 	NLeaG        float64
 	TRRel        float64
 	Reduk        float64
@@ -480,11 +538,13 @@ func NewGlobalVarsMain() GlobalVarsMain {
 		DZ:      NewDualType(10, 0),
 		WINDHI:  2,
 		BREG:    make([]float64, 1200),
-		BRKZ:    make([]float64, 1200),
+		BRKZn:   make([]float64, 1200),
+		BRKZs:   make([]float64, 1200),
 		ZTBR:    make([]int, 1200),
 		IZM:     30,
 		N:       20, // default, will be overwritten by soil
 		DV:      4.9,
+		SDV:     15,
 		// _______ PARAMETER FOR YU/ALLEN _________
 		ALPH:           40,
 		SATBETA:        2.5,
@@ -500,13 +560,17 @@ func (g *GlobalVarsMain) setIrrigation(zeit, index int, value float64) {
 	lenSL := len(g.BREG)
 	if index >= lenSL-1 {
 		sliceBREG := make([]float64, index+10)
-		sliceBRKZ := make([]float64, index+10)
+		sliceBRKZn := make([]float64, index+10)
+		sliceBRKZs := make([]float64, index+10)
 		sliceZTBR := make([]int, index+10)
+
 		copy(sliceBREG, g.BREG)
-		copy(sliceBRKZ, g.BRKZ)
+		copy(sliceBRKZn, g.BRKZn)
+		copy(sliceBRKZs, g.BRKZs)
 		copy(sliceZTBR, g.ZTBR)
 		g.BREG = sliceBREG
-		g.BRKZ = sliceBRKZ
+		g.BRKZn = sliceBRKZn
+		g.BRKZs = sliceBRKZs
 		g.ZTBR = sliceZTBR
 	}
 	g.BREG[index] = value

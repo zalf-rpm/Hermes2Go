@@ -40,6 +40,7 @@ func Init(g *GlobalVarsMain) {
 	} else if g.FEU == 3 {
 		FKPROZ = FKPROZ + .3
 	}
+	_, applyInitialS := g.SI[0]
 	for z := 0; z < g.N; z++ {
 		zNum := float64(z) + 1
 		if zNum > 15 {
@@ -65,6 +66,30 @@ func Init(g *GlobalVarsMain) {
 			g.MINFOS[z] = 0
 		}
 		g.CA[z] = 0
+		// LET S1(z) = SI(0,z)
+		// check if initial smin data exists
+		if applyInitialS {
+			g.S1[z] = g.SI[0][z]
+		}
+
+		// make sure that initial smin data is > 0
+		if g.S1[z] <= 0 {
+			g.S1[z] = 0.01
+		}
+		// IF Z > 0 AND Z < 40/DZ THEN
+		if zNum > 0 && zNum < 40./g.DZ.Num {
+			//LET SAOS(Z) = SALTOS/30*DZ
+			g.SAOS[z] = g.SALTOS / 30 * g.DZ.Num
+			//LET SFOS(Z) = 0
+			g.SFOS[z] = 0
+			//LET Sminaos(z) = 0
+			g.Sminaos[z] = 0
+			//LET Sminfos(z) = 0
+			g.Sminfos[z] = 0
+		}
+	}
+	if applyInitialS {
+		g.sMessIdx++
 	}
 	g.WG[0][10] = g.WG[0][9]
 	g.NDG.SetByIndex(0)
@@ -78,6 +103,7 @@ func Init(g *GlobalVarsMain) {
 	g.RADSUM = 0
 	g.BLATTSUM = 0
 	g.DSUMM = 0
+	g.SDSUMM = 0
 	g.UMS = 0
 	g.OUTSUM = 0
 	g.NFIXSUM = 0

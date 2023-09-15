@@ -1,0 +1,27 @@
+Crop ZF S_Funct critSContent   Exp   HEGzuNEG TM_  N_HEG S_HEG N_NEG S_NEG SWura Nfas Sfas Comment(please fill with measured values)
+AB  3.2    1     0.28        -0.169  1.0      0.86 04.10 00.20 01.50 00.30 0.10  0.65 1.00 Ackerbohne
+CCM 1.6    1     0.213       -0.169  0.0      0.28 00.38 00.03 00.00 00.00 0.10  0.20 1.00 Corn-Cob-Mix Kolben + Körner
+GR  2.0    1     0.28        -0.169  0.0      0.20 00.50 00.03 00.00 00.00 0.10  0.60 1.00 Grünland Schnittnutzung
+GRE 2.0    1     0.28        -0.169  0.0      0.20 00.50 00.03 00.00 00.00 0.10  0.60 1.00 Gras. Futter Grünmasse
+H   2.8    1     0.37        -0.169  0.9      0.86 01.50 00.12 00.50 00.09 0.10  0.00 1.00 Hafer
+OA  2.8    1     0.37        -0.169  0.9      0.86 01.50 00.12 00.50 00.09 0.10  0.00 1.00 Hafer /Oat
+K   2.7    1     0.28        -0.169  0.2      0.27 00.35 00.03 00.40 00.03 0.10  0.10 1.00 Kartoffeln
+LUP 3.2    1     0.28        -0.169  1.0      0.86 04.50 00.25 01.20 00.11 0.10  0.65 1.00 Lupinen
+ORH 2.7    1     0.28        -0.169  0.0      0.10 00.45 00.10 00.00 00.00 0.10  0.65 1.00 Ölrettich
+SE  2.0    1     0.28        -0.169  0.0      0.10 00.45 00.03 00.00 00.00 0.10  0.60 1.00 Senf Zwischenfrucht 
+SG  1.6    1     0.37        -0.169  0.7      0.86 01.80 00.12 00.50 00.09 0.10  0.00 1.00 Sommergerste
+SM  1.6    1     0.213       -0.23   0.0      0.28 00.38 00.03 00.00 00.00 0.10  0.20 1.00 Silomais (critical S content by Carciotti et al. 2019)
+M   1.6    1     0.213       -0.23   0.8      0.86 01.35 00.10 01.12 00.10 0.10  0.20 1.00 Mais (critical S content by Carciotti et al. 2019)
+SW  1.6    1     0.37        -0.169  0.8      0.86 01.80 00.12 00.50 00.09 0.10  0.00 1.00 Sommerweizen
+TR  1.6    1     0.37        -0.169  0.8      0.86 01.90 00.12 00.50 00.09 0.10  0.00 1.00 Triticale Korn
+WG  1.6    1     0.37        -0.169  0.8      0.86 01.80 00.12 00.50 00.09 0.10  0.00 1.00 Wintergerste
+WR  1.6    1     0.37        -0.169  0.9      0.86 01.60 00.12 00.50 00.10 0.10  0.00 1.00 Winterroggen
+WRA 3.2    2     1.22        -0.18   2.0      0.91 03.30 00.39 00.55 00.27 0.10  0.25 1.00 Winterraps (critical S content by Ferreira & Ernst 2014)
+WRC 3.2    2     1.22        -0.18   2.0      0.91 03.30 00.39 00.55 00.27 0.10  0.25 1.00 Winterraps catch crop (critical S content by Ferreira & Ernst 2014)
+WW  1.6    1     0.37        -0.169  0.8      0.86 01.90 00.12 00.50 00.09 0.10  0.00 1.00 W.Weizen (critical S content by Reussi et al. 2012)
+ZR  2.7    1     0.28        -0.169  0.7      0.22 00.18 00.01 00.40 00.03 0.10  0.65 1.00 Zuckerrüben
+AA  3.2    1     0.28        -0.169  0.0      0.20 00.50 00.03 00.00 00.00 0.10  0.65 1.00 alfalfa
+OEL 2.0    1     0.28        -0.169  1.5      0.91 03.50 00.26 00.53 00.11 0.10  0.25 1.00 Oellein Zwischenfrucht
+ERB 3.2    1     0.28        -0.169  1.0      0.86 03.40 00.15 01.50 00.20 0.10  0.65 1.00 Felderbse 
+PH  2.0    1     0.28        -0.169  0.0      0.20 00.45 00.08 00.00 00.00 0.10  0.50 1.00 Phazelia
+SOY 3.2    1     0.28        -0.11   0.8      0.86 01.80 00.12 00.50 00.09 0.10  0.00 1.00 Soyabohne (critical S content by Divito et al. 2016)

@@ -64,6 +64,8 @@ type HFilePath struct {
 	cropOutput             string
 	pfOutput               string
 	managementOutput       string
+	cropdata               string
+	smin                   string
 }
 
 // NewHermesFilePath create an initialized HermesFilePath struct
@@ -96,6 +98,7 @@ func NewHermesFilePath(root, locid, snam, parameterOverride, resultOverride stri
 		obs:                    path.Join(pathToProject, "init_"+locid+".txt"),
 		til:                    path.Join(pathToProject, "til_"+locid+".txt"),
 		dun:                    path.Join(pathToProject, "fert_"+locid+".txt"),
+		cropdata:               path.Join(pathToProject, "cropdata.txt"),
 		auto:                   path.Join(pathToProject, "automan.txt"),
 		gwtimeseries:           path.Join(pathToProject, "gw_"+locid+".csv"),
 		precorr:                path.Join(pathToProject, "Weather", "preco.txt"),
@@ -116,6 +119,7 @@ func NewHermesFilePath(root, locid, snam, parameterOverride, resultOverride stri
 		cropOutput:             path.Join(pathToProject, "cropout_conf.yml"),
 		pfOutput:               path.Join(pathToProject, "pfout_conf.yml"),
 		managementOutput:       path.Join(pathToProject, "managementout_conf.yml"),
+		smin:                   path.Join(pathToProject, "smin.txt"),
 	}
 }
 

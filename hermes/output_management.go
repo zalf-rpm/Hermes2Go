@@ -187,7 +187,7 @@ func NewManagementEvent(eventType ManagementEventType, zeit int, additionalField
 		additionalFields["Type"] = g.TILART[g.NTIL.Index]
 	} else if eventType == Irrigation {
 		additionalFields["Amount"] = int(math.Round(g.EffectiveIRRIG))
-		additionalFields["Fertilizer"] = g.BRKZ[g.NBR-1] * g.BREG[g.NBR-1] * 0.01 // fertilizer concentation in water
+		additionalFields["Fertilizer"] = g.BRKZn[g.NBR-1] * g.BREG[g.NBR-1] * 0.01 // fertilizer concentation in water
 	} else if eventType == Sowing {
 		additionalFields["Crop"] = g.CropTypeToString(g.FRUCHT[g.AKF.Index], false)
 	} else if eventType == Harvest {

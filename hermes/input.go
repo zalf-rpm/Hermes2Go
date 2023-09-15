@@ -10,7 +10,8 @@ import (
 // InputSharedVars is a struct of shared variables for this module
 type InputSharedVars struct {
 	NORG    [300]float64
-	DGMG    [300]float64
+	DGMG    [300]float64 // amount of nitrogen in fertilizer
+	SDGMG   [300]float64 // amount of sulfur in fertiliser
 	NGEHALT [10]float64
 	//Jstr    string
 	//MK [70]string
@@ -146,6 +147,7 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 				g.LD = currentSoil.LD
 				g.BULK = currentSoil.BULK
 				g.CGEHALT = currentSoil.CGEHALT
+				g.SGEHALT = currentSoil.SGEHALT
 				g.CNRAT1 = currentSoil.CNRAT1
 				l.NGEHALT = currentSoil.NGEHALT
 				g.HUMUS = currentSoil.HUMUS
@@ -284,11 +286,16 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 
 						for SCHLAG, SLAGtoken, ok := NextLineInut(0, scannerIrrFile, strings.Fields); ok; SCHLAG, SLAGtoken, ok = NextLineInut(0, scannerIrrFile, strings.Fields) {
 							valid := true
+							dateTokenIndex := 3
 							for ok := SCHLAG == g.PKT; ok; ok = SCHLAG == g.PKT && valid {
 								l.ANZBREG++
 								g.BREG[l.ANZBREG-1] = ValAsFloat(SLAGtoken[1], Bereg, SLAGtoken[1])
-								g.BRKZ[l.ANZBREG-1] = ValAsFloat(SLAGtoken[2], Bereg, SLAGtoken[2])
-								BREGDAT := SLAGtoken[3]
+								g.BRKZn[l.ANZBREG-1] = ValAsFloat(SLAGtoken[2], Bereg, SLAGtoken[2])
+								if len(SLAGtoken) > 4 {
+									g.BRKZs[l.ANZBREG-1] = ValAsFloat(SLAGtoken[3], Bereg, SLAGtoken[3])
+									dateTokenIndex = 4
+								}
+								BREGDAT := SLAGtoken[dateTokenIndex]
 								_, g.ZTBR[l.ANZBREG-1] = g.Datum(BREGDAT)
 
 								///!warning may Beginn not yet initialized
@@ -302,14 +309,16 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 						for i := l.ANZBREG; i < 500; i++ {
 							g.ZTBR[i] = 0
 							g.BREG[i] = 0
-							g.BRKZ[i] = 0
+							g.BRKZn[i] = 0
+							g.BRKZs[i] = 0
 						}
 					} else {
 						l.ANZBREG = 0
 						for i := 0; i < 500; i++ {
 							g.ZTBR[i] = 0
 							g.BREG[i] = 0
-							g.BRKZ[i] = 0
+							g.BRKZn[i] = 0
+							g.BRKZs[i] = 0
 						}
 					}
 				}
@@ -560,6 +569,11 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 				if SLFIND == 0 {
 					return fmt.Errorf("Feld_ID / Field_ID %s not found", g.PKT)
 				}
+				err := sReadCropData(g, hPath)
+				if err != nil {
+					// failed to read crop data
+					return err
+				}
 				// ! -- Setzen des Simulationsbeginns für Zeitschleife
 				// set simulation start for time loop
 				g.BEGINN = g.ERNTE[0]
@@ -613,6 +627,8 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 						g.CN[0][i] = .1
 					}
 				}
+				// read Smin observed data
+				readSmin(g, Fident, hPath)
 
 				// ! ********************** Bodenbearbeitungsmassnahmen lesen ***********************************
 				til := hPath.til
@@ -648,6 +664,8 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 					}
 				}
 				residi(g, hPath)
+				// calculate inital S residue
+				sResidi(g, hPath)
 				if !g.AUTOFERT {
 					// ! ********************** Düngungsmassnahmen lesen ***********************************
 					dun := hPath.dun
@@ -657,13 +675,31 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 					for SCHLAG, fertilizerToken, valid := NextLineInut(0, scannerFert, strings.Fields); valid; SCHLAG, fertilizerToken, valid = NextLineInut(0, scannerFert, strings.Fields) {
 
 						for ok := SCHLAG == g.PKT; ok; ok = SCHLAG == g.PKT && valid {
-							//fertilizerToken := strings.Fields(FERTI)
+
+							// try to stay backwards compatible with old format
 							//Field_ID(0)  N(1)   Frt(2) date(3)
+							headerN := 1
+							headerS := -1
+							headerFrt := 2
+							headerDate := 3
+							// or Field_ID(0)  N(1) S(2)  Frt(3) date(4)
+							if len(fertilizerToken) == 5 {
+								headerN = 1
+								headerS = 2
+								headerFrt = 3
+								headerDate = 4
+							}
 							NDu++
 							NDuindex := NDu - 1
-							DGDAT := fertilizerToken[3]
-							l.DGMG[NDuindex] = ValAsFloat(fertilizerToken[1], dun, fertilizerToken[1]) * g.DUNGSZEN
-							g.DGART[NDuindex] = fertilizerToken[2]
+
+							l.DGMG[NDuindex] = ValAsFloat(fertilizerToken[headerN], dun, fertilizerToken[headerN]) * g.DUNGSZEN
+							l.SDGMG[NDuindex] = 0
+							if headerS > 0 {
+								l.SDGMG[NDuindex] = ValAsFloat(fertilizerToken[headerS], dun, fertilizerToken[headerS]) * g.DUNGSZEN
+							}
+							g.DGART[NDuindex] = fertilizerToken[headerFrt]
+							DGDAT := fertilizerToken[headerDate]
+
 							_, valztdg := g.Datum(DGDAT)
 							g.ZTDG[NDuindex] = valztdg
 							if g.ZTDG[NDuindex] < g.BEGINN {
@@ -687,6 +723,7 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 			}
 		}
 	}
+
 	if g.PotMineralisationMethod == 1 {
 		// potentielle Mineralisierung mit bulk density
 		potmin1(g, l)
@@ -694,6 +731,7 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 		// default
 		potmin0(g, l)
 	}
+	sPotMin(g)
 	return nil
 }
 
@@ -1484,6 +1522,23 @@ func dueng(i int, g *GlobalVarsMain, l *InputSharedVars, hPath *HFilePath) {
 			g.NDIR[i] = g.NDIR[i] - g.NDIR[i]*ValAsFloat(token[5], dungfile, du)*VOL           // NH4
 			g.NSAS[i] = (l.DGMG[i]*l.NORG[i] - g.NDIR[i]) * ValAsFloat(token[3], dungfile, du) // Nfst
 			g.NLAS[i] = (l.DGMG[i]*l.NORG[i] - g.NDIR[i]) * ValAsFloat(token[4], dungfile, du) // Nslo
+
+			// sulfur in fertilizer
+			if g.Sulfonie {
+				//LET SO4   = VAL(DUNG$(18:21))
+				SO4 := ValAsFloat(token[7], dungfile, du)
+				//LET SORG  = 1- SO4  !VAL(DUNG$(27:30))
+				SORG := 1 - SO4
+				//LET SFAST = VAL(DUNG$(23:26))
+				SFAST := ValAsFloat(token[8], dungfile, du)
+				//LET SDIR(I) = DGMG(I) * SO4
+				g.SDIR[i] = l.SDGMG[i] * SO4
+				//LET SSAS(I) = DGMG(I) * SORG * SFAST
+				g.SSAS[i] = l.SDGMG[i] * SORG * SFAST
+				//LET SLAS(I) = DGMG(I) * SORG * (1-SFAST)
+				g.SLAS[i] = l.SDGMG[i] * SORG * (1 - SFAST)
+			}
+			break
 		}
 	}
 }

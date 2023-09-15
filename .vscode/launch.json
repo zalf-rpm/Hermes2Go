@@ -91,6 +91,20 @@
             ]
         },
         {
+            "name": "Launch Hermes Sulfonie",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "src/hermes2go",
+            "cwd": "examples/",
+            "args": [
+                "-module", "batch",
+                "-concurrent", "1",
+                "-logoutput",
+                "-batch", "sulfonie_batch.txt" ,
+            ]
+        },
+        {
             "name": "Launch http render service",
             "type": "go",
             "request": "launch",

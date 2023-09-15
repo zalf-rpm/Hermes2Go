@@ -430,11 +430,16 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			if ZEIT == g.ZTBR[g.NBR-1] {
 				g.EffectiveIRRIG = g.BREG[g.NBR-1] / 10
 				g.REGEN[g.TAG.Index] = g.REGEN[g.TAG.Index] + g.EffectiveIRRIG
-				nConcetrationInWater := g.BRKZ[g.NBR-1] * g.BREG[g.NBR-1] * 0.01
+				nConcetrationInWater := g.BRKZn[g.NBR-1] * g.BREG[g.NBR-1] * 0.01
 				if nConcetrationInWater > 0 {
 					g.C1[0] = g.C1[0] + nConcetrationInWater
 				}
-				g.managementConfig.WriteManagementEvent(NewManagementEvent(Irrigation, ZEIT, make(map[string]interface{}), &g))
+
+				// add s from irrigation to S1 concentration in upper soil layer
+				sConcentrationInWater := g.BRKZs[g.NBR-1] * g.BREG[g.NBR-1] * 0.01
+				if sConcentrationInWater > 0 {
+					g.S1[0] = g.S1[0] + sConcentrationInWater
+				}
 				g.NBR++
 			}
 			// FSCS := 0.0
@@ -486,6 +491,14 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			if g.C1[0] < 0 {
 				g.C1[0] = 0
 			}
+
+			// ***** ADDITION DER S-DEPOSITION ZUR OBERSTEN SCHICHT *****
+			g.S1[0] = g.S1[0] + g.SDEPOS/365*g.DT.Num
+			if g.S1[0] < 0 {
+				g.S1[0] = 0
+			}
+
+			// check for measured water content
 			if ZEIT == g.MESS[g.MZ-1] {
 				for Z := 1; Z <= g.N+1; Z++ {
 					Zindex := Z - 1
@@ -629,6 +642,8 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 						}
 					}
 				}
+
+				Sulfo(WDT, SUBD, ZEIT, &g, &herPath)
 				//CALL NITRO(WDT,SUBD,#7)
 				finished, err := Nitro(WDT, SUBD, ZEIT, &g, &nitroSharedVars, &nitroSharedBBBVars, &herPath, &cropOut)
 				if err != nil {

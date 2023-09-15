@@ -49,6 +49,7 @@ type Config struct {
 	CO2concentration    float64       `yaml:"CO2concentration"`    // CO2 concentration (ppm)
 	CO2StomataInfluence FeatureSwitch `yaml:"CO2StomataInfluence"` // CO2 Stomata influence (1=on/0= off)
 	NDeposition         float64       `yaml:"NDeposition"`         // N-Deposition (annual kg/ha)
+	SDeposition         float64       `yaml:"SDeposition"`         // S-Deposition (annual kg/ha)
 
 	//***** Time *****
 	StartYear                       int    `yaml:"StartYear"`                       // Starting year of simulation (YYYY)
@@ -68,6 +69,9 @@ type Config struct {
 	KcFactorBareSoil               float64 `yaml:"KcFactorBareSoil"`               // kc factor for bare soil
 	PotMineralisation              int     `yaml:"PotMineralisation,omitempty"`    // Potential mineralisation method (0= standard, 1 = considers bulk density, 2 = considers bulk density)
 	GroundWaterPhase               int     `yaml:"GroundWaterPhase,omitempty"`     // Ground water phase in days (80= standard)
+	SulfurSatSolutionConcentration float64 `yaml:"SulfurSatSolutionConcentration"` // Saturated Solution Concentration (SKSAT) in Gramms S/Liter
+	SulfurSolutionCoefficient      float64 `yaml:"SulfurSolutionCoefficient"`      // Sulfur Solution Coefficient (KLOS)
+	SmineralPartOrgSoilMatter      float64 `yaml:"SmineralPartOrgSoilMatter"`      // mineralisable part of organic soil matter
 
 	//***** Management *****
 	Fertilization     float64       `yaml:"Fertilization"`     // fertilization scenario (fertilization in %)
@@ -75,6 +79,7 @@ type Config struct {
 	AutoFertilization FeatureSwitch `yaml:"AutoFertilization"` // automatic fertilization (0=no, 1=on demand)
 	AutoIrrigation    FeatureSwitch `yaml:"AutoIrrigation"`    // automatic irrigation (0=no, 1= on demand)
 	AutoHarvest       FeatureSwitch `yaml:"AutoHarvest"`       // automatic harvest (0=no, 1= on demand)
+	Sulfonie          FeatureSwitch `yaml:"Sulfonie"`          // Sulfur stress (0=no, 1=yes)
 }
 
 func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) Config {
@@ -109,6 +114,7 @@ func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) C
 	g.OUTN = hconfig.LeachingDepth
 	g.NAKT = hconfig.OrganicMatterMineralProportion
 	g.DEPOS = hconfig.NDeposition
+	g.SDEPOS = hconfig.SDeposition
 	g.DUNGSZEN = hconfig.Fertilization / 100
 	g.Datum = DateConverter(hconfig.DivideCentury, g.DATEFORMAT)
 	g.Kalender = KalenderConverter(g.DATEFORMAT, ".")
@@ -122,6 +128,10 @@ func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) C
 	g.AUTOHAR = bool(hconfig.AutoHarvest)
 	g.PTF = hconfig.PTF
 	g.GWPhase = hconfig.GroundWaterPhase
+	g.SKSAT = hconfig.SulfurSatSolutionConcentration
+	g.KLOS = hconfig.SulfurSolutionCoefficient
+	g.Sulfonie = bool(hconfig.Sulfonie)
+	g.SAKT = hconfig.SmineralPartOrgSoilMatter
 	if len(hconfig.WeatherFolder) == 0 {
 		hconfig.WeatherFolder = "Weather"
 	}
@@ -228,6 +238,7 @@ func NewDefaultConfig() Config {
 		CO2concentration:                360,
 		CO2StomataInfluence:             true,
 		NDeposition:                     20,
+		SDeposition:                     18,
 		StartYear:                       1980,
 		EndDate:                         "31122010",
 		AnnualOutputDate:                "3009",
@@ -241,11 +252,15 @@ func NewDefaultConfig() Config {
 		KcFactorBareSoil:                0.4,
 		PotMineralisation:               0,
 		GroundWaterPhase:                80,
+		SulfurSatSolutionConcentration:  0.2,
+		SulfurSolutionCoefficient:       0.1,
+		SmineralPartOrgSoilMatter:       0.15,
 		Fertilization:                   100,
 		AutoSowingHarvest:               true,
 		AutoFertilization:               true,
 		AutoIrrigation:                  true,
 		AutoHarvest:                     true,
+		Sulfonie:                        false,
 	}
 }
 
