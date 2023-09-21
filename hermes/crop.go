@@ -262,7 +262,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			//  Berechnung der oberirdischen Masse (kg/ha)
 			g.OBMAS = g.OBMAS + g.WORG[komp-1]
 		}
-		g.ASPOO = 0
+		g.ASPOO = 0 // Assimilationspool reset for new crop
 		// Berechnung Anfangs-LAI aus Blattgewicht und SLA
 		g.LAI = g.WORG[1] * g.LAIFKT[g.INTWICK.Index]
 		if g.LAI < 0 {
@@ -1098,6 +1098,7 @@ func root(veloc, tempsum, dz float64) (qrez, potentialRootingDepth float64, culR
 	// cumulative percentage until layer I (column H-S) = (1-EXP(-QREZ*ry(I)lower bounda))*100
 
 	Tsumbase := math.Log(math.Pow(0.35, 1/1.8)-0.081476) / math.Log(math.Exp(-veloc))
+	//qrez = math.Max(math.Pow((0.081476+math.Exp(-veloc*(tempsum+Tsumbase))), 1.8), 0.022)
 	qrez = math.Max(math.Pow((0.081476+math.Exp(-veloc*(tempsum+Tsumbase))), 1.8), 0.0409)
 
 	potentialRootingDepth = 4.5 / qrez
