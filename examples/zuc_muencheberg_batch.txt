@@ -1,0 +1,2 @@
+project=zuc WeatherFolder=historical fcode=109_120 plotNr=10001 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_ZUC
+project=zuc WeatherFolder=historical fcode=109_121 plotNr=10002 Altitude=46 Latitude=52.6431 poligonID=30169 resultfolder=RESULT_ZUC
