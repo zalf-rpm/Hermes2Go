@@ -744,7 +744,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		if g.FRUCHT[g.AKF.Index] == ZR || g.FRUCHT[g.AKF.Index] == K {
 			WRAD[i-1] = .01
 		} else {
-			WRAD[i-1] = .02 - float64(i)*.001
+			WRAD[i-1] = .021 - float64(i)*.001
 		}
 	}
 	//to estimate root surface and root length density per layer you need to convert root dry matter to fresh weight and scale from ha to cm^3:
@@ -1098,8 +1098,8 @@ func root(veloc, tempsum, dz float64) (qrez, potentialRootingDepth float64, culR
 	// cumulative percentage until layer I (column H-S) = (1-EXP(-QREZ*ry(I)lower bounda))*100
 
 	Tsumbase := math.Log(math.Pow(0.35, 1/1.8)-0.081476) / math.Log(math.Exp(-veloc))
-	//qrez = math.Max(math.Pow((0.081476+math.Exp(-veloc*(tempsum+Tsumbase))), 1.8), 0.022)
-	qrez = math.Max(math.Pow((0.081476+math.Exp(-veloc*(tempsum+Tsumbase))), 1.8), 0.0409)
+	qrez = math.Max(math.Pow((0.081476+math.Exp(-veloc*(tempsum+Tsumbase))), 1.8), 0.022)
+	//qrez = math.Max(math.Pow((0.081476+math.Exp(-veloc*(tempsum+Tsumbase))), 1.8), 0.0409)
 
 	potentialRootingDepth = 4.5 / qrez
 	rootLayer := int(potentialRootingDepth / dz) // WURZ
