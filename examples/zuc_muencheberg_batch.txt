@@ -1,0 +1,18 @@
+project=zuc WeatherFolder=historical fcode=109_120 plotNr=10001 soilId=001 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_ZUC/RD_09
+project=zuc WeatherFolder=historical fcode=109_121 plotNr=10002 soilId=001 Altitude=46 Latitude=52.6431 poligonID=30169 resultfolder=RESULT_ZUC/RD_09
+project=zuc WeatherFolder=historical fcode=109_120 plotNr=10003 soilId=001 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_ZUC/RD_09
+project=zuc WeatherFolder=historical fcode=109_120 plotNr=10001 soilId=001 Altitude=73 AutoIrrigation=0 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_ZUC/RD09_noIrr
+project=zuc WeatherFolder=historical fcode=109_121 plotNr=10002 soilId=001 Altitude=46 AutoIrrigation=0 Latitude=52.6431 poligonID=30169 resultfolder=RESULT_ZUC/RD09_noIrr
+project=zuc WeatherFolder=historical fcode=109_120 plotNr=10003 soilId=001 Altitude=73 AutoIrrigation=0 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_ZUC/RD09_noIrr
+project=zuc WeatherFolder=historical fcode=109_120 plotNr=10001 soilId=002 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_ZUC/RD_10
+project=zuc WeatherFolder=historical fcode=109_121 plotNr=10002 soilId=002 Altitude=46 Latitude=52.6431 poligonID=30169 resultfolder=RESULT_ZUC/RD_10
+project=zuc WeatherFolder=historical fcode=109_120 plotNr=10003 soilId=002 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_ZUC/RD_10
+project=zuc WeatherFolder=historical fcode=109_120 plotNr=10001 soilId=002 Altitude=73 AutoIrrigation=0 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_ZUC/RD_10_noIrr
+project=zuc WeatherFolder=historical fcode=109_121 plotNr=10002 soilId=002 Altitude=46 AutoIrrigation=0 Latitude=52.6431 poligonID=30169 resultfolder=RESULT_ZUC/RD_10_noIrr
+project=zuc WeatherFolder=historical fcode=109_120 plotNr=10003 soilId=002 Altitude=73 AutoIrrigation=0 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_ZUC/RD_10_noIrr
+project=zuc WeatherFolder=historical fcode=109_120 plotNr=10001 soilId=003 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_ZUC/RD_20
+project=zuc WeatherFolder=historical fcode=109_121 plotNr=10002 soilId=003 Altitude=46 Latitude=52.6431 poligonID=30169 resultfolder=RESULT_ZUC/RD_20
+project=zuc WeatherFolder=historical fcode=109_120 plotNr=10003 soilId=003 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_ZUC/RD_20
+project=zuc WeatherFolder=historical fcode=109_120 plotNr=10001 soilId=003 Altitude=73 AutoIrrigation=0 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_ZUC/RD_20_noIrr
+project=zuc WeatherFolder=historical fcode=109_121 plotNr=10002 soilId=003 Altitude=46 AutoIrrigation=0 Latitude=52.6431 poligonID=30169 resultfolder=RESULT_ZUC/RD_20_noIrr
+project=zuc WeatherFolder=historical fcode=109_120 plotNr=10003 soilId=003 Altitude=73 AutoIrrigation=0 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_ZUC/RD_20_noIrr

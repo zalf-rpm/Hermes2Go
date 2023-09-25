@@ -113,8 +113,7 @@ func NewManagentConfig() *ManagementConfig {
 			EventName: Fertilization,
 			Enabled:   false,
 			AdditionalFields: map[string]string{
-				"Name":   "%2.1f",
-				"Amount": "%d",
+				"Fertilizer": "%2.1f",
 			},
 		},
 		Sowing: {
