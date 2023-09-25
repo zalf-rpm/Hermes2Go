@@ -18,7 +18,7 @@ ResultFileExt: "RES"
 # Output intervall (days) (0=no time serie)
 OutputIntervall: 1
 #From POLY_XXX.txt, Uses: 1= all (if the word ALLE is written in the file),
-# 2= Field_ID, 3= Polyg
+# 2= Field_ID, 3= Polyg, 4= SoilID
 InitSelection: 3
 # soil profile file name (without projectname)
 SoilFile: soil

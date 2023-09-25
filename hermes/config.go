@@ -26,7 +26,7 @@ type Config struct {
 	ResultFileExt         string          `yaml:"ResultFileExt,omitempty"`    // result file extensions (default RES, csv)
 	OutputIntervall       int             `yaml:"OutputIntervall"`            // Output intervall (days) (0=no time serie)
 	ManagementEvents      int             `yaml:"ManagementEvents"`           // Management events (0=no management events)
-	InitSelection         int             `yaml:"InitSelection"`              // Init.values all(1),Field_ID(2), Polyg(3) -> POLY_XXX.txt, Uses: 1= all (if the word ALLE is written in the file), 2= Field_ID, 3= Polyg
+	InitSelection         int             `yaml:"InitSelection"`              // Init.values all(1),Field_ID(2), Polyg(3) SoilID(4)-> POLY_XXX.txt, Uses: 1= all (if the word ALLE is written in the file), 2= Field_ID, 3= Polyg 4= SoilID
 	SoilFile              string          `yaml:"SoilFile"`                   // soil profile file name (without projectname)
 	SoilFileExtension     string          `yaml:"SoilFileExtension"`          // soil file extension (txt = hermes soil, csv = csv table format)
 	CropFileFormat        string          `yaml:"CropFileFormat"`             // crop file format (txt = hermes crop, csv = csv table format)

@@ -609,6 +609,8 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 					Fident = g.PKT
 				} else if g.INIWAHL == 3 {
 					Fident = l.FLAEID
+				} else if g.INIWAHL == 4 {
+					Fident = g.SoilID
 				}
 				if driConfig.MeasurementFileFormat == "txt" {
 					ExtractMeasuredDataTxt(scannerObserv, g, Fident, obs)
@@ -950,6 +952,9 @@ func ExtractMeasuredDataCSV(scannerObserv *bufio.Scanner, g *GlobalVarsMain, Fid
 	// start reading the data
 	for scannerObserv.Scan() {
 		dataLine := scannerObserv.Text()
+		if !strings.HasPrefix(dataLine, Fident) {
+			continue
+		}
 		tokens := strings.Split(dataLine, ",")
 		SCHLAG := strings.TrimSpace(tokens[headers[id]])
 		if SCHLAG == Fident {

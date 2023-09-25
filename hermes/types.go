@@ -211,7 +211,7 @@ type GlobalVarsMain struct {
 	POTROOTINGDEPTH         float64     // potential rooting depth (real rooting depth will be limited by soil parameter WURMAX)
 	VERDUNST                float64
 	FLUSS0                  float64
-	WUDICH                  [21]float64
+	WUDICH                  [21]float64 // root density in soil layer Z
 	LUKRIT                  [10]float64
 	LUMDAY                  int
 	TP                      [21]float64
