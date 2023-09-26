@@ -9,7 +9,7 @@ func Init(g *GlobalVarsMain) {
 
 	g.TAG.SetByIndex(g.ITAG - 2)
 	if g.GROUNDWATERFROM == Polygonfile {
-		g.GRW = g.GW - (float64(g.AMPL) * math.Sin((g.TAG.Num+float64(g.GWPhase))*math.Pi/180))
+		g.GRW = g.GW - (g.AMPL * math.Sin((g.TAG.Num+float64(g.GWPhase))*math.Pi/180))
 	} else if g.GROUNDWATERFROM == GWTimeSeries {
 		g.GRW, _ = GetGroundWaterLevel(g, g.BEGINN-2)
 	}
