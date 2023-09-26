@@ -223,6 +223,12 @@ func LoadSoilCSV(withGroundwater bool, LOGID string, hPath *HFilePath, soilID st
 			soildata.DRAIFAK = ValAsFloat(tokens[header[drainagepercetage]], "none", bodenLine)
 			soildata.UKT[0] = 0
 			for i := 0; i < soildata.AZHO; i++ {
+				if i > 0 {
+					subSoilId := tokens[header[sid]]
+					if subSoilId != soilID {
+						return SoilFileData{}, fmt.Errorf("sub soil not found for SoilID '%s' on horizon %d", soilID, i+1)
+					}
+				}
 				soildata.BART[i] = tokens[header[texture]]
 				textLenght := len(soildata.BART[i])
 				if textLenght > 3 || textLenght == 0 {
