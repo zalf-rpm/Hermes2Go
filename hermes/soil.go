@@ -788,16 +788,6 @@ func FindTextureInPARCAP(textureIn, filepath string) string {
 	return "not found"
 }
 
-// change soil porespace on tillage
-func ChangeSoilPorespaceOnTillage(g *GlobalVarsMain, tillageDepth float64) {
-	if g.TillagePoreSpace {
-		for i := 0; i < g.N; i++ {
-
-		}
-	}
-
-}
-
 func GetPoreVolMultiplier1(g *GlobalVarsMain, layer int) float64 {
 	multiPl := 1.0
 	if !g.TillagePoreSpace || layer > 10 {
