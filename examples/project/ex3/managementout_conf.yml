@@ -16,25 +16,26 @@ eventformats:
       NAOSLayer3: '%1.1f'
   irrigation:
     eventname: irrigation
-    enabled: false
+    enabled: true
     additionalfields:
       Amount: '%dmm'
       N03: '%2.1fmg/l'
   sowing:
     eventname: sowing
-    enabled: false
+    enabled: true
     additionalfields:
       Crop: '%s'
   harvest:
     eventname: harvest
-    enabled: false
+    enabled: true
     additionalfields:
       Crop: '%s'
       Residue: '%2.1f'
   fertilization:
     eventname: fertilization
-    enabled: false
+    enabled: true
     additionalfields:
-      Amount: '%d'
-      Name: '%2.1f'
+      Fertilizer: '%s'
+      Ndirect:    '%2.1f'
+      NH4:        '%v'
 seperatorrune: 32
