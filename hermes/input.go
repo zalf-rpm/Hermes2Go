@@ -66,7 +66,7 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 					g.GRLO = int(ValAsInt(tokens[4], "none", tokens[4]))
 					g.GRW = float64(g.GRLO+g.GRHI) / 2
 					g.GW = float64(g.GRLO+g.GRHI) / 2
-					g.AMPL = g.GRLO - g.GRHI
+					g.AMPL = float64(g.GRLO-g.GRHI) / 2
 				} else if g.GROUNDWATERFROM == GWTimeSeries {
 					err := ReadGroundWaterTimeSeries(g, hPath, groundWaterID)
 					if err != nil {
@@ -136,7 +136,7 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 					g.GRLO = currentSoil.GRLO
 					g.GRW = currentSoil.GRW
 					g.GW = currentSoil.GW
-					g.AMPL = currentSoil.AMPL
+					g.AMPL = 0 // not used
 				}
 
 				g.DRAIDEP = currentSoil.DRAIDEP

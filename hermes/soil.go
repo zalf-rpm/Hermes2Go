@@ -40,7 +40,6 @@ type SoilFileData struct {
 	GRLO                       int
 	GRW                        float64
 	GW                         float64
-	AMPL                       int // amplitude by layer
 	DRAIDEP                    int
 	DRAIFAK                    float64
 	UKT                        [11]int
@@ -73,7 +72,6 @@ func NewSoilFileData(soilID string) SoilFileData {
 		GRLO:                       0,
 		GRW:                        0,
 		GW:                         0,
-		AMPL:                       0,
 		DRAIDEP:                    0,
 		DRAIFAK:                    0,
 		UKT:                        [11]int{},
@@ -121,7 +119,6 @@ func LoadSoil(withGroundwater bool, LOGID string, hPath *HFilePath, soilID strin
 				soildata.GRLO = gw
 				soildata.GRW = float64(gw)
 				soildata.GW = float64(gw)
-				soildata.AMPL = 0
 			}
 			soildata.DRAIDEP = int(ValAsInt(bodenLine[62:64], "none", bodenLine))
 			soildata.DRAIFAK = ValAsFloat(bodenLine[67:70], "none", bodenLine)
@@ -217,7 +214,6 @@ func LoadSoilCSV(withGroundwater bool, LOGID string, hPath *HFilePath, soilID st
 				soildata.GRLO = gw
 				soildata.GRW = float64(gw)
 				soildata.GW = float64(gw)
-				soildata.AMPL = 0
 			}
 			soildata.DRAIDEP = int(ValAsInt(tokens[header[drainagedepth]], "none", bodenLine))
 			soildata.DRAIFAK = ValAsFloat(tokens[header[drainagepercetage]], "none", bodenLine)
