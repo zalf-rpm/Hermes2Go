@@ -40,7 +40,6 @@ type SoilFileData struct {
 	GRLO                       int
 	GRW                        float64
 	GW                         float64
-	AMPL                       int // amplitude by layer
 	DRAIDEP                    int
 	DRAIFAK                    float64
 	UKT                        [11]int
@@ -73,7 +72,6 @@ func NewSoilFileData(soilID string) SoilFileData {
 		GRLO:                       0,
 		GRW:                        0,
 		GW:                         0,
-		AMPL:                       0,
 		DRAIDEP:                    0,
 		DRAIFAK:                    0,
 		UKT:                        [11]int{},
@@ -121,7 +119,6 @@ func LoadSoil(withGroundwater bool, LOGID string, hPath *HFilePath, soilID strin
 				soildata.GRLO = gw
 				soildata.GRW = float64(gw)
 				soildata.GW = float64(gw)
-				soildata.AMPL = 0
 			}
 			soildata.DRAIDEP = int(ValAsInt(bodenLine[62:64], "none", bodenLine))
 			soildata.DRAIFAK = ValAsFloat(bodenLine[67:70], "none", bodenLine)
@@ -217,12 +214,17 @@ func LoadSoilCSV(withGroundwater bool, LOGID string, hPath *HFilePath, soilID st
 				soildata.GRLO = gw
 				soildata.GRW = float64(gw)
 				soildata.GW = float64(gw)
-				soildata.AMPL = 0
 			}
 			soildata.DRAIDEP = int(ValAsInt(tokens[header[drainagedepth]], "none", bodenLine))
 			soildata.DRAIFAK = ValAsFloat(tokens[header[drainagepercetage]], "none", bodenLine)
 			soildata.UKT[0] = 0
 			for i := 0; i < soildata.AZHO; i++ {
+				if i > 0 {
+					subSoilId := tokens[header[sid]]
+					if subSoilId != soilID {
+						return SoilFileData{}, fmt.Errorf("sub soil not found for SoilID '%s' on horizon %d", soilID, i+1)
+					}
+				}
 				soildata.BART[i] = tokens[header[texture]]
 				textLenght := len(soildata.BART[i])
 				if textLenght > 3 || textLenght == 0 {

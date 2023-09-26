@@ -91,7 +91,7 @@ type GlobalVarsMain struct {
 	GRHI                 int
 	GRW                  float64
 	GW                   float64
-	AMPL                 int
+	AMPL                 float64
 	GWTimeSeriesValues   map[int]float64
 	GWTimestamps         []int
 	GWPhase              int

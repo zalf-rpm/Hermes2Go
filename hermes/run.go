@@ -339,7 +339,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 
 			oldGrW := g.GRW
 			if g.GROUNDWATERFROM == Polygonfile {
-				g.GRW = g.GW - (float64(g.AMPL) * math.Sin((g.TAG.Num+float64(g.GWPhase))*math.Pi/180))
+				g.GRW = g.GW - (g.AMPL * math.Sin((g.TAG.Num+float64(g.GWPhase))*math.Pi/180))
 			} else if g.GROUNDWATERFROM == GWTimeSeries {
 				var err error
 				g.GRW, err = GetGroundWaterLevel(&g, ZEIT)
