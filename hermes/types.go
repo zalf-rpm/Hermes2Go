@@ -201,9 +201,10 @@ type GlobalVarsMain struct {
 	LAT                     float64
 	MINTMP                  float64
 	RSTOM                   float64
-	LAI                     float64 // Leaf area index
-	WURZ                    int     // root in max soil layer
-	POTROOTINGDEPTH         float64 // potential rooting depth (real rooting depth will be limited by soil parameter WURMAX)
+	LAI                     float64     // Leaf area index
+	WURZ                    int         // root in max soil layer
+	WUANT                   [20]float64 // share of total root mass in layer I (for residue distribution)
+	POTROOTINGDEPTH         float64     // potential rooting depth (real rooting depth will be limited by soil parameter WURMAX)
 	VERDUNST                float64
 	FLUSS0                  float64
 	WUDICH                  [21]float64 // root density in soil layer Z
