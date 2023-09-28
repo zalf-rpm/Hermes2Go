@@ -2157,7 +2157,6 @@ func (c *OutputConfig) WriteLine(file *Fout) error {
 				valAtIdx = valAtIdx * col.Modifier
 			}
 			outLine.Add(col.FormatStr, valAtIdx)
-
 		default:
 			fmt.Println("unknown")
 		}

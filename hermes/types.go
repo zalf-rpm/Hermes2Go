@@ -265,10 +265,10 @@ type GlobalVarsMain struct {
 	DRYSWELL   [10]float64
 	LAIFKT     [10]float64
 	WGMAX      [10]float64
-	OBMAS      float64
+	OBMAS      float64 // biomass of crop above ground (kg/ha)
 	ASPOO      float64 // Assimilation pool in crops
 	WUMAS      float64
-	PESUM      float64
+	PESUM      float64 // sum of N-uptake of crop (aufgenommene N-Menge der Pflanze) (kg N/ha)
 	LURED      float64
 	DOPP       string // obsolete? Kalender date of double ridge stage / Doppelringstadium
 	P1, P2     int
@@ -276,8 +276,8 @@ type GlobalVarsMain struct {
 	AEHR       string
 	BLUEH      string
 	REIFE      string
-	GEHMAX     float64
-	GEHMIN     float64
+	GEHMAX     float64 // maximal possible N-content in biomass (driver for N-uptake) (kg N/kg Biomass)
+	GEHMIN     float64 // critical N-content in biomass (start of N-stress) (kg N/kg Biomass)
 	DUNGBED    float64
 	DEFDAT     int
 	ENDSTADIUM DevelopmentStage

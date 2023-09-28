@@ -821,10 +821,12 @@ func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 func resid(g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath *HFilePath) (NDI, NSA, NLA, NUSA, NULA, NRESID float64) {
 	// ------------------------------- Mineralisationspotentiale aus Vorfruchtresiduen ---------------------------------------
 	// Input:
-	// Dauerkult$         = D = Dauerkultur
-	// JN(AKF)            = Anteil der exportierten Pflanzenrückstände (Fraktion), 0= Verbleib auf dem Feld
-	// PESUM              = aufgenommene N-Menge der Pflanze (kg N/ha)
-	// LEGUM(AKF)         = fixierte N-Menge aus Leguminosen (kg N/ha)
+	// Dauerkult$         = D = Dauerkultur / Permanent crop
+	// JN(AKF)            = Anteil der exportierten Pflanzenrückstände(Fraktion) / Fraction of crop residues that are removed from the field
+	// 						0 = Verbleib auf dem Feld / all residues remain on the field
+	//                      1 = vollständige Entfernung / all above ground residues are removed from the field
+	// 						2 = komplette Pflanze beibt auf dem Feld / complete plant remains on the field, no yield is harvested
+	// PESUM              = aufgenommene N-Menge der Pflanze (kg N/ha) / N amount taken up by the crop (kg N/ha)
 
 	CRONAM := hPath.cropn
 	_, scanner, _ := Open(&FileDescriptior{FilePath: CRONAM, UseFilePool: true})
@@ -850,7 +852,10 @@ func resid(g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath 
 	}
 	var DGM, DGU float64
 	//var  CGM,CGU float64 // C Pool in Harvest residues, unused
+	// DGM = N amount from crop residues (kg N/ha)
+	// DGU = N amount from roots (kg N/ha)
 	if g.JN[g.AKF.Index] == 0 {
+		// all residues remain on the field
 		if g.DAUERKULT == 'D' {
 			DGM = (g.OBMAS - 820) * g.GEHOB
 			// CGM = (g.OBMAS - 820) * 0.48
@@ -863,6 +868,7 @@ func resid(g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath 
 			//CGU = g.WUMAS * 0.48
 		}
 	} else if g.JN[g.AKF.Index] == 1 {
+		// all residues are removed from the field
 		if g.DAUERKULT == 'D' {
 			if g.FRUCHT[g.AKF.Index] == AA {
 				DGM = 0
@@ -880,11 +886,13 @@ func resid(g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath 
 			//CGU = g.WUMAS * 0.48
 		}
 	} else if g.JN[g.AKF.Index] == 2 {
+		// complete plant remains on the field, no yield is harvested
 		DGU = g.PESUM * NWURA
 		DGM = g.PESUM - DGU
 		//CGM = g.OBMAS * 0.48
 		//CGU = g.WUMAS * 0.48
 	} else {
+		// JN is a fraction between 0 and 1 of residues that are removed from the field
 		if g.DAUERKULT == 'D' {
 			DGU = g.PESUM * NWURA * 0.74
 			DGM = g.PESUM - (g.OBMAS * g.JN[g.AKF.Index] * g.GEHOB)
@@ -904,17 +912,14 @@ func resid(g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath 
 	if DGU < 0 {
 		DGU = 0
 	}
-	NSA = DGM * NFAST
-	NUSA = DGU * NFAST
-	NLA = DGM * (1 - NFAST)
-	NULA = DGU * (1 - NFAST)
+	NSA = DGM * NFAST        // N amount from above ground crop residues that decompose fast(kg N/ha)
+	NUSA = DGU * NFAST       // N amount from roots that decompose fast(kg N/ha)
+	NLA = DGM * (1 - NFAST)  // N amount from above ground crop residues that decompose slow(kg N/ha)
+	NULA = DGU * (1 - NFAST) // N amount from roots that decompose slow(kg N/ha)
 	NDI = 0.0
 	// CSA := CGM * NFAST
 	// CLA := CGM * (1 - NFAST)
-	NRESID = DGM - (g.PESUM * NWURA)
-	if NRESID < 0 {
-		NRESID = 0
-	}
+	NRESID = DGM // N residue from above ground crops(kg N/ha)
 	return NDI, NSA, NLA, NUSA, NULA, NRESID
 }
 

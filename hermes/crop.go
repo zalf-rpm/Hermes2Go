@@ -294,9 +294,9 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		g.FKC = l.kcini + (l.kc[g.INTWICK.Index]-l.kcini)*g.SUM[0]/g.TSUM[0]
 	}
 	var DTGESN float64
-	var WUMALT float64
-	var OBALT float64
-	var GEHALT float64
+	var WUMALT float64 // previous root mass
+	var OBALT float64  // previous above ground mass
+	var GEHALT float64 // N content
 	if g.SUM[0] >= g.TSUM[0] {
 		if g.SUM[g.INTWICK.Index] >= g.TSUM[g.INTWICK.Index] {
 			if int(g.INTWICK.Num) < l.NRENTW {
@@ -692,8 +692,8 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 	if DTGESN < 0 {
 		DTGESN = 0.0
 	}
-	var WUMM float64
-	if g.WUMAS < WUMALT {
+	var WUMM float64      // N from dead roots (N kg/ha)
+	if g.WUMAS < WUMALT { // if root mass decreases
 		WUMM = (WUMALT - g.WUMAS) * g.WUGEH
 	} else {
 		WUMM = 0
