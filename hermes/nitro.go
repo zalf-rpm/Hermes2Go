@@ -865,10 +865,7 @@ func resid(g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath 
 	NLA = DGM * (1 - NFAST)
 	NULA = DGU * (1 - NFAST)
 	NDI = 0.0
-	NRESID = DGM - (g.PESUM * NWURA)
-	if NRESID < 0 {
-		NRESID = 0
-	}
+	NRESID = DGM
 	return NDI, NSA, NLA, NUSA, NULA, NRESID
 }
 
