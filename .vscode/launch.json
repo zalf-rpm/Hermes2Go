@@ -137,5 +137,11 @@
                 "-withBD"
             ]
         },
+        {
+            "name": "Attach to R process",
+            "type": "R-Debugger",
+            "request": "attach",
+
+        },
     ]
 }
