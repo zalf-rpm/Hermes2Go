@@ -24,11 +24,13 @@ generate_batch_file <- function(param_values, sit_names, situation_parameters, w
   file_conn <- file(batch_file)
 
   if (!is.null(weather_path)) {
-    weather <- paste("WeatherRootFolder", "=", weather_path)
+    weather <- paste("WeatherRootFolder", weather_path, sep = "=")
   }
-  if (!is.null(result_folder)) {
-    result_folder <- paste("resultfolder", "=", result_folder)
+  # if result_folder is null, use the current folder
+  if (is.null(result_folder)) {
+    result_folder <- ""
   }
+
 
   sim_lines <- situation_parameters_to_line(sit_names, situation_parameters)
   param_lines <- params_to_line(param_values)
@@ -43,9 +45,14 @@ generate_batch_file <- function(param_values, sit_names, situation_parameters, w
 
   # combine each simulation line with each parameter line
   ip <- 0
-  for (sim in sim_lines) {
-    sim_name <- names(sim)
-    sim_result_folder <- file.path(result_folder, sim_name)
+  for (id in seq_along(sim_lines)) {
+
+    # get key of sim
+    sim_name <- names(sim_lines)[id]
+    # get value of sim
+    sim <- sim_lines[[id]]
+
+    sim_result_folder <- paste(result_folder, sim_name, sep = "/")
     sim_result_folder <- paste("resultfolder", sim_result_folder, sep = "=")
 
     for (param in param_lines) {
@@ -113,19 +120,25 @@ params_to_line <- function(param_values) {
     return(character(0))
   }
   parameter_names <- names(param_values)
-  num_rows <- dim(param_values)[1]
-  lines <- vector("character", num_rows)
-  for (ip in 1:num_rows) {
-    lines[ip] <- ""
-    param_values_tmp <- param_values[ip, , 1]
-    for (i in seq_along(param_values_tmp)) {
-      # convert parameter name to Hermes2Go name
-      translated_name <- predefinded_agmip_params(parameter_names[i])
-      hermes_arg <- paste(translated_name, "=", as.character(param_values_tmp[i]))
-      lines[ip] <- paste(lines[ip], hermes_arg, sep = " ")
+
+  line <- ""
+  for (ip in seq_along(param_values)) {
+    param_name <- parameter_names[ip]
+    param_value <- param_values[ip]
+    # check if parameter name is not null
+    if (is.null(param_name)) {
+      stop("Parameter name must be provided")
+    }
+    # convert parameter name to Hermes2Go name
+    translated_name <- predefinded_agmip_params(param_name)
+    hermes_arg <- paste(translated_name, as.character(param_value), sep = "=")
+    if (line == "") {
+      line <- hermes_arg
+    } else {
+      line <- paste(line, hermes_arg, sep = " ")
     }
   }
-  return(lines)
+  return(line)
 }
 
 # mapping between Apgmip and Hermes2Go parameters
