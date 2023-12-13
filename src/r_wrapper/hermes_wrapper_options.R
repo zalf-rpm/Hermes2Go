@@ -18,7 +18,7 @@
 #' @param weather_path Path where to find the weather files
 #' (default: NULL)
 #'
-#' @param situations_mapping Path where to find the situations mapping file
+#' @param situation_parameters List containing the mapping between the situations names as data.frame
 #'
 #' @param out_path Path where to store the output files
 #' (default: NULL)
@@ -30,12 +30,10 @@
 #' @return A list containing hermes2go wrapper options
 #'
 #' @examples
-#'
 #' @export
 #'
 hermes2go_wrapper_options <- function(hermes2go_path,
                                       hermes2go_projects, ...) {
-
   # Template list
   options <- list()
   options$hermes2go_path <- character(0) # path
@@ -44,14 +42,16 @@ hermes2go_wrapper_options <- function(hermes2go_path,
   options$time_display <- FALSE # boolean
   options$warning_display <- TRUE # boolean
   options$weather_path <- character(0) # path
-  options$situation_parameters <- list() # parameters for each situation
+  options$situation_parameters <- NULL # parameters for each situation (data.frame)
   options$out_path <- character(0) # path
   options$out_variable_names <- character(0) # vector of variable names
 
 
   # For getting the template
   # running hermes2go_wrapper_options
-  if (! nargs()) return(options)
+  if (!nargs()) {
+    return(options)
+  }
 
   # For fixing mandatory fields values
   options$hermes2go_path <- hermes2go_path
@@ -70,6 +70,80 @@ hermes2go_wrapper_options <- function(hermes2go_path,
   }
 
   return(options)
+}
+
+situation_params_from_excel <- function(excel_file) {
+  # read excel file
+  situation_parameters <- readxl::read_excel(excel_file)
+
+  # check if the excel file contains the right columns
+  if (!all(c("SituationName", "project", "plotNr") %in% colnames(situation_parameters))) {
+    stop("The excel file should contain the following column: SituationName, project, plotNr")
+  }
+
+  # other columns can be overwrites of hermes Config struct parameters (see hermes/config.go)
+  # check for hermes Config struct parameters
+  valid_config_overwrites <- c(
+    "Dateformat",
+    "DivideCentury",
+    "GroundWaterFrom",
+    "ResultFileFormat",
+    "ResultFileExt",
+    "OutputIntervall",
+    "ManagementEvents",
+    "InitSelection",
+    "SoilFile",
+    "SoilFileExtension",
+    "CropFileFormat",
+    "MeasurementFileFormat",
+    "PolygonGridFileName",
+    "WeatherFile",
+    "WeatherFileFormat",
+    "WeatherNoneValue",
+    "WeatherNumHeader",
+    "CorrectionPrecipitation",
+    "AnnualAverageTemperature",
+    "ETpot",
+    "CO2method",
+    "CO2concentration",
+    "CO2StomataInfluence",
+    "NDeposition",
+    "StartYear",
+    "EndDate",
+    "AnnualOutputDate",
+    "VirtualDateFertilizerPrediction",
+    "Latitude",
+    "Altitude",
+    "CoastDistance",
+    "PTF",
+    "LeachingDepth",
+    "OrganicMatterMineralProportion",
+    "KcFactorBareSoil",
+    "PotMineralisation",
+    "GroundWaterPhase",
+    "Fertilization",
+    "AutoSowingHarvest",
+    "AutoFertilization",
+    "AutoIrrigation",
+    "AutoHarvest"
+  )
+
+  # other valid columns
+  valid_default_columns <- c("SituationName", "project", "plotNr", "poligonID", "parameter", "gwId", "soilId", "fcode", "fileExtension")
+  # project - folder name of the project
+  # soilId - soil id
+  # fcode - weather file code
+  # fileExtension - file extention to automan, crop etc
+  # plotNr - polyg in polygon file
+  # poligonID - id extention to the plotNr in output file name
+  # parameter - parameter folder overwrite (path)
+  # gwId - groundwater id (if running with measured groundwater file)
+
+  # remove columns that are not valid
+  situation_parameters <- situation_parameters[, colnames(situation_parameters) %in% c(valid_config_overwrites, valid_default_columns)]
+
+  # return the situation parameters
+  return(situation_parameters)
 }
 
 #' @title funtion to check model options

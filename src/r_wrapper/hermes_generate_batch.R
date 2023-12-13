@@ -31,7 +31,6 @@ generate_batch_file <- function(param_values, sit_names, situation_parameters, w
     result_folder <- ""
   }
 
-
   sim_lines <- situation_parameters_to_line(sit_names, situation_parameters)
   param_lines <- params_to_line(param_values)
 
