@@ -73,8 +73,19 @@ hermes2go_wrapper_options <- function(hermes2go_path,
 }
 
 situation_params_from_excel <- function(excel_file) {
+  # check if the excel file exists
+  if (!file.exists(excel_file)) {
+    stop("The excel file doesn't exist !")
+  }
+  # check if library is installed
+  library(readxl)
   # read excel file
   situation_parameters <- readxl::read_excel(excel_file)
+
+  # clean the situation parameters from execl overhead
+  situation_parameters <- situation_parameters[!is.na(situation_parameters$SituationName), ]
+  # remove class
+  situation_parameters <- as.data.frame(situation_parameters)
 
   # check if the excel file contains the right columns
   if (!all(c("SituationName", "project", "plotNr") %in% colnames(situation_parameters))) {
