@@ -1,6 +1,3 @@
-source("hermes_generate_batch.R")
-source("hermes_wrapper_options.R")
-
 #' @title Running Hermes2Go from txt input files stored in one directory
 #' per `situation`, simulated results are returned in a list
 #'
@@ -41,6 +38,9 @@ hermes2go_wrapper <- function(param_values,
                               sit_names = NULL,
                               var_names = NULL,
                               ...) {
+  source("hermes_generate_batch.R")
+  source("hermes_wrapper_options.R")
+
   # check if all the required options are provided
   if (!check_model_options(model_options)) {
     stop("Invalid model options")
@@ -65,13 +65,6 @@ hermes2go_wrapper <- function(param_values,
   res$error <- FALSE
   res$sim_list <- list()
 
-  # TODO: need to figuere out how to handle different parameter values for different situations
-  # if (base::is.array(param_values) &&
-  #     !all(sapply(1:dim(param_values)[3],function(x) all(param_values[,,x]==param_values[,,1])))) {
-  #     stop("cannot handle different parameters values for the different simulated situations for the moment.")
-  # }
-  # TBD : check if hermes can hande different parameter vectors for different situations
-  # guess that should be possible by batch mode, handling different config files for each situation
   # TODO: need to implement crop parameter replacement in hermes2go
 
   # track execution time
