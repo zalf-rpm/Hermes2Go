@@ -10,8 +10,8 @@ import (
 type CropSharedVars struct {
 	DGORG   [10]float64
 	GORG    [10]float64
-	FV      float64
-	FP      float64
+	FV      float64 // Vernalisation factor to multiply SUM(INTWICK)
+	FP      float64 // Daylength factor to multiply SUM(INTWICK)
 	NRENTW  int
 	Progip1 string
 	temptyp int64

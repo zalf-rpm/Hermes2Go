@@ -145,9 +145,9 @@ type GlobalVarsMain struct {
 	TSOIL              [2][22]float64 //(0:1,0:21)
 	TMIN               [367]float64
 	TMAX               [367]float64
-	TBASE              float64
+	TBASE              float64 // annual base temperature (°C) for current location (used to initialize soil temperature)
 	ETNULL             [367]float64
-	TEMP               [367]float64
+	TEMP               [367]float64 // average temperature (°C) of DOY
 	//TEMPBO1, TEMPBO2 [367]float64 // not initialized, obsolete?
 	RH                      [367]float64 // relative humidity
 	VERD                    [367]float64 // Verdunstung, Evaporation, required for ETMETH = 1
@@ -254,8 +254,8 @@ type GlobalVarsMain struct {
 	WDORG      [10]float64
 	MAIRT      [10]float64
 	TSUM       [10]float64 //Temperature sum for development stage I (°C days)
-	BAS        [10]float64
-	VSCHWELL   [10]float64
+	BAS        [10]float64 //Base temperature for development stage I (°C)
+	VSCHWELL   [10]float64 // vernalisation threshold (in days)
 	DAYL       [10]float64
 	DLBAS      [10]float64
 	DRYSWELL   [10]float64
