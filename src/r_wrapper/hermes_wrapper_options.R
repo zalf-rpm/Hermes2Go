@@ -23,10 +23,6 @@
 #' @param out_path Path where to store the output files
 #' (default: NULL)
 #'
-#' @param out_variable_names Vector of variable names to be returned.
-#' If not provided, all variables will be returned.
-#' (default: NULL)
-#'
 #' @return A list containing hermes2go wrapper options
 #'
 #' @examples
@@ -44,8 +40,6 @@ hermes2go_wrapper_options <- function(hermes2go_path,
   options$weather_path <- character(0) # path
   options$situation_parameters <- NULL # parameters for each situation (data.frame)
   options$out_path <- character(0) # path
-  options$out_variable_names <- character(0) # vector of variable names
-
 
   # For getting the template
   # running hermes2go_wrapper_options
@@ -175,7 +169,7 @@ check_model_options <- function(model_options) {
       valid <- FALSE
     } else {
       # check hermes version executable
-      cmd <- paste(model_options$hermes2go_path, "--version")
+      cmd <- paste(model_options$hermes2go_path, "-version")
       val <- system(cmd, wait = TRUE, intern = TRUE)
       if (!is.null(attr(val, "status"))) {
         print(paste(model_options$hermes2go_path, "is not executable or is not a hermes2go executable !"))
