@@ -1,0 +1,100 @@
+#***** Formats *****
+
+# DateDEshort ddmmyy <- default format(old)
+# DateDElong ddmmyyyy
+# DateENshort mmddyy
+# DateENlong mmddyyyy
+# short format "ddmmyy", e.g. 24.01.95 -> "ddmmyy" requires input as 240195, you need to set the century devision year "DivideCentury", e.g. 1950 -> 50
+# long format "ddmmyyyy", e.g. 24.01.2066  requires input as 24012066
+Dateformat: DateENlong
+# not used on long date format - Year to divide 20. and 21. Century (YY)
+DivideCentury: 60
+# ground water is read from either 'soilfile' or 'polygonfile
+GroundWaterFrom: soilfile
+#0 = hermes # 1 = csv
+ResultFileFormat: 0
+# (optional) result file extensions (default RES, csv)
+ResultFileExt: "csv"
+# Output intervall (days) (0=no time serie)
+OutputIntervall: 1
+#From POLY_XXX.txt, Uses: 1= all (if the word ALLE is written in the file),
+# 2= Field_ID, 3= Polyg, 4= SoilID
+InitSelection: 3
+# soil profile file name (without projectname)
+SoilFile: soil
+#  soil file extension (txt = hermes soil, csv = csv table format)
+SoilFileExtension: 'csv'
+#  crop file format (txt = hermes crop, csv = csv table format)
+CropFileFormat: 'txt'
+# Name of Polygon resp. grid file
+PolygonGridFileName: poly
+
+#***** Weather *****
+# weather file name template/pattern, %s will be replaced with fcode
+WeatherFile: '%s109_120.csv'
+# Weather file format (0=separator(, ; \t), 1 year per file ) (1=separator(, ; \t), multiple years per file)
+WeatherFileFormat: 1
+# Weather scenario folder
+WeatherFolder: "historical"
+# weather root directory without scenario folder or filename
+WeatherRootFolder: "./weather/"
+# weather none value, default -99.9
+WeatherNoneValue: 999.9
+# number of header lines (min = 1, with column names)
+WeatherNumHeader: 2
+# correction precipitation (0= no, 1 = yes, requires <project>/Weather/preco.txt)
+CorrectionPrecipitation: 0
+# annual average temperature (Degree Celsius)
+AnnualAverageTemperature: 8.7
+
+#***** Atmosphere *****
+# ETpot method(1=Haude, 2=Turc-Wendling, 3=Penman-Monteith, 4=ET Gras Priestley Taylor, 5=from file)
+ETpot: 3
+#CO2method(1=Nonhebel,2=Hoffmann,3=Mitchell)
+CO2method: 2
+# CO2 concentration (ppm)
+CO2concentration: 360
+# CO2 Stomata influence (1=on/0= off)
+CO2StomataInfluence: 1
+# N-Deposition (annual kg/ha)
+NDeposition: 20
+
+#***** Time *****
+# Starting year of simulation (YYYY)
+StartYear: 1980
+# End date of simulation (DDMMYYYY)
+EndDate: "12312010"
+# Date for annual output
+AnnualOutputDate: "1031"
+# virtual date for fertilizer prediction; '------' for no prediction
+VirtualDateFertilizerPrediction: '--------'
+
+#***** Geoography *****
+# Latitude
+Latitude: 52.52
+# Altitude - height (can be overwritten weather file)
+Altitude: 0
+# Distance to coast (km)
+CoastDistance: 300
+
+#***** Soil *****
+# Depth for leaching/seepage calculation (dm)
+LeachingDepth: 15
+# Mineralisable proportion of organic matter
+OrganicMatterMineralProportion: 0.13
+# PTF pedo transfer function (0 = none (from file), 1 = Toth 2015, 2 = Batjes for pF 2.5, 3 = Batjes for pF 1.7, 4 = Rawls et al. 2003 for pF 2.5 )
+PTF: 0
+# kc factor for bare soil
+KcFactorBareSoil: 0.4
+
+#***** Management *****
+# fertilization scenario (fertilization in %)
+Fertilization: 100
+# automatic sowing/harvest (0=no, 1 = yes)
+AutoSowingHarvest: 0
+# automatic fertilization (0=no, 1=on demand)
+AutoFertilization: 0
+# automatic irrigation (0=no, 1= on demand)
+AutoIrrigation: 1
+# automatic harvest (0=no, 1= on demand)
+AutoHarvest: 0

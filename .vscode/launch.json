@@ -126,6 +126,20 @@
             ]
         },
         {
+            "name": "Launch Hermes calibration test",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "src/hermes2go",
+            "cwd": "examples/",
+            "args": [
+                "-module", "batch",
+                "-concurrent", "1",
+                "-logoutput",
+                "-batch", "calibration_test.txt" ,
+            ]
+        },
+        {
             "name": "Convert Soil File",
             "type": "go",
             "request": "launch",
