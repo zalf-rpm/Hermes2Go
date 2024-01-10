@@ -38,8 +38,8 @@ hermes2go_wrapper <- function(param_values,
                               sit_names = NULL,
                               var_names = NULL,
                               ...) {
-  source("hermes_generate_batch.R")
-  source("hermes_wrapper_options.R")
+  # source("hermes_generate_batch.R")
+  # source("hermes_wrapper_options.R")
 
   # check if all the required options are provided
   if (!check_model_options(model_options)) {
@@ -138,7 +138,7 @@ hermes2go_wrapper <- function(param_values,
 #' @param sit_names Vector of situations names for which results must be returned.
 #' a situation should match a directory name in result_dir
 #' @param out_variable_names Vector of variable names to be returned.
-#' 
+#'
 #' @return A list containing simulated values (`sim_list`: a vector of list (one
 #' element per values of parameters) containing usms outputs data.frames) and an
 #' error code (`error`) indicating if at least one simulation ended with an
@@ -154,12 +154,21 @@ read_hermes2go_output <- function(result_dir, sit_names, out_variable_names) {
   sim_list <- list()
   for (sit in sit_names) {
     sim_list[[sit]] <- list()
-    for (var in out_variable_names) {
-      file_name <- paste(sit, var, sep = "_")
-      file_name <- paste(file_name, "csv", sep = ".")
-      file_path <- file.path(result_dir, file_name)
+    # filepath = result_dir / sit / C<polgionId><polyg>.csv
+    sit_dir <- file.path(result_dir, sit)
+    out_files <- list.files(sit_dir, recursive = FALSE)
+
+    for (var in out_files) {
+      # remove leading C
+      var_id <- substr(var, 2, nchar(var))
+      file_path <- file.path(sit_dir, var)
       if (file.exists(file_path)) {
-        sim_list[[sit]][[var]] <- read.csv(file_path, sep = ";")
+        file_content <- read.csv(file_path, sep = ",")
+        # filter file_content for out_variable_names
+        if (!is.null(out_variable_names)) {
+          file_content <- file_content[, out_variable_names]
+        }
+        sim_list[[sit]][[var_id]] <- file_content
       }
     }
   }
