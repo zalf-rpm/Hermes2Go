@@ -4,5 +4,6 @@ if (!requireNamespace("testthat", quietly = TRUE)) {
 }
 library(testthat)
 
-test_file("src/r_wrapper/testing/hermes_generate_batch_test.R")
-test_file("src/r_wrapper/testing/hermes_wrapper_options_test.R")
+#test_file("src/r_wrapper/testing/hermes_generate_batch_test.R")
+#test_file("src/r_wrapper/testing/hermes_wrapper_options_test.R")
+test_file("src/r_wrapper/testing/hermes_wrapper_test.R")
