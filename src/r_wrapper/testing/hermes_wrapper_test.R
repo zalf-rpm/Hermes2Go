@@ -7,9 +7,8 @@ test_that("hermes wrapper runs with calibration example", {
   source(file.path("..", "hermes_generate_batch.R"))
   source(file.path("..", "hermes_wrapper.R"))
 
-  # Define test inputs
+  # test inputs
   excel_file <- file.path("data", "situation_parameter.xlsx")
-  print(excel_file)
   situation_parameters <- situation_params_from_excel(excel_file)
 
   # path to exe
@@ -19,11 +18,13 @@ test_that("hermes wrapper runs with calibration example", {
   if (!file.exists(hermes2go_path)) {
     stop("The exe file doesn't exist !")
   }
-
+  # path to projects
   hermes2go_projects <- file.path("../../..", "examples")
   hermes2go_projects <- normalizePath(hermes2go_projects)
+  # path to weather data
   weather_path <- file.path("../../..", "examples", "weather")
   weather_path <- normalizePath(weather_path)
+  # path to output
   out_path <- file.path("../../..", "examples", "calibration_output")
 
   # check if the output folder exists
@@ -32,8 +33,10 @@ test_that("hermes wrapper runs with calibration example", {
   }
   out_path <- normalizePath(out_path)
 
+  # output variable filter
   var_names <- c("Crop", "Year", "Yield", "MaxLAI", "SowDOY", "sum_ET", "sum_irri", "AWC_30_sow", "AWC_30_harv")
 
+  # model options generation
   model_options <- hermes2go_wrapper_options(hermes2go_path,
                                              hermes2go_projects,
                                              concurrency = 2,
@@ -46,6 +49,7 @@ test_that("hermes wrapper runs with calibration example", {
 
   # situation vector
   sit_names <- c("sit2", "sit3", "sit4")
+  # calibration parameters
   param_values <- list(
     "CropFile" = "PARAM_0.SOY",
     "TSum1" = 73,
@@ -54,48 +58,57 @@ test_that("hermes wrapper runs with calibration example", {
     "TSum4" = 330
   )
 
-
   # Call the function under test
   result <- hermes2go_wrapper(param_values, model_options, sit_names, var_names)
+
   expected_result <- list(
     "error" = FALSE,
     "sim_list" = list(
       "sit2" = list(
-        "Crop" = "SOY",
-        "Year" = 2001,
-        "Yield" = 3.5,
-        "MaxLAI" = 3.5,
-        "SowDOY" = 120,
-        "sum_ET" = 0,
-        "sum_irri" = 0,
-        "AWC_30_sow" = 0,
-        "AWC_30_harv" = 0
+        "sit210002" = data.frame(
+          "Crop" = "SOY",
+          "Year" = 2002,
+          "Yield" = 3467,
+          "MaxLAI" = 8.6,
+          "SowDOY" = 135,
+          "sum_ET" = 43,
+          "sum_irri" = 0,
+          "AWC_30_sow" = 115,
+          "AWC_30_harv" = 120
+        )
       ),
       "sit3" = list(
-        "Crop" = "SOY",
-        "Year" = 2002,
-        "Yield" = 3.5,
-        "MaxLAI" = 3.5,
-        "SowDOY" = 120,
-        "sum_ET" = 0,
-        "sum_irri" = 0,
-        "AWC_30_sow" = 0,
-        "AWC_30_harv" = 0
+        "sit310003" = data.frame(
+          "Crop" = "SM ",
+          "Year" = 2003,
+          "Yield" = 9974,
+          "MaxLAI" = 2.3,
+          "SowDOY" = 135,
+          "sum_ET" = 49,
+          "sum_irri" = 0,
+          "AWC_30_sow" = 89,
+          "AWC_30_harv" = 49
+        )
       ),
       "sit4" = list(
-        "Crop" = "SOY",
-        "Year" = 2003,
-        "Yield" = 3.5,
-        "MaxLAI" = 3.5,
-        "SowDOY" = 120,
-        "sum_ET" = 0,
-        "sum_irri" = 0,
-        "AWC_30_sow" = 0,
-        "AWC_30_harv" = 0
+        "sit410004" = data.frame(
+          "Crop" = "SOY",
+          "Year" = 2003,
+          "Yield" = 3467,
+          "MaxLAI" = 8.6,
+          "SowDOY" = 135,
+          "sum_ET" = 43,
+          "sum_irri" = 0,
+          "AWC_30_sow" = 115,
+          "AWC_30_harv" = 120
+        )
       )
+
     )
   )
-  print(result)
+  attr(expected_result$sim_list, "class") <- "cropr_simulation"
+  expected_result$result_folder <- file.path(out_path, "hermes2go_results")
+
   expect_equal(result, expected_result)
 
 })

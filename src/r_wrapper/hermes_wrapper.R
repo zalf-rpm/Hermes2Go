@@ -123,7 +123,6 @@ hermes2go_wrapper <- function(param_values,
     print(duration)
   }
 
-
   if (length(res$sim_list) > 0) {
     # Add the attribute cropr_simulation for using CroPlotR package
     attr(res$sim_list, "class") <- "cropr_simulation"
