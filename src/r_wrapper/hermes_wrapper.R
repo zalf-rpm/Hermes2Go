@@ -112,7 +112,7 @@ hermes2go_wrapper <- function(param_values,
     results_tmp <- read_hermes2go_output(
       result_folder,
       sit_names,
-      model_options$out_variable_names
+      var_names
     )
     res$sim_list <- results_tmp
   }
@@ -153,12 +153,14 @@ read_hermes2go_output <- function(result_dir, sit_names, out_variable_names) {
   }
 
   # read the output files
+  print(out_variable_names)
   sim_list <- list()
   for (sit in sit_names) {
     sim_list[[sit]] <- list()
     # filepath = result_dir / sit / C<polgionId><polyg>.csv
     sit_dir <- file.path(result_dir, sit)
-    out_files <- list.files(sit_dir, recursive = FALSE)
+    # list crop files (C*.csv)
+    out_files <- list.files(sit_dir, pattern = "^C.*\\.csv$")
 
     for (var in out_files) {
       # remove leading C and trailing .csv
