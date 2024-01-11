@@ -38,7 +38,8 @@ hermes2go_wrapper_options <- function(hermes2go_path,
   options$time_display <- FALSE # boolean
   options$warning_display <- TRUE # boolean
   options$weather_path <- character(0) # path
-  options$situation_parameters <- NULL # parameters for each situation (data.frame)
+  # parameters for each situation (data.frame) - see situation_params_from_excel
+  options$situation_parameters <- list()
   options$out_path <- character(0) # path
 
   # For getting the template
