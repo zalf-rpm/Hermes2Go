@@ -86,15 +86,17 @@ hermes2go_wrapper <- function(param_values,
 
   batch_file <- generate_batch_file(param_values, sit_names, situation_parameters, weather_path, result_folder)
 
-
   # Run Herme2Go ------------------------------------------------------------------
   cmd <- paste(hermes2go_path,
     sep = " ", collapse = "",
     "-module batch", "-batch", batch_file,
     "-concurrent", concurrency,
-    "-workdir", hermes2go_projects
+    "-workingdir", hermes2go_projects
   )
-
+  # Display the command to run ---------------------------------------------------
+  if (warning_display) {
+    print(paste("Running Hermes2Go with command:", cmd))
+  }
   # run Hermes2Go
   run_file_stdout <- system(cmd, wait = TRUE, intern = TRUE)
 
