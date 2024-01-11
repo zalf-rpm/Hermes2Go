@@ -61,7 +61,7 @@ NDeposition: 20
 
 #***** Time *****
 # Starting year of simulation (YYYY)
-StartYear: 1980
+StartYear: 2001
 # End date of simulation (DDMMYYYY)
 EndDate: "12312010"
 # Date for annual output

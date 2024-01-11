@@ -13,13 +13,13 @@ test_that("situation params from excel", {
   expected_situation_parameters <- data.frame(
     "SituationName" = c("sit1", "sit2", "sit3", "sit4", "sit5", "sit6", "sit7", "sit8"),
     "project" = c("calibration", "calibration", "calibration", "calibration", "calibration", "calibration", "calibration", "calibration"),
-    "plotNr" = c(10001, 10002, 10001, 10002, 10001, 10002, 10001, 10002),
+    "plotNr" = c(10001, 10002, 10003, 10004, 10005, 10006, 10007, 10008),
     "poligonID" = c("sit1", "sit2", "sit3", "sit4", "sit5", "sit6", "sit7", "sit8"),
     "soilId" = c("002", "011", "002", "011", "002", "011", "075", "002"),
     "fcode" = c("109_120", "109_120", "109_120", "109_120", "109_120", "109_120", "109_120", "109_120"),
     "Altitude" = c(73, 73, 73, 73, 73, 73, 73, 73),
     "Latitude" = c("52.52", "52.52", "52.52", "52.52", "52.52", "52.52", "52.52", "52.52"), # is a string excel file
-    "EndDate" = c(12312002, 12312002, 12312003, 12312003, 12312004, 12312004, 12312004, 12312005)
+    "EndDate" = c(12312002, 12312002, 12312003, 12312003, 12312004, 12312004, 12312005, 12312005)
   )
 
   # SituationName	project	    plotNr	poligonID	soilId	fcode	  Altitude	Latitude	EndDate

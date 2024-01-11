@@ -1,4 +1,10 @@
 Polyg SID  Field_ID  GH GL Ir comment
 10001 011 SOYSM1    99 99 0 soy_maize
 10002 002 SMSOY2    99 99 0 maize_soy
+10003 011 SOYSM3    99 99 0 soy_maize
+10004 002 SMSOY4    99 99 0 maize_soy
+10005 011 SOYSM5    99 99 0 soy_maize
+10006 002 SMSOY6    99 99 0 maize_soy
+10007 011 SOYSM7    99 99 0 soy_maize
+10008 002 SMSOY8    99 99 0 maize_soy
 end
