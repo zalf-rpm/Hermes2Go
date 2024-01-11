@@ -69,7 +69,7 @@ situation_parameters_to_line <- function(sit_names, situation_parameters) {
   # check if situation_parameters has a `SituationName` attribute
   if (!"SituationName" %in% names(situation_parameters)) {
     print(names(situation_parameters))
-    stop("Situation Name must be provided as a column in situation_parameters")
+    stop("SituationName must be provided as a column in situation_parameters")
   }
   if (is.null(sit_names)) {
     # if no situation names provided, use all the situations
