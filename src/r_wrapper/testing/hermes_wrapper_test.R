@@ -21,7 +21,9 @@ test_that("hermes wrapper runs with calibration example", {
   }
 
   hermes2go_projects <- file.path("../../..", "examples")
+  hermes2go_projects <- normalizePath(hermes2go_projects)
   weather_path <- file.path("../../..", "examples", "weather")
+  weather_path <- normalizePath(weather_path)
   out_path <- file.path("../../..", "examples", "calibration_output")
 
   # check if the output folder exists
@@ -36,15 +38,63 @@ test_that("hermes wrapper runs with calibration example", {
                                              hermes2go_projects,
                                              concurrency = 2,
                                              time_display = TRUE,
+                                             warning_display = TRUE,
                                              weather_path = weather_path,
                                              situation_parameters = situation_parameters,
                                              out_path = out_path)
 
   # situation vector
   sit_names <- c("sit2", "sit3", "sit4")
-  param_values <- c(0.5, 0.6, 0.7)
+  param_values <- list(
+    "CropFile" = "PARAM_0.SOY",
+    "TSum1" = 73,
+    "TSum2" = 55,
+    "TSum3" = 240,
+    "TSum4" = 330
+  )
+
 
   # Call the function under test
   result <- hermes2go_wrapper(param_values, model_options, sit_names, var_names)
+  expected_result <- list(
+    "error" = FALSE,
+    "sim_list" = list(
+      "sit2" = list(
+        "Crop" = "SOY",
+        "Year" = 2001,
+        "Yield" = 3.5,
+        "MaxLAI" = 3.5,
+        "SowDOY" = 120,
+        "sum_ET" = 0,
+        "sum_irri" = 0,
+        "AWC_30_sow" = 0,
+        "AWC_30_harv" = 0
+      ),
+      "sit3" = list(
+        "Crop" = "SOY",
+        "Year" = 2002,
+        "Yield" = 3.5,
+        "MaxLAI" = 3.5,
+        "SowDOY" = 120,
+        "sum_ET" = 0,
+        "sum_irri" = 0,
+        "AWC_30_sow" = 0,
+        "AWC_30_harv" = 0
+      ),
+      "sit4" = list(
+        "Crop" = "SOY",
+        "Year" = 2003,
+        "Yield" = 3.5,
+        "MaxLAI" = 3.5,
+        "SowDOY" = 120,
+        "sum_ET" = 0,
+        "sum_irri" = 0,
+        "AWC_30_sow" = 0,
+        "AWC_30_harv" = 0
+      )
+    )
+  )
+  print(result)
+  expect_equal(result, expected_result)
 
 })
