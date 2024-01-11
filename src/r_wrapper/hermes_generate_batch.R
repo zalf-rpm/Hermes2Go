@@ -19,16 +19,22 @@
 #'
 #' @export
 #'
-generate_batch_file <- function(param_values, sit_names, situation_parameters, weather_path, result_folder) {
-  batch_file <- tempfile("hermes_batch", fileext = ".txt")
+generate_batch_file <- function(param_values, sit_names, situation_parameters, weather_path, result_folder, use_temp_dir = TRUE) {
+  
+  # if result_folder is null, use the current folder
+  if (is.null(result_folder)) {
+    result_folder <- ""
+  }
+
+  if (use_temp_dir) {
+    batch_file <- tempfile("hermes_batch", fileext = ".txt")
+  } else {
+    batch_file <- file.path(result_folder, "hermes_batch.txt")
+  }
   file_conn <- file(batch_file)
 
   if (!is.null(weather_path)) {
     weather <- paste("WeatherRootFolder", weather_path, sep = "=")
-  }
-  # if result_folder is null, use the current folder
-  if (is.null(result_folder)) {
-    result_folder <- ""
   }
 
   sim_lines <- situation_parameters_to_line(sit_names, situation_parameters)

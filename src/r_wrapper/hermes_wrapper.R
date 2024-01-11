@@ -53,7 +53,7 @@ hermes2go_wrapper <- function(param_values,
   weather_path <- model_options$weather_path # path
   result_folder <- model_options$out_path # path
   situation_parameters <- model_options$situation_parameters # path
-
+  use_temp_dir <- model_options$use_temp_dir # boolean
 
   # check if param_values is an array, get the number of rows
   num_rows <- 1
@@ -84,7 +84,7 @@ hermes2go_wrapper <- function(param_values,
   dir.create(result_folder)
   # TODO: need to redirect the output of Hermes2Go the temp dir
 
-  batch_file <- generate_batch_file(param_values, sit_names, situation_parameters, weather_path, result_folder)
+  batch_file <- generate_batch_file(param_values, sit_names, situation_parameters, weather_path, result_folder, use_temp_dir)
 
   # Run Herme2Go ------------------------------------------------------------------
   cmd <- paste(hermes2go_path,
@@ -161,8 +161,9 @@ read_hermes2go_output <- function(result_dir, sit_names, out_variable_names) {
     out_files <- list.files(sit_dir, recursive = FALSE)
 
     for (var in out_files) {
-      # remove leading C
+      # remove leading C and trailing .csv
       var_id <- substr(var, 2, nchar(var))
+      var_id <- substr(var_id, 1, nchar(var_id) - 4)
       file_path <- file.path(sit_dir, var)
       if (file.exists(file_path)) {
         file_content <- read.csv(file_path, sep = ",")

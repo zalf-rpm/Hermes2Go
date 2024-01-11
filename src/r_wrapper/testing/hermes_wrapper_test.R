@@ -41,7 +41,8 @@ test_that("hermes wrapper runs with calibration example", {
                                              warning_display = TRUE,
                                              weather_path = weather_path,
                                              situation_parameters = situation_parameters,
-                                             out_path = out_path)
+                                             out_path = out_path,
+                                             use_temp_dir = FALSE)
 
   # situation vector
   sit_names <- c("sit2", "sit3", "sit4")

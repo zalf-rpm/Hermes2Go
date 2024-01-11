@@ -41,6 +41,7 @@ hermes2go_wrapper_options <- function(hermes2go_path,
   # parameters for each situation (data.frame) - see situation_params_from_excel
   options$situation_parameters <- list()
   options$out_path <- character(0) # path
+  options$use_temp_dir <- TRUE # boolean
 
   # For getting the template
   # running hermes2go_wrapper_options
