@@ -136,7 +136,8 @@
                 "-module", "batch",
                 "-concurrent", "1",
                 "-logoutput",
-                "-batch", "calibration_test.txt" ,
+                "-batch", "calibration_output/hermes2go_results/hermes_batch.txt",
+                "-workingdir", "."
             ]
         },
         {

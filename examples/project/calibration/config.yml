@@ -12,7 +12,7 @@ DivideCentury: 60
 # ground water is read from either 'soilfile' or 'polygonfile
 GroundWaterFrom: soilfile
 #0 = hermes # 1 = csv
-ResultFileFormat: 0
+ResultFileFormat: 1
 # (optional) result file extensions (default RES, csv)
 ResultFileExt: "csv"
 # Output intervall (days) (0=no time serie)
@@ -31,7 +31,7 @@ PolygonGridFileName: poly
 
 #***** Weather *****
 # weather file name template/pattern, %s will be replaced with fcode
-WeatherFile: '%s109_120.csv'
+WeatherFile: '%s.csv'
 # Weather file format (0=separator(, ; \t), 1 year per file ) (1=separator(, ; \t), multiple years per file)
 WeatherFileFormat: 1
 # Weather scenario folder
