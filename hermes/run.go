@@ -80,6 +80,11 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				log.Fatalf("Error: parsing integer from commandline! %v \n", err)
 			}
 		}
+		cropOverwrite, err := ParseCropOverwrites(argValues)
+		if err != nil {
+			return err
+		}
+		g.CropOverwrite = cropOverwrite
 
 		ROOTstr := workingDir
 		if workingDir == "" {
@@ -185,7 +190,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		// ********* EINLESEN WETTER DES ERSTEN SIMULATIONSJAHRES *******
 
 		VWDATstr := path.Join(driConfig.WeatherRootFolder, driConfig.WeatherFolder, fmt.Sprintf(driConfig.WeatherFile, g.FCODE))
-		VWDATstr, err := filepath.Abs(VWDATstr)
+		VWDATstr, err = filepath.Abs(VWDATstr)
 		if err != nil {
 			return err
 		}

@@ -415,6 +415,7 @@ type GlobalVarsMain struct {
 	LangTag          LangTagConverterFunc   `yaml:"-"`
 	CropTypeLookup   map[string]CropType    `yaml:"-"`
 	managementConfig *ManagementConfig      `yaml:"-"`
+	CropOverwrite    *CropOverwrite         `yaml:"-"`
 }
 
 // CropOutputVars at harvest

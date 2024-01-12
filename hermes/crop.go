@@ -244,6 +244,12 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			l.kc[i] = ValAsFloat(LINE9c[65:], PARANAM, LINE9c)
 			iForLater++
 		}
+
+		// do crop overwrite parameters
+		if g.CropOverwrite != nil {
+			g.CropOverwrite.OverwriteCropParameters(PARANAM, g)
+		}
+
 		if g.DAUERKULT == 'D' && g.AKF.Num > 2 && g.FRUCHT[g.AKF.Index] == g.FRUCHT[g.AKF.Index-1] { // && g.AKF.Num > 2
 			g.INTWICK.SetByIndex(1)
 			g.SUM[0] = g.TSUM[0] + 1
