@@ -38,8 +38,6 @@ hermes2go_wrapper <- function(param_values,
                               sit_names = NULL,
                               var_names = NULL,
                               ...) {
-  # source("hermes_generate_batch.R")
-  # source("hermes_wrapper_options.R")
 
   # check if all the required options are provided
   if (!check_model_options(model_options)) {
@@ -82,7 +80,6 @@ hermes2go_wrapper <- function(param_values,
     unlink(result_folder, recursive = TRUE)
   }
   dir.create(result_folder)
-  # TODO: need to redirect the output of Hermes2Go the temp dir
 
   batch_file <- generate_batch_file(param_values, sit_names, situation_parameters, weather_path, result_folder, use_temp_dir)
 
