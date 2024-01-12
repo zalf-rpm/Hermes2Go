@@ -301,6 +301,16 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 
 		for ZEIT := g.BEGINN; ZEIT <= g.ENDE; ZEIT = ZEIT + g.DT.Index {
 
+			// verify start year matches beginn year
+			if ZEIT == g.BEGINN {
+				currentYear := 1900 + g.J
+				// get year from date
+				year, _, _ := KalenderDate(ZEIT)
+				if year != currentYear {
+					return fmt.Errorf("start year %v does not match beginn year %v", year, currentYear)
+				}
+			}
+
 			g.TAG.Add(g.DT.Index)
 			if g.TAG.Index+1 > g.JTAG {
 				g.J++
