@@ -51,11 +51,11 @@ test_that("hermes wrapper runs with calibration example", {
   sit_names <- c("sit2", "sit3", "sit4")
   # calibration parameters
   param_values <- list(
-    "CropFile" = "PARAM_0.SOY",
-    "TSum1" = 73,
-    "TSum2" = 55,
-    "TSum3" = 240,
-    "TSum4" = 330
+    "CropFile" = "PARAM.SOY",
+    "c_TSUM_1" = 73,
+    "c_TSUM_2" = 55,
+    "c_TSUM_3" = 240,
+    "c_TSUM_4" = 330
   )
 
   # Call the function under test
@@ -68,10 +68,10 @@ test_that("hermes wrapper runs with calibration example", {
         "sit210002" = data.frame(
           "Crop" = "SOY",
           "Year" = 2002,
-          "Yield" = 3467,
-          "MaxLAI" = 8.6,
+          "Yield" = 3599,
+          "MaxLAI" = 9.0,
           "SowDOY" = 135,
-          "sum_ET" = 43,
+          "sum_ET" = 44,
           "sum_irri" = 0,
           "AWC_30_sow" = 115,
           "AWC_30_harv" = 120
@@ -94,13 +94,13 @@ test_that("hermes wrapper runs with calibration example", {
         "sit410004" = data.frame(
           "Crop" = "SOY",
           "Year" = 2003,
-          "Yield" = 2848,
-          "MaxLAI" = 5.9,
+          "Yield" = 2650,
+          "MaxLAI" = 6.3,
           "SowDOY" = 135,
-          "sum_ET" = 48,
+          "sum_ET" = 49,
           "sum_irri" = 0,
           "AWC_30_sow" = 106,
-          "AWC_30_harv" = 98
+          "AWC_30_harv" = 84
         )
       )
 
