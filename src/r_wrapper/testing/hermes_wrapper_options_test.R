@@ -19,18 +19,19 @@ test_that("situation params from excel", {
     "fcode" = c("109_120", "109_120", "109_120", "109_120", "109_120", "109_120", "109_120", "109_120"),
     "Altitude" = c(73, 73, 73, 73, 73, 73, 73, 73),
     "Latitude" = c("52.52", "52.52", "52.52", "52.52", "52.52", "52.52", "52.52", "52.52"), # is a string excel file
+    "StartYear" = c(2001, 2001, 2002, 2002, 2003, 2003, 2004, 2004),
     "EndDate" = c(12312002, 12312002, 12312003, 12312003, 12312004, 12312004, 12312005, 12312005)
   )
 
-  # SituationName	project	    plotNr	poligonID	soilId	fcode	  Altitude	Latitude	EndDate
-  # sit1	        calibration	10001	  sit1	    002	    109_120	73	      52.52	    12312002
-  # sit2	        calibration	10002	  sit2	    011	    109_120	73	      52.52	    12312002
-  # sit3	        calibration	10001	  sit3	    002	    109_120	73	      52.52	    12312003
-  # sit4	        calibration	10002	  sit4	    011	    109_120	73	      52.52	    12312003
-  # sit5	        calibration	10001	  sit5	    002	    109_120	73	      52.52	    12312004
-  # sit6	        calibration	10002	  sit6	    011	    109_120	73	      52.52	    12312004
-  # sit7	        calibration	10001	  sit7	    075	    109_120	73	      52.52	    12312004
-  # sit8	        calibration	10002	  sit8	    002	    109_120	73	      52.52	    12312005
+  # SituationName	project	    plotNr	poligonID	soilId	fcode	  Altitude	Latitude	StartYear  EndDate
+  # sit1	        calibration	10001	  sit1	    002	    109_120	73	      52.52	    2001       12312002
+  # sit2	        calibration	10002	  sit2	    011	    109_120	73	      52.52	    2001       12312002
+  # sit3	        calibration	10001	  sit3	    002	    109_120	73	      52.52	    2002       12312003
+  # sit4	        calibration	10002	  sit4	    011	    109_120	73	      52.52	    2002       12312003
+  # sit5	        calibration	10001	  sit5	    002	    109_120	73	      52.52	    2003       12312004
+  # sit6	        calibration	10002	  sit6	    011	    109_120	73	      52.52	    2003       12312004
+  # sit7	        calibration	10001	  sit7	    075	    109_120	73	      52.52	    2004       12312004
+  # sit8	        calibration	10002	  sit8	    002	    109_120	73	      52.52	    2004       12312005
 
   # Call the function under test
   actual_situation_parameters <- situation_params_from_excel(excel_file)

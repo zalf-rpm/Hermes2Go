@@ -81,26 +81,26 @@ test_that("hermes wrapper runs with calibration example", {
         "sit310003" = data.frame(
           "Crop" = "SM ",
           "Year" = 2003,
-          "Yield" = 9974,
-          "MaxLAI" = 2.3,
+          "Yield" = 4701,
+          "MaxLAI" = 1.1,
           "SowDOY" = 135,
-          "sum_ET" = 49,
+          "sum_ET" = 56,
           "sum_irri" = 0,
-          "AWC_30_sow" = 89,
-          "AWC_30_harv" = 49
+          "AWC_30_sow" = 83,
+          "AWC_30_harv" = 31
         )
       ),
       "sit4" = list(
         "sit410004" = data.frame(
           "Crop" = "SOY",
           "Year" = 2003,
-          "Yield" = 3467,
-          "MaxLAI" = 8.6,
+          "Yield" = 2848,
+          "MaxLAI" = 5.9,
           "SowDOY" = 135,
-          "sum_ET" = 43,
+          "sum_ET" = 48,
           "sum_irri" = 0,
-          "AWC_30_sow" = 115,
-          "AWC_30_harv" = 120
+          "AWC_30_sow" = 106,
+          "AWC_30_harv" = 98
         )
       )
 
