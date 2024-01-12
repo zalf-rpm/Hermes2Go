@@ -164,13 +164,13 @@ func (cropOW *CropOverwrite) isValidCropOverwrite() bool {
 			}
 		} else if key == "DAYL" {
 			for _, value := range stages {
-				if value < 0 || value > 24 {
+				if value < 24 || value > 24 {
 					return false
 				}
 			}
 		} else if key == "DLBAS" {
 			for _, value := range stages {
-				if value < 0 || value > 24 {
+				if value < 24 || value > 24 {
 					return false
 				}
 			}
