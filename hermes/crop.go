@@ -12,7 +12,7 @@ type CropSharedVars struct {
 	GORG    [10]float64
 	FV      float64 // Vernalisation factor to multiply SUM(INTWICK)
 	FP      float64 // Daylength factor to multiply SUM(INTWICK)
-	NRENTW  int
+	NRENTW  int     // Number of development stages
 	Progip1 string
 	temptyp int64
 	kc      [10]float64
@@ -247,7 +247,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 
 		// do crop overwrite parameters
 		if g.CropOverwrite != nil {
-			g.CropOverwrite.OverwriteCropParameters(PARANAM, g)
+			g.CropOverwrite.OverwriteCropParameters(PARANAM, g, l)
 		}
 
 		if g.DAUERKULT == 'D' && g.AKF.Num > 2 && g.FRUCHT[g.AKF.Index] == g.FRUCHT[g.AKF.Index-1] { // && g.AKF.Num > 2
