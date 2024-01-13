@@ -234,7 +234,7 @@ type GlobalVarsMain struct {
 	SubOrgan   int     // organ number for WORG in NGEFKT = 5
 	YORGAN     int
 	YIFAK      float64
-	NRKOM      int
+	NRKOM      int // number of N-uptake compartments
 	DAUERKULT  rune
 	LEGUM      rune
 	DOUBLE     int //day of  double ridge stage / Doppelringstadium
