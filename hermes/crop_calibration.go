@@ -184,7 +184,7 @@ func (cropOW *CropOverwrite) isValidCropOverwrite(numPartitions, numStages int) 
 			return false
 		} else if key == "VELOC" && (value <= 0 || value > 1) {
 			return false
-		} else if key == "YIFAK" && (value < 0 || value > 100) {
+		} else if key == "YIFAK" && (value < 0 || value > 1) {
 			return false
 		} else if key == "INITCONCNBIOM" && (value < 0 || value > 100) {
 			return false
@@ -194,7 +194,7 @@ func (cropOW *CropOverwrite) isValidCropOverwrite(numPartitions, numStages int) 
 	}
 	for key, stages := range cropOW.DevelopmentStageParameters {
 		// check if stage is within valid range
-		for stage, _ := range stages {
+		for stage := range stages {
 			if stage < 1 || stage > numStages {
 				return false
 			}
@@ -265,7 +265,7 @@ func (cropOW *CropOverwrite) isValidCropOverwrite(numPartitions, numStages int) 
 	}
 	for key, parts := range cropOW.PartitioningParameters {
 		// check if stage and partition are within valid range
-		for pair, _ := range parts {
+		for pair := range parts {
 			if pair.Stage < 1 || pair.Stage > numStages {
 				return false
 			}
