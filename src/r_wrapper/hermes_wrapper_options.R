@@ -22,6 +22,8 @@
 #'
 #' @param out_path Path where to store the output files
 #' (default: NULL)
+#' @param output_function Function used to format the output data
+#' (default: NULL)
 #'
 #' @return A list containing hermes2go wrapper options
 #'
@@ -42,6 +44,7 @@ hermes2go_wrapper_options <- function(hermes2go_path,
   options$situation_parameters <- list()
   options$out_path <- character(0) # path
   options$use_temp_dir <- TRUE # boolean
+  options$output_function <- read_hermes2go_output # default output function
 
   # For getting the template
   # running hermes2go_wrapper_options
@@ -187,4 +190,54 @@ check_model_options <- function(model_options) {
 
 
   return(valid)
+}
+
+
+#' @title read hermes2go output files
+#' @description This function reads the output files of Hermes2Go
+#' @param result_dir the path of the directory containing the output files
+#' @param sit_names Vector of situations names for which results must be returned.
+#' a situation should match a directory name in result_dir
+#' @param out_variable_names Vector of variable names to be returned.
+#'
+#' @return A list containing simulated values (`sim_list`: a vector of list (one
+#' element per values of parameters) containing usms outputs data.frames) and an
+#' error code (`error`) indicating if at least one simulation ended with an
+#' error.
+read_hermes2go_output <- function(result_dir, sit_names, out_variable_names) {
+
+  # check if sit_names is empty
+  if (is.null(sit_names)) {
+    sit_names <- list.dirs(result_dir, recursive = FALSE)
+  }
+
+  # read the output files
+  print(out_variable_names)
+  sim_list <- list()
+  for (sit in sit_names) {
+    sim_list[[sit]] <- list()
+    # filepath = result_dir / sit / C<polgionId><polyg>.csv
+    sit_dir <- file.path(result_dir, sit)
+    # list crop files (C*.csv)
+    crop_out_files <- list.files(sit_dir, pattern = "^C.*\\.csv$")
+    daily_out_files <- list.files(sit_dir, pattern = "^V.*\\.csv$")
+    # join crop and daily files
+    out_files <- c(crop_out_files, daily_out_files)
+
+    for (var in out_files) {
+      # remove trailing .csv
+      var_id <- substr(var, 1, nchar(var) - 4)
+      file_path <- file.path(sit_dir, var)
+      if (file.exists(file_path)) {
+        file_content <- read.csv(file_path, sep = ",")
+        # filter file_content for out_variable_names
+        if (!is.null(out_variable_names)) {
+          file_content <- file_content[, out_variable_names]
+        }
+        sim_list[[sit]][[var_id]] <- file_content
+      }
+    }
+  }
+  return(sim_list)
+
 }
