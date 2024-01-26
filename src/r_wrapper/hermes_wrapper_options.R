@@ -24,6 +24,11 @@
 #' (default: NULL)
 #' @param output_function Function used to format the output data
 #' (default: NULL)
+#' @param use_temp_dir Logical value used to use (TRUE) or not (FALSE)
+#' a temporary directory to store the output files
+#' (default: TRUE)
+#' @param crop_file_name Name of the crop file for calibration
+#' (default: NULL)
 #'
 #' @return A list containing hermes2go wrapper options
 #'
@@ -45,6 +50,7 @@ hermes2go_wrapper_options <- function(hermes2go_path,
   options$out_path <- character(0) # path
   options$use_temp_dir <- TRUE # boolean
   options$output_function <- read_hermes2go_output # default output function
+  options$crop_file_name <- character(0) # default crop file name
 
   # For getting the template
   # running hermes2go_wrapper_options
@@ -212,7 +218,6 @@ read_hermes2go_output <- function(result_dir, sit_names, out_variable_names) {
   }
 
   # read the output files
-  print(out_variable_names)
   sim_list <- list()
   for (sit in sit_names) {
     sim_list[[sit]] <- list()
@@ -232,7 +237,13 @@ read_hermes2go_output <- function(result_dir, sit_names, out_variable_names) {
         file_content <- read.csv(file_path, sep = ",")
         # filter file_content for out_variable_names
         if (!is.null(out_variable_names)) {
-          file_content <- file_content[, out_variable_names]
+          # get the columns that are in out_variable_names
+          existing_variable_names <- out_variable_names[out_variable_names %in% colnames(file_content)]
+          file_content <- file_content[, existing_variable_names]
+        }
+        # if file_content has no columns, remove the rows
+        if (ncol(file_content) == 0) {
+          file_content <- data.frame()
         }
         sim_list[[sit]][[var_id]] <- file_content
       }

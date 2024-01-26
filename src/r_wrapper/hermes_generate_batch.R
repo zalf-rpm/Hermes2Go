@@ -11,6 +11,8 @@
 #' @param situation_parameters list containing the mapping between the situations names
 #' and the project folders and settings
 #'
+#' @param crop_file_name Name of the crop file to use for calibrations
+#' 
 #' @param weather_path Path where to find the root folder for weather files
 #'
 #' @param result_folder Path where to store the output files
@@ -19,8 +21,8 @@
 #'
 #' @export
 #'
-generate_batch_file <- function(param_values, sit_names, situation_parameters, weather_path, result_folder, use_temp_dir = TRUE) {
-  
+generate_batch_file <- function(param_values, sit_names, situation_parameters, crop_file_name, weather_path, result_folder, use_temp_dir = TRUE) {
+
   # if result_folder is null, use the current folder
   if (is.null(result_folder)) {
     result_folder <- ""
@@ -35,6 +37,10 @@ generate_batch_file <- function(param_values, sit_names, situation_parameters, w
 
   if (!is.null(weather_path)) {
     weather <- paste("WeatherRootFolder", weather_path, sep = "=")
+  }
+  crop_param <- ""
+  if (!is.null(crop_file_name)) {
+    crop_param <- paste("CropFile", crop_file_name, sep = "=")
   }
 
   sim_lines <- situation_parameters_to_line(sit_names, situation_parameters)
@@ -62,7 +68,7 @@ generate_batch_file <- function(param_values, sit_names, situation_parameters, w
 
     for (param in param_lines) {
       ip <- ip + 1
-      lines[ip] <- paste(sim, param, weather, sim_result_folder, sep = " ")
+      lines[ip] <- paste(sim, crop_param, param, weather, sim_result_folder, sep = " ")
     }
   }
 

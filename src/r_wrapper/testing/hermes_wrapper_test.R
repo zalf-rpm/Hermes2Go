@@ -60,12 +60,12 @@ test_that("hermes wrapper runs with calibration example", {
 
   # Call the function under test
   result <- hermes2go_wrapper(param_values, model_options, sit_names, var_names)
-
+  print(result)
   expected_result <- list(
     "error" = FALSE,
     "sim_list" = list(
       "sit2" = list(
-        "sit210002" = data.frame(
+        "Csit210002" = data.frame(
           "Crop" = "SOY",
           "Year" = 2002,
           "Yield" = 3599,
@@ -75,10 +75,11 @@ test_that("hermes wrapper runs with calibration example", {
           "sum_irri" = 0,
           "AWC_30_sow" = 115,
           "AWC_30_harv" = 120
-        )
+        ),
+        "Vsit210002" = data.frame()
       ),
       "sit3" = list(
-        "sit310003" = data.frame(
+        "Csit310003" = data.frame(
           "Crop" = "SM ",
           "Year" = 2003,
           "Yield" = 4701,
@@ -88,10 +89,11 @@ test_that("hermes wrapper runs with calibration example", {
           "sum_irri" = 0,
           "AWC_30_sow" = 83,
           "AWC_30_harv" = 31
-        )
+        ), 
+        "Vsit310003" = data.frame()
       ),
       "sit4" = list(
-        "sit410004" = data.frame(
+        "Csit410004" = data.frame(
           "Crop" = "SOY",
           "Year" = 2003,
           "Yield" = 2650,
@@ -101,7 +103,8 @@ test_that("hermes wrapper runs with calibration example", {
           "sum_irri" = 0,
           "AWC_30_sow" = 106,
           "AWC_30_harv" = 84
-        )
+        ),
+        "Vsit410004" = data.frame()
       )
 
     )

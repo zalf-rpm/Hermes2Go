@@ -53,6 +53,7 @@ hermes2go_wrapper <- function(param_values,
   situation_parameters <- model_options$situation_parameters # path
   use_temp_dir <- model_options$use_temp_dir # boolean
   output_function <- model_options$output_function # function
+  crop_file_name <- model_options$crop_file_name # string
 
   # check if param_values is an array, get the number of rows
   num_rows <- 1
@@ -82,7 +83,7 @@ hermes2go_wrapper <- function(param_values,
   }
   dir.create(result_folder)
 
-  batch_file <- generate_batch_file(param_values, sit_names, situation_parameters, weather_path, result_folder, use_temp_dir)
+  batch_file <- generate_batch_file(param_values, sit_names, situation_parameters, crop_file_name, weather_path, result_folder, use_temp_dir)
 
   # Run Herme2Go ------------------------------------------------------------------
   cmd <- paste(hermes2go_path,

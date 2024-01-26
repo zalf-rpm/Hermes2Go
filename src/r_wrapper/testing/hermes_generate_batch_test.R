@@ -73,7 +73,7 @@ test_that("generate_batch_file generates the correct batch file", {
   source(file.path("..", "hermes_generate_batch.R"))
 
   # Define test inputs
-  param_values <- c("CropFile" = "PARAM_varityX.WW", "TSum1" = 1, "TSum2" = 2)
+  param_values <- c("TSum1" = 1, "TSum2" = 2)
   sit_names <- c("sit1", "sit2")
   situation_parameters <- data.frame(
     "SituationName" = c("sit1", "sit2", "sit3", "sit4"),
@@ -90,9 +90,10 @@ test_that("generate_batch_file generates the correct batch file", {
     "Parameter1=20 Parameter2=200 CropFile=PARAM_varityX.WW c_TSum_1=1 c_TSum_2=2 WeatherRootFolder=/path/to/weather resultfolder=/path/to/results/sit2" # nolint: line_length_linter.
   )
   writeLines(expected_lines, expected_batch_file)
+  crop_file_name <- "PARAM_varityX.WW"
 
   # Call the function under test
-  actual_batch_file <- generate_batch_file(param_values, sit_names, situation_parameters, weather_path, result_folder)
+  actual_batch_file <- generate_batch_file(param_values, sit_names, situation_parameters, crop_file_name, weather_path, result_folder)
 
   # Compare the actual and expected batch files
   expect_equal(readLines(actual_batch_file), readLines(expected_batch_file))
