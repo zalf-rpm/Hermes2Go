@@ -1,0 +1,18 @@
+project=rue WeatherFolder=historical fcode=109_120 plotNr=10001 soilId=001 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_RUE/RD_09
+project=rue WeatherFolder=historical fcode=109_121 plotNr=10002 soilId=001 Altitude=46 Latitude=52.6431 poligonID=30169 resultfolder=RESULT_RUE/RD_09
+project=rue WeatherFolder=historical fcode=109_120 plotNr=10003 soilId=001 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_RUE/RD_09
+project=rue WeatherFolder=historical fcode=109_120 plotNr=10001 soilId=001 Altitude=73 AutoIrrigation=0 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_RUE/RD09_noIrr
+project=rue WeatherFolder=historical fcode=109_121 plotNr=10002 soilId=001 Altitude=46 AutoIrrigation=0 Latitude=52.6431 poligonID=30169 resultfolder=RESULT_RUE/RD09_noIrr
+project=rue WeatherFolder=historical fcode=109_120 plotNr=10003 soilId=001 Altitude=73 AutoIrrigation=0 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_RUE/RD09_noIrr
+project=rue WeatherFolder=historical fcode=109_120 plotNr=10001 soilId=002 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_RUE/RD_10
+project=rue WeatherFolder=historical fcode=109_121 plotNr=10002 soilId=002 Altitude=46 Latitude=52.6431 poligonID=30169 resultfolder=RESULT_RUE/RD_10
+project=rue WeatherFolder=historical fcode=109_120 plotNr=10003 soilId=002 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_RUE/RD_10
+project=rue WeatherFolder=historical fcode=109_120 plotNr=10001 soilId=002 Altitude=73 AutoIrrigation=0 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_RUE/RD_10_noIrr
+project=rue WeatherFolder=historical fcode=109_121 plotNr=10002 soilId=002 Altitude=46 AutoIrrigation=0 Latitude=52.6431 poligonID=30169 resultfolder=RESULT_RUE/RD_10_noIrr
+project=rue WeatherFolder=historical fcode=109_120 plotNr=10003 soilId=002 Altitude=73 AutoIrrigation=0 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_RUE/RD_10_noIrr
+project=rue WeatherFolder=historical fcode=109_120 plotNr=10001 soilId=003 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_RUE/RD_20
+project=rue WeatherFolder=historical fcode=109_121 plotNr=10002 soilId=003 Altitude=46 Latitude=52.6431 poligonID=30169 resultfolder=RESULT_RUE/RD_20
+project=rue WeatherFolder=historical fcode=109_120 plotNr=10003 soilId=003 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_RUE/RD_20
+project=rue WeatherFolder=historical fcode=109_120 plotNr=10001 soilId=003 Altitude=73 AutoIrrigation=0 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_RUE/RD_20_noIrr
+project=rue WeatherFolder=historical fcode=109_121 plotNr=10002 soilId=003 Altitude=46 AutoIrrigation=0 Latitude=52.6431 poligonID=30169 resultfolder=RESULT_RUE/RD_20_noIrr
+project=rue WeatherFolder=historical fcode=109_120 plotNr=10003 soilId=003 Altitude=73 AutoIrrigation=0 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_RUE/RD_20_noIrr
