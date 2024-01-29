@@ -14,6 +14,9 @@ eventformats:
       NAOSLayer1: '%1.1f'
       NAOSLayer2: '%1.1f'
       NAOSLayer3: '%1.1f'
+      WaterContentLayer1: '%1.1f'
+      WaterContentLayer2: '%1.1f' 
+      WaterContentLayer3: '%1.1f'
   irrigation:
     eventname: irrigation
     enabled: false

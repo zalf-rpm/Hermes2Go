@@ -237,7 +237,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 	// ----------------------------------------------------------------------------------------------------------------
 	isTillageDay := false
 	if zeit == g.EINTE[g.NTIL.Index+1]+1 && subd == 1 {
-		var NFOSUM, NAOSUM, nmifosum, nmiaosum, CSUM float64
+		var NFOSUM, NAOSUM, nmifosum, nmiaosum, CSUM, WSUM float64
 		if g.EINT[g.NTIL.Index] > 0 {
 			isTillageDay = true
 			mixtief := math.Round(g.EINT[g.NTIL.Index] / g.DZ.Num)
@@ -254,6 +254,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 				nmifosum = nmifosum + g.MINFOS[z]
 				nmiaosum = nmiaosum + g.MINAOS[z]
 				CSUM = CSUM + g.C1[z]
+				WSUM = WSUM + g.WG[0][z]
 			}
 			if g.TILART[g.NTIL.Index] == 1 {
 				for z := 0; z < int(mixtief); z++ {
@@ -265,9 +266,12 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 					if g.C1[z] < 0 {
 						g.C1[z] = 0
 					}
+					g.WG[0][z] = WSUM / mixtief
+
 					layerList[fmt.Sprintf("NminLayer%d", z+1)] = g.C1[z]
 					layerList[fmt.Sprintf("NFOSLayer%d", z+1)] = g.NFOS[z]
 					layerList[fmt.Sprintf("NAOSLayer%d", z+1)] = g.NAOS[z]
+					layerList[fmt.Sprintf("WaterContentLayer%d", z+1)] = g.WG[0][z] * 100
 				}
 			}
 			if g.TillagePoreSpace {
