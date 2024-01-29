@@ -80,6 +80,11 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				log.Fatalf("Error: parsing integer from commandline! %v \n", err)
 			}
 		}
+		cropOverwrite, err := ParseCropOverwrites(argValues)
+		if err != nil {
+			return err
+		}
+		g.CropOverwrite = cropOverwrite
 
 		ROOTstr := workingDir
 		if workingDir == "" {
@@ -185,7 +190,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		// ********* EINLESEN WETTER DES ERSTEN SIMULATIONSJAHRES *******
 
 		VWDATstr := path.Join(driConfig.WeatherRootFolder, driConfig.WeatherFolder, fmt.Sprintf(driConfig.WeatherFile, g.FCODE))
-		VWDATstr, err := filepath.Abs(VWDATstr)
+		VWDATstr, err = filepath.Abs(VWDATstr)
 		if err != nil {
 			return err
 		}
@@ -300,6 +305,16 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		g.EINTE[0] = g.EINTE[1]
 
 		for ZEIT := g.BEGINN; ZEIT <= g.ENDE; ZEIT = ZEIT + g.DT.Index {
+
+			// verify start year matches beginn year
+			if ZEIT == g.BEGINN {
+				currentYear := 1900 + g.J
+				// get year from date
+				year, _, _ := KalenderDate(ZEIT)
+				if year != currentYear {
+					return fmt.Errorf("start year %v does not match beginn year %v", year, currentYear)
+				}
+			}
 
 			g.TAG.Add(g.DT.Index)
 			if g.TAG.Index+1 > g.JTAG {

@@ -238,7 +238,7 @@ type GlobalVarsMain struct {
 	SubOrgan   int     // organ number for WORG in NGEFKT = 5
 	YORGAN     int
 	YIFAK      float64
-	NRKOM      int
+	NRKOM      int // number of N-uptake compartments
 	DAUERKULT  rune
 	LEGUM      rune
 	DOUBLE     int //day of  double ridge stage / Doppelringstadium
@@ -258,8 +258,8 @@ type GlobalVarsMain struct {
 	WDORG      [10]float64
 	MAIRT      [10]float64
 	TSUM       [10]float64 //Temperature sum for development stage I (°C days)
-	BAS        [10]float64
-	VSCHWELL   [10]float64
+	BAS        [10]float64 //Base temperature for development stage I (°C)
+	VSCHWELL   [10]float64 // vernalisation threshold (in days)
 	DAYL       [10]float64
 	DLBAS      [10]float64
 	DRYSWELL   [10]float64
@@ -424,6 +424,7 @@ type GlobalVarsMain struct {
 	LangTag          LangTagConverterFunc   `yaml:"-"`
 	CropTypeLookup   map[string]CropType    `yaml:"-"`
 	managementConfig *ManagementConfig      `yaml:"-"`
+	CropOverwrite    *CropOverwrite         `yaml:"-"`
 }
 
 // CropOutputVars at harvest

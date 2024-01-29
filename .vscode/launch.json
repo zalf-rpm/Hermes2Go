@@ -126,6 +126,21 @@
             ]
         },
         {
+            "name": "Launch Hermes calibration test",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "src/hermes2go",
+            "cwd": "examples/",
+            "args": [
+                "-module", "batch",
+                "-concurrent", "1",
+                "-logoutput",
+                "-batch", "calibration_output/hermes2go_results/hermes_batch.txt",
+                "-workingdir", "."
+            ]
+        },
+        {
             "name": "Convert Soil File",
             "type": "go",
             "request": "launch",
@@ -136,6 +151,12 @@
                 "-output", "soil_ex2_new.csv",
                 "-withBD"
             ]
+        },
+        {
+            "name": "Attach to R process",
+            "type": "R-Debugger",
+            "request": "attach",
+
         },
     ]
 }
