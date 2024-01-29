@@ -1062,6 +1062,10 @@ func radia(g *GlobalVarsMain, l *CropSharedVars, zeit int) (DLE, DLP, GPHOT, MAI
 		}
 		DTGA = FOV*DGAO + (1-FOV)*DGAC
 	}
+	// calucation of intercepted PAR
+	g.PARi = DTGA / amax * EFFE
+	g.PARSUM = g.PARSUM + g.PARi
+
 	// !     ------- PHOTOSYNTHESERATE IN KG GLUCOSE/HA BLATT/TAG------
 	GPHOT = DTGA * 30. / 44
 	var vswell float64

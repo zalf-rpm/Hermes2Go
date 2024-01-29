@@ -364,6 +364,8 @@ type GlobalVarsMain struct {
 	N2onitDaily float64
 	AKTUELL     string // current Date string
 	SoilID      string
+	PARi        float64 // daily PAR
+	PARSUM      float64 // sum of daily PAR
 
 	// output parameters
 	PerY            float64 // accumulated output
@@ -467,6 +469,7 @@ type CropOutputVars struct {
 	Tdat         string
 	Code         string
 	NotStableErr string
+	PARSUM       float64
 }
 
 // NewGlobalVarsMain create GlobalVarsMain

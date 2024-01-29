@@ -345,6 +345,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			g.WINDdaily = g.WIND[g.TAG.Index]
 			g.REGENdaily = g.REGEN[g.TAG.Index]
 			g.EffectiveIRRIG = 0
+			g.PARi = 0
 
 			g.REGENSUM = g.REGENSUM + g.REGEN[g.TAG.Index]*10*g.DT.Num
 			if g.TEMP[g.TAG.Index] > g.TJBAS[g.AKF.Index] {
