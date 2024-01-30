@@ -373,6 +373,8 @@ type GlobalVarsMain struct {
 	MineralzFactor         []float64 // mineralization factor
 	SUMKE                  float64   // culmulative kinetic energy of precipitation
 	BDafterTil             []float64 // bulk density after tillage
+	PARi                   float64   // daily PAR
+	PARSUM                 float64   // sum of daily PAR
 
 	// output parameters
 	PerY            float64 // accumulated output
@@ -476,6 +478,7 @@ type CropOutputVars struct {
 	Tdat         string
 	Code         string
 	NotStableErr string
+	PARSUM       float64
 }
 
 // NewGlobalVarsMain create GlobalVarsMain
