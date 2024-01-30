@@ -811,7 +811,7 @@ func IncAirVolumneOnTillage(currentBD, factor float64) (newBD float64) {
 }
 
 // soil compression function
-func SoilCompressionOverTime(sumke, startBD, currentBD, cOrg, wc, layerDepth, precip, recompactingFactor, tilPSF float64, tillageDay bool) (newBD, newSumke, airPoreVolume, mineralisationFactor float64) {
+func SoilCompressionOverTimeA(sumke, startBD, currentBD, cOrg, wc, layerDepth, precip, recompactingFactor, tilPSF float64, tillageDay bool) (newBD, newSumke, airPoreVolume, mineralisationFactor float64) {
 	// bd  			bulk density
 	// cOrg  		organic carbon content top layer
 	// wc 			water content
@@ -837,6 +837,46 @@ func SoilCompressionOverTime(sumke, startBD, currentBD, cOrg, wc, layerDepth, pr
 
 	// mineralisation factor
 	mineralisationFactor = math.Pow(math.Pow(math.Exp(-(tilPSF)*layerDepth), 3.1-10*airPoreVolume), 3)
+	// limit mineralisation factor to 1
+	mineralisationFactor = math.Min(mineralisationFactor, 1.0)
+
+	return
+}
+
+// soil compression function
+func SoilCompressionOverTimeB(sumke, startBD, currentBD, cOrg, wc, layerDepth, precip, recompactingFactor, tilPSF, minAirPoreVol float64, tillageDay bool) (newBD, newSumke, airPoreVolume, airPoreVolumeForMineralisation, mineralisationFactor float64) {
+	// bd  			bulk density
+	// cOrg  		organic carbon content top layer
+	// wc 			water content
+	// precip 		precipitation in cm
+	// layerDepth 	depth of layer in cm
+	// recompactingFactor 	recompacting factor
+	// tilPSF 		tillage pore space factor
+	// minAirPoreVol minimum air pore volume of the layers above (top layer has no layers above, use -1)
+
+	RSLT := (1 - 0.005*cOrg) * 10
+	// Sumke (culmulative kinetic energy of precipitation) since tillage = precipitation (mm) * 0.00217
+	newSumke = sumke + 0.00217*precip
+	// bulk density
+	if tillageDay {
+		// do not calculate a new BD on tillage day
+		newBD = currentBD
+	} else {
+		newBD = currentBD - ((currentBD - startBD) * (1 - math.Exp(-RSLT*newSumke*math.Exp(-0.15*layerDepth))))
+		newBD = math.Min(newBD, startBD*recompactingFactor) // new BD can not be higher than (start BD * recompacting factor)
+	}
+	// air pore volume
+	poreVol := CalculatePoreSpace(newBD)
+	airPoreVolume = poreVol - wc
+	// limit air pore volume to minAirPoreVol of the layers above
+	airPoreVolumeForMineralisation = minAirPoreVol
+	// top layer has no layers above -> use airPoreVolume of top layer
+	if minAirPoreVol < 0 || minAirPoreVol > airPoreVolume {
+		airPoreVolumeForMineralisation = airPoreVolume
+	}
+
+	// mineralisation factor
+	mineralisationFactor = math.Pow(math.Pow(math.Exp(-(tilPSF)*layerDepth), 3.1-10*airPoreVolumeForMineralisation), 3)
 	// limit mineralisation factor to 1
 	mineralisationFactor = math.Min(mineralisationFactor, 1.0)
 

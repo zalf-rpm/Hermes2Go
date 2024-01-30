@@ -397,7 +397,7 @@ func TestSoilCompressionOverTime(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotNewBD, gotNewSumke, gotAirPoreVolume, gotMineralisationFactor := SoilCompressionOverTime(tt.args.sumke, tt.args.startBD, tt.args.currentBD, tt.args.cOrg, tt.args.fc, tt.args.layerDepth, tt.args.precip, 1.0, tt.args.tillagePoreSpaceFactor, false)
+			gotNewBD, gotNewSumke, gotAirPoreVolume, gotMineralisationFactor := SoilCompressionOverTimeA(tt.args.sumke, tt.args.startBD, tt.args.currentBD, tt.args.cOrg, tt.args.fc, tt.args.layerDepth, tt.args.precip, 1.0, tt.args.tillagePoreSpaceFactor, false)
 			if math.Abs(gotNewBD-tt.wantNewBD) > 0.00001 {
 				t.Errorf("SoilCompressionOverTime() gotNewBD = %v, want %v", gotNewBD, tt.wantNewBD)
 			}

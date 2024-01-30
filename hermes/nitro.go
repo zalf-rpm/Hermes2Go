@@ -297,10 +297,12 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			// g.BDafterTil
 			precip := g.REGEN[g.TAG.Index]
 			currentSumke := g.SUMKE
+			currMinAirVol := -1.0
 			for z := 0; z < g.N; z++ {
 				layerDepth := (float64(z+1) * g.DZ.Num) - (0.5 * g.DZ.Num)
 				wc := g.WG[0][z]
-				g.BDafterTil[z], g.SUMKE, _, g.MineralzFactor[z] = SoilCompressionOverTime(currentSumke, g.BD[z], g.BDafterTil[z], g.Corg[z], wc, layerDepth, precip, g.RecompactingPerLayer[z], g.TillagePoreSpaceFactor, isTillageDay)
+				//g.BDafterTil[z], g.SUMKE, _, g.MineralzFactor[z] = SoilCompressionOverTimeA(currentSumke, g.BD[z], g.BDafterTil[z], g.Corg[z], wc, layerDepth, precip, g.RecompactingPerLayer[z], g.TillagePoreSpaceFactor, isTillageDay)
+				g.BDafterTil[z], g.SUMKE, _, currMinAirVol, g.MineralzFactor[z] = SoilCompressionOverTimeB(currentSumke, g.BD[z], g.BDafterTil[z], g.Corg[z], wc, layerDepth, precip, g.RecompactingPerLayer[z], g.TillagePoreSpaceFactor, currMinAirVol, isTillageDay)
 			}
 		}
 		// Aufruf Mineralisations Subroutine
