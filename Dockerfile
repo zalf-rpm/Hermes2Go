@@ -9,7 +9,7 @@ COPY . ${WORKDIR}
 
 RUN git describe --always --tags --long > /version.txt
 WORKDIR /go/src/github.com/zalf-rpm/Hermes2Go/src/hermes2go
-RUN go get gopkg.in/yaml.v2 
+RUN go get gopkg.in/yaml.v3
 RUN VERSION=$(cat /version.txt) && go build -v -ldflags "-X main.version=${VERSION}"
 WORKDIR /go/src/github.com/zalf-rpm/Hermes2Go/src/calcHermesBatch
 RUN VERSION=$(cat /version.txt) && go build -v -ldflags "-X main.version=${VERSION}"

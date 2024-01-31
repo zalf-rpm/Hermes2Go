@@ -8,7 +8,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	yaml "gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v3"
 )
 
 // OutputConfig defines output parameters in form of a csv file

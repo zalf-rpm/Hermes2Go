@@ -6,7 +6,7 @@ import (
 	"os"
 	"sort"
 
-	yaml "gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v3"
 )
 
 // open management output file
