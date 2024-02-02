@@ -86,13 +86,13 @@ func (cropOW *CropOverwrite) OverwriteCropParameters(cropFile string, g *GlobalV
 
 		if key == "INITCONCNBIOM" {
 			// apply only in case of initial crop
-			if !(g.DAUERKULT == 'D' && g.AKF.Num > 2 && g.FRUCHT[g.AKF.Index] == g.FRUCHT[g.AKF.Index-1]) {
+			if !(g.DAUERKULT && g.AKF.Num > 2 && g.FRUCHT[g.AKF.Index] == g.FRUCHT[g.AKF.Index-1]) {
 				g.GEHOB = value / 100
 			}
 		}
 		if key == "INITCONCNROOT" {
 			// apply only in case of initial crop
-			if !(g.DAUERKULT == 'D' && g.AKF.Num > 2 && g.FRUCHT[g.AKF.Index] == g.FRUCHT[g.AKF.Index-1]) {
+			if !(g.DAUERKULT && g.AKF.Num > 2 && g.FRUCHT[g.AKF.Index] == g.FRUCHT[g.AKF.Index-1]) {
 				g.WUGEH = value / 100
 			}
 		}

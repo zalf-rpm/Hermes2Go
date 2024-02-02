@@ -413,7 +413,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 		ln.NRESID = 0
 		g.PARSUM = 0
 
-		if g.DAUERKULT == 'D' {
+		if g.DAUERKULT {
 			if g.JN[g.AKF.Index] == 0 || g.JN[g.AKF.Index] == 1 {
 				g.WORG[3], g.WORG[4] = 0, 0
 				g.WORG[1] = math.Max(g.WORG[1]*(1-g.YIFAK), 720)
@@ -830,7 +830,7 @@ func resid(g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath 
 	// DGU = N amount from roots (kg N/ha)
 	if g.JN[g.AKF.Index] == 0 {
 		// all residues remain on the field
-		if g.DAUERKULT == 'D' {
+		if g.DAUERKULT {
 			DGM = (g.OBMAS - 820) * g.GEHOB
 			DGU = 0
 		} else {
@@ -839,7 +839,7 @@ func resid(g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath 
 		}
 	} else if g.JN[g.AKF.Index] == 1 {
 		// all residues are removed from the field
-		if g.DAUERKULT == 'D' {
+		if g.DAUERKULT {
 			if g.FRUCHT[g.AKF.Index] == AA {
 				DGM = 0
 				DGU = g.PESUM * NWURA * 0.74
@@ -857,7 +857,7 @@ func resid(g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath 
 		DGM = g.PESUM - DGU
 	} else {
 		// JN is a fraction between 0 and 1 of residues that are removed from the field
-		if g.DAUERKULT == 'D' {
+		if g.DAUERKULT {
 			DGU = g.PESUM * NWURA * 0.74
 			DGM = g.PESUM - (g.OBMAS * g.JN[g.AKF.Index] * g.GEHOB)
 		} else {
@@ -883,7 +883,7 @@ func resid(g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath 
 // pinit
 func pinit(g *GlobalVarsMain) {
 
-	if g.DAUERKULT != 'D' {
+	if !g.DAUERKULT {
 		g.PESUM = 0
 		g.VERNTAGE = 0
 		g.OBMAS = 0

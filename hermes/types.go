@@ -235,8 +235,8 @@ type GlobalVarsMain struct {
 	YORGAN     int
 	YIFAK      float64
 	NRKOM      int // number of N-uptake compartments
-	DAUERKULT  rune
-	LEGUM      rune
+	DAUERKULT  bool
+	LEGUM      bool
 	DOUBLE     int //day of  double ridge stage / Doppelringstadium
 	ASIP       int
 	BLUET      int
