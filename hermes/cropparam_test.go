@@ -32,8 +32,8 @@ func TestWriteCropParam(t *testing.T) {
 			INITCONCNROOT:     2.0,
 			NRKOM:             4,
 			CompartimentNames: []string{"root", "leave", "stem", "ears"},
-			DAUERKULT:         0,
-			LEGUM:             'L',
+			DAUERKULT:         false,
+			LEGUM:             true,
 			WORG:              []float64{153, 153, 0, 0},
 			MAIRT:             []float64{0.01, 0.03, 0.015, 0.01},
 			KcIni:             0.65,
@@ -218,6 +218,14 @@ func TestWriteCropParam(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := WriteCropParam(tt.args.filename, tt.args.cropParam); (err != nil) != tt.wantErr {
 				t.Errorf("WriteCropParam() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			// read back the file and compare
+			cropParam, err := ReadCropParamFromFile(tt.args.filename)
+			if err != nil {
+				t.Errorf("ReadCropParam() error = %v", err)
+			}
+			if cropParam.CropName != tt.args.cropParam.CropName {
+				t.Errorf("ReadCropParam() CropName = %v, want %v", cropParam.CropName, tt.args.cropParam.CropName)
 			}
 		})
 	}
