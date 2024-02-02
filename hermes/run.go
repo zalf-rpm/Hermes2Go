@@ -632,7 +632,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 								g.ETC0 = 0
 							}
 							//CALL PHYTO(#7)
-							PhytoOut(&g, &cropSharedVars, &herPath, ZEIT, &cropOut)
+							PhytoOut(&g, &cropSharedVars, &herPath, ZEIT, &driConfig, &cropOut)
 
 						} else if ZEIT < g.SAAT[g.AKF.Index] {
 							for I := 1; I <= g.N; I++ {
