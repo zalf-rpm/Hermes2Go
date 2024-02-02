@@ -379,6 +379,33 @@ func Open(fd *FileDescriptior) (*os.File, *bufio.Scanner, error) {
 	return file, scanner, nil
 }
 
+func ReadFile(fd *FileDescriptior) ([]byte, error) {
+
+	// remove space characters
+	fileCorrected := strings.TrimSpace(fd.FilePath)
+	fd.FilePath = fileCorrected
+
+	if fd.UseFilePool {
+		byteData := HermesFilePool.Get(fd)
+		return byteData, nil
+	}
+
+	byteData, err := os.ReadFile(fd.FilePath)
+	if err != nil {
+		if fd.ContinueOnError {
+			if fd.debugOut != nil {
+				fd.debugOut <- fmt.Sprintf("%s Error occured while reading %s: %s   \n", fd.logID, fd.FileDescription, fd.FilePath)
+			} else {
+				fmt.Printf("Error occured while reading %s: %s   \n", fd.FileDescription, fd.FilePath)
+			}
+
+			return nil, err
+		}
+		log.Fatalf("Error occured while reading %s: %s   \n", fd.FileDescription, fd.FilePath)
+	}
+	return byteData, nil
+}
+
 // OpenResultFile opens a file for writing - options append, if append is false, it will truncate the file and override
 func OpenResultFile(filePath string, append bool) *Fout {
 	var flags int
