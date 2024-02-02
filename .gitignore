@@ -25,3 +25,4 @@ examples/MUN_RESULT
 examples/project/ex2/RESULT
 version.txt
 examples/calibration_output
+hermes/test_data/PARAM_test.SOY.yml
