@@ -3,6 +3,7 @@ package hermes
 import (
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	yaml "gopkg.in/yaml.v3"
@@ -379,4 +380,192 @@ func ReadCropParamClassic(PARANAM string, l *CropSharedVars, g *GlobalVarsMain) 
 		l.kc[i] = ValAsFloat(LINE9c[65:], PARANAM, LINE9c)
 	}
 
+}
+
+func ConvertCropParamClassicToYml(PARANAM string) (CropParam, error) {
+
+	cropParam := CropParam{
+		CropName:              "",
+		ABBr:                  "",
+		Variety:               "",
+		MAXAMAX:               0,
+		TempTyp:               0,
+		MINTMP:                0,
+		WUMAXPF:               0,
+		VELOC:                 0,
+		NGEFKT:                0,
+		RGA:                   0,
+		RGB:                   0,
+		SubOrgan:              0,
+		AboveGroundOrgans:     []int{},
+		YORGAN:                0,
+		YIFAK:                 0,
+		INITCONCNBIOM:         0,
+		INITCONCNROOT:         0,
+		NRKOM:                 0,
+		CompartimentNames:     []string{},
+		DAUERKULT:             false,
+		LEGUM:                 false,
+		WORG:                  []float64{},
+		MAIRT:                 []float64{},
+		KcIni:                 0,
+		NRENTW:                0,
+		CropDevelopmentStages: []CropDevelopmentStage{},
+	}
+
+	_, scanner, err := Open(&FileDescriptior{FilePath: PARANAM, FileDescription: "crop file", UseFilePool: true})
+	if err != nil {
+		return cropParam, err
+	}
+
+	// get variaty and abbreviation from filename
+	cropParam.ABBr = filepath.Ext(PARANAM)
+	cropParam.ABBr = strings.TrimPrefix(cropParam.ABBr, ".")
+	filename := filepath.Base(PARANAM)
+	// remove extension
+	filename = strings.TrimSuffix(filename, "."+cropParam.ABBr)
+	parts := strings.Split(filename, "_")
+	if len(parts) > 1 {
+		cropParam.Variety = parts[1]
+	}
+
+	LineInut(scanner)
+	cropName := LineInut(scanner)
+	cropName = strings.TrimPrefix(cropName, "crop:")
+	cropName = strings.TrimPrefix(cropName, "Frucht:")
+	cropParam.CropName = strings.TrimSpace(cropName)
+	LineInut(scanner)
+
+	LINE0 := LineInut(scanner)
+	cropParam.MAXAMAX = ValAsFloat(LINE0[65:], PARANAM, LINE0)
+
+	LINE0b := LineInut(scanner)
+	cropParam.TempTyp = int(ValAsInt(LINE0b[65:], PARANAM, LINE0b))
+
+	LINE01 := LineInut(scanner)
+	cropParam.MINTMP = ValAsFloat(LINE01[65:], PARANAM, LINE01)
+
+	LINE02 := LineInut(scanner)
+	cropParam.WUMAXPF = ValAsFloat(LINE02[65:], PARANAM, LINE02)
+
+	LINE03 := LineInut(scanner)
+	cropParam.VELOC = ValAsFloat(LINE03[65:], PARANAM, LINE03)
+
+	LINE04 := LineInut(scanner)
+	cropParam.NGEFKT = int(ValAsInt(LINE04[65:], PARANAM, LINE04))
+
+	if cropParam.NGEFKT == 5 {
+		line04Token := strings.Fields(LINE04)
+		for _, token := range line04Token {
+			if strings.HasPrefix(token, "a=") {
+				subToken := strings.Split(token, "=")
+				cropParam.RGA = ValAsFloat(subToken[1], PARANAM, LINE04)
+			}
+			if strings.HasPrefix(token, "b=") {
+				subToken := strings.Split(token, "=")
+				cropParam.RGB = ValAsFloat(subToken[1], PARANAM, LINE04)
+			}
+			if strings.HasPrefix(token, "org=") {
+				subToken := strings.Split(token, "=")
+				cropParam.SubOrgan = int(ValAsInt(subToken[1][1:], PARANAM, LINE04))
+			}
+		}
+	}
+
+	LINE05 := LineInut(scanner)
+	progip1Trimed := strings.TrimSpace(LINE05[65:])
+	nrkob := len(progip1Trimed)
+	for i := 0; i < nrkob; i++ {
+		komp := int(ValAsInt(progip1Trimed[i:i+1], "none", LINE05))
+		cropParam.AboveGroundOrgans = append(cropParam.AboveGroundOrgans, komp)
+	}
+
+	Line05b := LineInut(scanner)
+	cropParam.YORGAN = int(ValAsInt(Line05b[65:66], PARANAM, Line05b))
+	cropParam.YIFAK = ValAsFloat(Line05b[66:], PARANAM, Line05b)
+
+	LINE06 := LineInut(scanner)
+	cropParam.INITCONCNBIOM = ValAsFloat(LINE06[65:], PARANAM, LINE06)
+
+	LINE06b := LineInut(scanner)
+	cropParam.INITCONCNROOT = ValAsFloat(LINE06b[65:], PARANAM, LINE06b)
+
+	LINE1 := LineInut(scanner)
+	cropParam.NRKOM = int(ValAsInt(LINE1[65:], PARANAM, LINE1))
+	compNames := LineInut(scanner)
+	cropParam.CompartimentNames = strings.Fields(compNames)
+	// drop first element and last element if it is empty
+	cropParam.CompartimentNames = cropParam.CompartimentNames[1 : cropParam.NRKOM+1]
+
+	LINE1bVal := LineInut(scanner)
+	LINE1b := []rune(LINE1bVal)
+	cropParam.DAUERKULT = LINE1b[32] == 'D'
+	cropParam.LEGUM = LINE1b[40] == 'L'
+
+	LINE1C := LineInut(scanner)
+	cropParam.WORG = make([]float64, cropParam.NRKOM)
+	cropParam.MAIRT = make([]float64, cropParam.NRKOM)
+	for i := 0; i < cropParam.NRKOM; i++ {
+		cropParam.WORG[i] = ValAsFloat(string(LINE1b[25+8*(i+1):30+8*(i+1)]), PARANAM, LINE1bVal)
+		//  Maintenancerate of Organ I
+		cropParam.MAIRT[i] = ValAsFloat(LINE1C[25+8*(i+1):30+8*(i+1)], PARANAM, LINE1C)
+	}
+	LINE1d := LineInut(scanner)
+	// kc Faktor unbedeckter Boden
+	cropParam.KcIni = ValAsFloat(LINE1d[65:], PARANAM, LINE1d)
+	LINE2 := LineInut(scanner)
+	// Anzahl der Entwicklungsstufen (max 10)
+	cropParam.NRENTW = int(ValAsInt(LINE2[65:], PARANAM, LINE2))
+
+	for i := 0; i < cropParam.NRENTW; i++ {
+		text := LineInut(scanner)
+		developmentStageToString := strings.TrimSpace(text)
+		// trim all leading and trailing '-' characters
+		developmentStageToString = strings.Trim(developmentStageToString, "- ")
+		developmentStage := CropDevelopmentStage{
+			DevelopmentStageName: developmentStageToString,
+		}
+		LINE4 := LineInut(scanner)
+		// Temperatursumme Entwicklungsstufe I (°C days)
+		developmentStage.TSUM = ValAsFloat(LINE4[65:], PARANAM, LINE4)
+		LINE5 := LineInut(scanner)
+		// Basisitemperatur Entwicklungsstufe I (°C)
+		developmentStage.BAS = ValAsFloat(LINE5[65:], PARANAM, LINE5)
+		LINE6 := LineInut(scanner)
+		// Benötigte Anzahl Vernalisationstage Entwicklungsstufe I (Tage)
+		developmentStage.VSCHWELL = ValAsFloat(LINE6[65:], PARANAM, LINE6)
+		LINE7 := LineInut(scanner)
+		// Tageslängenbedarf Entwicklungsstufe I (h)
+		developmentStage.DAYL = ValAsFloat(LINE7[65:], PARANAM, LINE7)
+		LINE7b := LineInut(scanner)
+		// Basistageslänge Entwicklungsstufe I (h)
+		developmentStage.DLBAS = ValAsFloat(LINE7b[65:], PARANAM, LINE7b)
+		LINE8 := LineInut(scanner)
+		// Schwelle für Trockenstress (Ta/Tp) Entwicklungsstufe I (0-1)
+		developmentStage.DRYSWELL = ValAsFloat(LINE8[65:], PARANAM, LINE8)
+		LINE8b := LineInut(scanner)
+		// kritischer Luftporenanteil Entwicklungsstufe I (cm^3/cm^3)
+		developmentStage.LUKRIT = ValAsFloat(LINE8b[65:], PARANAM, LINE8b)
+		LINE8c := LineInut(scanner)
+		// SLA specific leave area (area per mass) (m2/m2/kg TM) in I
+		developmentStage.LAIFKT = ValAsFloat(LINE8c[65:], PARANAM, LINE8c)
+		LINE8d := LineInut(scanner)
+		// N-content root end of phase I
+		developmentStage.WGMAX = ValAsFloat(LINE8d[65:], PARANAM, LINE8d)
+		LINE9 := LineInut(scanner)
+		LINE9b := LineInut(scanner)
+		developmentStage.PRO = make([]float64, cropParam.NRKOM)
+		developmentStage.DEAD = make([]float64, cropParam.NRKOM)
+		for L := 0; L < cropParam.NRKOM; L++ {
+			// Partitioning at end of phase I(fraction)
+			developmentStage.PRO[L] = ValAsFloat(LINE9[25+8*(L+1):30+8*(L+1)], PARANAM, LINE9)
+			// death rate at end of phase I (coefficient)
+			developmentStage.DEAD[L] = ValAsFloat(LINE9b[25+8*(L+1):30+8*(L+1)], PARANAM, LINE9b)
+		}
+		LINE9c := LineInut(scanner)
+		//kc factor for evapotranspiration at end of phase I
+		developmentStage.Kc = ValAsFloat(LINE9c[65:], PARANAM, LINE9c)
+		cropParam.CropDevelopmentStages = append(cropParam.CropDevelopmentStages, developmentStage)
+	}
+	return cropParam, nil
 }
