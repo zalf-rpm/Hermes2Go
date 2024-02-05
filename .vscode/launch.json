@@ -167,6 +167,18 @@
             ]
         },
         {
+            "name": "Convert crop file",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "src/cropfileconverter",
+            "cwd": "examples/parameter",
+            "args": [
+                "-input", "PARAM.SOY",
+                "-output", "PARAM.SOY.yml"
+            ]
+        },
+        {
             "name": "Attach to R process",
             "type": "R-Debugger",
             "request": "attach",
