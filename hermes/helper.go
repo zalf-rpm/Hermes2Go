@@ -466,7 +466,7 @@ func printError(logID, errorMsg string, out, logout chan<- string) {
 }
 
 // DumpStructToFile debug dump global variables to a file
-func DumpStructToFile(filename string, global *GlobalVarsMain) {
+func DumpStructToFile(filename string, global interface{}) {
 
 	file := OpenResultFile(filename, false)
 	defer file.Close()
