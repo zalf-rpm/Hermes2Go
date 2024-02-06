@@ -3,7 +3,7 @@ CropName: soybean
 # crop no./ abbreviation
 CropAbbreviation: SOY
 # variaty of the crop
-Variety: test
+Variety: ""
 # AMAX Max. CO2 assimilation rate (kg CO2/ha leave/h)
 MAXAMAX: 28
 # type of temperature dependency (C3 = 1/ C4 = 2)
@@ -60,7 +60,7 @@ NRENTW: 7
 # development stage/phase
 CropDevelopmentStages:
     - # name of the development stage/phase
-      DevelopmentStageName: sowing til emergence
+      DevelopmentStageName: 'development phase 1: sowing til emergence'
       # development phase temperatur sum (°C days)
       TSUM: 82
       # base temperature in phase (°C)
@@ -94,7 +94,7 @@ CropDevelopmentStages:
       # kc factor for evapotranspiration at end of phase
       Kc: 0.65
     - # name of the development stage/phase
-      DevelopmentStageName: emergence to end juvenile phase
+      DevelopmentStageName: 'development phase 2: emergence to end juvenile phase'
       # development phase temperatur sum (°C days)
       TSUM: 50
       # base temperature in phase (°C)
@@ -128,7 +128,7 @@ CropDevelopmentStages:
       # kc factor for evapotranspiration at end of phase
       Kc: 0.7
     - # name of the development stage/phase
-      DevelopmentStageName: flower appearance to end of flowering
+      DevelopmentStageName: 'development phase 3: end juvenile phase to flower appearance'
       # development phase temperatur sum (°C days)
       TSUM: 220
       # base temperature in phase (°C)
@@ -162,7 +162,7 @@ CropDevelopmentStages:
       # kc factor for evapotranspiration at end of phase
       Kc: 1
     - # name of the development stage/phase
-      DevelopmentStageName: flower appearance to first pod
+      DevelopmentStageName: 'development phase 4: flower appearance to first pod'
       # development phase temperatur sum (°C days)
       TSUM: 280
       # base temperature in phase (°C)
@@ -196,7 +196,7 @@ CropDevelopmentStages:
       # kc factor for evapotranspiration at end of phase
       Kc: 1.15
     - # name of the development stage/phase
-      DevelopmentStageName: first pod to last pod
+      DevelopmentStageName: 'development phase 5: first pod to last pod'
       # development phase temperatur sum (°C days)
       TSUM: 172
       # base temperature in phase (°C)
@@ -230,7 +230,7 @@ CropDevelopmentStages:
       # kc factor for evapotranspiration at end of phase
       Kc: 1.15
     - # name of the development stage/phase
-      DevelopmentStageName: last pod to maturity
+      DevelopmentStageName: 'development phase 6: last pod to maturity'
       # development phase temperatur sum (°C days)
       TSUM: 400
       # base temperature in phase (°C)
@@ -264,7 +264,7 @@ CropDevelopmentStages:
       # kc factor for evapotranspiration at end of phase
       Kc: 1.15
     - # name of the development stage/phase
-      DevelopmentStageName: senescence
+      DevelopmentStageName: 'development phase 7: senescence'
       # development phase temperatur sum (°C days)
       TSUM: 125
       # base temperature in phase (°C)
