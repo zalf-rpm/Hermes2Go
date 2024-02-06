@@ -273,9 +273,10 @@ func ReadCropParamClassic(PARANAM string, l *CropSharedVars, g *GlobalVarsMain) 
 	//above ground organs (numbers of compartiments increasing order)
 	progip1Trimed := strings.TrimSpace(LINE05[65:])
 	nrkob := len(progip1Trimed)
+	l.AboveGroundOrgans = make([]int, nrkob)
 	for i := 0; i < nrkob; i++ {
 		komp := int(ValAsInt(progip1Trimed[i:i+1], "none", LINE05))
-		l.AboveGroundOrgans = append(l.AboveGroundOrgans, komp)
+		l.AboveGroundOrgans[i] = komp
 	}
 
 	Line05b := LineInut(scanner)
