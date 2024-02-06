@@ -30,6 +30,8 @@ SoilFileExtension: 'csv'
 CropFileFormat: 'txt'
 # Name of Polygon resp. grid file
 PolygonGridFileName: poly
+# Crop parameter file format (txt = hermes crop, yml = yaml format)
+CropParameterFormat: 'txt'
 
 #***** Weather *****
 # weather file name template/pattern, %s will be replaced with fcode
@@ -104,5 +106,3 @@ AutoFertilization: 1
 AutoIrrigation: 1
 # automatic harvest (0=no, 1= on demand)
 AutoHarvest: 1
-# write management events
-ManagementEvents: 1

@@ -77,7 +77,7 @@
             ]
         },
         {
-            "name": "Launch Hermes batch mode buld density",
+            "name": "Launch Hermes batch mode bulk density",
             "type": "go",
             "request": "launch",
             "mode": "auto",

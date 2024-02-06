@@ -8,6 +8,8 @@ InitSelection: 2
 SoilFile: soil
 SoilFileExtension: 'txt'
 CropFileFormat: 'txt'
+# Crop parameter file format (txt = hermes crop, yml = yaml format)
+CropParameterFormat: 'txt'
 WeatherFile: 'MET_%s.'
 WeatherFileFormat: 0
 WeatherFileSeperator: 1

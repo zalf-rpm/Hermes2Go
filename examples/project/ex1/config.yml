@@ -28,6 +28,8 @@ SoilFileExtension: 'txt'
 CropFileFormat: 'csv'
 # Name of Polygon resp. grid file
 PolygonGridFileName: poly
+# Crop parameter file format (txt = hermes crop, yml = yaml format)
+CropParameterFormat: 'txt'
 
 #***** Weather *****
 # weather file name template/pattern
