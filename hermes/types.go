@@ -547,6 +547,13 @@ const (
 	ERB                 // pea / Felderbse
 	PH                  // phacelia / Phazelie
 	SOY                 // soybean / Soyabohne
+	LET                 // Lettuce / Salat
+	WCA                 // Wintercarrots / Wintermöhren
+	ONI                 // Onions / Zwiebeln
+	CEL                 // Celery / Sellerie
+	GAR                 // Garlic / Knoblauch
+	CAR                 // Carrots / Möhren
+	PMK                 // Pumpkins / Kürbis
 	numSysCrops
 )
 
@@ -577,6 +584,13 @@ var cropTypeLookup = map[string]CropType{
 	"ERB": ERB,
 	"PH":  PH,
 	"SOY": SOY,
+	"LET": LET,
+	"WCA": WCA,
+	"ONI": ONI,
+	"CEL": CEL,
+	"GAR": GAR,
+	"CAR": CAR,
+	"PMK": PMK,
 }
 
 func (g *GlobalVarsMain) ToCropType(s string) CropType {
