@@ -548,7 +548,7 @@ const (
 	PH                  // phacelia / Phazelie
 	SOY                 // soybean / Soyabohne
 	LET                 // Lettuce / Salat
-	WCA                 // Wintercarrots / Wintermöhren
+	WCA                 // White cabbage / Weißkohl
 	ONI                 // Onions / Zwiebeln
 	CEL                 // Celery / Sellerie
 	GAR                 // Garlic / Knoblauch
