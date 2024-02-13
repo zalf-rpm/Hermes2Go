@@ -631,15 +631,25 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 	}
 	// Limitieren der maximalen N-Aufnahme auf 26-13*10^-14 mol/cm W./sec
 	var maxup float64
-	if g.FRUCHT[g.AKF.Index] == ORH || g.FRUCHT[g.AKF.Index] == WRA || g.FRUCHT[g.AKF.Index] == SE {
-		maxup = 0.09145 - .015725*(g.PHYLLO/1300)
+	if g.FRUCHT[g.AKF.Index] == ORH ||
+		g.FRUCHT[g.AKF.Index] == WRA ||
+		g.FRUCHT[g.AKF.Index] == SE ||
+		g.FRUCHT[g.AKF.Index] == LET ||
+		g.FRUCHT[g.AKF.Index] == WCA ||
+		g.FRUCHT[g.AKF.Index] == ONI ||
+		g.FRUCHT[g.AKF.Index] == CEL ||
+		g.FRUCHT[g.AKF.Index] == GAR ||
+		g.FRUCHT[g.AKF.Index] == CAR ||
+		g.FRUCHT[g.AKF.Index] == PMK {
+		maxup = 0.09145 - 0.015725*(g.PHYLLO/1300)
 	} else if g.FRUCHT[g.AKF.Index] == SM {
-		maxup = .074 - .01*(g.PHYLLO/l.tendsum)
+		maxup = 0.074 - 0.01*(g.PHYLLO/l.tendsum)
 	} else if g.FRUCHT[g.AKF.Index] == ZR {
-		maxup = .05645 - .01*(g.PHYLLO/l.tendsum)
+		maxup = 0.05645 - 0.01*(g.PHYLLO/l.tendsum)
 	} else {
-		maxup = .03145 - .015725*(g.PHYLLO/1300)
+		maxup = 0.03145 - 0.015725*(g.PHYLLO/1300)
 	}
+
 	if DTGESN > WULAEN*maxup*g.DT.Num {
 		if !g.LEGUM {
 			DTGESN = WULAEN * maxup * g.DT.Num
