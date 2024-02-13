@@ -51,7 +51,7 @@ func NewDualType(baseIndex int, offset int) DualType {
 // GlobalVarsMain contains all variables that are use by multiple sub modules
 type GlobalVarsMain struct {
 	IZM     int
-	DT      DualType
+	DT      DualType // time step (Zeitschritt)
 	DZ      DualType //= 10 (cm to mm)
 	N       int      // max number of layer (changed by soil file)
 	DV      float64
