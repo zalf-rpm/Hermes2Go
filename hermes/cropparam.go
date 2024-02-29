@@ -15,7 +15,7 @@ type CropParam struct {
 	// CropParam is a struct to hold the crop parameters
 	CropName string `yaml:"CropName" comment:"name of the crop"`
 	ABBr     string `yaml:"CropAbbreviation" comment:"crop no./ abbreviation"` // Abbreviation of the crop
-	Variety  string `yaml:"Variety" comment:"variaty of the crop"`             // Variaty of the crop
+	Variety  string `yaml:"Variaty" comment:"variaty of the crop"`             // Variaty of the crop
 
 	MAXAMAX           float64       `yaml:"MAXAMAX" comment:"AMAX Max. CO2 assimilation rate (kg CO2/ha leave/h)"`                               // AMAX Max. CO2 assimilation rate (kg CO2/ha leave/h)
 	TempTyp           int           `yaml:"TempTyp" comment:"type of temperature dependency (C3 = 1/ C4 = 2)"`                                   // type of temperature dependency (C3 = 1/ C4 = 2)
@@ -29,33 +29,33 @@ type CropParam struct {
 	AboveGroundOrgans []int         `yaml:"AboveGroundOrgans" comment:"list of above ground organs (numbers of compartiments increasing order)"` // SubOrgan parameter for crop N-content function number
 	YORGAN            int           `yaml:"YORGAN" comment:"organ number for yield"`                                                             // organ number for yield
 	YIFAK             float64       `yaml:"YIFAK" comment:"fraction of yield organ (90% = 0.90)"`                                                // fraction of yield organ (90% = 0.90)
-	INITCONCNBIOM     float64       `yaml:"INITCONCNBIOM" comment:"start conzentration N in above ground biomass (% i. d.m.)"`                   // start conzentration N in above ground biomass (% i. d.m.)
+	INITCONCNBIOM     float64       `yaml:"INITCONCNBIOM" comment:"start concentration N in above ground biomass (% i. d.m.)"`                   // start conzentration N in above ground biomass (% i. d.m.)
 	INITCONCNROOT     float64       `yaml:"INITCONCNROOT" comment:"start concentration N in roots (% i. d.m.)"`                                  // start concentration N in roots (% i. d.m.)
 	NRKOM             int           `yaml:"NRKOM" comment:"Number of crop compartiments"`                                                        // Number of crop compartiments
 	CompartimentNames []string      `yaml:"CompartimentNames" comment:"list of compartiment names"`                                              // list of compartiment names
 	DAUERKULT         FeatureSwitch `yaml:"DAUERKULT" comment:"Dauerkultur - Is Permaculture true/false 1/0"`                                    // Dauerkultur - Permaculture D / Non Permaculture 0
 	LEGUM             FeatureSwitch `yaml:"LEGUM" comment:"Legume - Is Legume true/false 1/0"`                                                   // Legume L / Non Legume 0
 	WORG              []float64     `yaml:"WORG" comment:"initial weight kg d.m./ha of organ I"`                                                 // initial weight kg d.m./ha of organ I
-	MAIRT             []float64     `yaml:"MAIRT" comment:"maintainance rates of organ I"`                                                       // Maintainance rates of organ I
+	MAIRT             []float64     `yaml:"MAIRT" comment:"maintainance rates of organ I (1/day)"`                                               // Maintainance rates of organ I
 	KcIni             float64       `yaml:"KcIni" comment:"initial kc factor for evapotranspiration (uncovered soil)"`                           // initial kc factor for evapotranspiration (uncovered soil)
 
 	NRENTW                int                    `yaml:"NRENTW" comment:"number of development phases(max 10)"`   // number of development phases(max 10)
 	CropDevelopmentStages []CropDevelopmentStage `yaml:"CropDevelopmentStages" comment:"development stage/phase"` // development stage/phase
 }
 type CropDevelopmentStage struct {
-	DevelopmentStageName string    `yaml:"DevelopmentStageName" comment:"name of the development stage/phase"` // name of the development stage/phase
-	TSUM                 float64   `yaml:"TSUM" comment:"development phase temperatur sum (°C days)"`          // development phase temperatur sum (°C days)
-	BAS                  float64   `yaml:"BAS" comment:"base temperature in phase (°C)"`                       // base temperature in phase (°C)
-	VSCHWELL             float64   `yaml:"VSCHWELL" comment:"vernalisation requirements (days)"`               // vernalisation requirements (days)
-	DAYL                 float64   `yaml:"DAYL" comment:"day length requirements (hours)"`                     // day length requirements (hours)
-	DLBAS                float64   `yaml:"DLBAS" comment:"base day length in phase (hours)"`                   // base day length in phase (hours)
-	DRYSWELL             float64   `yaml:"DRYSWELL" comment:"drought stress below ETA/ETP-quotient"`           // drought stress below ETA/ETP-quotient
-	LUKRIT               float64   `yaml:"LUKRIT" comment:"critical aircontent in topsoil (cm^3/cm^3)"`        // critical aircontent in topsoil (cm^3/cm^3)
-	LAIFKT               float64   `yaml:"LAIFKT" comment:"specific leave area (area per mass) (m2/m2/kg TM)"` // specific leave area (area per mass) (m2/m2/kg TM)
-	WGMAX                float64   `yaml:"WGMAX" comment:"N-content root end at the of phase"`                 // N-content root end at the of phase
-	PRO                  []float64 `yaml:"PRO" comment:"Partitioning at end of phase (fraction)"`              // Partitioning at end of phase (fraction)
-	DEAD                 []float64 `yaml:"DEAD" comment:"death rate at end of phase (coefficient)"`            // death rate at end of phase (coefficient)
-	Kc                   float64   `yaml:"Kc" comment:"kc factor for evapotranspiration at end of phase"`      // kc factor for evapotranspiration at end of phase
+	DevelopmentStageName string    `yaml:"DevelopmentStageName" comment:"name of the development stage/phase"`     // name of the development stage/phase
+	TSUM                 float64   `yaml:"TSUM" comment:"development phase temperature sum (°C days)"`             // development phase temperatur sum (°C days)
+	BAS                  float64   `yaml:"BAS" comment:"base temperature in phase (°C)"`                           // base temperature in phase (°C)
+	VSCHWELL             float64   `yaml:"VSCHWELL" comment:"vernalisation requirements (days)"`                   // vernalisation requirements (days)
+	DAYL                 float64   `yaml:"DAYL" comment:"day length requirements (hours)"`                         // day length requirements (hours)
+	DLBAS                float64   `yaml:"DLBAS" comment:"base day length in phase (hours)"`                       // base day length in phase (hours)
+	DRYSWELL             float64   `yaml:"DRYSWELL" comment:"drought stress below ETA/ETP-quotient"`               // drought stress below ETA/ETP-quotient
+	LUKRIT               float64   `yaml:"LUKRIT" comment:"critical aircontent in topsoil (cm^3/cm^3)"`            // critical aircontent in topsoil (cm^3/cm^3)
+	LAIFKT               float64   `yaml:"LAIFKT" comment:"specific leave area (LAI per mass) (m2/m2/kg TM)"`      // specific leave area (area per mass) (m2/m2/kg TM)
+	WGMAX                float64   `yaml:"WGMAX" comment:"N-content root at the end of phase (fraction)"`          // N-content root end at the of phase
+	PRO                  []float64 `yaml:"PRO" comment:"Partitioning at end of phase (fraction, sum should be 1)"` // Partitioning at end of phase (fraction)
+	DEAD                 []float64 `yaml:"DEAD" comment:"death rate at end of phase (coefficient, 1/day)"`         // death rate at end of phase (coefficient)
+	Kc                   float64   `yaml:"Kc" comment:"kc factor for evapotranspiration at end of phase"`          // kc factor for evapotranspiration at end of phase
 }
 
 // ReadCropParam reads the crop parameters from a yml file
