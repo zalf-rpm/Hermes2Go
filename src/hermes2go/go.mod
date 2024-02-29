@@ -1,6 +1,6 @@
 module github.com/zalf-rpm/Hermes2Go/src/hermes2go
 
-go 1.17
+go 1.19
 
 require github.com/zalf-rpm/Hermes2Go/hermes v0.0.0-20210816164110-4329e56e99f8
 
