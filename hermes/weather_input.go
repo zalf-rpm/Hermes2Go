@@ -406,7 +406,7 @@ func ReadWeatherCSV(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDa
 			}
 		}
 
-		if anyError := anyWeatherError(err, g.LOGID, VWDAT); anyError != nil {
+		if anyError := anyWeatherError(err, g.LOGID); anyError != nil {
 			return anyError
 		}
 		if first {
@@ -443,7 +443,7 @@ func ReadWeatherCSV(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDa
 	return nil
 }
 
-func anyWeatherError(list []error, logid, vwdat string) error {
+func anyWeatherError(list []error, logid string) error {
 	for _, b := range list {
 		if b != nil {
 			return fmt.Errorf("%s Failed to parse file: %s, error :%v", logid, logid, b)
@@ -542,7 +542,7 @@ func ReadWeatherCZ(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDat
 		if _, ok := h[co2]; ok && len(tokens) > h[co2] {
 			currentCO2, err[9] = strconv.ParseFloat(tokens[h[co2]], 64)
 		}
-		if anyError := anyWeatherError(err, g.LOGID, VWDAT); anyError != nil {
+		if anyError := anyWeatherError(err, g.LOGID); anyError != nil {
 			return anyError
 		}
 		d.tavg = (d.tmax + d.tmin) / 2

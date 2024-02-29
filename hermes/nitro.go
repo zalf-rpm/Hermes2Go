@@ -274,7 +274,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 	}
 	if subd == 1 {
 		// Aufruf Mineralisations Subroutine
-		mineral(wdt, subd, g, l)
+		mineral(g, l)
 	}
 	if zeit == g.ERNTE[g.AKF.Index] && subd == 1 {
 
@@ -285,7 +285,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 		//NULA(NDG) = Unterird. Zufuhr langsam mineralisierbarer org. Substanz aus Ernterückständen (kg N/ha) (wird entspr. Wurzelverteilung verteilt)
 		var NDI, NSA, NLA, NUSA, NULA float64
 		if g.AKF.Num != 1 {
-			NDI, NSA, NLA, NUSA, NULA, ln.NRESID = resid(g, l, ln, hPath)
+			NDI, NSA, NLA, NUSA, NULA, ln.NRESID = resid(g, ln, hPath)
 			runErr = g.managementConfig.WriteManagementEvent(NewManagementEvent(Harvest, zeit, map[string]interface{}{
 				"Residue": ln.NRESID,
 			}, g))
@@ -519,12 +519,12 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 		}
 	}
 	// ---------- Aufruf N-Verlagerung -------------------------
-	nmove(wdt, subd, zeit, g, l, ln)
+	nmove(wdt, subd, zeit, g, l)
 	return finishedCycle, nil
 }
 
 // mineral
-func mineral(wdt float64, subd int, g *GlobalVarsMain, l *NitroSharedVars) {
+func mineral(g *GlobalVarsMain, l *NitroSharedVars) {
 	//! ------------------------------------- Mineralisation in Abh. von Temperatur und Wassergehalt ------------
 	//! Inputs:
 	//! IZM                       = bodenartspezifische Mineralisierungstiefe
@@ -646,7 +646,7 @@ func mineral(wdt float64, subd int, g *GlobalVarsMain, l *NitroSharedVars) {
 }
 
 // nmove
-func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars) {
+func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVars) {
 	// ---------------------      N-Verlagerung konvektions-Dispersionsgleichung ---------------------
 	//Inputs:
 	// DV                        = Dispersionslänge (cm)
@@ -793,7 +793,7 @@ func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 }
 
 // resid
-func resid(g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath *HFilePath) (NDI, NSA, NLA, NUSA, NULA, NRESID float64) {
+func resid(g *GlobalVarsMain, ln *NitroBBBSharedVars, hPath *HFilePath) (NDI, NSA, NLA, NUSA, NULA, NRESID float64) {
 	// ------------------------------- Mineralisationspotentiale aus Vorfruchtresiduen ---------------------------------------
 	// Input:
 	// Dauerkult$         = D = Dauerkultur / Permanent crop

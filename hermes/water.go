@@ -239,7 +239,7 @@ func Evatra(l *WaterSharedVars, g *GlobalVarsMain, hPath *HFilePath, zeit int) {
 			Deltsat := (4098 * (0.6108 * math.Exp((17.27*g.TEMP[g.TAG.Index])/(g.TEMP[g.TAG.Index]+237.3)))) / math.Pow((g.TEMP[g.TAG.Index]+237.3), 2)
 			//  ! ----- wenn Windgeschwindigkeit Messung nicht in 2m Höhe, dann Umrechnung auf 2m
 			//  ! --- Berechnung des Stomatawiderstands in Abh.von CO2 ---
-			stomat(l, zeit, g)
+			stomat(l, g)
 			//  ! --------------------------------------------------------
 			//  ! ----------- Umrechnung Wind auf 2 m, wenn Messhöhe Wind <> 2 m -------------
 			if g.WINDHI != 2 {
@@ -654,9 +654,9 @@ func Evatra(l *WaterSharedVars, g *GlobalVarsMain, hPath *HFilePath, zeit int) {
 	}
 }
 
-// -------- Unterprogramm Stomatawiderstand in Abh. C-Assimilation, S�ttigungsdefizit und CO2 -------------------------
+// -------- Unterprogramm Stomatawiderstand in Abh. C-Assimilation, Sättigungsdefizit und CO2 -------------------------
 
-func stomat(l *WaterSharedVars, zeit int, g *GlobalVarsMain) {
+func stomat(l *WaterSharedVars, g *GlobalVarsMain) {
 
 	// ! Inputs:
 	// ! AMAX            = maximale C-Assimilation bei Lichtsättigung

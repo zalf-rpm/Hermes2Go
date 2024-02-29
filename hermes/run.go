@@ -53,7 +53,6 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		var LOCID, SOID, gwId string
 		var parameterFolderOverride, resultOverride string
 		for key, value := range argValues {
-			var err error
 			switch key {
 			case "project":
 				LOCID = value
@@ -74,10 +73,6 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				resultOverride = value
 			case "gwId":
 				gwId = value
-			}
-
-			if err != nil {
-				log.Fatalf("Error: parsing integer from commandline! %v \n", err)
 			}
 		}
 		cropOverwrite, err := ParseCropOverwrites(argValues)

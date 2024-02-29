@@ -199,7 +199,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		//---------------------------------------------
 
 		// Aufruf Modul für Stahlungsinterception und Photosynthese nach Penning de Vries 1982 ----
-		_, DLP, GPHOT, MAINT := radia(g, l, zeit)
+		_, DLP, GPHOT, MAINT := radia(g, l)
 		// ----------------------------------------------------------------------------------------
 		//  Netto-Assimilation kg C/ha
 		GTW := GPHOT + g.ASPOO
@@ -734,7 +734,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 }
 
 // radia  Strahlunsinterception, Photosynthese und Erhaltungsatmung nach Penning de Vries 1982
-func radia(g *GlobalVarsMain, l *CropSharedVars, zeit int) (DLE, DLP, GPHOT, MAINT float64) {
+func radia(g *GlobalVarsMain, l *CropSharedVars) (DLE, DLP, GPHOT, MAINT float64) {
 	//! Inputs:
 	//! LAT              = geogr. Breite (°)
 	//! TEMP(TAG)        = Tagesmitteltemperatur (°C)
