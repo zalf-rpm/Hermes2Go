@@ -3,9 +3,9 @@ CropName: soybean
 # crop no./ abbreviation
 CropAbbreviation: SOY
 # variaty of the crop
-Variaty: ""
+Variaty: i
 # AMAX Max. CO2 assimilation rate (kg CO2/ha leave/h)
-MAXAMAX: 28
+MAXAMAX: 29
 # type of temperature dependency (C3 = 1/ C4 = 2)
 TempTyp: 1
 # minimum temperature crop growth (in C°)
@@ -62,7 +62,7 @@ CropDevelopmentStages:
     - # name of the development stage/phase
       DevelopmentStageName: 'development phase 1: sowing til emergence'
       # development phase temperature sum (°C days)
-      TSUM: 82
+      TSUM: 95
       # base temperature in phase (°C)
       BAS: 7
       # vernalisation requirements (days)
@@ -102,9 +102,9 @@ CropDevelopmentStages:
       # vernalisation requirements (days)
       VSCHWELL: 0
       # day length requirements (hours)
-      DAYL: -15
+      DAYL: -13.2
       # base day length in phase (hours)
-      DLBAS: -23.5
+      DLBAS: -19.2
       # drought stress below ETA/ETP-quotient
       DRYSWELL: 0.6
       # critical aircontent in topsoil (cm^3/cm^3)
@@ -130,15 +130,15 @@ CropDevelopmentStages:
     - # name of the development stage/phase
       DevelopmentStageName: 'development phase 3: end juvenile phase to flower appearance'
       # development phase temperature sum (°C days)
-      TSUM: 220
+      TSUM: 210
       # base temperature in phase (°C)
-      BAS: 7
+      BAS: 8
       # vernalisation requirements (days)
       VSCHWELL: 0
       # day length requirements (hours)
-      DAYL: -15
+      DAYL: -13.2
       # base day length in phase (hours)
-      DLBAS: -23.5
+      DLBAS: -19.2
       # drought stress below ETA/ETP-quotient
       DRYSWELL: 0.8
       # critical aircontent in topsoil (cm^3/cm^3)
@@ -164,9 +164,9 @@ CropDevelopmentStages:
     - # name of the development stage/phase
       DevelopmentStageName: 'development phase 4: flower appearance to first pod'
       # development phase temperature sum (°C days)
-      TSUM: 280
+      TSUM: 320
       # base temperature in phase (°C)
-      BAS: 7
+      BAS: 8
       # vernalisation requirements (days)
       VSCHWELL: 0
       # day length requirements (hours)
@@ -198,7 +198,7 @@ CropDevelopmentStages:
     - # name of the development stage/phase
       DevelopmentStageName: 'development phase 5: first pod to last pod'
       # development phase temperature sum (°C days)
-      TSUM: 172
+      TSUM: 200
       # base temperature in phase (°C)
       BAS: 7
       # vernalisation requirements (days)
@@ -232,9 +232,9 @@ CropDevelopmentStages:
     - # name of the development stage/phase
       DevelopmentStageName: 'development phase 6: last pod to maturity'
       # development phase temperature sum (°C days)
-      TSUM: 400
+      TSUM: 720
       # base temperature in phase (°C)
-      BAS: 4
+      BAS: 5
       # vernalisation requirements (days)
       VSCHWELL: 0
       # day length requirements (hours)

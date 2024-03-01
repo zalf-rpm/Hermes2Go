@@ -1,17 +1,17 @@
 # name of the crop
-CropName: soybean
+CropName: winter wheat
 # crop no./ abbreviation
-CropAbbreviation: SOY
+CropAbbreviation: WW
 # variaty of the crop
 Variaty: ""
 # AMAX Max. CO2 assimilation rate (kg CO2/ha leave/h)
-MAXAMAX: 28
+MAXAMAX: 52
 # type of temperature dependency (C3 = 1/ C4 = 2)
 TempTyp: 1
 # minimum temperature crop growth (in C°)
-MINTMP: 6
+MINTMP: 4
 # crop specific maximum effective rooting depth(dm)
-WUMAXPF: 9
+WUMAXPF: 12
 # root depth increase in mm/C°
 VELOC: 0.5574
 # crop N-content function number for critical and max. N-contents
@@ -40,11 +40,11 @@ CompartimentNames:
 # Dauerkultur - Is Permaculture true/false 1/0
 DAUERKULT: 0
 # Legume - Is Legume true/false 1/0
-LEGUM: 1
+LEGUM: 0
 # initial weight kg d.m./ha of organ I
 WORG:
-    - 153
-    - 153
+    - 53
+    - 53
     - 0
     - 0
 # maintainance rates of organ I (1/day)
@@ -56,15 +56,15 @@ MAIRT:
 # initial kc factor for evapotranspiration (uncovered soil)
 KcIni: 0.65
 # number of development phases(max 10)
-NRENTW: 7
+NRENTW: 6
 # development stage/phase
 CropDevelopmentStages:
     - # name of the development stage/phase
       DevelopmentStageName: 'development phase 1: sowing til emergence'
       # development phase temperature sum (°C days)
-      TSUM: 82
+      TSUM: 148
       # base temperature in phase (°C)
-      BAS: 7
+      BAS: 0
       # vernalisation requirements (days)
       VSCHWELL: 0
       # day length requirements (hours)
@@ -76,7 +76,7 @@ CropDevelopmentStages:
       # critical aircontent in topsoil (cm^3/cm^3)
       LUKRIT: 0.08
       # specific leave area (LAI per mass) (m2/m2/kg TM)
-      LAIFKT: 0.0025
+      LAIFKT: 0.002
       # N-content root at the end of phase (fraction)
       WGMAX: 0.02
       # Partitioning at end of phase (fraction, sum should be 1)
@@ -94,25 +94,25 @@ CropDevelopmentStages:
       # kc factor for evapotranspiration at end of phase
       Kc: 0.65
     - # name of the development stage/phase
-      DevelopmentStageName: 'development phase 2: emergence to end juvenile phase'
+      DevelopmentStageName: 'development phase 2: emergence til double ridge'
       # development phase temperature sum (°C days)
-      TSUM: 50
+      TSUM: 284
       # base temperature in phase (°C)
-      BAS: 7
+      BAS: 1
       # vernalisation requirements (days)
-      VSCHWELL: 0
+      VSCHWELL: 45
       # day length requirements (hours)
-      DAYL: -15
+      DAYL: 20
       # base day length in phase (hours)
-      DLBAS: -23.5
+      DLBAS: 0
       # drought stress below ETA/ETP-quotient
-      DRYSWELL: 0.6
+      DRYSWELL: 0.8
       # critical aircontent in topsoil (cm^3/cm^3)
       LUKRIT: 0.08
       # specific leave area (LAI per mass) (m2/m2/kg TM)
-      LAIFKT: 0.003
+      LAIFKT: 0.0018
       # N-content root at the end of phase (fraction)
-      WGMAX: 0.012
+      WGMAX: 0.02
       # Partitioning at end of phase (fraction, sum should be 1)
       PRO:
         - 0.2
@@ -126,27 +126,27 @@ CropDevelopmentStages:
         - 0
         - 0
       # kc factor for evapotranspiration at end of phase
-      Kc: 0.7
+      Kc: 1.15
     - # name of the development stage/phase
-      DevelopmentStageName: 'development phase 3: end juvenile phase to flower appearance'
+      DevelopmentStageName: 'development phase 3: double ridge to ear emergence'
       # development phase temperature sum (°C days)
-      TSUM: 220
+      TSUM: 260
       # base temperature in phase (°C)
-      BAS: 7
+      BAS: 1
       # vernalisation requirements (days)
       VSCHWELL: 0
       # day length requirements (hours)
-      DAYL: -15
+      DAYL: 20
       # base day length in phase (hours)
-      DLBAS: -23.5
+      DLBAS: 7
       # drought stress below ETA/ETP-quotient
       DRYSWELL: 0.8
       # critical aircontent in topsoil (cm^3/cm^3)
       LUKRIT: 0.08
       # specific leave area (LAI per mass) (m2/m2/kg TM)
-      LAIFKT: 0.002
+      LAIFKT: 0.0013
       # N-content root at the end of phase (fraction)
-      WGMAX: 0.01
+      WGMAX: 0.012
       # Partitioning at end of phase (fraction, sum should be 1)
       PRO:
         - 0.13
@@ -160,11 +160,45 @@ CropDevelopmentStages:
         - 0
         - 0
       # kc factor for evapotranspiration at end of phase
-      Kc: 1
+      Kc: 1.3
     - # name of the development stage/phase
-      DevelopmentStageName: 'development phase 4: flower appearance to first pod'
+      DevelopmentStageName: 'development phase 4: ear emergence to flowering'
       # development phase temperature sum (°C days)
-      TSUM: 280
+      TSUM: 180
+      # base temperature in phase (°C)
+      BAS: 1
+      # vernalisation requirements (days)
+      VSCHWELL: 0
+      # day length requirements (hours)
+      DAYL: 20
+      # base day length in phase (hours)
+      DLBAS: 7
+      # drought stress below ETA/ETP-quotient
+      DRYSWELL: 0.9
+      # critical aircontent in topsoil (cm^3/cm^3)
+      LUKRIT: 0.08
+      # specific leave area (LAI per mass) (m2/m2/kg TM)
+      LAIFKT: 0.0012
+      # N-content root at the end of phase (fraction)
+      WGMAX: 0.01
+      # Partitioning at end of phase (fraction, sum should be 1)
+      PRO:
+        - 0
+        - 0
+        - 0.04
+        - 0.96
+      # death rate at end of phase (coefficient, 1/day)
+      DEAD:
+        - 0
+        - 0
+        - 0
+        - 0
+      # kc factor for evapotranspiration at end of phase
+      Kc: 1.3
+    - # name of the development stage/phase
+      DevelopmentStageName: 'development phase 5: grain filling'
+      # development phase temperature sum (°C days)
+      TSUM: 520
       # base temperature in phase (°C)
       BAS: 7
       # vernalisation requirements (days)
@@ -178,75 +212,7 @@ CropDevelopmentStages:
       # critical aircontent in topsoil (cm^3/cm^3)
       LUKRIT: 0.08
       # specific leave area (LAI per mass) (m2/m2/kg TM)
-      LAIFKT: 0.002
-      # N-content root at the end of phase (fraction)
-      WGMAX: 0.01
-      # Partitioning at end of phase (fraction, sum should be 1)
-      PRO:
-        - 0.1
-        - 0.4
-        - 0.5
-        - 0
-      # death rate at end of phase (coefficient, 1/day)
-      DEAD:
-        - 0
-        - 0
-        - 0
-        - 0
-      # kc factor for evapotranspiration at end of phase
-      Kc: 1.15
-    - # name of the development stage/phase
-      DevelopmentStageName: 'development phase 5: first pod to last pod'
-      # development phase temperature sum (°C days)
-      TSUM: 172
-      # base temperature in phase (°C)
-      BAS: 7
-      # vernalisation requirements (days)
-      VSCHWELL: 0
-      # day length requirements (hours)
-      DAYL: 0
-      # base day length in phase (hours)
-      DLBAS: 0
-      # drought stress below ETA/ETP-quotient
-      DRYSWELL: 0.8
-      # critical aircontent in topsoil (cm^3/cm^3)
-      LUKRIT: 0.08
-      # specific leave area (LAI per mass) (m2/m2/kg TM)
-      LAIFKT: 0.002
-      # N-content root at the end of phase (fraction)
-      WGMAX: 0.01
-      # Partitioning at end of phase (fraction, sum should be 1)
-      PRO:
-        - 0
-        - 0
-        - 0.4
-        - 0.6
-      # death rate at end of phase (coefficient, 1/day)
-      DEAD:
-        - 0
-        - 0.05
-        - 0
-        - 0
-      # kc factor for evapotranspiration at end of phase
-      Kc: 1.15
-    - # name of the development stage/phase
-      DevelopmentStageName: 'development phase 6: last pod to maturity'
-      # development phase temperature sum (°C days)
-      TSUM: 400
-      # base temperature in phase (°C)
-      BAS: 4
-      # vernalisation requirements (days)
-      VSCHWELL: 0
-      # day length requirements (hours)
-      DAYL: 0
-      # base day length in phase (hours)
-      DLBAS: 0
-      # drought stress below ETA/ETP-quotient
-      DRYSWELL: 0.7
-      # critical aircontent in topsoil (cm^3/cm^3)
-      LUKRIT: 0.08
-      # specific leave area (LAI per mass) (m2/m2/kg TM)
-      LAIFKT: 0.002
+      LAIFKT: 0.0012
       # N-content root at the end of phase (fraction)
       WGMAX: 0.01
       # Partitioning at end of phase (fraction, sum should be 1)
@@ -257,16 +223,16 @@ CropDevelopmentStages:
         - 1
       # death rate at end of phase (coefficient, 1/day)
       DEAD:
-        - 0
+        - 0.05
         - 0.05
         - 0
         - 0
       # kc factor for evapotranspiration at end of phase
-      Kc: 1.15
+      Kc: 0.8
     - # name of the development stage/phase
-      DevelopmentStageName: 'development phase 7: senescence'
+      DevelopmentStageName: 'development phase 6: senescence'
       # development phase temperature sum (°C days)
-      TSUM: 125
+      TSUM: 25
       # base temperature in phase (°C)
       BAS: 9
       # vernalisation requirements (days)
@@ -276,11 +242,11 @@ CropDevelopmentStages:
       # base day length in phase (hours)
       DLBAS: 0
       # drought stress below ETA/ETP-quotient
-      DRYSWELL: 0.8
+      DRYSWELL: 0.65
       # critical aircontent in topsoil (cm^3/cm^3)
       LUKRIT: 0.08
       # specific leave area (LAI per mass) (m2/m2/kg TM)
-      LAIFKT: 0.002
+      LAIFKT: 0.0012
       # N-content root at the end of phase (fraction)
       WGMAX: 0.01
       # Partitioning at end of phase (fraction, sum should be 1)
@@ -291,9 +257,9 @@ CropDevelopmentStages:
         - 0
       # death rate at end of phase (coefficient, 1/day)
       DEAD:
-        - 0
+        - 0.05
         - 0.05
         - 0
         - 0
       # kc factor for evapotranspiration at end of phase
-      Kc: 0.5
+      Kc: 0.25

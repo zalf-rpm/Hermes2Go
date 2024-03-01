@@ -3,7 +3,7 @@ CropName: soybean
 # crop no./ abbreviation
 CropAbbreviation: SOY
 # variaty of the crop
-Variaty: ""
+Variaty: "0000"
 # AMAX Max. CO2 assimilation rate (kg CO2/ha leave/h)
 MAXAMAX: 28
 # type of temperature dependency (C3 = 1/ C4 = 2)
