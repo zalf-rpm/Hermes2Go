@@ -1,4 +1,6 @@
-To run a Hermes executable, you need to open a terminal:
+# To run Hermes
+
+you run Hermes in a terminal
 
 1. Run the project as definded (read from project/modinp.txt):  
 hermes2go.exe
@@ -16,9 +18,9 @@ The batch file contains one line for each project to be executed, e.g:
 project=myP WeatherFolder=historical soilId=075 plotNr=10001 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_myP  
 project=myP WeatherFolder=historical soilId=075 plotNr=10002 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT_myP  
 
-A batch file allows you to change some attributes of the project, e.g. the plotNr, weather data etc. 
+A batch file allows you to change some attributes of the project, e.g. the plotNr, weather data etc.
 The project name must be the same as the name of the project folder.
-For example, myP is the name of a sample project, which is the same as the name of the folder containing the project files. 
+For example, myP is the name of a sample project, which is the same as the name of the folder containing the project files.
 The project folder contains the following files:
 
 - project\myP\automan.txt - contains values for automatic management
@@ -38,7 +40,6 @@ The output files are stored in the folder RESULT_myP. The output files are for e
 RESULT_myP\C2987210001.csv  
 RESULT_myP\V2987210001.csv  
 RESULT_myP\Y2987210001.csv  
-
 
 starting with the letter C, V or Y, followed by the polygon ID and the plot number.  
 C2987210001.csv contains the crop output for polygon 29872 and plot 10001.  
