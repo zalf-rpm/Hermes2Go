@@ -80,7 +80,7 @@ CropDevelopmentStages:
       DRYSWELL: 0.9
       # critical aircontent in topsoil (cm^3/cm^3)
       LUKRIT: 0.03
-      # specific leave area (LAI per mass) (m2/m2/kg TM)
+      # specific leave area (LAI per mass) (ha/kg TM)
       LAIFKT: 0.002
       # N-content root at the end of phase (fraction)
       WGMAX: 0.02
@@ -114,7 +114,7 @@ CropDevelopmentStages:
       DRYSWELL: 0.7
       # critical aircontent in topsoil (cm^3/cm^3)
       LUKRIT: 0.03
-      # specific leave area (LAI per mass) (m2/m2/kg TM)
+      # specific leave area (LAI per mass) (ha/kg TM)
       LAIFKT: 0.0012
       # N-content root at the end of phase (fraction)
       WGMAX: 0.015
@@ -148,7 +148,7 @@ CropDevelopmentStages:
       DRYSWELL: 0.7
       # critical aircontent in topsoil (cm^3/cm^3)
       LUKRIT: 0.03
-      # specific leave area (LAI per mass) (m2/m2/kg TM)
+      # specific leave area (LAI per mass) (ha/kg TM)
       LAIFKT: 0.0007
       # N-content root at the end of phase (fraction)
       WGMAX: 0.012
@@ -182,7 +182,7 @@ CropDevelopmentStages:
       DRYSWELL: 0.7
       # critical aircontent in topsoil (cm^3/cm^3)
       LUKRIT: 0.03
-      # specific leave area (LAI per mass) (m2/m2/kg TM)
+      # specific leave area (LAI per mass) (ha/kg TM)
       LAIFKT: 0.0007
       # N-content root at the end of phase (fraction)
       WGMAX: 0.01
@@ -216,7 +216,7 @@ CropDevelopmentStages:
       DRYSWELL: 0.7
       # critical aircontent in topsoil (cm^3/cm^3)
       LUKRIT: 0.03
-      # specific leave area (LAI per mass) (m2/m2/kg TM)
+      # specific leave area (LAI per mass) (ha/kg TM)
       LAIFKT: 0.0007
       # N-content root at the end of phase (fraction)
       WGMAX: 0.009
@@ -250,7 +250,7 @@ CropDevelopmentStages:
       DRYSWELL: 0.7
       # critical aircontent in topsoil (cm^3/cm^3)
       LUKRIT: 0.03
-      # specific leave area (LAI per mass) (m2/m2/kg TM)
+      # specific leave area (LAI per mass) (ha/kg TM)
       LAIFKT: 0.0007
       # N-content root at the end of phase (fraction)
       WGMAX: 0.009

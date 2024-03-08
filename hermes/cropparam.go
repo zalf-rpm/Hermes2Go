@@ -51,7 +51,7 @@ type CropDevelopmentStage struct {
 	DLBAS                float64   `yaml:"DLBAS" comment:"base day length in phase (hours)"`                       // base day length in phase (hours)
 	DRYSWELL             float64   `yaml:"DRYSWELL" comment:"drought stress below ETA/ETP-quotient"`               // drought stress below ETA/ETP-quotient
 	LUKRIT               float64   `yaml:"LUKRIT" comment:"critical aircontent in topsoil (cm^3/cm^3)"`            // critical aircontent in topsoil (cm^3/cm^3)
-	LAIFKT               float64   `yaml:"LAIFKT" comment:"specific leave area (LAI per mass) (m2/m2/kg TM)"`      // specific leave area (area per mass) (m2/m2/kg TM)
+	LAIFKT               float64   `yaml:"LAIFKT" comment:"specific leave area (LAI per mass) (ha/kg TM)"`         // specific leave area (area per mass) (m2/m2/kg TM)
 	WGMAX                float64   `yaml:"WGMAX" comment:"N-content root at the end of phase (fraction)"`          // N-content root end at the of phase
 	PRO                  []float64 `yaml:"PRO" comment:"Partitioning at end of phase (fraction, sum should be 1)"` // Partitioning at end of phase (fraction)
 	DEAD                 []float64 `yaml:"DEAD" comment:"death rate at end of phase (coefficient, 1/day)"`         // death rate at end of phase (coefficient)
