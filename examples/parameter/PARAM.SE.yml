@@ -128,7 +128,7 @@ CropDevelopmentStages:
       # kc factor for evapotranspiration at end of phase
       Kc: 1.1
     - # name of the development stage/phase
-      DevelopmentStageName: 'Entwicklungsphase 3: Doppelring bis Bl�te'
+      DevelopmentStageName: 'Entwicklungsphase 3: Doppelring bis Blüte'
       # development phase temperature sum (°C days)
       TSUM: 200
       # base temperature in phase (°C)

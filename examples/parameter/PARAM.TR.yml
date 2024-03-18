@@ -128,7 +128,7 @@ CropDevelopmentStages:
       # kc factor for evapotranspiration at end of phase
       Kc: 1.12
     - # name of the development stage/phase
-      DevelopmentStageName: 'Entwicklungsphase 3: Doppelring bis Bl�te'
+      DevelopmentStageName: 'Entwicklungsphase 3: Doppelring bis Blüte'
       # development phase temperature sum (°C days)
       TSUM: 200
       # base temperature in phase (°C)
@@ -162,7 +162,7 @@ CropDevelopmentStages:
       # kc factor for evapotranspiration at end of phase
       Kc: 1.3
     - # name of the development stage/phase
-      DevelopmentStageName: 'Entwicklungsphase 4: Bl�te /Beginn Kornf�llung'
+      DevelopmentStageName: 'Entwicklungsphase 4: Blüte /Beginn Kornfüllung'
       # development phase temperature sum (°C days)
       TSUM: 400
       # base temperature in phase (°C)
@@ -196,7 +196,7 @@ CropDevelopmentStages:
       # kc factor for evapotranspiration at end of phase
       Kc: 1.3
     - # name of the development stage/phase
-      DevelopmentStageName: 'Entwicklungsphase 5: Kornf�llung'
+      DevelopmentStageName: 'Entwicklungsphase 5: Kornfüllung'
       # development phase temperature sum (°C days)
       TSUM: 350
       # base temperature in phase (°C)
