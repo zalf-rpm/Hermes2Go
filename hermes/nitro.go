@@ -518,6 +518,14 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 		}
 		pinit(g)
 
+		resetBBCHPermaCulture := func(cp CropType, bbch int) {
+			if g.FRUCHT[g.AKF.Index] == cp {
+				g.BBCH = bbch
+				for i := bbch + 1; i < 100; i++ {
+					g.BBCH_DOY[i] = 0
+				}
+			}
+		}
 		if g.FRUCHT[g.AKF.Index] != GRE &&
 			g.FRUCHT[g.AKF.Index] != GR &&
 			g.FRUCHT[g.AKF.Index] != AA {
@@ -535,8 +543,9 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 				g.BBCH_DOY[i] = 0
 			}
 		} else {
-			// ToDo: implement
-			// BBCH reset to the value of a TBD development stage
+			resetBBCHPermaCulture(GRE, 45)
+			resetBBCHPermaCulture(GR, 45)
+			resetBBCHPermaCulture(AA, 39)
 		}
 	}
 	// ---------- Aufruf N-Verlagerung -------------------------
