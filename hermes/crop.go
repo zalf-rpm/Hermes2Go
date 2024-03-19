@@ -19,6 +19,8 @@ type CropSharedVars struct {
 	EZIEL             float64
 	PROZIEL           float64
 	MANT              [5]float64
+	ENDBBCH           [10]float64 // End BBCH for each stage
+	useBBCH           bool        // use BBCH stages (true when ENDBBCH has values > 0)
 }
 
 // PhytoOut calculates plant mass, creates output
@@ -38,6 +40,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 	// ! DLP                       = photoperiodisch aktive Tageslänge (incl. 6? b?rgerl. Dämmerung) aus Wassermodel (h)
 	// ! Variable:
 	// ! INTWICK                   = Nr. Entwicklungsstadium
+	// ! ENDBBCH(INTWICK)          = BBCH am Ende des Entwicklungsstadiums i
 	// ! SUM(INTWICK)              = entwicklungswirksame Temperatursumme in Stadium INTWICK
 	// ! WUMAS                     = Wurzeltrockenmasse (kg/ha)
 	// ! OBMAS                     = oberirdische Trockenmasse (kg/ha)Gesamt N-Aufnahme der Pflanze (kg N/ha)
@@ -132,6 +135,11 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			}
 		}
 		g.FKC = l.kcini + (l.kc[g.INTWICK.Index]-l.kcini)*g.SUM[0]/g.TSUM[0]
+		g.BBCH = int(l.ENDBBCH[g.INTWICK.Index] * g.SUM[0] / g.TSUM[0])
+		if l.useBBCH && g.BBCH_DOY[g.BBCH] == 0 {
+			// set first day of year for BBCH stage
+			g.BBCH_DOY[g.BBCH] = g.TAG.Index + 1
+		}
 	}
 	var DTGESN float64
 	var WUMALT float64 // previous root mass
@@ -270,19 +278,25 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			g.PHYLLO = g.PHYLLO + (g.TEMP[g.TAG.Index]-g.BAS[g.INTWICK.Index])*l.FV*l.FP*devprog*g.DT.Num
 			CalulateDevelopmentStages(zeit, l.FV, l.FP, g)
 		}
-		// -- Interpolsation kc Faktor aus Entwicklungsfortschritt --
+		// -- Interpolsation kc Faktor und BBCH aus Entwicklungsfortschritt --
 		if g.INTWICK.Num < 2 {
 			relint := g.SUM[g.INTWICK.Index] / g.TSUM[g.INTWICK.Index]
 			if relint > 1 {
 				relint = 1
 			}
 			g.FKC = l.kcini + (l.kc[g.INTWICK.Index]-l.kcini)*relint
+			g.BBCH = int(l.ENDBBCH[g.INTWICK.Index] * relint)
 		} else {
 			relint := g.SUM[g.INTWICK.Index] / g.TSUM[g.INTWICK.Index]
 			if relint > 1 {
 				relint = 1
 			}
 			g.FKC = l.kc[g.INTWICK.Index-1] + (l.kc[g.INTWICK.Index]-l.kc[g.INTWICK.Index-1])*relint
+			g.BBCH = int(l.ENDBBCH[g.INTWICK.Index-1] + (l.ENDBBCH[g.INTWICK.Index]-l.ENDBBCH[g.INTWICK.Index-1])*relint)
+		}
+		if l.useBBCH && g.BBCH_DOY[g.BBCH] == 0 {
+			// set first day of year for BBCH stage
+			g.BBCH_DOY[g.BBCH] = g.TAG.Index + 1
 		}
 		// +++++++++++++++++++  N-Gehaltsfunktionen  +++++++++++++++++++++++++
 		// Funtionen für GEHMAX und GEHMIN in Abhängigkeit der Entwicklung (PHYLLO) oder der oberird. Biomasse (OBMAS)

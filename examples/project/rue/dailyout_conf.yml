@@ -120,6 +120,8 @@ DataColumns:
   VariableName: WURZ
 - Format: '%2.f'
   VariableName: INTWICK.Num
+- Format: '%2d'
+  VariableName: BBCH
 - Format: '%06.2f'
   VariableName: BLATTSUM
 - Format: '%05.1f'
@@ -226,6 +228,7 @@ Headlines:
   - ColumnName: NAOS
   - ColumnName: rt
   - ColumnName: stg
+  - ColumnName: BBCH
   - ColumnName: leave
   - ColumnName: NFOS
   - ColumnName: MAOS

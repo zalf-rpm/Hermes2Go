@@ -351,12 +351,25 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			} else {
 				ln.DDAT3 = " " + ln.DDAT3 + " "
 			}
+			// fill gaps in BBCH_DOY array, for the case that some stages are not reached, or were skipped
+			fillBBCHgaps := func(doyArr *[100]int) {
+				lastValue := 0
+				for i := 0; i < 100; i++ {
+					if doyArr[i] == 0 {
+						doyArr[i] = lastValue
+					} else {
+						lastValue = doyArr[i]
+					}
+				}
+			}
 
 			output.EmergDOY = g.DEV[1]
 			output.AnthDOY = g.DEV[4]
 			output.MatDOY = g.DEV[5]
 			output.HarvestYear = hyear
 			output.HarvestDOY = g.TAG.Index + 1
+			fillBBCHgaps(&g.BBCH_DOY)
+			output.BBCH_DOY = g.BBCH_DOY
 			output.Crop = g.CropTypeToString(g.FRUCHT[g.AKF.Index], true)
 			output.Yield = g.YIELD
 			output.Biomass = g.OBMAS
@@ -514,8 +527,16 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			g.OBMAS = 0
 			g.WUMAS = 0
 			g.INTWICK.SetByIndex(-1)
+			g.BBCH = 0
 			g.ASPOO = 0
 			g.VERNTAGE = 0
+			// clear g.BBCH_DOY
+			for i := range g.BBCH_DOY {
+				g.BBCH_DOY[i] = 0
+			}
+		} else {
+			// ToDo: implement
+			// BBCH reset to the value of a TBD development stage
 		}
 	}
 	// ---------- Aufruf N-Verlagerung -------------------------

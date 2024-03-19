@@ -44,6 +44,7 @@ type CropParam struct {
 }
 type CropDevelopmentStage struct {
 	DevelopmentStageName string    `yaml:"DevelopmentStageName" comment:"name of the development stage/phase"`     // name of the development stage/phase
+	ENDBBCH              int       `yaml:"ENDBBCH,omitempty" comment:"end on BBCH-scale"`                          // end on BBCH-scale
 	TSUM                 float64   `yaml:"TSUM" comment:"development phase temperature sum (°C days)"`             // development phase temperatur sum (°C days)
 	BAS                  float64   `yaml:"BAS" comment:"base temperature in phase (°C)"`                           // base temperature in phase (°C)
 	VSCHWELL             float64   `yaml:"VSCHWELL" comment:"vernalisation requirements (days)"`                   // vernalisation requirements (days)
@@ -56,6 +57,7 @@ type CropDevelopmentStage struct {
 	PRO                  []float64 `yaml:"PRO" comment:"Partitioning at end of phase (fraction, sum should be 1)"` // Partitioning at end of phase (fraction)
 	DEAD                 []float64 `yaml:"DEAD" comment:"death rate at end of phase (coefficient, 1/day)"`         // death rate at end of phase (coefficient)
 	Kc                   float64   `yaml:"Kc" comment:"kc factor for evapotranspiration at end of phase"`          // kc factor for evapotranspiration at end of phase
+
 }
 
 // ReadCropParam reads the crop parameters from a yml file
@@ -186,7 +188,10 @@ func ReadCropParamYml(PARANAM string, l *CropSharedVars, g *GlobalVarsMain) {
 
 	l.kcini = cropParam.KcIni
 	l.tendsum = 0
+	l.useBBCH = false
 	for i := 0; i < l.NRENTW; i++ {
+		l.ENDBBCH[i] = float64(cropParam.CropDevelopmentStages[i].ENDBBCH)
+		l.useBBCH = l.useBBCH || l.ENDBBCH[i] > 0
 		g.TSUM[i] = cropParam.CropDevelopmentStages[i].TSUM
 		g.BAS[i] = cropParam.CropDevelopmentStages[i].BAS
 		g.VSCHWELL[i] = cropParam.CropDevelopmentStages[i].VSCHWELL
@@ -338,8 +343,21 @@ func ReadCropParamClassic(PARANAM string, l *CropSharedVars, g *GlobalVarsMain) 
 	// Anzahl der Entwicklungsstufen (max 10)
 	l.NRENTW = int(ValAsInt(LINE2[65:], PARANAM, LINE2))
 	l.tendsum = 0
+	l.useBBCH = false
 	for i := 0; i < l.NRENTW; i++ {
-		LineInut(scanner)
+		developmentStageHeadline := LineInut(scanner)
+		bbch := 0
+		if len(developmentStageHeadline) > 65 {
+			// if the line is longer than 65 characters, it may have a BBCH code
+			val, err := TryValAsFloat(developmentStageHeadline[65:])
+			if err == nil && val >= 0 && val < 100 {
+				// if the last part of the line is a number between 00 and 99, it is a BBCH code
+				bbch = int(val)
+			}
+		}
+		l.ENDBBCH[i] = float64(bbch)
+		l.useBBCH = l.useBBCH || l.ENDBBCH[i] > 0
+
 		LINE4 := LineInut(scanner)
 		// Temperatursumme Entwicklungsstufe I (°C days)
 		g.TSUM[i] = ValAsFloat(LINE4[65:], PARANAM, LINE4)
@@ -520,11 +538,21 @@ func ConvertCropParamClassicToYml(PARANAM string) (CropParam, error) {
 
 	for i := 0; i < cropParam.NRENTW; i++ {
 		text := LineInut(scanner)
+		bbch := 0
+		if len(text) > 65 {
+			// if the line is longer than 65 characters, it may have a BBCH code
+			val, err := TryValAsFloat(text[65:])
+			if err == nil {
+				// if the last part of the line is a number, it is a BBCH code
+				bbch = int(val)
+			}
+		}
 		developmentStageToString := strings.TrimSpace(text)
 		// trim all leading and trailing '-' characters
 		developmentStageToString = strings.Trim(developmentStageToString, "- ")
 		developmentStage := CropDevelopmentStage{
 			DevelopmentStageName: developmentStageToString,
+			ENDBBCH:              bbch,
 		}
 		LINE4 := LineInut(scanner)
 		// Temperatursumme Entwicklungsstufe I (°C days)

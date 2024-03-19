@@ -16,6 +16,15 @@ DataColumns:
   VariableName: HarvestYear
 - Format: '%3d'
   VariableName: HarvestDOY
+- Format: '%3d'
+  VariableName: BBCH_DOY
+  VarIndex1: 35
+- Format: '%3d'
+  VariableName: BBCH_DOY
+  VarIndex1: 55
+- Format: '%3d'
+  VariableName: BBCH_DOY
+  VarIndex1: 65
 - Format: '%3s'
   VariableName: Crop
 - Format: '%05.f'
@@ -90,6 +99,9 @@ Headlines:
   - ColumnName: DOY
   - ColumnName: Year
   - ColumnName: DOY
+  - ColumnName: BBCH35
+  - ColumnName: BBCH55
+  - ColumnName: BBCH65
   - ColumnName: crop
   - ColumnName: yield
   - ColumnName: biomass

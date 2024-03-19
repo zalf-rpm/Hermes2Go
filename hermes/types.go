@@ -198,6 +198,7 @@ type GlobalVarsMain struct {
 	INTWICK                 DualType    // crop development state
 	FKF                     [12]float64
 	FKC                     float64
+	BBCH                    int // BBCH code for crop development
 	LAT                     float64
 	MINTMP                  float64
 	RSTOM                   float64
@@ -340,7 +341,8 @@ type GlobalVarsMain struct {
 	MINHMOI     [300]float64
 	RAINLIM     [300]float64
 	RAINACT     [300]float64
-	DEV         [10]int // day of year (like sowing, maturity, harvest)
+	DEV         [10]int  // day of year (like sowing, maturity, harvest)
+	BBCH_DOY    [100]int // day of year in which BBCH stage was reached
 	REDUKSUM    float64
 	TRRELSUM    float64
 	LAIMAX      float64
@@ -428,6 +430,7 @@ type CropOutputVars struct {
 	AnthDOY      int
 	MatDOY       int
 	HarvestDOY   int
+	BBCH_DOY     [100]int
 	HarvestYear  int
 	Crop         string
 	Yield        float64

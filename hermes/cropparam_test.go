@@ -44,6 +44,7 @@ func TestWriteCropParam(t *testing.T) {
 			CropDevelopmentStages: []CropDevelopmentStage{
 				{
 					DevelopmentStageName: "development phase 1: sowing til emergence",
+					ENDBBCH:              0,
 					TSUM:                 82,
 					BAS:                  7,
 					VSCHWELL:             0,
@@ -53,19 +54,13 @@ func TestWriteCropParam(t *testing.T) {
 					LUKRIT:               0.08,
 					LAIFKT:               0.0025,
 					WGMAX:                0.02,
-					PRO: []float64{
-						0.5,
-						0.5,
-						0,
-						0,
-					},
-					DEAD: []float64{
-						0, 0, 0, 0,
-					},
-					Kc: 0.65,
+					PRO:                  []float64{0.5, 0.5, 0, 0},
+					DEAD:                 []float64{0, 0, 0, 0},
+					Kc:                   0.65,
 				},
 				{
 					DevelopmentStageName: "development phase 2: emergence to end juvenile phase",
+					ENDBBCH:              0,
 					TSUM:                 50,
 					BAS:                  7,
 					VSCHWELL:             0,
@@ -91,6 +86,7 @@ func TestWriteCropParam(t *testing.T) {
 				},
 				{
 					DevelopmentStageName: "development phase 3: end juvenile phase to flower appearance",
+					ENDBBCH:              0,
 					TSUM:                 220,
 					BAS:                  7,
 					VSCHWELL:             0,
@@ -116,6 +112,7 @@ func TestWriteCropParam(t *testing.T) {
 				},
 				{
 					DevelopmentStageName: "development phase 4: flower appearance to first pod",
+					ENDBBCH:              0,
 					TSUM:                 280,
 					BAS:                  7,
 					VSCHWELL:             0,
@@ -141,6 +138,7 @@ func TestWriteCropParam(t *testing.T) {
 				},
 				{
 					DevelopmentStageName: "development phase 5: first pod to last pod",
+					ENDBBCH:              0,
 					TSUM:                 172,
 					BAS:                  7,
 					VSCHWELL:             0,
@@ -166,6 +164,7 @@ func TestWriteCropParam(t *testing.T) {
 				},
 				{
 					DevelopmentStageName: "development phase 6: last pod to maturity",
+					ENDBBCH:              0,
 					TSUM:                 400,
 					BAS:                  4,
 					VSCHWELL:             0,
@@ -191,6 +190,7 @@ func TestWriteCropParam(t *testing.T) {
 				},
 				{
 					DevelopmentStageName: "development phase 7: senescence",
+					ENDBBCH:              0,
 					TSUM:                 125,
 					BAS:                  9,
 					VSCHWELL:             0,
@@ -273,6 +273,7 @@ func TestConvertCropParamClassicToYml(t *testing.T) {
 			CropDevelopmentStages: []CropDevelopmentStage{
 				{
 					DevelopmentStageName: "development phase 1: sowing til emergence",
+					ENDBBCH:              0,
 					TSUM:                 82,
 					BAS:                  7,
 					VSCHWELL:             0,
@@ -295,6 +296,7 @@ func TestConvertCropParamClassicToYml(t *testing.T) {
 				},
 				{
 					DevelopmentStageName: "development phase 2: emergence to end juvenile phase",
+					ENDBBCH:              0,
 					TSUM:                 50,
 					BAS:                  7,
 					VSCHWELL:             0,
@@ -320,6 +322,7 @@ func TestConvertCropParamClassicToYml(t *testing.T) {
 				},
 				{
 					DevelopmentStageName: "development phase 3: end juvenile phase to flower appearance",
+					ENDBBCH:              0,
 					TSUM:                 220,
 					BAS:                  7,
 					VSCHWELL:             0,
@@ -345,6 +348,7 @@ func TestConvertCropParamClassicToYml(t *testing.T) {
 				},
 				{
 					DevelopmentStageName: "development phase 4: flower appearance to first pod",
+					ENDBBCH:              0,
 					TSUM:                 280,
 					BAS:                  7,
 					VSCHWELL:             0,
@@ -370,6 +374,7 @@ func TestConvertCropParamClassicToYml(t *testing.T) {
 				},
 				{
 					DevelopmentStageName: "development phase 5: first pod to last pod",
+					ENDBBCH:              0,
 					TSUM:                 172,
 					BAS:                  7,
 					VSCHWELL:             0,
@@ -395,6 +400,7 @@ func TestConvertCropParamClassicToYml(t *testing.T) {
 				},
 				{
 					DevelopmentStageName: "development phase 6: last pod to maturity",
+					ENDBBCH:              0,
 					TSUM:                 400,
 					BAS:                  4,
 					VSCHWELL:             0,
@@ -420,6 +426,7 @@ func TestConvertCropParamClassicToYml(t *testing.T) {
 				},
 				{
 					DevelopmentStageName: "development phase 7: senescence",
+					ENDBBCH:              0,
 					TSUM:                 125,
 					BAS:                  9,
 					VSCHWELL:             0,
