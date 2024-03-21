@@ -343,6 +343,7 @@ type GlobalVarsMain struct {
 	RAINACT     [300]float64
 	DEV         [10]int  // day of year (like sowing, maturity, harvest)
 	BBCH_DOY    [100]int // day of year in which BBCH stage was reached
+	BBCH_TIME   [100]int
 	REDUKSUM    float64
 	TRRELSUM    float64
 	LAIMAX      float64
@@ -431,6 +432,7 @@ type CropOutputVars struct {
 	MatDOY       int
 	HarvestDOY   int
 	BBCH_DOY     [100]int
+	BBCH_DATE    [100]string
 	HarvestYear  int
 	Crop         string
 	Yield        float64

@@ -299,6 +299,21 @@ func KalenderDate(MASDAT int) (year, month, day int) {
 	return year, month, day
 }
 
+func convertToDate(timestamps [100]int, g *GlobalVarsMain) (dates [100]string) {
+	nodate := "--------"
+	if g.DATEFORMAT == DateDElong || g.DATEFORMAT == DateENlong {
+		nodate = "----------"
+	}
+	for i, v := range timestamps {
+		if v > 0 {
+			dates[i] = g.Kalender(v)
+		} else {
+			dates[i] = nodate
+		}
+	}
+	return
+}
+
 // func leftAlignmentFormat(numberOfRunes int, input string) (outStr string) {
 // 	lenStr := utf8.RuneCountInString(input)
 // 	var builder strings.Builder

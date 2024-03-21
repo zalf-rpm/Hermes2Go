@@ -370,6 +370,8 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			output.HarvestDOY = g.TAG.Index + 1
 			fillBBCHgaps(&g.BBCH_DOY)
 			output.BBCH_DOY = g.BBCH_DOY
+			fillBBCHgaps(&g.BBCH_TIME)
+			output.BBCH_DATE = convertToDate(g.BBCH_TIME, g)
 			output.Crop = g.CropTypeToString(g.FRUCHT[g.AKF.Index], true)
 			output.Yield = g.YIELD
 			output.Biomass = g.OBMAS
@@ -463,7 +465,6 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 				ln.DDAT2 = "------------"
 				output.SowDate = "SKIPPED"
 				output.SowDOY = 0
-
 				output.EmergDOY = 0
 				output.AnthDOY = 0
 				output.MatDOY = 0
@@ -523,6 +524,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 				g.BBCH = bbch
 				for i := bbch + 1; i < 100; i++ {
 					g.BBCH_DOY[i] = 0
+					g.BBCH_TIME[i] = 0
 				}
 			}
 		}
@@ -539,8 +541,9 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			g.ASPOO = 0
 			g.VERNTAGE = 0
 			// clear g.BBCH_DOY
-			for i := range g.BBCH_DOY {
+			for i := 0; i < 100; i++ {
 				g.BBCH_DOY[i] = 0
+				g.BBCH_TIME[i] = 0
 			}
 		} else {
 			resetBBCHPermaCulture(GRE, 45)

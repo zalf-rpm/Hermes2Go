@@ -139,6 +139,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		if l.useBBCH && g.BBCH_DOY[g.BBCH] == 0 {
 			// set first day of year for BBCH stage
 			g.BBCH_DOY[g.BBCH] = g.TAG.Index + 1
+			g.BBCH_TIME[g.BBCH] = zeit
 		}
 	}
 	var DTGESN float64
@@ -297,6 +298,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		if l.useBBCH && g.BBCH_DOY[g.BBCH] == 0 {
 			// set first day of year for BBCH stage
 			g.BBCH_DOY[g.BBCH] = g.TAG.Index + 1
+			g.BBCH_TIME[g.BBCH] = zeit
 		}
 		// +++++++++++++++++++  N-Gehaltsfunktionen  +++++++++++++++++++++++++
 		// Funtionen für GEHMAX und GEHMIN in Abhängigkeit der Entwicklung (PHYLLO) oder der oberird. Biomasse (OBMAS)
