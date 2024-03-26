@@ -100,7 +100,7 @@ type GlobalVarsMain struct {
 	PORGES_Backup      [21]float64
 	WNOR_Backup        [21]float64
 	PKT                string
-	WRED               float64 // field capacity (Feldkapazität) reduced by irrigation (cm^3/cm^3)
+	WRED               float64 // top layer reduced field capacity (Feldkapazität) depending on soil type (cm^3/cm^3)
 	PROP               float64
 	NORMFK             [10]float64
 	FELDW              [10]float64 // water content at field capacity (cm^3/cm^3)
