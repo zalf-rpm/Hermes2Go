@@ -31,9 +31,11 @@ func main() {
 	fmt.Println("Open a browser and connet to: http://localhost:8081 ")
 	fmt.Println("For N2O connet to: http://localhost:8081/n2o ")
 	fmt.Println("For ground water connet to: http://localhost:8081/groundwater ")
+	fmt.Println("For plant connet to: http://localhost:8081/crop ")
 	http.HandleFunc("/", c1debughttpserver)
 	http.HandleFunc("/n2o", n2odebughttpserver)
 	http.HandleFunc("/groundwater", GroundwaterDebugHttpServer)
+	http.HandleFunc("/crop", cropdebughttpserver)
 	http.ListenAndServe("localhost:8081", nil)
 }
 
