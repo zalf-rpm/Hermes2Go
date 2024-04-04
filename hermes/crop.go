@@ -142,7 +142,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			g.BBCH_TIME[g.BBCH] = zeit
 		}
 	}
-	var DTGESN float64
+	var DTGESN float64 // Differenz zur potentiellen gesamte N-Aufnahme im Zeitschritt (kg N/ha) / Difference to potential total N uptake in time step (kg N/ha)
 	var WUMALT float64 // previous root mass
 	var OBALT float64  // previous above ground mass
 	var GEHALT float64 // N content
@@ -636,6 +636,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		// ------------------------------------------------------------
 		rSurface[index] = g.WUDICH[index] * WRAD[index] * 2 * math.Pi
 	}
+	// Wurzellänge / root length
 	WULAEN := 0.0
 	for i := 0; i < g.WURZ; i++ {
 		// ---------------  WURZELLÄNGE in cm/cm^2 -----------------------

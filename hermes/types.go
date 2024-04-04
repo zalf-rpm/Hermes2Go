@@ -86,7 +86,7 @@ type GlobalVarsMain struct {
 	LIM                [10]float64
 	PRGES              [10]float64
 	WUMAX              [10]float64 // obsolete
-	AD                 float64
+	AD                 float64 
 	GRLO               int
 	GRHI               int
 	GRW                float64
@@ -125,7 +125,7 @@ type GlobalVarsMain struct {
 	ZTDG               [300]int
 	FKU                [12]float64
 	CN                 [2][21]float64 // (0:1,21) all 21 slots used!
-	WG                 [3][21]float64 //(0:2,21) all 21 slots used!
+	WG                 [3][21]float64 // Water content in layer I 0 = current day, 1 = prev. day, 2 = measurement // (0:2,21) all 21 slots used!
 	NMESS              int
 	MES                [100]string // Should be a local array
 	MESS               [100]int
@@ -209,12 +209,12 @@ type GlobalVarsMain struct {
 	VERDUNST                float64
 	FLUSS0                  float64
 	WUDICH                  [21]float64 // root density in soil layer Z
-	LUKRIT                  [10]float64
-	LUMDAY                  int
-	TP                      [21]float64
-	TRREL                   float64 // Water stress factor (1 = no stress, 0 = full stress)
-	REDUK                   float64 // Nitrogen stress factor (1 = no stress, 0 = full stress)
-	ETA                     float64 // Potential/actual Evapotranspiration (mm)
+	LUKRIT                  [10]float64 // kritischer Luftanteil im Boden / critical air content in soil
+	LUMDAY                  int         // Tage mit Luftmangel / days with air shortage
+	TP                      [21]float64 // Wasseraufnahme in Schicht I / water uptake in layer I
+	TRREL                   float64     // Water stress factor (1 = no stress, 0 = full stress)
+	REDUK                   float64     // Nitrogen stress factor (1 = no stress, 0 = full stress)
+	ETA                     float64     // Potential/actual Evapotranspiration (mm)
 	HEATCOND                [21]float64
 	HEATCAP                 [21]float64
 	TDSUM                   [20]float64

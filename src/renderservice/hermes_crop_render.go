@@ -22,6 +22,7 @@ func cropdebughttpserver(w http.ResponseWriter, _ *http.Request) {
 	// PE
 	page.AddCharts(
 		lineMultiGEHALT(keys, errKeys, dates),
+		lineMultiUptake(keys, errKeys, dates),
 	)
 
 	page.Render(w)
@@ -41,8 +42,18 @@ func lineMultiGEHALT(keys, errKeys []int, dates []string) *charts.Line {
 		AddSeries("GEHMIN", generateGehMinItems(keys), errorMarker(errKeys, 23)).
 		AddSeries("GEHMAX", generateGehMaxItems(keys)).
 		AddSeries("WUGEH", generateWuGehItems(keys)).
-		AddSeries("GEHOB", generateGehobItems(keys)).
-		AddSeries("PE", generatePEItems(keys))
+		AddSeries("GEHOB", generateGehobItems(keys))
+
+	return line
+}
+
+func lineMultiUptake(keys, errKeys []int, dates []string) *charts.Line {
+
+	line := makeMultiLine("Uptake")
+
+	line.SetXAxis(dates).
+		AddSeries("PE", generatePEItems(keys), errorMarker(errKeys, 23))
+
 	return line
 }
 

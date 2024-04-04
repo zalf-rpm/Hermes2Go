@@ -27,3 +27,5 @@ version.txt
 examples/calibration_output
 hermes/test_data/PARAM_test.SOY.yml
 hermes/test_data/PARAM_test1.SOY.yml
+src/renderservice/crop_last_run.html
+src/renderservice/n2o_last_run.html
