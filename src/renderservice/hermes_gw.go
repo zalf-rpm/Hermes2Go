@@ -38,6 +38,7 @@ func GroundwaterDebugHttpServer(w http.ResponseWriter, _ *http.Request) {
 	if err != nil {
 		panic(err)
 	}
+	defer f.Close()
 	page.Render(io.MultiWriter(f))
 
 }
