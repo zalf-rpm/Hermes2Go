@@ -69,7 +69,16 @@ func (c *OutputConfig) WriteHeader(file *Fout) error {
 						if err != nil {
 							return err
 						}
+					} else if idxCol == len(columnC)-1 && len(c.DataColumns) > len(columnC) {
+						// add missing columns
+						for j := 0; j < len(c.DataColumns)-len(columnC); j++ {
+							_, err = file.WriteRune(c.seperatorRune)
+							if err != nil {
+								return err
+							}
+						}
 					}
+
 				} else if c.formatType == hermesOut {
 					lastIndex = arrStartIndex[col.ColEnd]
 					// move cursor to next column start index
