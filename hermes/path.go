@@ -3,7 +3,6 @@ package hermes
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/rpc"
 	"os"
@@ -154,11 +153,17 @@ func (hp *HFilePath) SetPreCorrFolder(folder string) {
 }
 
 // GetParanam returns the full filename for the choosen fruit
-func (hp *HFilePath) GetParanam(fruit, variety string) string {
+func (hp *HFilePath) GetParanam(fruit, variety string, yml bool) string {
+	var filename string
 	if len(variety) > 0 {
-		return fmt.Sprintf(hp.paranamVarietyTemplate, variety, fruit)
+		filename = fmt.Sprintf(hp.paranamVarietyTemplate, variety, fruit)
+	} else {
+		filename = fmt.Sprintf(hp.paranamTemplate, fruit)
 	}
-	return fmt.Sprintf(hp.paranamTemplate, fruit)
+	if yml {
+		filename = filename + ".yml"
+	}
+	return filename
 }
 
 // VWdat returns weather data file with the correct extension for a year
@@ -196,7 +201,7 @@ func (fp *FilePool) Get(fd *FileDescriptior) []byte {
 		fp.list = make(map[string][]byte)
 	}
 	if _, ok := fp.list[fd.FilePath]; !ok {
-		data, err := ioutil.ReadFile(fd.FilePath)
+		data, err := os.ReadFile(fd.FilePath)
 		if err != nil {
 			if fd.FileDescription != "" {
 				log.Fatalf("Error occured while reading %s: %s   \n", fd.FileDescription, fd.FilePath)

@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"strconv"
 
-	yaml "gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v3"
 )
 
 type Config struct {
@@ -30,6 +30,7 @@ type Config struct {
 	SoilFile              string          `yaml:"SoilFile"`                   // soil profile file name (without projectname)
 	SoilFileExtension     string          `yaml:"SoilFileExtension"`          // soil file extension (txt = hermes soil, csv = csv table format)
 	CropFileFormat        string          `yaml:"CropFileFormat"`             // crop file format (txt = hermes crop, csv = csv table format)
+	CropParameterFormat   string          `yaml:"CropParameterFormat"`        // crop parameter file format (txt = hermes crop, yaml = yaml format)
 	MeasurementFileFormat string          `yaml:"MeasurementFileFormat"`      // Measurement file (endit_*.) format (txt = old Hermes, csv = csv table format)
 	PolygonGridFileName   string          `yaml:"PolygonGridFileName"`        // Name of Polygon resp. grid file
 
@@ -223,6 +224,7 @@ func NewDefaultConfig() Config {
 		SoilFile:                        "soil",
 		SoilFileExtension:               "txt",
 		CropFileFormat:                  "txt",
+		CropParameterFormat:             "txt",
 		MeasurementFileFormat:           "txt",
 		PolygonGridFileName:             "poly",
 		WeatherFile:                     "%s.csv",

@@ -274,12 +274,18 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 	}
 	if subd == 1 {
 		// Aufruf Mineralisations Subroutine
-		mineral(wdt, subd, g, l)
+		mineral(g, l)
 	}
 	if zeit == g.ERNTE[g.AKF.Index] && subd == 1 {
-		var NDI, NSA, NLA float64
+
+		//NSA(NDG)  = Oberird. Zufuhr schnell mineralisierbarer org. Substanz aus Ernterückständen (kg N/ha)
+		//NLA(NDG)  = Oberird. Zufuhr langsam mineralisierbarer org. Substanz aus Ernterückständen (kg N/ha)
+		//NDI (NDG) = Unterird. Zufuhr sofort verfügbarer N aus Ernterückständen (kg N/ha)
+		//NUSA(NDG) = Zufuhr schnell mineralisierbarer org. Substanz aus Ernterückständen (kg N/ha) (wird entspr. Wurzelverteilung verteilt)
+		//NULA(NDG) = Unterird. Zufuhr langsam mineralisierbarer org. Substanz aus Ernterückständen (kg N/ha) (wird entspr. Wurzelverteilung verteilt)
+		var NDI, NSA, NLA, NUSA, NULA float64
 		if g.AKF.Num != 1 {
-			NDI, NSA, NLA, ln.NRESID = resid(g, l, ln, hPath)
+			NDI, NSA, NLA, NUSA, NULA, ln.NRESID = resid(g, ln, hPath)
 			runErr = g.managementConfig.WriteManagementEvent(NewManagementEvent(Harvest, zeit, map[string]interface{}{
 				"Residue": ln.NRESID,
 			}, g))
@@ -289,6 +295,11 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 		}
 		g.NFOS[0] = g.NFOS[0] + NSA
 		g.NAOS[0] = g.NAOS[0] + NLA
+		for i := 0; i < g.WURZ; i++ {
+			g.NFOS[i] = g.NFOS[i] + NUSA*g.WUANT[i]
+			g.NAOS[i] = g.NAOS[i] + NULA*g.WUANT[i]
+		}
+
 		ln.NUPTAKE = g.PESUM
 		g.DSUMM = g.DSUMM + NDI
 		g.PESUM = g.PESUM - (NSA + NLA + NDI)
@@ -340,12 +351,27 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			} else {
 				ln.DDAT3 = " " + ln.DDAT3 + " "
 			}
+			// fill gaps in BBCH_DOY array, for the case that some stages are not reached, or were skipped
+			fillBBCHgaps := func(doyArr *[100]int) {
+				lastValue := 0
+				for i := 0; i < 100; i++ {
+					if doyArr[i] == 0 {
+						doyArr[i] = lastValue
+					} else {
+						lastValue = doyArr[i]
+					}
+				}
+			}
 
 			output.EmergDOY = g.DEV[1]
 			output.AnthDOY = g.DEV[4]
 			output.MatDOY = g.DEV[5]
 			output.HarvestYear = hyear
 			output.HarvestDOY = g.TAG.Index + 1
+			fillBBCHgaps(&g.BBCH_DOY)
+			output.BBCH_DOY = g.BBCH_DOY
+			fillBBCHgaps(&g.BBCH_TIME)
+			output.BBCH_DATE = convertToDate(g.BBCH_TIME, g)
 			output.Crop = g.CropTypeToString(g.FRUCHT[g.AKF.Index], true)
 			output.Yield = g.YIELD
 			output.Biomass = g.OBMAS
@@ -391,6 +417,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			output.Tdat = TDAT2
 			output.Code = g.POLYD
 			output.NotStableErr = g.C1NotStableErr
+			output.PARSUM = g.PARSUM
 			finishedCycle = true
 		}
 		g.NFERTSIM = 0
@@ -404,8 +431,9 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 		ln.DMENG3 = 0
 		ln.DOMENG1 = 0
 		ln.NRESID = 0
+		g.PARSUM = 0
 
-		if g.DAUERKULT == 'D' {
+		if g.DAUERKULT {
 			if g.JN[g.AKF.Index] == 0 || g.JN[g.AKF.Index] == 1 {
 				g.WORG[3], g.WORG[4] = 0, 0
 				g.WORG[1] = math.Max(g.WORG[1]*(1-g.YIFAK), 720)
@@ -442,7 +470,6 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 				ln.DDAT2 = "------------"
 				output.SowDate = "SKIPPED"
 				output.SowDOY = 0
-
 				output.EmergDOY = 0
 				output.AnthDOY = 0
 				output.MatDOY = 0
@@ -488,6 +515,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 				output.Tdat = TDAT2
 				output.Code = g.FCODE
 				output.NotStableErr = g.C1NotStableErr
+				output.PARSUM = 0
 
 				ln.DOMENG1 = 0
 				g.AKF.Inc()
@@ -496,6 +524,15 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 		}
 		pinit(g)
 
+		resetBBCHPermaCulture := func(cp CropType, bbch int) {
+			if g.FRUCHT[g.AKF.Index] == cp {
+				g.BBCH = bbch
+				for i := bbch + 1; i < 100; i++ {
+					g.BBCH_DOY[i] = 0
+					g.BBCH_TIME[i] = 0
+				}
+			}
+		}
 		if g.FRUCHT[g.AKF.Index] != GRE &&
 			g.FRUCHT[g.AKF.Index] != GR &&
 			g.FRUCHT[g.AKF.Index] != AA {
@@ -505,17 +542,27 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			g.OBMAS = 0
 			g.WUMAS = 0
 			g.INTWICK.SetByIndex(-1)
+			g.BBCH = 0
 			g.ASPOO = 0
 			g.VERNTAGE = 0
+			// clear g.BBCH_DOY
+			for i := 0; i < 100; i++ {
+				g.BBCH_DOY[i] = 0
+				g.BBCH_TIME[i] = 0
+			}
+		} else {
+			resetBBCHPermaCulture(GRE, 45)
+			resetBBCHPermaCulture(GR, 45)
+			resetBBCHPermaCulture(AA, 39)
 		}
 	}
 	// ---------- Aufruf N-Verlagerung -------------------------
-	nmove(wdt, subd, zeit, g, l, ln)
+	nmove(wdt, subd, zeit, g, l)
 	return finishedCycle, nil
 }
 
 // mineral
-func mineral(wdt float64, subd int, g *GlobalVarsMain, l *NitroSharedVars) {
+func mineral(g *GlobalVarsMain, l *NitroSharedVars) {
 	//! ------------------------------------- Mineralisation in Abh. von Temperatur und Wassergehalt ------------
 	//! Inputs:
 	//! IZM                       = bodenartspezifische Mineralisierungstiefe
@@ -637,7 +684,7 @@ func mineral(wdt float64, subd int, g *GlobalVarsMain, l *NitroSharedVars) {
 }
 
 // nmove
-func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars) {
+func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVars) {
 	// ---------------------      N-Verlagerung konvektions-Dispersionsgleichung ---------------------
 	//Inputs:
 	// DV                        = Dispersionslänge (cm)
@@ -784,13 +831,15 @@ func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 }
 
 // resid
-func resid(g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath *HFilePath) (NDI, NSA, NLA, NRESID float64) {
+func resid(g *GlobalVarsMain, ln *NitroBBBSharedVars, hPath *HFilePath) (NDI, NSA, NLA, NUSA, NULA, NRESID float64) {
 	// ------------------------------- Mineralisationspotentiale aus Vorfruchtresiduen ---------------------------------------
 	// Input:
-	// Dauerkult$         = D = Dauerkultur
-	// JN(AKF)            = Anteil der exportierten Pflanzenrückstände (Fraktion), 0= Verbleib auf dem Feld
-	// PESUM              = aufgenommene N-Menge der Pflanze (kg N/ha)
-	// LEGUM(AKF)         = fixierte N-Menge aus Leguminosen (kg N/ha)
+	// Dauerkult$         = D = Dauerkultur / Permanent crop
+	// JN(AKF)            = Anteil der exportierten Pflanzenrückstände(Fraktion) / Fraction of crop residues that are removed from the field
+	// 						0 = Verbleib auf dem Feld / all residues remain on the field
+	//                      1 = vollständige Entfernung / all above ground residues are removed from the field
+	// 						2 = komplette Pflanze beibt auf dem Feld / complete plant remains on the field, no yield is harvested
+	// PESUM              = aufgenommene N-Menge der Pflanze (kg N/ha) / N amount taken up by the crop (kg N/ha)
 
 	CRONAM := hPath.cropn
 	_, scanner, _ := Open(&FileDescriptior{FilePath: CRONAM, UseFilePool: true})
@@ -814,49 +863,65 @@ func resid(g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath 
 	if ln != nil {
 		ln.NAGB = g.PESUM - (g.PESUM * NWURA)
 	}
-	var DGM float64
+	var DGM, DGU float64
+	// DGM = N amount from crop residues (kg N/ha)
+	// DGU = N amount from roots (kg N/ha)
 	if g.JN[g.AKF.Index] == 0 {
-		if g.DAUERKULT == 'D' {
+		// all residues remain on the field
+		if g.DAUERKULT {
 			DGM = (g.OBMAS - 820) * g.GEHOB
+			DGU = 0
 		} else {
-			DGM = (g.PESUM*NWURA + (1-g.JN[g.AKF.Index])*(g.PESUM-g.PESUM*(1-NWURA)*NERNT/(NERNT+KOSTRO*NKOPP)-g.PESUM*NWURA))
+			DGU = g.PESUM * NWURA
+			DGM = (1 - g.JN[g.AKF.Index]) * (g.PESUM - g.PESUM*(1-NWURA)*NERNT/(NERNT+KOSTRO*NKOPP) - g.PESUM*NWURA)
 		}
 	} else if g.JN[g.AKF.Index] == 1 {
-		if g.DAUERKULT == 'D' {
+		// all residues are removed from the field
+		if g.DAUERKULT {
 			if g.FRUCHT[g.AKF.Index] == AA {
-				DGM = g.PESUM * NWURA * 0.74
+				DGM = 0
+				DGU = g.PESUM * NWURA * 0.74
 			} else {
-				DGM = g.PESUM * NWURA * 0.2
+				DGM = 0
+				DGU = g.PESUM * NWURA * 0.2
 			}
 		} else {
-			DGM = g.PESUM * NWURA
+			DGM = 0
+			DGU = g.PESUM * NWURA
 		}
 	} else if g.JN[g.AKF.Index] == 2 {
-		DGM = g.PESUM
+		// complete plant remains on the field, no yield is harvested
+		DGU = g.PESUM * NWURA
+		DGM = g.PESUM - DGU
 	} else {
-		if g.DAUERKULT == 'D' {
+		// JN is a fraction between 0 and 1 of residues that are removed from the field
+		if g.DAUERKULT {
+			DGU = g.PESUM * NWURA * 0.74
 			DGM = g.PESUM - (g.OBMAS * g.JN[g.AKF.Index] * g.GEHOB)
 		} else {
-			DGM = (g.PESUM*NWURA + (1-g.JN[g.AKF.Index])*(g.PESUM-g.PESUM*(1-NWURA)*NERNT/(NERNT+KOSTRO*NKOPP)-g.PESUM*NWURA))
+			DGU = g.PESUM * NWURA
+			DGM = (1 - g.JN[g.AKF.Index]) * (g.PESUM - g.PESUM*(1-NWURA)*NERNT/(NERNT+KOSTRO*NKOPP) - g.PESUM*NWURA)
 		}
 	}
 	if DGM < 0 {
 		DGM = 0
 	}
-	NSA = DGM * NFAST
-	NLA = DGM * (1 - NFAST)
-	NDI = 0.0
-	NRESID = DGM - (g.PESUM * NWURA)
-	if NRESID < 0 {
-		NRESID = 0
+	if DGU < 0 {
+		DGU = 0
 	}
-	return NDI, NSA, NLA, NRESID
+	NSA = DGM * NFAST        // N amount from above ground crop residues that decompose fast(kg N/ha)
+	NUSA = DGU * NFAST       // N amount from roots that decompose fast(kg N/ha)
+	NLA = DGM * (1 - NFAST)  // N amount from above ground crop residues that decompose slow(kg N/ha)
+	NULA = DGU * (1 - NFAST) // N amount from roots that decompose slow(kg N/ha)
+	NDI = 0.0
+	NRESID = DGM // N residue from above ground crops(kg N/ha)
+	return NDI, NSA, NLA, NUSA, NULA, NRESID
 }
 
 // pinit
 func pinit(g *GlobalVarsMain) {
 
-	if g.DAUERKULT != 'D' {
+	if !g.DAUERKULT {
 		g.PESUM = 0
 		g.PESUMS = 0
 		g.VERNTAGE = 0

@@ -1,0 +1,183 @@
+FillCharacter: ' '
+SeperatorCharacter: ','
+NaValue: n.a.
+DataColumns:
+- Format: '%s'
+  VariableName: SowDate
+- Format: '%3d'
+  VariableName: SowDOY
+- Format: '%3d'
+  VariableName: EmergDOY
+- Format: '%3d'
+  VariableName: AnthDOY
+- Format: '%3d'
+  VariableName: MatDOY
+- Format: '%4d'
+  VariableName: HarvestYear
+- Format: '%3d'
+  VariableName: HarvestDOY
+- Format: '%3d'
+  VariableName: BBCH_DOY
+  VarIndex1: 35
+- Format: '%3d'
+  VariableName: BBCH_DOY
+  VarIndex1: 55
+- Format: '%3d'
+  VariableName: BBCH_DOY
+  VarIndex1: 65
+- Format: '%s'
+  VariableName: BBCH_DATE
+  VarIndex1: 35
+- Format: '%s'
+  VariableName: BBCH_DATE
+  VarIndex1: 55
+- Format: '%s'
+  VariableName: BBCH_DATE
+  VarIndex1: 65
+- Format: '%3s'
+  VariableName: Crop
+- Format: '%05.f'
+  VariableName: Yield
+- Format: '%05.f'
+  VariableName: Biomass
+- Format: '%05.f'
+  VariableName: Roots
+- Format: '%04.1f'
+  VariableName: LAImax
+- Format: '%05.1f'
+  VariableName: Nfertil
+- Format: '%04.f'
+  VariableName: Irrig
+- Format: '%05.1f'
+  VariableName: Nuptake
+- Format: '%05.1f'
+  VariableName: Nagb
+- Format: '%04.f'
+  Modifier: 10
+  VariableName: ETcG
+- Format: '%04.f'
+  Modifier: 10
+  VariableName: ETaG
+- Format: '%04.f'
+  Modifier: 10
+  VariableName: TraG
+- Format: '%06.1f'
+  VariableName: PerG
+- Format: '%04.f'
+  VariableName: SWCS1
+- Format: '%04.f'
+  VariableName: SWCS2
+- Format: '%04.f'
+  VariableName: SWCA1
+- Format: '%04.f'
+  VariableName: SWCA2
+- Format: '%04.f'
+  VariableName: SWCM1
+- Format: '%04.f'
+  VariableName: SWCM2
+- Format: '%05.f'
+  VariableName: SoilN1
+- Format: '%04.f'
+  VariableName: Nmin1
+- Format: '%04.f'
+  VariableName: Nmin2
+- Format: '%05.1f'
+  VariableName: NLeaG
+- Format: '%5.3f'
+  VariableName: TRRel
+- Format: '%5.3f'
+  VariableName: Reduk
+- Format: '%03.f'
+  VariableName: DryD1
+- Format: '%03.f'
+  VariableName: DryD2
+- Format: '%04.f'
+  VariableName: Nresid
+- Format: '%1.5f'
+  VariableName: PARSUM
+- Format: '%s'
+  VariableName: Code
+- Format: '%s'
+  VariableName: NotStableErr
+Headlines:
+  1:
+  - ColumnName: date
+  - ColumnName: DOY
+  - ColumnName: DOY
+  - ColumnName: DOY
+  - ColumnName: DOY
+  - ColumnName: Year
+  - ColumnName: DOY
+  - ColumnName: BBCH35
+  - ColumnName: BBCH55
+  - ColumnName: BBCH65
+  - ColumnName: BBCH35_Date
+  - ColumnName: BBCH55_Date
+  - ColumnName: BBCH65_Date
+  - ColumnName: crop
+  - ColumnName: yield
+  - ColumnName: biomass
+  - ColumnName: roots
+  - ColumnName: LAImax
+  - ColumnName: Nfertil
+  - ColumnName: irrig
+  - ColumnName: N-uptake
+  - ColumnName: Nagb
+  - ColumnName: ETcG
+  - ColumnName: ETaG
+  - ColumnName: TraG
+  - ColumnName: PerG
+  - ColumnName: SWCS1
+  - ColumnName: SWCS2
+  - ColumnName: SWCA1
+  - ColumnName: SWCA2
+  - ColumnName: SWCM1
+  - ColumnName: SWCM2
+  - ColumnName: soilN1
+  - ColumnName: Nmin1
+  - ColumnName: Nmin2
+  - ColumnName: NLeaG
+  - ColumnName: TRRel
+  - ColumnName: Reduk
+  - ColumnName: DryD1
+  - ColumnName: DryD2
+  - ColumnName: Nresid
+  - ColumnName: PARSUM
+  - ColumnName: code
+  - ColumnName: Error
+  2:
+  - ColumnName: ''
+  - ColumnName: sowing
+  - ColumnName: emerg
+  - ColumnName: anth
+  - ColumnName: mat
+  - ColumnName: ''
+  - ColumnName: harvest
+  - ColumnName: ''
+  - ColumnName: kg/ha
+  - ColumnName: kg/ha
+  - ColumnName: kg/ha
+  - ColumnName: ''
+  - ColumnName: kg N/ha
+  - ColumnName: mm
+  - ColumnName: kg N/ha
+  - ColumnName: kg N/ha
+  - ColumnName: mm
+  - ColumnName: mm
+  - ColumnName: mm
+  - ColumnName: mm
+  - ColumnName: mm
+  - ColumnName: mm
+  - ColumnName: mm
+  - ColumnName: mm
+  - ColumnName: mm
+  - ColumnName: mm
+  - ColumnName: kg N/ha
+  - ColumnName: kg N/ha
+  - ColumnName: kg N/ha
+  - ColumnName: kg N/ha
+  - ColumnName: ''
+  - ColumnName: ''
+  - ColumnName: ''
+  - ColumnName: ''
+  - ColumnName: kg N/ha

@@ -53,7 +53,6 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		var LOCID, SOID, gwId string
 		var parameterFolderOverride, resultOverride string
 		for key, value := range argValues {
-			var err error
 			switch key {
 			case "project":
 				LOCID = value
@@ -75,11 +74,12 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			case "gwId":
 				gwId = value
 			}
-
-			if err != nil {
-				log.Fatalf("Error: parsing integer from commandline! %v \n", err)
-			}
 		}
+		cropOverwrite, err := ParseCropOverwrites(argValues)
+		if err != nil {
+			return err
+		}
+		g.CropOverwrite = cropOverwrite
 
 		ROOTstr := workingDir
 		if workingDir == "" {
@@ -185,7 +185,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		// ********* EINLESEN WETTER DES ERSTEN SIMULATIONSJAHRES *******
 
 		VWDATstr := path.Join(driConfig.WeatherRootFolder, driConfig.WeatherFolder, fmt.Sprintf(driConfig.WeatherFile, g.FCODE))
-		VWDATstr, err := filepath.Abs(VWDATstr)
+		VWDATstr, err = filepath.Abs(VWDATstr)
 		if err != nil {
 			return err
 		}
@@ -301,6 +301,16 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 
 		for ZEIT := g.BEGINN; ZEIT <= g.ENDE; ZEIT = ZEIT + g.DT.Index {
 
+			// verify start year matches beginn year
+			if ZEIT == g.BEGINN {
+				currentYear := 1900 + g.J
+				// get year from date
+				year, _, _ := KalenderDate(ZEIT)
+				if year != currentYear {
+					return fmt.Errorf("start year %v does not match beginn year %v", year, currentYear)
+				}
+			}
+
 			g.TAG.Add(g.DT.Index)
 			if g.TAG.Index+1 > g.JTAG {
 				g.J++
@@ -330,6 +340,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			g.WINDdaily = g.WIND[g.TAG.Index]
 			g.REGENdaily = g.REGEN[g.TAG.Index]
 			g.EffectiveIRRIG = 0
+			g.PARi = 0
 
 			g.REGENSUM = g.REGENSUM + g.REGEN[g.TAG.Index]*10*g.DT.Num
 			if g.TEMP[g.TAG.Index] > g.TJBAS[g.AKF.Index] {
@@ -440,6 +451,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				if sConcentrationInWater > 0 {
 					g.S1[0] = g.S1[0] + sConcentrationInWater
 				}
+				g.managementConfig.WriteManagementEvent(NewManagementEvent(Irrigation, ZEIT, make(map[string]interface{}), &g))
 				g.NBR++
 			}
 			// FSCS := 0.0
@@ -629,7 +641,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 								g.ETC0 = 0
 							}
 							//CALL PHYTO(#7)
-							PhytoOut(&g, &cropSharedVars, &herPath, ZEIT, &cropOut)
+							PhytoOut(&g, &cropSharedVars, &herPath, ZEIT, &driConfig, &cropOut)
 
 						} else if ZEIT < g.SAAT[g.AKF.Index] {
 							for I := 1; I <= g.N; I++ {

@@ -3,15 +3,17 @@ package hermes
 import (
 	"bufio"
 	"bytes"
+	"encoding"
 	"errors"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 // LineInut read next line from bufio.Scanner
@@ -297,6 +299,21 @@ func KalenderDate(MASDAT int) (year, month, day int) {
 	return year, month, day
 }
 
+func convertToDate(timestamps [100]int, g *GlobalVarsMain) (dates [100]string) {
+	nodate := "--------"
+	if g.DATEFORMAT == DateDElong || g.DATEFORMAT == DateENlong {
+		nodate = "----------"
+	}
+	for i, v := range timestamps {
+		if v > 0 {
+			dates[i] = g.Kalender(v)
+		} else {
+			dates[i] = nodate
+		}
+	}
+	return
+}
+
 // func leftAlignmentFormat(numberOfRunes int, input string) (outStr string) {
 // 	lenStr := utf8.RuneCountInString(input)
 // 	var builder strings.Builder
@@ -377,6 +394,33 @@ func Open(fd *FileDescriptior) (*os.File, *bufio.Scanner, error) {
 	return file, scanner, nil
 }
 
+func ReadFile(fd *FileDescriptior) ([]byte, error) {
+
+	// remove space characters
+	fileCorrected := strings.TrimSpace(fd.FilePath)
+	fd.FilePath = fileCorrected
+
+	if fd.UseFilePool {
+		byteData := HermesFilePool.Get(fd)
+		return byteData, nil
+	}
+
+	byteData, err := os.ReadFile(fd.FilePath)
+	if err != nil {
+		if fd.ContinueOnError {
+			if fd.debugOut != nil {
+				fd.debugOut <- fmt.Sprintf("%s Error occured while reading %s: %s   \n", fd.logID, fd.FileDescription, fd.FilePath)
+			} else {
+				fmt.Printf("Error occured while reading %s: %s   \n", fd.FileDescription, fd.FilePath)
+			}
+
+			return nil, err
+		}
+		log.Fatalf("Error occured while reading %s: %s   \n", fd.FileDescription, fd.FilePath)
+	}
+	return byteData, nil
+}
+
 // OpenResultFile opens a file for writing - options append, if append is false, it will truncate the file and override
 func OpenResultFile(filePath string, append bool) *Fout {
 	var flags int
@@ -437,7 +481,7 @@ func printError(logID, errorMsg string, out, logout chan<- string) {
 }
 
 // DumpStructToFile debug dump global variables to a file
-func DumpStructToFile(filename string, global *GlobalVarsMain) {
+func DumpStructToFile(filename string, global interface{}) {
 
 	file := OpenResultFile(filename, false)
 	defer file.Close()
@@ -449,5 +493,150 @@ func DumpStructToFile(filename string, global *GlobalVarsMain) {
 
 	if _, err := file.WriteBytes(data); err != nil {
 		log.Fatal(err)
+	}
+}
+func isNil(value reflect.Value) bool {
+	if !value.IsValid() {
+		return true
+	}
+
+	//nolint:exhaustive
+	switch value.Kind() {
+	case reflect.Ptr, reflect.Map, reflect.Slice:
+		return value.IsNil()
+	default:
+		return false
+	}
+}
+func toYamlNode(in interface{}) (*yaml.Node, error) {
+	node := &yaml.Node{}
+	// do not wrap yaml.Node into yaml.Node
+	if n, ok := in.(*yaml.Node); ok {
+		return n, nil
+	}
+
+	// if input implements yaml.Marshaler we should use that marshaller instead
+	// same way as regular yaml marshal does
+	if m, ok := in.(yaml.Marshaler); ok && !isNil(reflect.ValueOf(in)) {
+		res, err := m.MarshalYAML()
+		if err != nil {
+			return nil, err
+		}
+
+		if n, ok := res.(*yaml.Node); ok {
+			return n, nil
+		}
+
+		in = res
+	}
+	if _, ok := in.(encoding.TextMarshaler); ok && !isNil(reflect.ValueOf(in)) {
+		return node, node.Encode(in)
+	}
+
+	v := reflect.ValueOf(in)
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+
+	switch v.Kind() {
+	case reflect.Struct:
+		node.Kind = yaml.MappingNode
+		t := v.Type()
+
+		for i := 0; i < v.NumField(); i++ {
+			// skip unexported fields
+			if !v.Field(i).CanInterface() {
+				continue
+			}
+
+			tag := t.Field(i).Tag.Get("yaml")
+			parts := strings.Split(tag, ",")
+			fieldName := parts[0]
+			parts = parts[1:]
+
+			if fieldName == "" {
+				fieldName = strings.ToLower(t.Field(i).Name)
+			}
+
+			if fieldName == "-" {
+				continue
+			}
+			// handle omitempty and omitonlyifnil from yml tag
+			var (
+				empty = isEmpty(v.Field(i))
+				null  = isNil(v.Field(i))
+
+				skip bool
+			)
+			for _, part := range parts {
+				if part == "omitempty" && empty {
+					skip = true
+				}
+
+				if part == "omitonlyifnil" && !null {
+					skip = false
+				}
+			}
+			if skip {
+				continue
+			}
+			// just utilize the head comment
+			headComment := t.Field(i).Tag.Get("comment")
+
+			childKey, err := toYamlNode(fieldName)
+			if err != nil {
+				return nil, err
+			}
+			childKey.HeadComment = headComment
+
+			var value interface{}
+			if v.Field(i).CanInterface() {
+				value = v.Field(i).Interface()
+			}
+
+			childValue, err := toYamlNode(value)
+			if err != nil {
+				return nil, err
+			}
+			node.Content = append(node.Content, childKey, childValue)
+		}
+	case reflect.Slice:
+		node.Kind = yaml.SequenceNode
+		nodes := make([]*yaml.Node, v.Len())
+
+		for i := 0; i < v.Len(); i++ {
+			element := v.Index(i)
+
+			var err error
+
+			nodes[i], err = toYamlNode(element.Interface())
+			if err != nil {
+				return nil, err
+			}
+		}
+		node.Content = append(node.Content, nodes...)
+	default:
+		if err := node.Encode(in); err != nil {
+			return nil, err
+		}
+	}
+	return node, nil
+}
+
+func isEmpty(value reflect.Value) bool {
+	if !value.IsValid() {
+		return true
+	}
+
+	//nolint:exhaustive
+	switch value.Kind() {
+	case reflect.Ptr:
+		return value.IsNil()
+	case reflect.Map:
+		return len(value.MapKeys()) == 0
+	case reflect.Slice:
+		return value.Len() == 0
+	default:
+		return value.IsZero()
 	}
 }

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	yaml "gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v3"
 )
 
 // OutputConfig defines output parameters in form of a csv file
@@ -69,7 +69,16 @@ func (c *OutputConfig) WriteHeader(file *Fout) error {
 						if err != nil {
 							return err
 						}
+					} else if idxCol == len(columnC)-1 && len(c.DataColumns) > len(columnC) {
+						// add missing columns
+						for j := 0; j < len(c.DataColumns)-len(columnC); j++ {
+							_, err = file.WriteRune(c.seperatorRune)
+							if err != nil {
+								return err
+							}
+						}
 					}
+
 				} else if c.formatType == hermesOut {
 					lastIndex = arrStartIndex[col.ColEnd]
 					// move cursor to next column start index
@@ -2146,6 +2155,17 @@ func (c *OutputConfig) WriteLine(file *Fout) error {
 				val = val * col.Modifier
 			}
 			outLine.Add(col.FormatStr, val)
+		case *[]float64:
+			val := *v
+			idx := col.VarIndex1
+			if idx >= len(val) {
+				fmt.Println("unknown index")
+			}
+			valAtIdx := val[idx]
+			if col.Modifier != 0 {
+				valAtIdx = valAtIdx * col.Modifier
+			}
+			outLine.Add(col.FormatStr, valAtIdx)
 		default:
 			fmt.Println("unknown")
 		}

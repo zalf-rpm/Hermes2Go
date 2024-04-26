@@ -113,7 +113,7 @@ func Sulfo(wdt float64, subd, zeit int, g *GlobalVarsMain, hPath *HFilePath) {
 			g.SUPTAKE = g.PESUMS
 		}
 	}
-	sMove(wdt, subd, zeit, g)
+	sMove(wdt, subd, g)
 }
 
 // SUB SMINERAL
@@ -199,7 +199,7 @@ func sMineral(g *GlobalVarsMain) {
 }
 
 // SUB SMOVE(#5)
-func sMove(wdt float64, subd, zeit int, g *GlobalVarsMain) {
+func sMove(wdt float64, subd int, g *GlobalVarsMain) {
 	// ---------------------      N-Verlagerung konvektions-Dispersionsgleichung ---------------------
 	//Inputs:
 	// DV                        = Dispersionslänge (cm)

@@ -1,0 +1,104 @@
+FillCharacter: ' '
+SeperatorCharacter: ','
+NaValue: n.a.
+DataColumns:
+- Format: '%8s'
+  DataAlignment: left
+  Width: 10
+  VariableName: AKTUELL
+- Format: '%04.f'
+  DataAlignment: right
+  Width: 4
+  Modifier: 10
+  VariableName: VERDUNST
+- Format: '%04.f'
+  DataAlignment: right
+  Width: 4
+  Modifier: 10
+  VariableName: PFTRANS
+- Format: '%04.f'
+  DataAlignment: right
+  Width: 4
+  Modifier: 10
+  VariableName: TRAY
+- Format: '%04.f'
+  DataAlignment: right
+  Width: 4
+  VariableName: PerY
+- Format: '%04.f'
+  DataAlignment: left
+  Width: 5
+  VariableName: SWCY1
+- Format: '%04.f'
+  DataAlignment: left
+  Width: 5
+  VariableName: SWCY2
+- Format: '%s'
+  DataAlignment: left
+  Width: 6
+  VariableName: NA
+- Format: '%06.1f'
+  DataAlignment: left
+  Width: 7
+  VariableName: OUTSUM
+- Format: '%07.1f'
+  DataAlignment: right
+  Width: 7
+  VariableName: MINSUM
+- Format: '%07.3f'
+  DataAlignment: right
+  Width: 7
+  VariableName: CUMDENIT
+- Format: '%s'
+  DataAlignment: left
+  Width: 7
+  VariableName: NA
+- Format: '%07.f'
+  DataAlignment: left
+  Width: 7
+  VariableName: SOC1
+- Format: '%s'
+  DataAlignment: left
+  Width: 7
+  VariableName: NA
+- Format: '%s'
+  DataAlignment: left
+  Width: 21
+  VariableName: POLYD
+- Format: '%s'
+  DataAlignment: left
+  Width: 11
+  VariableName: C1NotStableErr
+Headlines:
+  1:
+  - ColumnName: date
+  - ColumnName: ETcy
+  - ColumnName: ETaY
+  - ColumnName: TraY
+  - ColumnName: PerY
+  - ColumnName: SWCY1
+  - ColumnName: SWCY2
+  - ColumnName: Runoff
+  - ColumnName: NleaY
+  - ColumnName: MINY
+  - ColumnName: DENY
+  - ColumnName: VOLAT
+  - ColumnName: SOC1
+  - ColumnName: SOC2
+  - ColumnName: code
+  - ColumnName: Error
+  2:
+  - ColumnName: ''
+  - ColumnName: mm
+  - ColumnName: mm
+  - ColumnName: mm
+  - ColumnName: mm
+  - ColumnName: mm
+  - ColumnName: mm
+  - ColumnName: mm
+  - ColumnName: kg N/ha
+  - ColumnName: kg N/ha
+  - ColumnName: kg N/ha
+  - ColumnName: kg N/ha
+  - ColumnName: kg C/ha
+  - ColumnName: kg C/ha

@@ -128,17 +128,22 @@ func PrognoseTime(ZEIT int, g *GlobalVarsMain, herPath *HFilePath, driConfig *Co
 
 	// overwrite weather data with prognosed weather data (optional? if not given no)
 	VWDAT := herPath.vwdatnrm
-	year, _, _ := KalenderDate(ZEIT)
-	s := NewWeatherDataShared(1, g.CO2KONZ)
-	err := WetterK(VWDAT, year, g, &s, herPath, driConfig)
-	if err != nil {
-		if g.DEBUGCHANNEL != nil {
-			g.DEBUGCHANNEL <- fmt.Sprintln(err)
+	// if VWDAT is empty, assume current weather data contains prognose
+	if VWDAT != "" {
+		// load weather data for prognose
+		// TODO: currently only old weather data is loaded, should be changed to load prognose data
+		year, _, _ := KalenderDate(ZEIT)
+		s := NewWeatherDataShared(1, g.CO2KONZ)
+		err := WetterK(VWDAT, year, g, &s, herPath, driConfig)
+		if err != nil {
+			if g.DEBUGCHANNEL != nil {
+				g.DEBUGCHANNEL <- fmt.Sprintln(err)
+			} else {
+				fmt.Println(err)
+			}
 		} else {
-			fmt.Println(err)
+			LoadYear(g, &s, year)
 		}
-	} else {
-		LoadYear(g, &s, year)
 	}
 
 	for i := 0; i < g.N; i++ {

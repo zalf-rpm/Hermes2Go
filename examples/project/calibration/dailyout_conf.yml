@@ -1,0 +1,23 @@
+FillCharacter: ' '
+SeperatorCharacter: ','
+NaValue: n.a.
+DataColumns:
+- Format: '%s'
+  VariableName: AKTUELL
+- Format: '%05.f'
+  VariableName: PESUM
+- Format: '%05.f'
+  VariableName: OBMAS
+- Format: '%05.1f'
+  VariableName: HARVEST
+- Format: '%05.f'
+  VariableName: WORG
+  VarIndex1: 3
+Headlines:
+  1:
+  - ColumnName: Date
+  - ColumnName: CroN
+  - ColumnName: Biom
+  - ColumnName: PotHarvest
+  - ColumnName: ORG4
+  

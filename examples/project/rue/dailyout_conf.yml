@@ -1,0 +1,261 @@
+FillCharacter: ' '
+SeperatorCharacter: ','
+NaValue: n.a.
+DataColumns:
+- Format: '%s'
+  VariableName: AKTUELL
+- Format: '%04.1f'
+  Modifier: 100
+  VariableName: WG
+  VarIndex1: 1
+- Format: '%04.1f'
+  Modifier: 100
+  VariableName: WG
+  VarIndex1: 1
+  VarIndex2: 1
+- Format: '%04.1f'
+  Modifier: 100
+  VariableName: WG
+  VarIndex1: 1
+  VarIndex2: 2
+- Format: '%04.1f'
+  Modifier: 100
+  VariableName: WG
+  VarIndex1: 1
+  VarIndex2: 3
+- Format: '%04.1f'
+  Modifier: 100
+  VariableName: WG
+  VarIndex1: 1
+  VarIndex2: 4
+- Format: '%04.1f'
+  Modifier: 100
+  VariableName: WG
+  VarIndex1: 1
+  VarIndex2: 5
+- Format: '%04.1f'
+  Modifier: 100
+  VariableName: WG
+  VarIndex1: 1
+  VarIndex2: 6
+- Format: '%04.1f'
+  Modifier: 100
+  VariableName: WG
+  VarIndex1: 1
+  VarIndex2: 7
+- Format: '%04.1f'
+  Modifier: 100
+  VariableName: WG
+  VarIndex1: 1
+  VarIndex2: 8
+- Format: '%04.f'
+  VariableName: C1
+- Format: '%04.f'
+  VariableName: C1
+  VarIndex1: 1
+- Format: '%04.f'
+  VariableName: C1
+  VarIndex1: 2
+- Format: '%04.f'
+  VariableName: C1
+  VarIndex1: 3
+- Format: '%04.f'
+  VariableName: C1
+  VarIndex1: 4
+- Format: '%04.f'
+  VariableName: C1
+  VarIndex1: 5
+- Format: '%04.f'
+  VariableName: C1
+  VarIndex1: 6
+- Format: '%04.f'
+  VariableName: C1
+  VarIndex1: 7
+- Format: '%04.f'
+  VariableName: C1
+  VarIndex1: 8
+- Format: '%04.f'
+  VariableName: Nmin9to20
+- Format: '%05.f'
+  VariableName: PESUM
+- Format: '%05.f'
+  VariableName: OUTSUM
+- Format: '%05.f'
+  VariableName: SickerDaily
+- Format: '%05.1f'
+  VariableName: CUMDENIT
+- Format: '%05.f'
+  VariableName: OBMAS
+- Format: '%04.f'
+  VariableName: MINSUM
+- Format: '%05.1f'
+  VariableName: HARVEST
+- Format: '%04.f'
+  VariableName: PHYLLO
+- Format: '%05.f'
+  VariableName: WORG
+- Format: '%05.f'
+  VariableName: WORG
+  VarIndex1: 1
+- Format: '%05.f'
+  VariableName: WORG
+  VarIndex1: 2
+- Format: '%05.f'
+  VariableName: WORG
+  VarIndex1: 3
+- Format: '%05.f'
+  VariableName: WORG
+  VarIndex1: 4
+- Format: '%04.f'
+  VariableName: ASPOO
+- Format: '%05.2f'
+  VariableName: LAI
+- Format: '%5.3f'
+  VariableName: GEHMIN
+- Format: '%5.3f'
+  VariableName: GEHMAX
+- Format: '%4.f'
+  VariableName: NAOSAKT
+- Format: '%2d'
+  VariableName: WURZ
+- Format: '%2.f'
+  VariableName: INTWICK.Num
+- Format: '%2d'
+  VariableName: BBCH
+- Format: '%06.2f'
+  VariableName: BLATTSUM
+- Format: '%05.1f'
+  VariableName: NFOSAKT
+- Format: '%06.1f'
+  VariableName: SumMINAOS
+- Format: '%05.1f'
+  VariableName: SumMINFOS
+- Format: '%5.f'
+  Modifier: 10
+  VariableName: VERDUNST
+- Format: '%5.f'
+  Modifier: 10
+  VariableName: PFTRANS
+- Format: '%04.2f'
+  VariableName: TRREL
+- Format: '%04.2f'
+  VariableName: REDUK
+- Format: '%s'
+  VariableName: NA
+- Format: '%s'
+  VariableName: NA
+- Format: '%05.f'
+  VariableName: ASPOO
+- Format: '%4.f'
+  VariableName: DRAISUM
+- Format: '%6.f'
+  VariableName: DRAINLOSS
+- Format: '%06.4f'
+  VariableName: GEHOB
+- Format: '%05.f'
+  VariableName: NFIXSUM
+- Format: '%05.f'
+  VariableName: NAOSAKT
+- Format: '%05.f'
+  VariableName: NFOSAKT
+- Format: '%+05.1f'
+  VariableName: AvgTSoil
+  VarIndex1: 5
+- Format: '%+05.1f'
+  VariableName: TD
+  VarIndex1: 5
+- Format: '%05.2f'
+  VariableName: IRRISIM
+- Format: '%05.2f'
+  VariableName: TEMPdaily     
+- Format: '%05.2f'
+  VariableName: TMINdaily     
+- Format: '%05.2f'
+  VariableName: TMAXdaily     
+- Format: '%05.2f'
+  VariableName: RHdaily       
+- Format: '%05.2f'
+  VariableName: RADdaily      
+- Format: '%05.2f'
+  VariableName: WINDdaily     
+- Format: '%05.2f'
+  VariableName: REGENdaily    
+- Format: '%05.2f'
+  VariableName: EffectiveIRRIG
+- Format: '%05.3f'
+  VariableName: PARi
+- Format: '%s'
+  VariableName: C1NotStable
+Headlines:
+  1:
+  - ColumnName: Date
+  - ColumnName: water0_1
+  - ColumnName: water1_2
+  - ColumnName: water2_3
+  - ColumnName: water3_4
+  - ColumnName: water4_5
+  - ColumnName: water5_6
+  - ColumnName: water6_7
+  - ColumnName: water7_8
+  - ColumnName: water8_9
+  - ColumnName: Nmin0_1
+  - ColumnName: Nmin1_2
+  - ColumnName: Nmin2_3
+  - ColumnName: Nmin3_4
+  - ColumnName: Nmin4_5
+  - ColumnName: Nmin5_6
+  - ColumnName: Nmin6_7
+  - ColumnName: Nmin7_8
+  - ColumnName: Nmin8_9
+  - ColumnName: Nmin9_20
+  - ColumnName: N crp
+  - ColumnName: Nleac
+  - ColumnName: perco
+  - ColumnName: denit
+  - ColumnName: agDM
+  - ColumnName: miner
+  - ColumnName: yield
+  - ColumnName: Phyl
+  - ColumnName: ORG1
+  - ColumnName: ORG2
+  - ColumnName: ORG3
+  - ColumnName: ORG4
+  - ColumnName: ORG5
+  - ColumnName: ASPO
+  - ColumnName: LAI
+  - ColumnName: ghmin
+  - ColumnName: ghmax
+  - ColumnName: NAOS
+  - ColumnName: rt
+  - ColumnName: stg
+  - ColumnName: BBCH
+  - ColumnName: leave
+  - ColumnName: NFOS
+  - ColumnName: MAOS
+  - ColumnName: MFOS
+  - ColumnName: ETP
+  - ColumnName: ETA
+  - ColumnName: TREL
+  - ColumnName: REDUK
+  - ColumnName: GPHOT
+  - ColumnName: MAINT
+  - ColumnName: ASPOO
+  - ColumnName: Wdrai
+  - ColumnName: NDrain
+  - ColumnName: Nagrb
+  - ColumnName: Nfix
+  - ColumnName: AOSAK
+  - ColumnName: FOSAK
+  - ColumnName: TS15
+  - ColumnName: TS50
+  - ColumnName: IRRIG
+  - ColumnName: TEMPdaily     
+  - ColumnName: TMINdaily     
+  - ColumnName: TMAXdaily     
+  - ColumnName: RHdaily       
+  - ColumnName: RADdaily      
+  - ColumnName: WINDdaily     
+  - ColumnName: REGENdaily    
+  - ColumnName: EffIRRIG
+  - ColumnName: PARi
+  - ColumnName: Error

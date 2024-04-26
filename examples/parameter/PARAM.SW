@@ -2,10 +2,10 @@ Parameter crop model
 Frucht: Spring wheat
 Fruchtnummer/ Abkurzung  .....................................   1  SW 
 AMAX: Max. CO2 Assimilationsrate (kg CO2/ha Blatt/h)...52..48.   48
-Typ der Temperaturabhängigkeit (C3 = 1/ C4 = 2) ..............   1
+Typ der TemperaturabhÃ¤ngigkeit (C3 = 1/ C4 = 2) ..............   1
 Minimumtemperatur Pflanzenwachstum (Grad C) ..................   4     
 maximale effektive Wurzeltiefe (dm) ......................12..   10
-root depth increase in mm/C°..................................   0.7
+root depth increase in mm/CÂ°..................................   0.7
 N-Gehaltsfunktion Nr. ........................................   1
 Oberidische Organe (Nummern der Kompartimente aufsteigend) ...   234
 organ no. for yield and fraction of organ.(organ 4 80% =4.80).   4.80 
@@ -43,7 +43,7 @@ N-Gehalt Wurzel Ende 2. Phase ................................   0.02
 Partitionierung Ende 1. Phase... 0.200.. 0.600.. 0.200.. 0.000.. 0.000
 Sterberaten Ende 1. Phase ...... 0.000.. 0.000.. 0.000.. 0.000.. 0.000
 kc factor for evapotranspiration at end of phase 2 ...........   1.1
--------- Entwicklungsphase 3: Doppelring bis Ährenschieben-----------
+-------- Entwicklungsphase 3: Doppelring bis Ã„hrenschieben-----------
 Entwicklungsphase 3 Temperatursumme ..................180.....   250
 Basistemperatur 3 ............................................   1
 Vernalisationsanspruch 3(Tage) ...............................   0
@@ -56,7 +56,7 @@ N-Gehalt Wurzel Ende 3. Phase ................................   0.012
 Partitionierung Ende 2. Phase... 0.130.. 0.500.. 0.370.. 0.000.. 0.000
 Sterberaten Ende 2. Phase ...... 0.000.. 0.000.. 0.000.. 0.000.. 0.000
 kc factor for evapotranspiration at end of phase 3 ...........   1.15
--------- Entwicklungsphase 4: Ährenschieben bis Blüte   --------------
+-------- Entwicklungsphase 4: Ã„hrenschieben bis BlÃ¼te   --------------
 Entwicklungsphase 4 Temperatursumme ..............255...310...   180
 Basistemperatur 4 ............................................   1
 Vernalisationsanspruch 4(Tage) ...............................   0
@@ -69,7 +69,7 @@ N-Gehalt Wurzel Ende 3. Phase ................................   0.010
 Partitionierung Ende 3. Phase... 0.000.. 0.000.. 0.150.. 0.850.. 0.000
 Sterberaten Ende 3. Phase ...... 0.000.. 0.000.. 0.000.. 0.000.. 0.000
 kc factor for evapotranspiration at end of phase 4 ...........   1.10
--------- Entwicklungsphase 5: Kornfüllung ----------------------------
+-------- Entwicklungsphase 5: KornfÃ¼llung ----------------------------
 Entwicklungsphase 5 Temperatursumme .....320.....240.350..260.   370
 Basistemperatur 5 ...................................9........   9
 Vernalisationsanspruch 5(Tage) ...............................   0

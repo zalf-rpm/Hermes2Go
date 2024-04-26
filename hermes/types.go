@@ -52,7 +52,7 @@ func NewDualType(baseIndex int, offset int) DualType {
 type GlobalVarsMain struct {
 	IZM     int
 	DT      DualType
-	DZ      DualType // layer depth = 10 cm (cm to mm)
+	DZ      DualType //= 10 (cm to mm)
 	N       int      // max number of layer (changed by soil file)
 	DV      float64  // Dispersion length (Dispersionlänge) (cm) (default = 4.9 cm)
 	ALPH    float64
@@ -100,7 +100,7 @@ type GlobalVarsMain struct {
 	PORGES_Backup      [21]float64
 	WNOR_Backup        [21]float64
 	PKT                string
-	WRED               float64 // field capacity (Feldkapazität) reduced by irrigation (cm^3/cm^3)
+	WRED               float64 // top layer reduced field capacity (Feldkapazität) depending on soil type (cm^3/cm^3)
 	PROP               float64
 	NORMFK             [10]float64
 	FELDW              [10]float64 // water content at field capacity (cm^3/cm^3)
@@ -125,7 +125,7 @@ type GlobalVarsMain struct {
 	ZTDG               [300]int
 	FKU                [12]float64
 	CN                 [2][21]float64 // (0:1,21) all 21 slots used!
-	WG                 [3][21]float64 //(0:2,21) all 21 slots used!
+	WG                 [3][21]float64 // Water content in layer I 0 = current day, 1 = prev. day, 2 = measurement // (0:2,21) all 21 slots used!
 	NMESS              int
 	MES                [100]string // Should be a local array
 	MESS               [100]int
@@ -145,9 +145,9 @@ type GlobalVarsMain struct {
 	TSOIL              [2][22]float64 //(0:1,0:21)
 	TMIN               [367]float64
 	TMAX               [367]float64
-	TBASE              float64
+	TBASE              float64 // annual base temperature (°C) for current location (used to initialize soil temperature)
 	ETNULL             [367]float64
-	TEMP               [367]float64
+	TEMP               [367]float64 // average temperature (°C) of DOY
 	//TEMPBO1, TEMPBO2 [367]float64 // not initialized, obsolete?
 	RH                      [367]float64 // relative humidity
 	VERD                    [367]float64 // Verdunstung, Evaporation, required for ETMETH = 1
@@ -166,12 +166,12 @@ type GlobalVarsMain struct {
 	MZ                      int
 	NBR                     int
 	NTIL                    DualType
-	REGENSUM                float64
+	REGENSUM                float64 // precipitation sum
 	MINSUM                  float64
 	RADSUM                  float64
 	BLATTSUM                float64
-	DSUMM                   float64
-	UMS                     float64
+	DSUMM                   float64 // Dünger summe / fertilizer sum
+	UMS                     float64 // aufgelöster Dünger / dissolved fertilizer
 	OUTSUM                  float64
 	NFIXSUM                 float64
 	DRAISUM                 float64
@@ -198,21 +198,23 @@ type GlobalVarsMain struct {
 	INTWICK                 DualType    // crop development state
 	FKF                     [12]float64
 	FKC                     float64
-	LAT                     float64
-	MINTMP                  float64
+	BBCH                    int     // BBCH code for crop development
+	LAT                     float64 // latitude
+	MINTMP                  float64 // minimum temperature for crop growth
 	RSTOM                   float64
-	LAI                     float64 // Leaf area index
-	WURZ                    int     // root in max soil layer
-	POTROOTINGDEPTH         float64 // potential rooting depth (real rooting depth will be limited by soil parameter WURMAX)
+	LAI                     float64     // Leaf area index
+	WURZ                    int         // root in max soil layer
+	WUANT                   [20]float64 // share of total root mass in layer I (for residue distribution)
+	POTROOTINGDEPTH         float64     // potential rooting depth (real rooting depth will be limited by soil parameter WURMAX)
 	VERDUNST                float64
 	FLUSS0                  float64
 	WUDICH                  [21]float64 // root density in soil layer Z
 	LUKRIT                  [10]float64
 	LUMDAY                  int
-	TP                      [21]float64 //TP(I) = Water uptake in layer I (mm)
-	TRREL                   float64     // Water stress factor (1 = no stress, 0 = full stress)
-	REDUK                   float64     // Nitrogen stress factor (1 = no stress, 0 = full stress)
-	ETA                     float64     // Potential/actual Evapotranspiration (mm)
+	TP                      [21]float64
+	TRREL                   float64 // Water stress factor (1 = no stress, 0 = full stress)
+	REDUK                   float64 // Nitrogen stress factor (1 = no stress, 0 = full stress)
+	ETA                     float64 // Potential/actual Evapotranspiration (mm)
 	HEATCOND                [21]float64
 	HEATCAP                 [21]float64
 	TDSUM                   [20]float64
@@ -226,63 +228,62 @@ type GlobalVarsMain struct {
 	MAXAMAX                 float64
 	WUMAXPF                 float64 // crop specific rooting depth
 	VELOC                   float64 // root depth increase in mm/C°
-	//WUFKT         int
-	NGEFKT     int
-	RGA        float64 // value for NGEFKT = 5
-	RGB        float64 // value for NGEFKT = 5
-	SubOrgan   int     // organ number for WORG in NGEFKT = 5
-	YORGAN     int
-	YIFAK      float64
-	NRKOM      int
-	DAUERKULT  rune
-	LEGUM      rune
-	DOUBLE     int //day of  double ridge stage / Doppelringstadium
-	ASIP       int
-	BLUET      int
-	REIF       int
-	ENDPRO     int     // TODO: obsolete?
-	PHYLLO     float64 // culmulative development relevant temperature sum (°C days)
-	VERNTAGE   float64
-	SUM        [10]float64 //development relevant temperature sum in state INTWICK
-	PRO        [10][5]float64
-	DEAD       [10][5]float64
-	TROOTSUM   float64
-	GEHOB      float64
-	WUGEH      float64
-	WORG       [5]float64
-	WDORG      [10]float64
-	MAIRT      [10]float64
-	TSUM       [10]float64 //Temperature sum for development stage I (°C days)
-	BAS        [10]float64
-	VSCHWELL   [10]float64
-	DAYL       [10]float64
-	DLBAS      [10]float64
-	DRYSWELL   [10]float64
-	LAIFKT     [10]float64
-	WGMAX      [10]float64
-	OBMAS      float64
-	ASPOO      float64 // Assimilation pool in crops
-	WUMAS      float64
-	PESUM      float64
-	LURED      float64
-	DOPP       string // obsolete? Kalender date of double ridge stage / Doppelringstadium
-	P1, P2     int
-	SUMAE      float64
-	AEHR       string
-	BLUEH      string
-	REIFE      string
-	GEHMAX     float64 // maximum of N content (driver for N uptake) (kg N/ha Biomasse)
-	GEHMIN     float64 // critical N content (begin of N stress) (kg N/ha Biomasse)
-	DUNGBED    float64
-	DEFDAT     int
-	ENDSTADIUM DevelopmentStage
-	DIFFSUM    float64
-	MASSUM     float64
-	DN         [21]float64
-	YIELD      float64 //Grain yield (only for cereals) (kg ha-1)
-	AUFNASUM   float64
-	NDRAINTAG  float64
-	CUMDENIT   float64
+	NGEFKT                  int     // N content funktion Nr.
+	RGA                     float64 // value for NGEFKT = 5
+	RGB                     float64 // value for NGEFKT = 5
+	SubOrgan                int     // organ number for WORG in NGEFKT = 5
+	YORGAN                  int     // yield organ number (WORG 1-5)
+	YIFAK                   float64 // yield factor
+	NRKOM                   int     // number of N-uptake compartments
+	DAUERKULT               bool    // permanent crop
+	LEGUM                   bool    // leguminous crop
+	DOUBLE                  int     //day of  double ridge stage / Doppelringstadium
+	ASIP                    int
+	BLUET                   int
+	REIF                    int
+	ENDPRO                  int     // TODO: obsolete?
+	PHYLLO                  float64 // culmulative development relevant temperature sum (°C days)
+	VERNTAGE                float64
+	SUM                     [10]float64 //development relevant temperature sum in state INTWICK
+	PRO                     [10][5]float64
+	DEAD                    [10][5]float64
+	TROOTSUM                float64
+	GEHOB                   float64     //N content in above ground Biomass (kg N/kg OBMAS)
+	WUGEH                   float64     // N content in root Biomass (kg N/kg WUMAS)
+	WORG                    [5]float64  // dry mass of organ (kg/ha)
+	WDORG                   [10]float64 // dead dry mass of organ (kg/ha)
+	MAIRT                   [10]float64 // maintainance rates of organ I
+	TSUM                    [10]float64 //Temperature sum for development stage I (°C days)
+	BAS                     [10]float64 //Base temperature for development stage I (°C)
+	VSCHWELL                [10]float64 // vernalisation threshold (in days)
+	DAYL                    [10]float64
+	DLBAS                   [10]float64
+	DRYSWELL                [10]float64
+	LAIFKT                  [10]float64
+	WGMAX                   [10]float64
+	OBMAS                   float64 // biomass of crop above ground (kg/ha)
+	ASPOO                   float64 // Assimilation pool in crops
+	WUMAS                   float64
+	PESUM                   float64 // sum of N-uptake of crop (aufgenommene N-Menge der Pflanze) (kg N/ha)
+	LURED                   float64
+	DOPP                    string // obsolete? Kalender date of double ridge stage / Doppelringstadium
+	P1, P2                  int
+	SUMAE                   float64
+	AEHR                    string
+	BLUEH                   string
+	REIFE                   string
+	GEHMAX                  float64 // maximal possible N-content in biomass (driver for N-uptake) (kg N/kg Biomass)
+	GEHMIN                  float64 // critical N-content in biomass (start of N-stress) (kg N/kg Biomass)
+	DUNGBED                 float64
+	DEFDAT                  int
+	ENDSTADIUM              DevelopmentStage
+	DIFFSUM                 float64
+	MASSUM                  float64
+	DN                      [21]float64
+	YIELD                   float64 //?? Grain yield (only for cereals) (kg ha-1)
+	AUFNASUM                float64
+	NDRAINTAG               float64
+	CUMDENIT                float64 // cumulative denitrification
 
 	N2Odencum   float64
 	N2OdenDaily float64
@@ -339,7 +340,9 @@ type GlobalVarsMain struct {
 	MINHMOI     [300]float64
 	RAINLIM     [300]float64
 	RAINACT     [300]float64
-	DEV         [10]int // day of year (like sowing, maturity, harvest)
+	DEV         [10]int  // day of year (like sowing, maturity, harvest)
+	BBCH_DOY    [100]int // day of year in which BBCH stage was reached
+	BBCH_TIME   [100]int
 	REDUKSUM    float64
 	TRRELSUM    float64
 	LAIMAX      float64
@@ -363,6 +366,9 @@ type GlobalVarsMain struct {
 	N2onitDaily float64
 	AKTUELL     string // current Date string
 	SoilID      string
+	PARi        float64 // daily PAR
+	PARSUM      float64 // sum of daily PAR
+
 	// Sulfonie Parameter
 	Sulfonie    bool        // enable Sulfonie
 	SAKT        float64     // mineralizable part of soil organic matter
@@ -468,6 +474,7 @@ type GlobalVarsMain struct {
 	LangTag          LangTagConverterFunc   `yaml:"-"`
 	CropTypeLookup   map[string]CropType    `yaml:"-"`
 	managementConfig *ManagementConfig      `yaml:"-"`
+	CropOverwrite    *CropOverwrite         `yaml:"-"`
 }
 
 // CropOutputVars at harvest
@@ -478,6 +485,8 @@ type CropOutputVars struct {
 	AnthDOY      int
 	MatDOY       int
 	HarvestDOY   int
+	BBCH_DOY     [100]int
+	BBCH_DATE    [100]string
 	HarvestYear  int
 	Crop         string
 	Yield        float64
@@ -523,6 +532,7 @@ type CropOutputVars struct {
 	Tdat         string
 	Code         string
 	NotStableErr string
+	PARSUM       float64
 }
 
 // NewGlobalVarsMain create GlobalVarsMain
@@ -606,6 +616,13 @@ const (
 	ERB                 // pea / Felderbse
 	PH                  // phacelia / Phazelie
 	SOY                 // soybean / Soyabohne
+	LET                 // Lettuce / Salat
+	WCA                 // White cabbage / Weißkohl
+	ONI                 // Onions / Zwiebeln
+	CEL                 // Celery / Sellerie
+	GAR                 // Garlic / Knoblauch
+	CAR                 // Carrots / Möhren
+	PMK                 // Pumpkins / Kürbis
 	numSysCrops
 )
 
@@ -636,6 +653,13 @@ var cropTypeLookup = map[string]CropType{
 	"ERB": ERB,
 	"PH":  PH,
 	"SOY": SOY,
+	"LET": LET,
+	"WCA": WCA,
+	"ONI": ONI,
+	"CEL": CEL,
+	"GAR": GAR,
+	"CAR": CAR,
+	"PMK": PMK,
 }
 
 func (g *GlobalVarsMain) ToCropType(s string) CropType {

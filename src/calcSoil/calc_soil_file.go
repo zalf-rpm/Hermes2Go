@@ -63,7 +63,7 @@ func main() {
 			}
 			if *calBulkDensity {
 				bulk := stdBulk(soilData[i].UKT[layer+1] - 1)
-				soilData[i].LD[layer] = (&soilData[i]).BulkDensityToClass(bulk * 1000)
+				soilData[i].LD[layer] = (&soilData[i]).BulkDensityToClass(bulk)
 
 			}
 			if *calcGPV {

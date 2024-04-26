@@ -77,7 +77,7 @@
             ]
         },
         {
-            "name": "Launch Hermes batch mode buld density",
+            "name": "Launch Hermes batch mode bulk density",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -102,6 +102,20 @@
                 "-concurrent", "1",
                 "-logoutput",
                 "-batch", "zuc_muencheberg_batch.txt" ,
+            ]
+        },
+        {
+            "name": "Launch Hermes batch rue",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "src/hermes2go",
+            "cwd": "examples/",
+            "args": [
+                "-module", "batch",
+                "-concurrent", "1",
+                "-logoutput",
+                "-batch", "rue_muencheberg_batch.txt" ,
             ]
         },
         {
@@ -140,6 +154,21 @@
             ]
         },
         {
+            "name": "Launch Hermes calibration test",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "src/hermes2go",
+            "cwd": "examples/",
+            "args": [
+                "-module", "batch",
+                "-concurrent", "1",
+                "-logoutput",
+                "-batch", "calibration_output/hermes2go_results/hermes_batch.txt",
+                "-workingdir", "."
+            ]
+        },
+        {
             "name": "Convert Soil File",
             "type": "go",
             "request": "launch",
@@ -150,6 +179,24 @@
                 "-output", "soil_ex2_new.csv",
                 "-withBD"
             ]
+        },
+        {
+            "name": "Convert crop file",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "src/cropfileconverter",
+            "cwd": "examples/parameter",
+            "args": [
+                "-input", "PARAM.SOY",
+                "-output", "PARAM.SOY.yml"
+            ]
+        },
+        {
+            "name": "Attach to R process",
+            "type": "R-Debugger",
+            "request": "attach",
+
         },
     ]
 }

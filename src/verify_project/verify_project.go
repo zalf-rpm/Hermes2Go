@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/zalf-rpm/Hermes2Go/hermes"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 func main() {
