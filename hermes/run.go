@@ -125,8 +125,8 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			g.KCOA = 0.5 + driConfig.CoastDistance/100
 		}
 
-		//----------- EINGABE AKTUELLES DATUM FÜR DÜNGEEMPFEHLUNG ----------
-
+		//************ EINGABE AKTUELLES DATUM FÜR DÜNGEEMPFEHLUNG ************
+		//************ INPUT CURRENT DATE FOR FERTILIZATION FORECAST ************
 		PROG := driConfig.VirtualDateFertilizerPrediction
 		DAYOUT := driConfig.AnnualOutputDate + driConfig.EndDate[4:]
 		OUTDAY, OUTY := g.Datum(DAYOUT)
@@ -139,7 +139,8 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 
 		PR = SetPrognoseDate(PROG, &g)
 
-		// ---------------- ENDE ANLAGE DÜNGEEMPFEHLUNG --------------------
+		// ************ ENDE ANLAGE DÜNGEEMPFEHLUNG ************
+		// ************ END OF FERTILIZATION FORECAST ************
 
 		// create output folder for "RESULT"
 		MakeDir(herPath.pnam)
@@ -162,7 +163,8 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		defer pnamFile.Close()
 		yearlyOutConfig.WriteHeader(pnamFile)
 
-		// ***************** ÜBERNAHME DES AKTUELLEN DATUMS FÜR PROGNOSE *************
+		// ***************** ÜBERNAHME DES AKTUELLEN DATUMS FÜR DÜNGE PROGNOSE *************
+		// ***************** GET CURRENT DATE FOR FERTILIZATION FORECAST ***************************
 		if PR {
 			tag, p1, p2 := g.LangTag(g.LAT, g.PROGDAT, g.ANJAHR)
 			g.TAG.SetByIndex(tag - 1)
@@ -171,19 +173,20 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		}
 
 		//************ AUFRUFEN DES EINGABE UND UMRECHNUNGSMODULS **************
-
+		//************ CALL INPUT AND CONVERSION MODULES **************
 		errSoil := Input(&herInputVars, &g, &herPath, &driConfig, SOID, gwId)
 		if errSoil != nil {
 			return errSoil
 		}
 
 		//****************** SETZEN DER ANFANGSBEDINGUNGEN *********************
+		//****************** SETTING OF INITIAL CONDITIONS *********************
 		g.FEU = 2
 		g.J = g.ANJAHR - 1900
 		JZ := 1
 
-		// ********* EINLESEN WETTER DES ERSTEN SIMULATIONSJAHRES *******
-
+		// ********* EINLESEN WETTER DES ERSTEN SIMULATIONSJAHRES ************
+		// ********* READ WEATHER OF THE FIRST SIMULATION YEAR ************
 		VWDATstr := path.Join(driConfig.WeatherRootFolder, driConfig.WeatherFolder, fmt.Sprintf(driConfig.WeatherFile, g.FCODE))
 		VWDATstr, err = filepath.Abs(VWDATstr)
 		if err != nil {
@@ -222,8 +225,8 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 
 		Init(&g)
 
-		// +++++++ OEFFNEN UND ANLEGEN DES HEADERS FUER LANGZEITRECHNUNG PFLANZENERGEBNISSE ++++++
-
+		// ************ OEFFNEN UND ANLEGEN DES HEADERS FUER LANGZEITRECHNUNG PFLANZENERGEBNISSE ************
+		// ************ OPEN AND CREATE HEADER FOR LONG TERM CALCULATION OF CROP RESULTS ************
 		var cropOut CropOutputVars
 		var cropOutputConfig OutputConfig
 		if _, err := os.Stat(herPath.cropOutput); err != nil {
@@ -295,7 +298,8 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			}
 		}
 
-		//  /*  ANFANGSWERTE FÜR DENITR TEILPROGRAMM */
+		// ************ ANFANGSWERTE FÜR DENITR TEILPROGRAMM ************
+		// ************ INITIAL VALUES FOR DENITR SUBROUTINE ************
 		g.CUMDENIT = 0
 		g.EINTE[0] = g.EINTE[1]
 
@@ -319,7 +323,8 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				g.TAG.SetByIndex(0) // reset day
 			}
 
-			//************ ÜBERNAHME WETTERDATEN AKTUELLES JAHR **********
+			// ************ ÜBERNAHME WETTERDATEN AKTUELLES JAHR **********
+			// ************ GET WEATHER DATA OF THE CURRENT YEAR **********
 			if g.TAG.Num == g.DT.Num {
 				g.TJAHRSUM = 0
 
@@ -358,7 +363,8 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 					log.Fatal(err)
 				}
 			}
-			// --------------------- ABRUFEN DER HYDROLOGISCHEN PARAMETER ----------------
+			// *************** ABRUFEN DER HYDROLOGISCHEN PARAMETER ***************
+			// *************** CALL HYDROLOGICAL PARAMETERS ***************
 			// ground water level has changed
 			if g.GRW != oldGrW {
 				if g.PTF == 0 && g.CAPPAR == 0 {
@@ -399,7 +405,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				}
 			}
 
-			// +++++++++++++++++++++++++++++++++++ AUTOMATIC IRRIGATION (INCL. 2 DAY FORECAST) +++++++++++
+			// *************** AUTOMATIC IRRIGATION (INCL. 2 DAY FORECAST) ***************
 			if g.AUTOIRRI {
 				if g.SAAT[g.AKF.Index] > 0 {
 					if ZEIT > g.SAAT[g.AKF.Index] {
@@ -438,6 +444,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			}
 			// -------------------------------------------------------------------------------------------------------------------
 			// *************** BEREGNUNG ZU REGEN ADDIEREN *****************
+			// *************** ADD IRRIGATION TO RAIN *****************
 			if ZEIT == g.ZTBR[g.NBR-1] {
 				g.EffectiveIRRIG = g.BREG[g.NBR-1] / 10
 				g.REGEN[g.TAG.Index] = g.REGEN[g.TAG.Index] + g.EffectiveIRRIG
@@ -454,51 +461,9 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				g.managementConfig.WriteManagementEvent(NewManagementEvent(Irrigation, ZEIT, make(map[string]interface{}), &g))
 				g.NBR++
 			}
-			// FSCS := 0.0
-			// ZSR := 1.0
-			// //WDT = g.DT.Num
-			// for I := 1; I <= g.N; I++ {
-			// 	index := I - 1
-			// 	FSC := (g.W[index] - g.WG[1][index]) * g.DZ.Num
-			// 	FSCS = FSCS + FSC
-			// 	FSCSUM[index] = FSCS
-			// }
-
-			// for I := 1; I <= g.N; I++ {
-			// 	index := I - 1
-
-			// 	if g.REGEN[g.TAG.Index]-FSCSUM[index] > g.W[index]*g.DZ.Num/3 {
-			// 		ZSR = math.Max(ZSR, (g.REGEN[g.TAG.Index]-FSCSUM[index])/(g.W[index]*g.DZ.Num/3))
-			// 	}
-			// }
-			// WDT = 1 / math.Ceil(ZSR)
-
-			// HermesRPCService.SendWdt(&g, ZEIT, WDT)
-
-			// // from MONICA
-			// minTimeStepFactor := 1.0
-			// for i := 0; i < g.N; i++ {
-			// 	pri := 0.0
-			// 	if i == g.N-1 {
-			// 		pri = soilColumn.vs_FluxAtLowerBoundary * g.DZ.Num //[mm]
-			// 	} else {
-			// 		pri = soilColumn[i+1].vs_SoilWaterFlux * g.DZ.Num //[mm]
-			// 	}
-			// 	// Variable time step in case of high water fluxes to ensure stable numerics
-			// 	timeStepFactorCurrentLayer := minTimeStepFactor
-			// 	if -5.0 <= pri && pri <= 5.0 && minTimeStepFactor > 1.0 {
-			// 		timeStepFactorCurrentLayer = 1.0
-			// 	} else if (-10.0 <= pri && pri < -5.0) || (5.0 < pri && pri <= 10.0) {
-			// 		timeStepFactorCurrentLayer = 0.5
-			// 	} else if (-15.0 <= pri && pri < -10.0) || (10.0 < pri && pri <= 15.0) {
-			// 		timeStepFactorCurrentLayer = 0.25
-			// 	} else if pri < -15.0 || pri > 15.0 {
-			// 		timeStepFactorCurrentLayer = 0.125
-			// 	}
-			// 	minTimeStepFactor = math.Min(minTimeStepFactor, timeStepFactorCurrentLayer)
-			// }
 
 			// ***** ADDITION DER N-DEPOSITION ZUR OBERSTEN SCHICHT *****
+			// ***** ADDITION of N-DEPOSITION to the top layer *****
 			g.C1[0] = g.C1[0] + g.DEPOS/365*g.DT.Num
 			if g.C1[0] < 0 {
 				g.C1[0] = 0
@@ -524,7 +489,8 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				g.MZ++
 			}
 			SCHNORRSUM = SCHNORRSUM + g.SCHNORR
-			///***  ERNTE:  SCHRIEB N-POOL WERTEN IN DATEI VNAMstr ***/
+			//************ ERNTE:  SCHRIEB N-POOL WERTEN IN DATEI VNAMstr ************
+			//************  HARVEST: WRITE N-POOL VALUES TO FILE VNAMstr ************
 			if ZEIT == g.ERNTE[g.AKF.Index] {
 				g.AKTUELL = g.Kalender(ZEIT)
 			}
@@ -565,10 +531,12 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 
 			HermesRPCService.SendWdt(&g, ZEIT, WDT)
 
-			//CALL SOILTEMP(#7)
+			// *************** BERECHNUNG DER BODENTEMPERATUR ***************
+			// *************** CALCULATION OF SOIL TEMPERATURE ***************
 			Soiltemp(&g)
 
-			//  +++++++++++++++++++++++++++++++++++ AUTOMATISCHE AUSSAAT +++++++++++++++++++++++++++++
+			//  ************ AUTOMATISCHE AUSSAAT ************
+			//  ************ AUTOMATIC SOWING ************
 			if g.AUTOMAN && g.AKF.Num > 1 {
 				if g.SAAT[g.AKF.Index] == 0 && ZEIT >= g.SAAT1[g.AKF.Index] {
 					SLIDESUM := 0.0
@@ -609,7 +577,8 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 					}
 				}
 			}
-			// -------------------------------------- ENDE AUSSAATMODUL ------------------------------
+			// ************ ENDE AUSSAATMODUL ************
+			// ************ END OF SOWING MODULE ************
 			var STEPS float64
 			if WDT < g.DT.Num {
 				STEPS = g.DT.Num / WDT
@@ -634,13 +603,15 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 						g.SWCS2 = SWC
 					}
 
-					// ------- PFLANZENWACHSTUM ZWISCHEN AUSSAAT UND ERNTE BZW. ABSTERBEN ---------
+					// ************ PFLANZENWACHSTUM ZWISCHEN AUSSAAT UND ERNTE BZW. ABSTERBEN ************
+					// ************ PLANT GROWTH BETWEEN SOWING AND HARVEST OR DEATH ************
 					if g.AKF.Num > 1 && g.SAAT[g.AKF.Index] > 0 {
 						if ZEIT >= g.SAAT[g.AKF.Index] && ZEIT <= g.ERNTE2[g.AKF.Index] {
 							if ZEIT == g.SAAT[g.AKF.Index] {
 								g.ETC0 = 0
 							}
-							//CALL PHYTO(#7)
+							// ************ PFLANZENWACHSTUM ************
+							// ************ PLANT GROWTH ************
 							PhytoOut(&g, &cropSharedVars, &herPath, ZEIT, &driConfig, &cropOut)
 
 						} else if ZEIT < g.SAAT[g.AKF.Index] {
@@ -657,6 +628,8 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 
 				Sulfo(WDT, SUBD, ZEIT, &g, &herPath)
 				//CALL NITRO(WDT,SUBD,#7)
+				// ************ CALCULATION OF NITROGEN DYNAMICS ************
+				// ************ BERECHNUNG DER STICKSTOFFDYNAMIK ************
 				finished, err := Nitro(WDT, SUBD, ZEIT, &g, &nitroSharedVars, &nitroSharedBBBVars, &herPath, &cropOut)
 				if err != nil {
 					return err
@@ -737,6 +710,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			}
 
 			// *********************** JAHRESAUSGABE ***************************
+			// *********************** ANNUAL OUTPUT ***************************
 			if g.TAG.Index+1 == OUTDAY {
 				g.AUS[JZ] = g.OUTSUM
 				g.SIC[JZ] = (g.SICKER - math.Abs(g.CAPSUM))
@@ -767,27 +741,35 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				g.N2Odencum = 0
 				g.N2onitsum = 0
 			}
-			//  ++++++++++++++++ EINSCHUB VON DUENGERBEDARFSPROGNOSE +++++++++++++++++++++
+			//  ************ 1. EINSCHUB VON DUENGERBEDARFSPROGNOSE ************
+			//  ************ 1. INSERTION OF FERTILIZATION FORECAST ************
 			if ZEIT == g.P1 {
 				OnDoubleRidgeStateNotReached(ZEIT, &g)
 			}
-			// ----- BEI BEGINN DER PROGNOSERECHNUNG ERMITTLUNG DES PROGNOSEZEITRAUMS -----
-			// ----- UND MERKEN DER AKTUELL BERECHNETEN STICKSTOFFVERSORGUNGSSITUATION ----
+			// ************ BEI BEGINN DER PROGNOSERECHNUNG ERMITTLUNG DES PROGNOSEZEITRAUMS ************
+			// ************ UND MERKEN DER AKTUELL BERECHNETEN STICKSTOFFVERSORGUNGSSITUATION ************
+			// ************ AT THE BEGINNING OF THE FORECAST CALCULATION, DETERMINE THE FORECAST PERIOD ************
+			// ************ AND REMEMBER THE CURRENTLY CALCULATED NITROGEN SUPPLY SITUATION ************
 			if ZEIT == g.PROGNOS {
 				PrognoseTime(ZEIT, &g, &herPath, &driConfig)
 			}
 
-			// -------------------------- ENDE EINSCHUB -----------------------------------------------------------------------------------
+			// ************ ENDE DUENGERBEDARFSPROGNOSE EINSCHUB ************
+			// ************ END OF FERTILIZATION FORECAST INSERTION ************
+
 			if ZEIT == g.ENDE {
 				break
 			}
 		}
 
-		// ---------------------- ENDE DER SIMULATION -----------------------
+		// ************ ENDE DER SIMULATION ************
+		// ************ END OF SIMULATION ************
 
-		//  ------------------------------------------------------------2. EINSCHUB DUENGERBERECHNUNG  -----------------------------------
+		//  ************2. EINSCHUB DUENGERBERECHNUNG  ************
+		//  ************2. INSERT FERTILIZER CALCULATION  ************
 		if PR {
-			// --------------- BERECHNUNG DES DUENGUNGSZEITPUNKTES ---------------
+			// ************ BERECHNUNG DES DUENGUNGSZEITPUNKTES ************
+			// ************ CALCULATION OF THE FERTILIZATION DATE ************
 			NAPP := FinalDungPrognose(&g)
 			progout(NAPP, 0, &g, &herPath)
 		}
