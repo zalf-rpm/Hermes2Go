@@ -19,7 +19,7 @@ eventformats:
     enabled: true
     additionalfields:
       Amount: '%dmm'
-      N03: '%2.1fmg/l'
+      NO3: '%2.1fmg/l'
   sowing:
     eventname: sowing
     enabled: true
