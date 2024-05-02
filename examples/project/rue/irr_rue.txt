@@ -1,5 +1,5 @@
 Field_ID  Ir N03 date
           mm mg/l 
-SOYSM1    15  20 25051982
-SMSOY2    15  20 25051983
+L2F3R1    15  20 25051982
+L2Z1R1    15  20 25051983
 end
