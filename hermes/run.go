@@ -453,7 +453,12 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				if nConcetrationInWater > 0 {
 					g.C1[0] = g.C1[0] + nConcetrationInWater
 				}
-				g.managementConfig.WriteManagementEvent(NewManagementEvent(Irrigation, ZEIT, make(map[string]interface{}), &g))
+
+				g.managementConfig.WriteManagementEvent(NewManagementEvent(
+					Irrigation,
+					ZEIT,
+					map[string]interface{}{
+						"NO3": nConcetrationInWater}, &g))
 				g.NBR++
 			}
 
