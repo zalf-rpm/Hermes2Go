@@ -37,7 +37,9 @@ SDeposition: 18 // this value is properly to high, but it is just an example.
 **automan.txt**
 automanagemt is not implemented for sulfur yet.
 
+**examples\parameter\FERTILIZ.TXT**
 
+TODO: add sulfur fertilization parameters for different fertilizers.
 
 
 

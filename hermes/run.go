@@ -634,8 +634,13 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 					}
 				}
 
-				Sulfo(WDT, SUBD, ZEIT, &g, &herPath)
-				//CALL NITRO(WDT,SUBD,#7)
+				// ************ BERECHNUNG DER SULFATDYNAMIK ************
+				// ************ CALCULATION OF SULFATE DYNAMICS ************
+				err := Sulfo(WDT, SUBD, ZEIT, &g, &herPath)
+				if err != nil {
+					return err
+				}
+
 				// ************ CALCULATION OF NITROGEN DYNAMICS ************
 				// ************ BERECHNUNG DER STICKSTOFFDYNAMIK ************
 				finished, err := Nitro(WDT, SUBD, ZEIT, &g, &nitroSharedVars, &nitroSharedBBBVars, &herPath, &cropOut)

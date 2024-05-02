@@ -21,9 +21,16 @@ func sPotMin(g *GlobalVarsMain) {
 		g.SALTOS = 15000 * g.SGEHALT[0] * g.SAKT * float64(g.UKT[1])
 	}
 }
+func writeSulfurFertilizationEvent(fertName string, so4 interface{}, zeit int, g *GlobalVarsMain) error {
+	err := g.managementConfig.WriteManagementEvent(NewManagementEvent(Fertilization, zeit, map[string]interface{}{
+		"Fertilizer": fertName,
+		"SO4":        so4,
+	}, g))
+	return err
+}
 
 // SUB SULFO() call before nitro()
-func Sulfo(wdt float64, subd, zeit int, g *GlobalVarsMain, hPath *HFilePath) {
+func Sulfo(wdt float64, subd, zeit int, g *GlobalVarsMain, hPath *HFilePath) error {
 
 	if subd == 1 {
 		// apply observed values
@@ -53,6 +60,9 @@ func Sulfo(wdt float64, subd, zeit int, g *GlobalVarsMain, hPath *HFilePath) {
 				g.SDSUMM += g.SDIR[g.NDG.Index]
 				// 		   LET NDG = NDG + 1
 				// do not increase fertilization index here ... this happens in nitro()
+				if runErr := writeSulfurFertilizationEvent(g.DGART[g.NDG.Index], g.SDIR[g.NDG.Index], zeit, g); runErr != nil {
+					return runErr
+				}
 			}
 		}
 		// TODO: Auto-fertilization
@@ -114,6 +124,7 @@ func Sulfo(wdt float64, subd, zeit int, g *GlobalVarsMain, hPath *HFilePath) {
 		}
 	}
 	sMove(wdt, subd, g)
+	return nil
 }
 
 // SUB SMINERAL

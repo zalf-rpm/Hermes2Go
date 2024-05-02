@@ -39,4 +39,5 @@ eventformats:
       Fertilizer: '%s'
       Ndirect:    '%2.1f'
       NH4:        '%4.2f'
+      SO4:        '%4.2f'
 seperatorrune: 32

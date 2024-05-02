@@ -102,7 +102,7 @@ Fertilization: 100
 # automatic sowing/harvest (0=no, 1 = yes)
 AutoSowingHarvest: 0
 # automatic fertilization (0=no, 1=on demand)
-AutoFertilization: 0
+AutoFertilization: 1
 # automatic irrigation (0=no, 1= on demand)
 AutoIrrigation: 0
 # automatic harvest (0=no, 1= on demand)
