@@ -21,7 +21,6 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		var PR bool
 		var WDT float64
 		var FSCSUM [20]float64
-		var SCHNORRSUM float64
 		var SWCY1 float64
 		var dRflowsum, ndrflow, nleach, percsum, nfixP [2]float64
 
@@ -81,15 +80,24 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		}
 		g.CropOverwrite = cropOverwrite
 
+		// ************ EINLESEN DER KONFIGURATION UND SETZEN DER PFADE ************
+		// ************ READ CONFIGURATION AND PATH SETUP ************
 		ROOTstr := workingDir
 		if workingDir == "" {
 			ROOTstr = AskDirectory()
 		}
-		herPath := NewHermesFilePath(ROOTstr, LOCID, g.SNAM, parameterFolderOverride, resultOverride)
+		uniqueOutputID := g.POLYD + g.SNAM // unique output id for each simulation poligonId + plotNr
+		herPath := NewHermesFilePath(ROOTstr, LOCID, uniqueOutputID, parameterFolderOverride, resultOverride)
+		// if a configutation file cannot be found, generate a new one
+		if _, err := os.Stat(herPath.config); err != nil {
+			fmt.Println("Generate config", herPath.config)
+			WriteYamlConfig(herPath.config, NewDefaultConfig())
+		}
 		driConfig := readConfig(&g, argValues, &herPath)
+		herPath.SetOutputExtension(driConfig.ResultFileExt)
 
 		if setFileExtension {
-			// handle file extension override
+			// handle file extension override, used to have multiple configurations in the same project at once
 			herPath.crop = path.Join(herPath.path, "crop_"+herPath.locid+"."+fileExtension)
 			herPath.auto = path.Join(herPath.path, "automan"+"."+fileExtension)
 			herPath.polnamTemplate = path.Join(herPath.path, "%s_"+herPath.locid+"."+fileExtension)
@@ -109,15 +117,9 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			herPath.obs = path.Join(herPath.path, "endit_"+herPath.locid+".txt")
 		}
 
-		if _, err := os.Stat(herPath.config); err != nil {
-			fmt.Println("Generate config", herPath.config)
-			WriteYamlConfig(herPath.config, NewDefaultConfig())
-		}
 		// set SLAG ID / PLOT ID / POLYGON ID
 		g.SLNR = int(ValAsInt(g.SNAM, "none", g.SNAM))
 
-		herPath.SetPnam("Y"+g.POLYD+g.SNAM, driConfig.ResultFileExt)
-		herPath.vnam = herPath.outputfolder + "/V" + g.POLYD + g.SNAM + "." + driConfig.ResultFileExt
 		herPath.SetBofile(driConfig.SoilFile, driConfig.SoilFileExtension)
 		if driConfig.CoastDistance > 50 {
 			g.KCOA = 1
@@ -242,8 +244,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		}
 		cropOutputConfig.formatType = OutputFileFormat(driConfig.ResultFileFormat)
 
-		CNAM := herPath.outputfolder + "/C" + g.POLYD + g.SNAM + "." + driConfig.ResultFileExt
-		CNAMfile := OpenResultFile(CNAM, false)
+		CNAMfile := OpenResultFile(herPath.cnam, false)
 		defer CNAMfile.Close()
 		cropOutputConfig.WriteHeader(CNAMfile)
 
@@ -474,7 +475,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				g.UMS = 0
 				g.MZ++
 			}
-			SCHNORRSUM = SCHNORRSUM + g.SCHNORR
+			g.SCHNORRSUM = g.SCHNORRSUM + g.SCHNORR
 			//************ ERNTE:  SCHRIEB N-POOL WERTEN IN DATEI VNAMstr ************
 			//************  HARVEST: WRITE N-POOL VALUES TO FILE VNAMstr ************
 			if ZEIT == g.ERNTE[g.AKF.Index] {

@@ -178,6 +178,7 @@ type GlobalVarsMain struct {
 	DRAINLOSS               float64
 	NFIX                    float64
 	SCHNORR                 float64
+	SCHNORRSUM              float64
 	PRECO                   bool // enable/disable correction factor of rain fall data
 	KCOA                    float64
 	CO2KONZ                 float64

@@ -51,7 +51,6 @@ type HFilePath struct {
 	parcap                 string
 	dung                   string
 	vwdatnrm               string
-	pnamTemplate           string
 	paranamTemplate        string
 	paranamVarietyTemplate string
 	bofileTemplate         string
@@ -62,11 +61,12 @@ type HFilePath struct {
 	dailyOutput            string
 	cropOutput             string
 	pfOutput               string
+	cnam                   string
 	managementOutput       string
 }
 
 // NewHermesFilePath create an initialized HermesFilePath struct
-func NewHermesFilePath(root, locid, snam, parameterOverride, resultOverride string) HFilePath {
+func NewHermesFilePath(root, locid, uniqueOutputId, parameterOverride, resultOverride string) HFilePath {
 	pathToProject := path.Join(root, "project", locid)
 	parameter := path.Join(root, "parameter")
 	if len(parameterOverride) > 0 {
@@ -79,48 +79,55 @@ func NewHermesFilePath(root, locid, snam, parameterOverride, resultOverride stri
 		out = path.Join(pathToProject, "RESULT")
 	}
 	return HFilePath{
-		locid:        locid,
-		path:         pathToProject,
-		parameter:    parameter,
-		outputfolder: out,
-		// enam:         path.Join(pathToProject, locid+".dri"),
-		vnam: path.Join(out, "V"+snam+".res"),
-		// tnam:                   path.Join(out, "t"+snam+".res"),
-		// tnnam:                  path.Join(out, "n"+snam+".res"),
-		pfnam:                  path.Join(out, "p"+snam+".res"),
-		mnam:                   path.Join(out, "M"+snam+".res"),
-		fert:                   path.Join(out, "d_"+snam+".txt"),
-		irrigation:             path.Join(pathToProject, "irr_"+locid+".txt"),
-		crop:                   path.Join(pathToProject, "crop_"+locid+".txt"),
-		obs:                    path.Join(pathToProject, "init_"+locid+".txt"),
-		til:                    path.Join(pathToProject, "til_"+locid+".txt"),
-		dun:                    path.Join(pathToProject, "fert_"+locid+".txt"),
-		auto:                   path.Join(pathToProject, "automan.txt"),
-		gwtimeseries:           path.Join(pathToProject, "gw_"+locid+".csv"),
-		precorr:                path.Join(pathToProject, "Weather", "preco.txt"),
-		parcap:                 path.Join(parameter, "PARCAP.TRU"),
-		hypar:                  path.Join(parameter, "HYPAR.TRU"),
-		evapo:                  path.Join(parameter, "EVAPO.HAU"),
-		cropn:                  path.Join(parameter, "CROP_N.TXT"),
-		dung:                   path.Join(parameter, "FERTILIZ.TXT"),
-		pnamTemplate:           path.Join(out, "%s.%s"),
-		paranamTemplate:        path.Join(parameter, "PARAM.%s"),
-		paranamVarietyTemplate: path.Join(parameter, "PARAM_%s.%s"),
-		bofileTemplate:         path.Join(pathToProject, "%s_"+locid+".%s"),
-		polnamTemplate:         path.Join(pathToProject, "%s_"+locid+".txt"),
-		vwdatTemplate:          path.Join(pathToProject, "Weather", "%s_"+locid+"."),
-		config:                 path.Join(pathToProject, "config.yml"),
-		yearlyOutput:           path.Join(pathToProject, "yearlyout_conf.yml"),
-		dailyOutput:            path.Join(pathToProject, "dailyout_conf.yml"),
-		cropOutput:             path.Join(pathToProject, "cropout_conf.yml"),
-		pfOutput:               path.Join(pathToProject, "pfout_conf.yml"),
-		managementOutput:       path.Join(pathToProject, "managementout_conf.yml"),
+		locid:        locid,         // location id, equals project folder name
+		path:         pathToProject, // project folder
+		parameter:    parameter,     // parameter folder
+		outputfolder: out,           // output folder
+		// project input files
+		irrigation:       path.Join(pathToProject, "irr_"+locid+".txt"),        // irrigation file
+		crop:             path.Join(pathToProject, "crop_"+locid+".txt"),       // crop file
+		obs:              path.Join(pathToProject, "init_"+locid+".txt"),       // observations file
+		til:              path.Join(pathToProject, "til_"+locid+".txt"),        // tillage times file
+		dun:              path.Join(pathToProject, "fert_"+locid+".txt"),       // fertilization times file
+		auto:             path.Join(pathToProject, "automan.txt"),              // automated processes file
+		gwtimeseries:     path.Join(pathToProject, "gw_"+locid+".csv"),         // groundwater timeseries file
+		precorr:          path.Join(pathToProject, "Weather", "preco.txt"),     // weather precorrection file
+		bofileTemplate:   path.Join(pathToProject, "%s_"+locid+".%s"),          // soil file e.g soil_<project>.txt
+		polnamTemplate:   path.Join(pathToProject, "%s_"+locid+".txt"),         // polygon file e.g poly_<project>.txt
+		vwdatTemplate:    path.Join(pathToProject, "Weather", "%s_"+locid+"."), // weather data file
+		config:           path.Join(pathToProject, "config.yml"),               // configuration file
+		yearlyOutput:     path.Join(pathToProject, "yearlyout_conf.yml"),       // yearly output configuration
+		dailyOutput:      path.Join(pathToProject, "dailyout_conf.yml"),        // daily output configuration
+		cropOutput:       path.Join(pathToProject, "cropout_conf.yml"),         // crop output configuration
+		pfOutput:         path.Join(pathToProject, "pfout_conf.yml"),           // harvest output configuration
+		managementOutput: path.Join(pathToProject, "managementout_conf.yml"),   // management output configuration
+		// output files
+		vnam:  path.Join(out, "V"+uniqueOutputId+".%s"),  // daily output template for single polygone
+		pfnam: path.Join(out, "P"+uniqueOutputId+".%s"),  // harvest output template
+		pnam:  path.Join(out, "Y"+uniqueOutputId+".%s"),  // output yearly template
+		cnam:  path.Join(out, "C"+uniqueOutputId+".%s"),  // output crop template
+		mnam:  path.Join(out, "M"+uniqueOutputId+".txt"), // management output
+		fert:  path.Join(out, "D"+uniqueOutputId+".txt"), // output fertilization suggestion
+
+		// parameter files
+		parcap:                 path.Join(parameter, "PARCAP.TRU"),   // capacity parameters
+		hypar:                  path.Join(parameter, "HYPAR.TRU"),    // hydraulic parameters
+		evapo:                  path.Join(parameter, "EVAPO.HAU"),    // evaporation parameters
+		cropn:                  path.Join(parameter, "CROP_N.TXT"),   // crop parameters
+		dung:                   path.Join(parameter, "FERTILIZ.TXT"), // fertilization parameters
+		paranamTemplate:        path.Join(parameter, "PARAM.%s"),     // parameter file for crop
+		paranamVarietyTemplate: path.Join(parameter, "PARAM_%s.%s"),  // parameter file for crop variety
+
 	}
 }
 
-// SetPnam completes pnam filename
-func (hp *HFilePath) SetPnam(ins, ext string) {
-	hp.pnam = fmt.Sprintf(hp.pnamTemplate, strings.TrimSpace(ins), ext)
+// set extension for output files (e.g. res, csv, txt, ...)
+func (hp *HFilePath) SetOutputExtension(ext string) {
+
+	hp.vnam = fmt.Sprintf(hp.vnam, ext)
+	hp.pfnam = fmt.Sprintf(hp.pfnam, ext)
+	hp.cnam = fmt.Sprintf(hp.cnam, ext)
+	hp.pnam = fmt.Sprintf(hp.pnam, ext)
 }
 
 // SetBofile completes bofile filename
