@@ -104,7 +104,7 @@ AutoSowingHarvest: 0
 # automatic fertilization (0=no, 1=on demand)
 AutoFertilization: 0
 # automatic irrigation (0=no, 1= on demand)
-AutoIrrigation: 1
+AutoIrrigation: 0
 # automatic harvest (0=no, 1= on demand)
 AutoHarvest: 0
 # calculation of sulfur dynamics  (0=off, 1= on)

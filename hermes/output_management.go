@@ -107,6 +107,7 @@ func NewManagentConfig() *ManagementConfig {
 			AdditionalFields: map[string]string{
 				"Amount": "%dmm",
 				"N03":    "%2.1fmg/l",
+				"S04":    "%2.1fmg/l",
 			},
 		},
 		Fertilization: {
@@ -186,7 +187,19 @@ func NewManagementEvent(eventType ManagementEventType, zeit int, additionalField
 		additionalFields["Type"] = g.TILART[g.NTIL.Index]
 	} else if eventType == Irrigation {
 		additionalFields["Amount"] = int(math.Round(g.EffectiveIRRIG))
-		additionalFields["Fertilizer"] = g.BRKZn[g.NBR-1] * g.BREG[g.NBR-1] * 0.01 // fertilizer concentation in water
+		if val, ok := additionalFields["NO3"]; ok {
+			if val.(float64) == 0 {
+				// remove N03 if it is 0
+				delete(additionalFields, "NO3")
+			}
+		}
+		if val, ok := additionalFields["SO4"]; ok {
+			if val.(float64) == 0 {
+				// remove S04 if it is 0
+				delete(additionalFields, "SO4")
+			}
+		}
+
 	} else if eventType == Sowing {
 		additionalFields["Crop"] = g.CropTypeToString(g.FRUCHT[g.AKF.Index], false)
 	} else if eventType == Harvest {

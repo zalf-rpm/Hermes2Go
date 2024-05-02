@@ -459,7 +459,13 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				if sConcentrationInWater > 0 {
 					g.S1[0] = g.S1[0] + sConcentrationInWater
 				}
-				g.managementConfig.WriteManagementEvent(NewManagementEvent(Irrigation, ZEIT, make(map[string]interface{}), &g))
+
+				g.managementConfig.WriteManagementEvent(NewManagementEvent(
+					Irrigation,
+					ZEIT,
+					map[string]interface{}{
+						"NO3": nConcetrationInWater,
+						"SO4": sConcentrationInWater}, &g))
 				g.NBR++
 			}
 
@@ -471,6 +477,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			}
 
 			// ***** ADDITION DER S-DEPOSITION ZUR OBERSTEN SCHICHT *****
+			// ***** ADDITION of S-DEPOSITION to the top layer *****
 			g.S1[0] = g.S1[0] + g.SDEPOS/365*g.DT.Num
 			if g.S1[0] < 0 {
 				g.S1[0] = 0
