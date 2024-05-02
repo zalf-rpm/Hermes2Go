@@ -447,9 +447,9 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			// *************** BEREGNUNG ZU REGEN ADDIEREN *****************
 			// *************** ADD IRRIGATION TO RAIN *****************
 			if ZEIT == g.ZTBR[g.NBR-1] {
-				g.EffectiveIRRIG = g.BREG[g.NBR-1] / 10
+				g.EffectiveIRRIG = g.BREG[g.NBR-1] / 10 // from mm to cm
 				g.REGEN[g.TAG.Index] = g.REGEN[g.TAG.Index] + g.EffectiveIRRIG
-				nConcetrationInWater := g.BRKZn[g.NBR-1] * g.BREG[g.NBR-1] * 0.01
+				nConcetrationInWater := g.BRKZn[g.NBR-1] * g.BREG[g.NBR-1] * 0.01 // mg/m2 to kg/ha
 				if nConcetrationInWater > 0 {
 					g.C1[0] = g.C1[0] + nConcetrationInWater
 				}
