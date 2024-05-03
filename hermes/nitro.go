@@ -37,12 +37,19 @@ type NitroSharedVars struct {
 func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVars, ln *NitroBBBSharedVars, hPath *HFilePath, output *CropOutputVars) (finishedCycle bool, runErr error) {
 	finishedCycle = false
 	runErr = nil
-	writeFertilizerEvent := func(fertName string, ndir, nh4n interface{}) error {
-		err := g.managementConfig.WriteManagementEvent(NewManagementEvent(Fertilization, zeit, map[string]interface{}{
+	writeFertilizerEvent := func(fertName string, ndir, nh4n float64) error {
+
+		fertList := map[string]interface{}{
 			"Fertilizer": fertName,
 			"Ndirect":    ndir,
 			"NH4":        nh4n,
-		}, g))
+		}
+		if ndir == 0 {
+			delete(fertList, "Ndirect")
+		} else if nh4n == 0 {
+			delete(fertList, "NH4")
+		}
+		err := g.managementConfig.WriteManagementEvent(NewManagementEvent(Fertilization, zeit, fertList, g))
 		return err
 	}
 
@@ -74,7 +81,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 						ln.DUNGART = g.DGART[g.AKF.Index-1]
 						g.DSUMM = g.DSUMM + g.NDIR[g.AKF.Index-1] // ! Summe miner. Duengung
 
-						if runErr = writeFertilizerEvent(g.DGART[g.AKF.Index-1], g.NDIR[g.AKF.Index-1], "n.a."); runErr != nil {
+						if runErr = writeFertilizerEvent(g.DGART[g.AKF.Index-1], g.NDIR[g.AKF.Index-1], 0); runErr != nil {
 							return finishedCycle, runErr
 						}
 					}
@@ -111,7 +118,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 								ln.DDAT1 = g.Kalender(zeit)
 								ln.DMENG1 = ndung
 								g.DSUMM = g.DSUMM + ndung
-								if runErr = writeFertilizerEvent(ln.DUNGART, ndung, "n.a."); runErr != nil {
+								if runErr = writeFertilizerEvent(ln.DUNGART, ndung, 0); runErr != nil {
 									return finishedCycle, runErr
 								}
 							}
@@ -127,7 +134,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 								ln.DMENG1 = ndung
 								g.DSUMM = g.DSUMM + ndung
 								g.NDOY1[g.AKF.Index] = 0
-								if runErr = writeFertilizerEvent(ln.DUNGART, ndung, "n.a."); runErr != nil {
+								if runErr = writeFertilizerEvent(ln.DUNGART, ndung, 0); runErr != nil {
 									return finishedCycle, runErr
 								}
 							}
@@ -146,7 +153,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 									ln.DMENG1 = ndung
 									g.DSUMM = g.DSUMM + ndung
 									g.NDOY1[g.AKF.Index] = 370
-									if runErr = writeFertilizerEvent(ln.DUNGART, ndung, "n.a."); runErr != nil {
+									if runErr = writeFertilizerEvent(ln.DUNGART, ndung, 0); runErr != nil {
 										return finishedCycle, runErr
 									}
 								}
@@ -165,7 +172,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 							ln.DMENG2 = ndung
 							g.DSUMM = g.DSUMM + ndung
 							g.NDOY2[g.AKF.Index] = 0
-							if runErr = writeFertilizerEvent(ln.DUNGART, ndung, "n.a."); runErr != nil {
+							if runErr = writeFertilizerEvent(ln.DUNGART, ndung, 0); runErr != nil {
 								return finishedCycle, runErr
 							}
 						}
@@ -180,7 +187,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 							ln.DDAT2 = g.Kalender(zeit)
 							ln.DMENG2 = ndung
 							g.DSUMM = g.DSUMM + ndung
-							if runErr = writeFertilizerEvent(ln.DUNGART, ndung, "n.a."); runErr != nil {
+							if runErr = writeFertilizerEvent(ln.DUNGART, ndung, 0); runErr != nil {
 								return finishedCycle, runErr
 							}
 						}
@@ -197,7 +204,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 							ln.DMENG3 = ndung
 							g.DSUMM = g.DSUMM + ndung
 							g.NDOY3[g.AKF.Index] = 0
-							if runErr = writeFertilizerEvent(ln.DUNGART, ndung, "n.a."); runErr != nil {
+							if runErr = writeFertilizerEvent(ln.DUNGART, ndung, 0); runErr != nil {
 								return finishedCycle, runErr
 							}
 						}
@@ -212,7 +219,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 							ln.DDAT3 = g.Kalender(zeit)
 							ln.DMENG3 = ndung
 							g.DSUMM = g.DSUMM + ndung
-							if runErr = writeFertilizerEvent(ln.DUNGART, ndung, "n.a."); runErr != nil {
+							if runErr = writeFertilizerEvent(ln.DUNGART, ndung, 0); runErr != nil {
 								return finishedCycle, runErr
 							}
 						}
