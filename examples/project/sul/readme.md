@@ -31,8 +31,16 @@ If you don't have this information, you can set the c/s ratio to 100.
 Has a new attribute for sulfur deposition. The sulfur deposition is given in kg/ha annually. The deposition depends on the region and the pollution in the region. The sulfur deposition can be found in the literature or can be measured. It has been the main source of sulfur for the soil.
 With new environmental regulations, the sulfur deposition decreased in the last decades, so it is important to know the sulfur deposition in the region.
 It decreased from 30-40 kg/ha to 10-20 kg/ha, or less in the last decades. 
+Near populated areas, the sulfur deposition can be higher, up to 50 kg/ha.
 
-SDeposition: 18 // this value is properly to high, but it is just an example.
+(Erfassung, Prognose und Bewertung von Stoffeinträgen und ihren Wirkungen in
+Deutschland Forschungskennzahl 3707 64 200 UBA-FB 001490/ANH, 11)
+Example: 
+Bandenburg 2006 average SDeposition: 5.68 
+Berlin 2006 average SDeposition: 7.92
+Germany 2006 average SDeposition: 7.45
+
+SDeposition: 10 // this value is properly to high, but it is just an example.
 
 **automan.txt**
 automanagemt is not implemented for sulfur yet.
