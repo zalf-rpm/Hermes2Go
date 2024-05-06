@@ -439,6 +439,7 @@ type GlobalVarsMain struct {
 	SumMINAOS       float64 // sum MINAOS
 	SumMINFOS       float64 // sum MINFOS
 	AvgTSoil        float64 // average TD soil temperature upper 2 layers
+	SNratioCrop     float64 // S-N-Ratio in crop
 
 	TEMPdaily      float64 // temperatur avg at current day
 	TMINdaily      float64 // temperatur min at current day

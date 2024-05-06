@@ -682,6 +682,13 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 					g.SumMINAOS = g.MINAOS[0] + g.MINAOS[1] + g.MINAOS[2]
 					g.SumMINFOS = g.MINFOS[0] + g.MINFOS[1] + g.MINFOS[2]
 					g.AvgTSoil = (g.TD[1] + g.TD[2]) / 2
+
+					if g.PESUMS > 0 {
+						g.SNratioCrop = g.PESUM / g.PESUMS
+					} else {
+						g.SNratioCrop = 0
+					}
+
 					dailyOutputConfig.WriteLine(VNAMfile)
 				}
 
