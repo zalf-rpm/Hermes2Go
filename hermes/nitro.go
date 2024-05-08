@@ -326,6 +326,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 
 		REDUKAV := g.REDUKSUM / float64(g.ERNTE[g.AKF.Index]-g.SAAT[g.AKF.Index])
 		TRRELAV := g.TRRELSUM / float64(g.ERNTE[g.AKF.Index]-g.SAAT[g.AKF.Index])
+		SREDUKAV := g.SREDUKSUM / float64(g.ERNTE[g.AKF.Index]-g.SAAT[g.AKF.Index])
 		if ln.DOMENG1 == 0 {
 			ln.DODAT = "----------"
 			ln.DUNGART = "---"
@@ -409,6 +410,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			output.NLeaG = g.NLEAG
 			output.TRRel = TRRELAV
 			output.Reduk = REDUKAV
+			output.SReduk = SREDUKAV
 			output.DryD1 = g.DRYD1
 			output.DryD2 = g.DRYD2
 			output.Nresid = ln.NRESID
@@ -507,6 +509,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 				output.NLeaG = 0
 				output.TRRel = 0
 				output.Reduk = 0
+				output.SReduk = 0
 				output.DryD1 = 0
 				output.DryD2 = 0
 				output.Nresid = 0

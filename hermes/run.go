@@ -669,11 +669,17 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			}
 			g.NAOSAKT = (g.NAOS[0] + g.NAOS[1] + g.NAOS[2])
 			g.NFOSAKT = (g.NFOS[0] + g.NFOS[1] + g.NFOS[2])
+			g.SAOSAKT = (g.SAOS[0] + g.SAOS[1] + g.SAOS[2])
+			g.SFOSAKT = (g.SFOS[0] + g.SFOS[1] + g.SFOS[2])
 			if OUTINT > 0 {
 				if (ZEIT % OUTINT) == 0 {
 					g.Nmin9to20 = 0
-					for ci := 9; ci < 20; ci++ {
+					for ci := 9; ci < g.N; ci++ {
 						g.Nmin9to20 += g.C1[ci]
+					}
+					g.Smin9to20 = 0
+					for si := 9; si < g.N; si++ {
+						g.Smin9to20 += g.S1[si]
 					}
 					oldSickerDaily := g.SickerDaily
 					g.SickerDaily = g.SICKER - math.Abs(g.CAPSUM)

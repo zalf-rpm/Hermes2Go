@@ -375,13 +375,13 @@ type GlobalVarsMain struct {
 	SAKT        float64     // mineralizable part of soil organic matter
 	SGEHALT     [10]float64 // S organic content in soil layer (Sorg-Gehalt in Horizont I (Gew.%))
 	SALTOS      float64
-	SFOS        [21]float64
+	SFOS        [21]float64       //Sulfur in slowly decomposable pool (kg N ha-1)
 	S1          [21]float64       // Smin-content in layer Z (kg N/ha)
 	SI          map[int][]float64 // observed Smin-content in layer Z (kg N/ha)
 	sMESS       []int             // date for observed Smin-content
 	sMessIdx    int               // current index for sMESS
 	SDiff       float64           // difference sum between observed and simulated Smin-content
-	SAOS        [21]float64
+	SAOS        [21]float64       // sulfur in slowly decomposable pool (kg N ha-1)
 	Sminaos     [21]float64
 	Sminfos     [21]float64
 	SDSUMM      float64 // sum of mineral sulphur fertilization
@@ -401,7 +401,7 @@ type GlobalVarsMain struct {
 	KLOS        float64              // S Loesungskoeffizient (Geschwindigkeit)
 	SDEPOS      float64              // S-Deposition depending on site
 	SOUTSUM     float64              // sum of S-drainage in soil
-	SAUFNASUM   float64              // sum of ...
+	SAUFNASUM   float64              // s aufnahme summe / S-uptake sum
 	SDV         float64              // Dispersionslänge (cm) for sulfonie
 	BRKZs       []float64            // S-Concentration in irrigation water (in ppm)
 	ZF          map[CropType]float64 // map of ZF increase parameter for S-Uptake curve (Steigungparameter) per crop
@@ -423,7 +423,7 @@ type GlobalVarsMain struct {
 	SGEHOB      float64              //S content in upper plant organs
 	SREDUK      float64              //S reduction factor
 	SREDUKSUM   float64              //S reduction factor sum
-	SUPTAKE     float64              //S-uptake
+	SUPTAKE     float64              //S-uptake at harvest
 
 	// output parameters
 	PerY            float64 // accumulated output
@@ -431,6 +431,7 @@ type GlobalVarsMain struct {
 	SWCY2           float64 // accumulated output
 	SOC1            float64 // accumulated output
 	Nmin9to20       float64 // sum of C1 from layer 9 to 20
+	Smin9to20       float64 // sum of Smin from layer 9 to 20
 	SickerDaily     float64 // sicker - capsum daily update
 	SickerDailyDiff float64 // sicker - capsum daily difference
 	HARVEST         float64 // potential harvest daily
@@ -440,6 +441,8 @@ type GlobalVarsMain struct {
 	SumMINFOS       float64 // sum MINFOS
 	AvgTSoil        float64 // average TD soil temperature upper 2 layers
 	SNratioCrop     float64 // S-N-Ratio in crop
+	SAOSAKT         float64 // sum SAOS
+	SFOSAKT         float64 // sum SFOS
 
 	TEMPdaily      float64 // temperatur avg at current day
 	TMINdaily      float64 // temperatur min at current day
@@ -519,6 +522,7 @@ type CropOutputVars struct {
 	NLeaG        float64
 	TRRel        float64
 	Reduk        float64
+	SReduk       float64
 	DryD1        float64
 	DryD2        float64
 	Nresid       float64
