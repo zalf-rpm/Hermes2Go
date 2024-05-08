@@ -455,9 +455,12 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			} else {
 				g.REDUK = 1.
 			}
+			// TBD: need to find reference for this formula
 			if g.SGEHOB < g.SGEHMIN {
-				AUX := g.SGEHOB / g.GEHMIN
+				AUX := g.SGEHOB / g.SGEHMIN
 				g.SREDUK = math.Pow((1 - math.Exp(1+1/(AUX-1))), 2)
+			} else {
+				g.SREDUK = 1.
 			}
 			g.REDUKSUM = g.REDUKSUM + g.REDUK
 			g.SREDUKSUM = g.SREDUKSUM + g.SREDUK
