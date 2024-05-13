@@ -652,9 +652,12 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 				}
 			}
 
-			for I := 1; I <= g.N; I++ {
-				g.PE[I-1] = 0
+			// reset daily uptake values
+			for i := 0; i < g.N; i++ {
+				g.PE[i] = 0
+				g.PES[i] = 0
 			}
+
 			if g.BART[0][0:1] == "H" {
 				Denitmo(&g)
 			} else {
