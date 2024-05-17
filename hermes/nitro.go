@@ -441,6 +441,11 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 		ln.DOMENG1 = 0
 		ln.NRESID = 0
 		g.PARSUM = 0
+		g.SGEHMIN = 0
+		g.SGEHMAX = 0
+		g.SC = 0
+		g.SUP1daily = 0
+		g.SUP2daily = 0
 
 		if g.DAUERKULT {
 			if g.JN[g.AKF.Index] == 0 || g.JN[g.AKF.Index] == 1 {

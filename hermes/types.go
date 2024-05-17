@@ -405,11 +405,14 @@ type GlobalVarsMain struct {
 	SDV         float64              // Dispersionslänge (cm) for sulfonie
 	BRKZs       []float64            // S-Concentration in irrigation water (in ppm)
 	ZF          map[CropType]float64 // map of ZF increase parameter for S-Uptake curve (Steigungparameter) per crop
+	SUP1daily   float64              // another S-uptake calculation
+	SUP2daily   float64              // another S-uptake calculation
 	CRITSGEHALT map[CropType]float64 // map of constants for critical S-Content funktion in crops
 	CRITSEXP    map[CropType]float64 // map of exponents for critical S-Content function in crops
 	SGEFKT      map[CropType]int     // critical S function
 	SGEHMAX     float64              // maximal S-Content in plants
 	SGEHMIN     float64              // minimal S-Content in plants
+	SC          float64              // percentage of Sulfur in crop (in %)
 	HEGzuNEG    map[CropType]float64 // map Harvest residues ratio for crops (HauptErnteGut NebenErnteGut)
 	TM          map[CropType]float64
 	N_HEG       map[CropType]float64 // map of N-content of main harvest residues for crops

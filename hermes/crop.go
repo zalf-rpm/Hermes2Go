@@ -73,7 +73,8 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		g.SWCM1 = 0
 		g.SWCM2 = 0
 		g.LAIMAX = 0
-
+		g.SUP1daily = 0
+		g.SUP2daily = 0
 		// ! ********************************* reading crop parameter file *************************************************
 		PARANAM := hPath.GetParanam(g.CropTypeToString(g.FRUCHT[g.AKF.Index], false), g.CVARIETY[g.AKF.Index], driConfig.CropParameterFormat == "yml")
 		if driConfig.CropParameterFormat == "yml" {
@@ -408,29 +409,33 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		}
 
 		if g.Sulfonie {
+			g.SC = 0.0
 			// calc biomass
 			BM := g.OBMAS / 1000
 			// for _, bioMassPart := range g.WORG {
 			// 	BM += bioMassPart
 			// }
-			SC := g.CRITSGEHALT[g.FRUCHT[g.AKF.Index]]
+			g.SC = g.CRITSGEHALT[g.FRUCHT[g.AKF.Index]]
 			exp := g.CRITSEXP[g.FRUCHT[g.AKF.Index]]
 			// wheat, maize, soybean
 			if g.SGEFKT[g.FRUCHT[g.AKF.Index]] == 1 {
 				if BM > 1.0 {
-					SC = SC * math.Pow((BM), exp)
+					g.SC = g.SC * math.Pow((BM), exp)
 				}
 				// oilseed rape
 			} else if g.SGEFKT[g.FRUCHT[g.AKF.Index]] == 2 {
 				if BM > 1.0 {
-					SC = SC * math.Exp(exp*BM)
+					g.SC = g.SC * math.Exp(exp*BM)
 				}
 			}
 
 			// SGEHMAX   = maximal möglicher S-Gehalt (Treiber für S-Aufnahme)(kg S/kg Biomasse)
 			// SGEHMIN   = kritischer S-Gehalt der Biomasse (Beginn S-Stress) (kg S/kg Biomasse)
-			g.SGEHMAX = SC * 1.3
-			g.SGEHMIN = SC
+			// g.SGEHMAX = SC * 1.3
+			// g.SGEHMIN = SC
+
+			g.SGEHMAX = (g.SC / 100) * 1.3
+			g.SGEHMIN = g.SC / 100
 
 		}
 
@@ -568,10 +573,10 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 				DTGESN = (g.GEHMAX*g.OBMAS + g.WUMAS*g.WGMAX[g.INTWICK.Index] - g.PESUM) * g.DT.Num
 			}
 
-			// NMAX := 2.5
+			NMAX := 2.5
 			// // !*******************  S-Aufnahmefunktion  ********************************
 			// // LET SUP = Nmax * 10^(-ZF * (log10(Tempsum/Warmsum))^2)
-			// SUP := NMAX * math.Pow(10, -g.ZF[g.FRUCHT[g.AKF.Index]]) * math.Pow(math.Log10(g.PHYLLO+g.SUM[0]/g.TSUM[g.INTWICK.Index]), 2)
+			g.SUP1daily = NMAX * math.Pow(10, -g.ZF[g.FRUCHT[g.AKF.Index]]) * math.Pow(math.Log10((g.PHYLLO+g.SUM[0])/g.TSUM[g.INTWICK.Index]), 2)
 			// // !*************************************************************************
 			// // LET DTGESS = (SUP - PESUMS)*DT
 			// DTGESS = (SUP - g.PESUMS) * g.DT.Num
@@ -587,14 +592,27 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			//WGSMax := g.WGMAX[g.INTWICK.Index] / g.SNRatio[g.FRUCHT[g.AKF.Index]]
 			//WGSMax := g.WGMAX[g.INTWICK.Index] * g.SWura[g.FRUCHT[g.AKF.Index]]
 			WGSMax := g.WUGEH * g.SWura[g.FRUCHT[g.AKF.Index]]
+			// limit S uptake to N/S ratio
+
+			// potential S uptake above ground
+			OBSMax := g.SGEHMAX * g.OBMAS
+			// OBNMax := g.GEHMAX * g.OBMAS / g.SNRatio[g.FRUCHT[g.AKF.Index]]
+
+			// if OBSMax > OBNMax {
+			// 	OBSMax = OBNMax
+			// }
+
+			g.SUP2daily = OBSMax + g.WUMAS*WGSMax
+
 			if g.FRUCHT[g.AKF.Index] == ZR || g.FRUCHT[g.AKF.Index] == K {
-				DTGESS2 = (g.SGEHMAX*g.OBMAS + (g.WUMAS+g.WORG[3])*WGSMax - g.PESUMS) * g.DT.Num
+				DTGESS2 = (OBSMax + (g.WUMAS+g.WORG[3])*WGSMax - g.PESUMS) * g.DT.Num
 			} else {
-				DTGESS2 = (g.SGEHMAX*g.OBMAS + g.WUMAS*WGSMax - g.PESUMS) * g.DT.Num
+				DTGESS2 = (OBSMax + g.WUMAS*WGSMax - g.PESUMS) * g.DT.Num
 			}
 			if DTGESS2 < 0 {
 				DTGESS2 = 0.0
 			}
+
 		}
 	}
 	if zeit == g.ERNTE2[g.AKF.Index]-1 && g.ERNTE[g.AKF.Index] == 0 {

@@ -611,26 +611,68 @@ func readSmin(g *GlobalVarsMain, Fident string, hPath *HFilePath) {
 	if g.Sulfonie {
 		_, scannerSminFile, _ := Open(&FileDescriptior{FilePath: hPath.smin, FileDescription: "smin file", UseFilePool: true})
 
-		LineInut(scannerSminFile) // skip header
 		g.SI = make(map[int][]float64)
+
+		isHeader := true
+		headerMap := map[string]int{"Plot_ID": -1,
+			"DATE":    -1,
+			"Smi03":   -1,
+			"Smi3-6":  -1,
+			"Smi6-9":  -1,
+			"Smi912":  -1,
+			"Smi1215": -1,
+			"Smi1520": -1}
 
 		for scannerSminFile.Scan() {
 			line := scannerSminFile.Text()
+			if isHeader {
+				isHeader = false
+
+				// check which columns are available
+				//Plot_ID   DATE    Smi03  Smi3-6  Smi6-9  Smi912  Smi1215 Smi1520
+				token := Explode(line, []rune{' ', ',', ';'})
+				for i, t := range token {
+					// check if the header is in the possibleHeader
+					if _, ok := headerMap[t]; ok {
+						headerMap[t] = i
+					}
+				}
+
+				continue
+			}
 
 			if strings.HasPrefix(line, Fident) {
 				token := Explode(line, []rune{' ', ',', ';'})
-				if len(token) >= 8 && token[0] == Fident {
+				if token[0] == Fident {
 					date := 0
 					if token[1] != "nan" {
 						_, date = g.Datum(token[1])
 					}
 					siValues := make([]float64, g.N)
-					Smi0_3 := ValAsFloat(token[2], hPath.smin, line)
-					Smi3_6 := ValAsFloat(token[3], hPath.smin, line)
-					Smi6_9 := ValAsFloat(token[4], hPath.smin, line)
-					Smi9_12 := ValAsFloat(token[5], hPath.smin, line)
-					Smi12_15 := ValAsFloat(token[6], hPath.smin, line)
-					Smi15_20 := ValAsFloat(token[7], hPath.smin, line)
+					Smi0_3 := 0.3
+					if headerMap["Smi03"] != -1 {
+						Smi0_3 = ValAsFloat(token[headerMap["Smi03"]], hPath.smin, line)
+					}
+					Smi3_6 := 0.3
+					if headerMap["Smi3-6"] != -1 {
+						Smi3_6 = ValAsFloat(token[headerMap["Smi3-6"]], hPath.smin, line)
+					}
+					Smi6_9 := 0.3
+					if headerMap["Smi6-9"] != -1 {
+						Smi6_9 = ValAsFloat(token[4], hPath.smin, line)
+					}
+					Smi9_12 := 0.3
+					if headerMap["Smi912"] != -1 {
+						Smi9_12 = ValAsFloat(token[5], hPath.smin, line)
+					}
+					Smi12_15 := 0.3
+					if headerMap["Smi1215"] != -1 {
+						Smi12_15 = ValAsFloat(token[6], hPath.smin, line)
+					}
+					Smi15_20 := 0.5
+					if headerMap["Smi1520"] != -1 {
+						Smi15_20 = ValAsFloat(token[7], hPath.smin, line)
+					}
 
 					for i := 0; i < g.N; i++ {
 						var val float64
