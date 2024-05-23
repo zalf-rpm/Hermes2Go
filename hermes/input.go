@@ -695,7 +695,7 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 						}
 					}
 					for i := 1; i <= NDuindex; i++ {
-						dueng(i+1, g, l, hPath)
+						dueng(i, g, l, hPath)
 					}
 				}
 				break
