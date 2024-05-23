@@ -18,7 +18,7 @@ the irrigation file got an extra column for the sulfur content in the irrigation
 
 **smin.txt**
 
-this file contains measured data of the soil mineral sulfur content. The sulfur content is given in SO4-S kg per ha. 
+this file contains measured data of the soil mineral sulfur content. The sulfur content is given in S kg per ha. 
 The initial content is given without date(nan) and the following values are given with the date of the measurement.
 
 **soil_sul.txt**

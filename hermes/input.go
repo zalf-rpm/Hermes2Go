@@ -9,19 +9,9 @@ import (
 
 // InputSharedVars is a struct of shared variables for this module
 type InputSharedVars struct {
-	NORG    [300]float64
 	DGMG    [300]float64 // amount of nitrogen in fertilizer
-	SDGMG   [300]float64 // amount of sulfur in fertiliser
 	NGEHALT [10]float64
-	//Jstr    string
-	//MK [70]string
-	FK [10]float64
-	// KONZ1   float64
-	// KONZ3   float64
-	// KONZ4   float64
-	// KONZ5   float64
-	// KONZ6   float64
-	// KONZ7   float64
+	FK      [10]float64
 	IRRIGAT bool
 	ANZBREG int
 	FLAEID  string
@@ -671,52 +661,41 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 					dun := hPath.dun
 					_, scannerFert, _ := Open(&FileDescriptior{FilePath: dun, FileDescription: "fertilization file", UseFilePool: true})
 					LineInut(scannerFert)
-					NDu := 1
+					NDuindex := 0
+					//Field_ID(0)  N(1)   Frt(2) date(3)
+					headerN := 1
+					headerFrt := 2
+					headerDate := 3
+
 					for SCHLAG, fertilizerToken, valid := NextLineInut(0, scannerFert, strings.Fields); valid; SCHLAG, fertilizerToken, valid = NextLineInut(0, scannerFert, strings.Fields) {
 
 						for ok := SCHLAG == g.PKT; ok; ok = SCHLAG == g.PKT && valid {
 
-							// try to stay backwards compatible with old format
-							//Field_ID(0)  N(1)   Frt(2) date(3)
-							headerN := 1
-							headerS := -1
-							headerFrt := 2
-							headerDate := 3
-							// or Field_ID(0)  N(1) S(2)  Frt(3) date(4)
-							if len(fertilizerToken) == 5 {
-								headerN = 1
-								headerS = 2
-								headerFrt = 3
-								headerDate = 4
-							}
-							NDu++
-							NDuindex := NDu - 1
+							// fertilizer amount multiplied by fraction DUNGSZEN, see Fertilization scenario from config.yml
+							fertAmount := ValAsFloat(fertilizerToken[headerN], dun, fertilizerToken[headerN]) * g.DUNGSZEN
+							fertilizer := fertilizerToken[headerFrt]
+							fertDate := fertilizerToken[headerDate]
+							_, valztdg := g.Datum(fertDate)
 
-							l.DGMG[NDuindex] = ValAsFloat(fertilizerToken[headerN], dun, fertilizerToken[headerN]) * g.DUNGSZEN
-							l.SDGMG[NDuindex] = 0
-							if headerS > 0 {
-								l.SDGMG[NDuindex] = ValAsFloat(fertilizerToken[headerS], dun, fertilizerToken[headerS]) * g.DUNGSZEN
-							}
-							g.DGART[NDuindex] = fertilizerToken[headerFrt]
-							DGDAT := fertilizerToken[headerDate]
+							if valztdg >= g.BEGINN {
+								NDuindex++
 
-							_, valztdg := g.Datum(DGDAT)
-							g.ZTDG[NDuindex] = valztdg
-							if g.ZTDG[NDuindex] < g.BEGINN {
-								NDu--
+								l.DGMG[NDuindex] = fertAmount
+								g.DGART[NDuindex] = fertilizer
+								g.ZTDG[NDuindex] = valztdg
 							}
 							SCHLAG, fertilizerToken, valid = NextLineInut(0, scannerFert, strings.Fields)
 						}
 
 					}
-					for i := 1; i <= NDu; i++ {
-						index := i - 1
-						if g.ZTDG[index+1] == g.ZTDG[index] {
-							g.ZTDG[index+1] = g.ZTDG[index+1] + 1
+					// if the fertilization date is the same as the previous one, add one day
+					for i := 1; i <= NDuindex; i++ {
+						if g.ZTDG[i] == g.ZTDG[i-1] {
+							g.ZTDG[i] = g.ZTDG[i] + 1
 						}
 					}
-					for i := 1; i < NDu; i++ {
-						dueng(i, g, l, hPath)
+					for i := 1; i <= NDuindex; i++ {
+						dueng(i+1, g, l, hPath)
 					}
 				}
 				break
@@ -1515,28 +1494,25 @@ func dueng(i int, g *GlobalVarsMain, l *InputSharedVars, hPath *HFilePath) {
 		du := scanner.Text()
 		token := strings.Fields(du)
 		if token[0] == g.DGART[i] {
-			l.NORG[i] = ValAsFloat(token[1], dungfile, du)                                     //Ntot
-			VOL := ValAsFloat(token[6], dungfile, du)                                          // Loss
-			g.NDIR[i] = l.DGMG[i] * l.NORG[i] * ValAsFloat(token[2], dungfile, du)             // NDIR
-			g.NH4N[i] = g.NDIR[i] * ValAsFloat(token[5], dungfile, du) * (1 - VOL)             // Neu: nicht Nitrat-N in Dünger NH4N
-			g.NDIR[i] = g.NDIR[i] - g.NDIR[i]*ValAsFloat(token[5], dungfile, du)*VOL           // NH4
-			g.NSAS[i] = (l.DGMG[i]*l.NORG[i] - g.NDIR[i]) * ValAsFloat(token[3], dungfile, du) // Nfst
-			g.NLAS[i] = (l.DGMG[i]*l.NORG[i] - g.NDIR[i]) * ValAsFloat(token[4], dungfile, du) // Nslo
+			Ntotal := ValAsFloat(token[1], dungfile, du)                                    //N total
+			VOL := ValAsFloat(token[6], dungfile, du)                                       // Loss
+			g.NDIR[i] = l.DGMG[i] * Ntotal * ValAsFloat(token[2], dungfile, du)             // NDIR
+			g.NH4N[i] = g.NDIR[i] * ValAsFloat(token[5], dungfile, du) * (1 - VOL)          // non Nitrat-N in fertilizer NH4N
+			g.NDIR[i] = g.NDIR[i] - g.NDIR[i]*ValAsFloat(token[5], dungfile, du)*VOL        // NH4
+			g.NSAS[i] = (l.DGMG[i]*Ntotal - g.NDIR[i]) * ValAsFloat(token[3], dungfile, du) // Nfst (N fast)
+			g.NLAS[i] = (l.DGMG[i]*Ntotal - g.NDIR[i]) * ValAsFloat(token[4], dungfile, du) // Nslo (N slow)
 
 			// sulfur in fertilizer
 			if g.Sulfonie {
-				//LET SO4   = VAL(DUNG$(18:21))
-				SO4 := ValAsFloat(token[7], dungfile, du)
-				//LET SORG  = 1- SO4  !VAL(DUNG$(27:30))
-				SORG := 1 - SO4
-				//LET SFAST = VAL(DUNG$(23:26))
-				SFAST := ValAsFloat(token[8], dungfile, du)
-				//LET SDIR(I) = DGMG(I) * SO4
-				g.SDIR[i] = l.SDGMG[i] * SO4
-				//LET SSAS(I) = DGMG(I) * SORG * SFAST
-				g.SSAS[i] = l.SDGMG[i] * SORG * SFAST
-				//LET SLAS(I) = DGMG(I) * SORG * (1-SFAST)
-				g.SLAS[i] = l.SDGMG[i] * SORG * (1 - SFAST)
+				Stotal := ValAsFloat(token[7], dungfile, du) // S total in fertilizer as fraction (0-1)
+				Sdir := ValAsFloat(token[8], dungfile, du)   // S direct as fraction (0-1)
+				SFAST := ValAsFloat(token[9], dungfile, du)  // S organic fast decomposing as fraction (0-1)
+
+				SORG := 1 - Sdir                              // S organic
+				Sslow := 1 - SFAST                            // S organic slow decomposing
+				g.SDIR[i] = l.DGMG[i] * Stotal * Sdir         // plant available Sulfur in fertilizer kg S ha-1
+				g.SSAS[i] = l.DGMG[i] * Stotal * SORG * SFAST // fast decomposing Sulfur in org in fertilizer kg S ha-1
+				g.SLAS[i] = l.DGMG[i] * Stotal * SORG * Sslow // slow decomposing Sulfur in org in fertilizer kg S ha-1
 			}
 			break
 		}

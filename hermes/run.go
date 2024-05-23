@@ -464,8 +464,8 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 					Irrigation,
 					ZEIT,
 					map[string]interface{}{
-						"NO3": nConcetrationInWater,
-						"SO4": sConcentrationInWater}, &g))
+						"N": nConcetrationInWater,
+						"S": sConcentrationInWater}, &g))
 				g.NBR++
 			}
 

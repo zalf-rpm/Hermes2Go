@@ -122,7 +122,7 @@ type GlobalVarsMain struct {
 	ITAG               int
 	TAG                DualType // current day
 	JTAG               int      // number of days in current year
-	ZTDG               [300]int
+	ZTDG               [300]int // time for fertilization, always starts with first harvest of pre-crop
 	FKU                [12]float64
 	CN                 [2][21]float64 // (0:1,21) all 21 slots used!
 	WG                 [3][21]float64 // Water content in layer I 0 = current day, 1 = prev. day, 2 = measurement // (0:2,21) all 21 slots used!
@@ -136,9 +136,9 @@ type GlobalVarsMain struct {
 	TILDAT             [200]string
 	EINT               [300]float64
 	TILART             [200]int
-	EINTE              [201]int //(0:200)
-	DGART              [300]string
-	NDIR               [300]float64
+	EINTE              [201]int     //(0:200)
+	DGART              [300]string  // Fertilizer short name (Düngerart)
+	NDIR               [300]float64 // direct Nitrogen fertilization amount (kg N/ha)
 	NH4N               [300]float64 // not NH4 fertilizer ( nicht Nitrat-N in Dünger)
 	NSAS               [300]float64
 	NLAS               [300]float64

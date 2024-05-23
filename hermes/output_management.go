@@ -187,16 +187,16 @@ func NewManagementEvent(eventType ManagementEventType, zeit int, additionalField
 		additionalFields["Type"] = g.TILART[g.NTIL.Index]
 	} else if eventType == Irrigation {
 		additionalFields["Amount"] = int(math.Round(g.EffectiveIRRIG))
-		if val, ok := additionalFields["NO3"]; ok {
+		if val, ok := additionalFields["N"]; ok {
 			if val.(float64) == 0 {
 				// remove N03 if it is 0
-				delete(additionalFields, "NO3")
+				delete(additionalFields, "N")
 			}
 		}
-		if val, ok := additionalFields["SO4"]; ok {
+		if val, ok := additionalFields["S"]; ok {
 			if val.(float64) == 0 {
 				// remove S04 if it is 0
-				delete(additionalFields, "SO4")
+				delete(additionalFields, "S")
 			}
 		}
 

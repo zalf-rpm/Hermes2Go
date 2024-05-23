@@ -21,10 +21,10 @@ func sPotMin(g *GlobalVarsMain) {
 		g.SALTOS = 15000 * g.SGEHALT[0] * g.SAKT * float64(g.UKT[1])
 	}
 }
-func writeSulfurFertilizationEvent(fertName string, so4 interface{}, zeit int, g *GlobalVarsMain) error {
+func writeSulfurFertilizationEvent(fertName string, s interface{}, zeit int, g *GlobalVarsMain) error {
 	err := g.managementConfig.WriteManagementEvent(NewManagementEvent(Fertilization, zeit, map[string]interface{}{
 		"Fertilizer": fertName,
-		"SO4":        so4,
+		"S":          s,
 	}, g))
 	return err
 }

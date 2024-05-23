@@ -20,7 +20,7 @@ eventformats:
     additionalfields:
       Amount: '%dmm'
       N03: '%2.1fmg/l'
-      SO4: '%2.1fmg/l'
+      S: '%2.1fmg/l'
   sowing:
     eventname: sowing
     enabled: true
@@ -39,5 +39,5 @@ eventformats:
       Fertilizer: '%s'
       Ndirect:    '%2.1f'
       NH4:        '%4.2f'
-      SO4:        '%4.2f'
+      S:        '%4.2f'
 seperatorrune: 32
