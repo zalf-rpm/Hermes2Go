@@ -73,8 +73,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		g.SWCM1 = 0
 		g.SWCM2 = 0
 		g.LAIMAX = 0
-		g.SUP1daily = 0
-		g.SUP2daily = 0
+		g.MaxScurrent = 0
 		// ! ********************************* reading crop parameter file *************************************************
 		PARANAM := hPath.GetParanam(g.CropTypeToString(g.FRUCHT[g.AKF.Index], false), g.CVARIETY[g.AKF.Index], driConfig.CropParameterFormat == "yml")
 		if driConfig.CropParameterFormat == "yml" {
@@ -421,6 +420,8 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			if g.SGEFKT[g.FRUCHT[g.AKF.Index]] == 1 {
 				if BM > 1.0 {
 					g.SC = g.SC * math.Pow((BM), exp)
+					// } else {
+					// 	g.SC = 0.55
 				}
 				// oilseed rape
 			} else if g.SGEFKT[g.FRUCHT[g.AKF.Index]] == 2 {
@@ -573,41 +574,24 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 				DTGESN = (g.GEHMAX*g.OBMAS + g.WUMAS*g.WGMAX[g.INTWICK.Index] - g.PESUM) * g.DT.Num
 			}
 
-			NMAX := 2.5
-			// // !*******************  S-Aufnahmefunktion  ********************************
-			// // LET SUP = Nmax * 10^(-ZF * (log10(Tempsum/Warmsum))^2)
-			g.SUP1daily = NMAX * math.Pow(10, -g.ZF[g.FRUCHT[g.AKF.Index]]) * math.Pow(math.Log10((g.PHYLLO+g.SUM[0])/g.TSUM[g.INTWICK.Index]), 2)
-			// // !*************************************************************************
-			// // LET DTGESS = (SUP - PESUMS)*DT
-			// DTGESS = (SUP - g.PESUMS) * g.DT.Num
-			// // IF DTGESS > 1.5*DT THEN LET DTGESS = 1.5*DT
-			// if DTGESS > 1.5*g.DT.Num {
-			// 	DTGESS = 1.5 * g.DT.Num
-			// }
-			// if DTGESS < 0 {
-			// 	DTGESS = 0.0
-			// }
 			// TODO: S-uptake depending on crop parameters
 			// !*******************  S-Aufnahmefunktion  ********************************
-			//WGSMax := g.WGMAX[g.INTWICK.Index] / g.SNRatio[g.FRUCHT[g.AKF.Index]]
-			//WGSMax := g.WGMAX[g.INTWICK.Index] * g.SWura[g.FRUCHT[g.AKF.Index]]
-			WGSMax := g.WUGEH * g.SWura[g.FRUCHT[g.AKF.Index]]
-			// limit S uptake to N/S ratio
+			// this should be a crop parameter by development stage for maximum S uptake in root
+			//WGSMax := g.SWura[g.FRUCHT[g.AKF.Index]]
+			WGSMax := g.WGMAX[g.INTWICK.Index] / g.SNRatio[g.FRUCHT[g.AKF.Index]]
 
 			// potential S uptake above ground
 			OBSMax := g.SGEHMAX * g.OBMAS
-			// OBNMax := g.GEHMAX * g.OBMAS / g.SNRatio[g.FRUCHT[g.AKF.Index]]
 
-			// if OBSMax > OBNMax {
-			// 	OBSMax = OBNMax
-			// }
-
-			g.SUP2daily = OBSMax + g.WUMAS*WGSMax
+			g.MaxScurrent = OBSMax + g.WUMAS*WGSMax // maximum S uptake above ground + root S uptake
 
 			if g.FRUCHT[g.AKF.Index] == ZR || g.FRUCHT[g.AKF.Index] == K {
 				DTGESS2 = (OBSMax + (g.WUMAS+g.WORG[3])*WGSMax - g.PESUMS) * g.DT.Num
 			} else {
 				DTGESS2 = (OBSMax + g.WUMAS*WGSMax - g.PESUMS) * g.DT.Num
+			}
+			if DTGESS2 > 1.5*g.DT.Num {
+				DTGESS2 = 1.5 * g.DT.Num
 			}
 			if DTGESS2 < 0 {
 				DTGESS2 = 0.0
