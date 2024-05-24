@@ -26,5 +26,5 @@ RG3 03.40 0.43 0.00 1.00 1.00 0.00  0.00 0.00 0.00  m3 / ha Cattle slurry
 RG4 03.70 0.43 0.00 1.00 1.00 0.00  0.00 0.00 0.00  m3 / ha Cattle slurry                                                 
 RG5 03.30 0.43 0.00 1.00 1.00 0.00  0.00 0.00 0.00  m3 / ha Cattle slurry                                                 
 FM  01.00 0.65 0.80 0.20 1.00 0.00  0.00 0.00 0.00  m3 / ha Cattle slurry                                                 
-AS  01.00 1.00 0.00 0.00 0.00 0.00  1.00 1.00 0.00  kg N/ha Ammonium sulphate                                                
+AS  00.21 1.00 0.00 0.00 1.00 0.00  0.24 1.00 0.00  kg N/ha Ammonium sulphate                                                
 DAP 01.00 1.00 0.00 0.00 0.00 0.00  0.00 0.00 0.00  kg N/ha Diammonphosphate                                 
