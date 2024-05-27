@@ -106,12 +106,16 @@ DataColumns:
 - Format: '%04.f'
   VariableName: Smin9to20
 
-- Format: '%05.f'
+- Format: '%05.3f'
   VariableName: PESUM
-- Format: '%05.f'
+- Format: '%05.3f'
   VariableName: PESUMS
 - Format: '%3.1f'
   VariableName: SNratioCrop
+- Format: '%5.4f'
+  VariableName: SC
+- Format: '%5.4f'
+  VariableName: MaxScurrent
 - Format: '%05.f'
   VariableName: OUTSUM
 - Format: '%05.f'
@@ -150,9 +154,9 @@ DataColumns:
   VariableName: GEHMIN
 - Format: '%5.3f'
   VariableName: GEHMAX
-- Format: '%5.3f'
+- Format: '%6.5f'
   VariableName: SGEHMIN
-- Format: '%5.3f'
+- Format: '%6.5f'
   VariableName: SGEHMAX
 - Format: '%4.f'
   VariableName: NAOSAKT
@@ -190,9 +194,9 @@ DataColumns:
   VariableName: DRAISUM
 - Format: '%6.f'
   VariableName: DRAINLOSS
-- Format: '%06.4f'
+- Format: '%07.6f'
   VariableName: GEHOB
-- Format: '%06.4f'
+- Format: '%07.6f'
   VariableName: SGEHOB
 - Format: '%05.f'
   VariableName: NFIXSUM
@@ -257,6 +261,8 @@ Headlines:
   - ColumnName: N crp
   - ColumnName: S crp
   - ColumnName: S-N ratio crp
+  - ColumnName: SCrit 
+  - ColumnName: SMax
   - ColumnName: Nleac
   - ColumnName: Sleac
   - ColumnName: perco
@@ -344,6 +350,8 @@ Headlines:
   - ColumnName: 'kg/ha '
   - ColumnName: 'kg S/ha' 
   - ColumnName: '----'
+  - ColumnName: '%'
+  - ColumnName: 'kg S/ha'
   - ColumnName: mm
   - ColumnName: mm
   - ColumnName: '----'
