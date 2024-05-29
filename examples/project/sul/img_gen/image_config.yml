@@ -1,0 +1,140 @@
+inputtype: HermesCSVOut
+numheader: 2
+delimiter: ','
+dateformat: "01.02.2006"
+theme: vintage
+columntograph:
+  Graph01:
+    graphtype: line
+    title: Smin by layer
+    columns:
+      - Smin0_1
+      - Smin1_2
+      - Smin2_3
+      - Smin3_4
+      - Smin4_5
+      - Smin5_6
+      - Smin6_7
+      - Smin7_8
+      - Smin8_9
+      - Date
+    datecolumn: 'Date'
+  Graph02:
+    graphtype: line
+    title: Smin by layer
+    columns:
+      - Smin0_1
+      - Smin1_2
+      - Smin2_3
+      - Smin3_4
+      - Smin4_5
+      - Smin5_6
+      - Smin6_7
+      - Smin7_8
+      - Smin8_9
+      - Stage
+      - LAI
+      - REGENdaily
+      - RootLength
+      - Date
+    columnview: 
+      - operation: sum
+        name: Smin 1-3
+        columns:
+          - Smin0_1
+          - Smin1_2
+          - Smin2_3
+      - operation: sum
+        name: Smin 4-6
+        columns:
+          - Smin3_4
+          - Smin4_5
+          - Smin5_6
+      - operation: sum
+        name: Smin 7-9
+        columns:
+          - Smin6_7
+          - Smin7_8
+          - Smin8_9
+      - operation: none 
+        name: Stage
+        columns:
+          - Stage
+      - operation: none 
+        name: LAI
+        columns:
+          - LAI
+      - operation: none
+        name: Rain
+        columns:
+          - REGENdaily
+      - operation: none
+        name: Root Length
+        columns:
+          - RootLength
+    datecolumn: 'Date'
+  Graph03:
+    graphtype: line
+    title: Nmin by layer
+    columns:
+      - Nmin0_1
+      - Nmin1_2
+      - Nmin2_3
+      - Nmin3_4
+      - Nmin4_5
+      - Nmin5_6
+      - Nmin6_7
+      - Nmin7_8
+      - Nmin8_9
+      - Date
+    datecolumn: 'Date'
+  Graph04:
+    graphtype: line
+    title: Nmin by layer
+    columns:
+      - Nmin0_1
+      - Nmin1_2
+      - Nmin2_3
+      - Nmin3_4
+      - Nmin4_5
+      - Nmin5_6
+      - Nmin6_7
+      - Nmin7_8
+      - Nmin8_9
+      - Date
+    columnview: 
+      - operation: sum
+        name: Nmin 1-3
+        columns:
+          - Nmin0_1
+          - Nmin1_2
+          - Nmin2_3
+      - operation: sum
+        name: Nmin 4-6
+        columns:
+          - Nmin3_4
+          - Nmin4_5
+          - Nmin5_6
+      - operation: sum
+        name: Nmin 7-9
+        columns:
+          - Nmin6_7
+          - Nmin7_8
+          - Nmin8_9
+    datecolumn: 'Date'
+  Graph05:
+    graphtype: line
+    title: Stage
+    columns:
+      - Stage
+      - LAI
+      - REGENdaily
+      - Date
+    datecolumn: 'Date'
+  Graph06:
+    graphtype: line
+    title: SC
+    columns:
+      - SCrit
+      - Date
+    datecolumn: 'Date'
