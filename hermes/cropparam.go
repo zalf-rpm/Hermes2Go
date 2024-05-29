@@ -38,25 +38,32 @@ type CropParam struct {
 	WORG              []float64     `yaml:"WORG" comment:"initial weight kg d.m./ha of organ I"`                                                 // initial weight kg d.m./ha of organ I
 	MAIRT             []float64     `yaml:"MAIRT" comment:"maintainance rates of organ I (1/day)"`                                               // Maintainance rates of organ I
 	KcIni             float64       `yaml:"KcIni" comment:"initial kc factor for evapotranspiration (uncovered soil)"`                           // initial kc factor for evapotranspiration (uncovered soil)
+	// sulfonie
 
+	SGEFKT       int     `yaml:"SGEFKT,omitempty" comment:"crop S-content function number for critical and max. S-contents"` // crop S-content function number for critical and max. S-contents
+	SFunctExp    float64 `yaml:"SFunctExp,omitempty" comment:"exponent for S-content function"`                              // exponent for S-content function
+	SCritContent float64 `yaml:"SCritContent,omitempty" comment:"base for S-content function"`                               // base for S-content function
+
+	// crop development stages
 	NRENTW                int                    `yaml:"NRENTW" comment:"number of development phases(max 10)"`   // number of development phases(max 10)
 	CropDevelopmentStages []CropDevelopmentStage `yaml:"CropDevelopmentStages" comment:"development stage/phase"` // development stage/phase
 }
 type CropDevelopmentStage struct {
-	DevelopmentStageName string    `yaml:"DevelopmentStageName" comment:"name of the development stage/phase"`     // name of the development stage/phase
-	ENDBBCH              int       `yaml:"ENDBBCH,omitempty" comment:"end on BBCH-scale"`                          // end on BBCH-scale
-	TSUM                 float64   `yaml:"TSUM" comment:"development phase temperature sum (°C days)"`             // development phase temperatur sum (°C days)
-	BAS                  float64   `yaml:"BAS" comment:"base temperature in phase (°C)"`                           // base temperature in phase (°C)
-	VSCHWELL             float64   `yaml:"VSCHWELL" comment:"vernalisation requirements (days)"`                   // vernalisation requirements (days)
-	DAYL                 float64   `yaml:"DAYL" comment:"day length requirements (hours)"`                         // day length requirements (hours)
-	DLBAS                float64   `yaml:"DLBAS" comment:"base day length in phase (hours)"`                       // base day length in phase (hours)
-	DRYSWELL             float64   `yaml:"DRYSWELL" comment:"drought stress below ETA/ETP-quotient"`               // drought stress below ETA/ETP-quotient
-	LUKRIT               float64   `yaml:"LUKRIT" comment:"critical aircontent in topsoil (cm^3/cm^3)"`            // critical aircontent in topsoil (cm^3/cm^3)
-	LAIFKT               float64   `yaml:"LAIFKT" comment:"specific leave area (LAI per mass) (ha/kg TM)"`         // specific leave area (area per mass) (m2/m2/kg TM)
-	WGMAX                float64   `yaml:"WGMAX" comment:"N-content root at the end of phase (fraction)"`          // N-content root end at the of phase
-	PRO                  []float64 `yaml:"PRO" comment:"Partitioning at end of phase (fraction, sum should be 1)"` // Partitioning at end of phase (fraction)
-	DEAD                 []float64 `yaml:"DEAD" comment:"death rate at end of phase (coefficient, 1/day)"`         // death rate at end of phase (coefficient)
-	Kc                   float64   `yaml:"Kc" comment:"kc factor for evapotranspiration at end of phase"`          // kc factor for evapotranspiration at end of phase
+	DevelopmentStageName string    `yaml:"DevelopmentStageName" comment:"name of the development stage/phase"`       // name of the development stage/phase
+	ENDBBCH              int       `yaml:"ENDBBCH,omitempty" comment:"end on BBCH-scale"`                            // end on BBCH-scale
+	TSUM                 float64   `yaml:"TSUM" comment:"development phase temperature sum (°C days)"`               // development phase temperatur sum (°C days)
+	BAS                  float64   `yaml:"BAS" comment:"base temperature in phase (°C)"`                             // base temperature in phase (°C)
+	VSCHWELL             float64   `yaml:"VSCHWELL" comment:"vernalisation requirements (days)"`                     // vernalisation requirements (days)
+	DAYL                 float64   `yaml:"DAYL" comment:"day length requirements (hours)"`                           // day length requirements (hours)
+	DLBAS                float64   `yaml:"DLBAS" comment:"base day length in phase (hours)"`                         // base day length in phase (hours)
+	DRYSWELL             float64   `yaml:"DRYSWELL" comment:"drought stress below ETA/ETP-quotient"`                 // drought stress below ETA/ETP-quotient
+	LUKRIT               float64   `yaml:"LUKRIT" comment:"critical aircontent in topsoil (cm^3/cm^3)"`              // critical aircontent in topsoil (cm^3/cm^3)
+	LAIFKT               float64   `yaml:"LAIFKT" comment:"specific leave area (LAI per mass) (ha/kg TM)"`           // specific leave area (area per mass) (m2/m2/kg TM)
+	WGMAX                float64   `yaml:"WGMAX" comment:"N-content root at the end of phase (fraction)"`            // N-content root end at the of phase
+	WGSMAX               float64   `yaml:"WGSMAX,omitempty" comment:"S-content root at the end of phase (fraction)"` // S-content root end at the of phase
+	PRO                  []float64 `yaml:"PRO" comment:"Partitioning at end of phase (fraction, sum should be 1)"`   // Partitioning at end of phase (fraction)
+	DEAD                 []float64 `yaml:"DEAD" comment:"death rate at end of phase (coefficient, 1/day)"`           // death rate at end of phase (coefficient)
+	Kc                   float64   `yaml:"Kc" comment:"kc factor for evapotranspiration at end of phase"`            // kc factor for evapotranspiration at end of phase
 
 }
 
@@ -118,6 +125,9 @@ func ReadCropParamYml(PARANAM string, l *CropSharedVars, g *GlobalVarsMain) {
 	g.SubOrgan = cropParam.SubOrgan
 	g.YORGAN = cropParam.YORGAN
 	g.YIFAK = cropParam.YIFAK
+	g.CRITSGEHALT = cropParam.SCritContent
+	g.SGEFKT = cropParam.SGEFKT
+	g.CRITSEXP = cropParam.SFunctExp
 
 	g.DAUERKULT = bool(cropParam.DAUERKULT)
 	g.LEGUM = bool(cropParam.LEGUM)
@@ -201,6 +211,7 @@ func ReadCropParamYml(PARANAM string, l *CropSharedVars, g *GlobalVarsMain) {
 		g.LUKRIT[i] = cropParam.CropDevelopmentStages[i].LUKRIT
 		g.LAIFKT[i] = cropParam.CropDevelopmentStages[i].LAIFKT
 		g.WGMAX[i] = cropParam.CropDevelopmentStages[i].WGMAX
+		g.WGSMAX[i] = cropParam.CropDevelopmentStages[i].WGSMAX
 		for L := 0; L < g.NRKOM; L++ {
 			g.PRO[i][L] = cropParam.CropDevelopmentStages[i].PRO[L]
 			g.DEAD[i][L] = cropParam.CropDevelopmentStages[i].DEAD[L]
@@ -428,6 +439,9 @@ func ConvertCropParamClassicToYml(PARANAM string) (CropParam, error) {
 		WORG:                  []float64{},
 		MAIRT:                 []float64{},
 		KcIni:                 0,
+		SGEFKT:                1,
+		SFunctExp:             -0.169,
+		SCritContent:          0.37,
 		NRENTW:                0,
 		CropDevelopmentStages: []CropDevelopmentStage{},
 	}
@@ -554,6 +568,7 @@ func ConvertCropParamClassicToYml(PARANAM string) (CropParam, error) {
 			DevelopmentStageName: developmentStageToString,
 			ENDBBCH:              bbch,
 		}
+		developmentStage.WGSMAX = 0.001
 		LINE4 := LineInut(scanner)
 		// Temperatursumme Entwicklungsstufe I (°C days)
 		developmentStage.TSUM = ValAsFloat(LINE4[65:], PARANAM, LINE4)

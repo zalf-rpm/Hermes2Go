@@ -261,9 +261,10 @@ type GlobalVarsMain struct {
 	DLBAS                   [10]float64
 	DRYSWELL                [10]float64
 	LAIFKT                  [10]float64
-	WGMAX                   [10]float64
-	OBMAS                   float64 // biomass of crop above ground (kg/ha)
-	ASPOO                   float64 // Assimilation pool in crops
+	WGMAX                   [10]float64 // N content in root in development stage I (kg N/kg Biomass)
+	WGSMAX                  [10]float64 // S content in root in development stage I (kg S/kg Biomass)
+	OBMAS                   float64     // biomass of crop above ground (kg/ha)
+	ASPOO                   float64     // Assimilation pool in crops
 	WUMAS                   float64
 	PESUM                   float64 // sum of N-uptake of crop (aufgenommene N-Menge der Pflanze) (kg N/ha)
 	LURED                   float64
@@ -371,44 +372,44 @@ type GlobalVarsMain struct {
 	PARSUM      float64 // sum of daily PAR
 
 	// Sulfonie Parameter
-	Sulfonie    bool        // enable Sulfonie
-	SAKT        float64     // mineralizable part of soil organic matter
-	SGEHALT     [10]float64 // S organic content in soil layer (Sorg-Gehalt in Horizont I (Gew.%))
-	SALTOS      float64
-	SFOS        [21]float64       //Sulfur in slowly decomposable pool (kg N ha-1)
-	S1          [21]float64       // Smin-content in layer Z (kg N/ha)
-	SI          map[int][]float64 // observed Smin-content in layer Z (kg N/ha)
-	sMESS       []int             // date for observed Smin-content
-	sMessIdx    int               // current index for sMESS
-	SDiff       float64           // difference sum between observed and simulated Smin-content
-	SAOS        [21]float64       // sulfur in slowly decomposable pool (kg N ha-1)
-	Sminaos     [21]float64
-	Sminfos     [21]float64
-	SDSUMM      float64 // sum of mineral sulphur fertilization
-	SFOSUM      float64
-	SAOSUM      float64
-	SSUM        float64
-	SFSUM       float64     //SF Sum over all layers
-	SF          [21]float64 //SF Smin not in solution in kg S/ha per layer(SF ist die nicht gelöste Smin-Menge in kg S/ha)
-	SSAS        [300]float64
-	SLAS        [300]float64
-	SDIR        [300]float64
-	PESUMS      float64
-	SMINSUM     float64
-	DNS         [21]float64          // source term from mineralisation (kg S/ha) in layer
-	PES         [21]float64          // S-uptake of crop in soil layer Z (kg S/ha)
-	SKSAT       float64              // Saettigungs-Loesungskonzentration in Gramm S/Liter
-	KLOS        float64              // S Loesungskoeffizient (Geschwindigkeit)
-	SDEPOS      float64              // S-Deposition depending on site
-	SOUTSUM     float64              // sum of S-drainage in soil
-	SAUFNASUM   float64              // s aufnahme summe / S-uptake sum
-	SDV         float64              // Dispersionslänge (cm) for sulfonie
-	BRKZs       []float64            // S-Concentration in irrigation water (in ppm)
-	ZF          map[CropType]float64 // map of ZF increase parameter for S-Uptake curve (Steigungparameter) per crop
+	Sulfonie  bool        // enable Sulfonie
+	SAKT      float64     // mineralizable part of soil organic matter
+	SGEHALT   [10]float64 // S organic content in soil layer (Sorg-Gehalt in Horizont I (Gew.%))
+	SALTOS    float64
+	SFOS      [21]float64       //Sulfur in slowly decomposable pool (kg N ha-1)
+	S1        [21]float64       // Smin-content in layer Z (kg N/ha)
+	SI        map[int][]float64 // observed Smin-content in layer Z (kg N/ha)
+	sMESS     []int             // date for observed Smin-content
+	sMessIdx  int               // current index for sMESS
+	SDiff     float64           // difference sum between observed and simulated Smin-content
+	SAOS      [21]float64       // sulfur in slowly decomposable pool (kg N ha-1)
+	Sminaos   [21]float64
+	Sminfos   [21]float64
+	SDSUMM    float64 // sum of mineral sulphur fertilization
+	SFOSUM    float64
+	SAOSUM    float64
+	SSUM      float64
+	SFSUM     float64     //SF Sum over all layers
+	SF        [21]float64 //SF Smin not in solution in kg S/ha per layer(SF ist die nicht gelöste Smin-Menge in kg S/ha)
+	SSAS      [300]float64
+	SLAS      [300]float64
+	SDIR      [300]float64
+	PESUMS    float64
+	SMINSUM   float64
+	DNS       [21]float64 // source term from mineralisation (kg S/ha) in layer
+	PES       [21]float64 // S-uptake of crop in soil layer Z (kg S/ha)
+	SKSAT     float64     // Saettigungs-Loesungskonzentration in Gramm S/Liter
+	KLOS      float64     // S Loesungskoeffizient (Geschwindigkeit)
+	SDEPOS    float64     // S-Deposition depending on site
+	SOUTSUM   float64     // sum of S-drainage in soil
+	SAUFNASUM float64     // s aufnahme summe / S-uptake sum
+	SDV       float64     // Dispersionslänge (cm) for sulfonie
+	BRKZs     []float64   // S-Concentration in irrigation water (in ppm)
+	// ZF          map[CropType]float64 // map of ZF increase parameter for S-Uptake curve (Steigungparameter) per crop
 	MaxScurrent float64              // max S in crop in kg S/ha
-	CRITSGEHALT map[CropType]float64 // map of constants for critical S-Content funktion in crops
-	CRITSEXP    map[CropType]float64 // map of exponents for critical S-Content function in crops
-	SGEFKT      map[CropType]int     // critical S function
+	CRITSGEHALT float64              // constant for critical S-Content funktion in crops
+	CRITSEXP    float64              // exponent for critical S-Content function in crops
+	SGEFKT      int                  // critical S function
 	SGEHMAX     float64              // maximal S-Content in plants
 	SGEHMIN     float64              // minimal S-Content in plants
 	SC          float64              // percentage of Sulfur in crop (in %)

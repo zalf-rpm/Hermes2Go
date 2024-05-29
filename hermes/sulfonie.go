@@ -551,10 +551,10 @@ func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
 			cDHeader[token] = i
 		}
 	}
-	g.ZF = make(map[CropType]float64)
-	g.CRITSGEHALT = make(map[CropType]float64)
-	g.CRITSEXP = make(map[CropType]float64)
-	g.SGEFKT = make(map[CropType]int)
+	// g.ZF = make(map[CropType]float64)
+	// g.CRITSGEHALT = make(map[CropType]float64)
+	// g.CRITSEXP = make(map[CropType]float64)
+	// g.SGEFKT = make(map[CropType]int)
 	g.HEGzuNEG = make(map[CropType]float64)
 	g.TM = make(map[CropType]float64)
 	g.N_HEG = make(map[CropType]float64)
@@ -572,15 +572,15 @@ func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
 
 		if len(token) >= len(cDHeader) {
 			crop := token[cDHeader["Crop"]]
-			zf := token[cDHeader["ZF"]]
-			critSContent := token[cDHeader["critSContent"]]
+			//zf := token[cDHeader["ZF"]]
+			// critSContent := token[cDHeader["critSContent"]]
 			cropt := g.ToCropType(crop)
-			Sgefkt := token[cDHeader["S_Funct"]]
-			critsexp := token[cDHeader["Exp"]]
-			g.ZF[cropt] = ValAsFloat(zf, cData, line)
-			g.CRITSGEHALT[cropt] = ValAsFloat(critSContent, cData, line)
-			g.SGEFKT[cropt] = int(ValAsInt(Sgefkt, cData, line))
-			g.CRITSEXP[cropt] = ValAsFloat(critsexp, cData, line)
+			// Sgefkt := token[cDHeader["S_Funct"]]
+			// critsexp := token[cDHeader["Exp"]]
+			//g.ZF[cropt] = ValAsFloat(zf, cData, line)
+			// g.CRITSGEHALT[cropt] = ValAsFloat(critSContent, cData, line)
+			// g.SGEFKT[cropt] = int(ValAsInt(Sgefkt, cData, line))
+			// g.CRITSEXP[cropt] = ValAsFloat(critsexp, cData, line)
 			g.Sfas[cropt] = ValAsFloat(token[cDHeader["Sfas"]], cData, line)
 			g.SWura[cropt] = ValAsFloat(token[cDHeader["SWura"]], cData, line)
 			g.S_HEG[cropt] = ValAsFloat(token[cDHeader["S_HEG"]], cData, line)

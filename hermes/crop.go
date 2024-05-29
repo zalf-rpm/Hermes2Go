@@ -414,17 +414,17 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			// for _, bioMassPart := range g.WORG {
 			// 	BM += bioMassPart
 			// }
-			g.SC = g.CRITSGEHALT[g.FRUCHT[g.AKF.Index]]
-			exp := g.CRITSEXP[g.FRUCHT[g.AKF.Index]]
+			g.SC = g.CRITSGEHALT
+			exp := g.CRITSEXP
 			// wheat, maize, soybean
-			if g.SGEFKT[g.FRUCHT[g.AKF.Index]] == 1 {
+			if g.SGEFKT == 1 {
 				if BM > 1.0 {
 					g.SC = g.SC * math.Pow((BM), exp)
 					// } else {
 					// 	g.SC = 0.55
 				}
 				// oilseed rape
-			} else if g.SGEFKT[g.FRUCHT[g.AKF.Index]] == 2 {
+			} else if g.SGEFKT == 2 {
 				if BM > 1.0 {
 					g.SC = g.SC * math.Exp(exp*BM)
 				}
@@ -578,7 +578,8 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			// !*******************  S-Aufnahmefunktion  ********************************
 			// this should be a crop parameter by development stage for maximum S uptake in root
 			//WGSMax := g.SWura[g.FRUCHT[g.AKF.Index]]
-			WGSMax := g.WGMAX[g.INTWICK.Index] / g.SNRatio[g.FRUCHT[g.AKF.Index]]
+			//WGSMax := g.WGMAX[g.INTWICK.Index] / g.SNRatio[g.FRUCHT[g.AKF.Index]]
+			WGSMax := g.WGSMAX[g.INTWICK.Index]
 
 			// potential S uptake above ground
 			OBSMax := g.SGEHMAX * g.OBMAS
