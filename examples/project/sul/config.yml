@@ -30,6 +30,8 @@ CropFileFormat: 'txt'
 PolygonGridFileName: poly
 # generate output for management events (0=none default)
 ManagementEvents: 1
+# Crop parameter file format (txt = hermes crop, yml = yaml format)
+CropParameterFormat: 'yml'
 
 #***** Weather *****
 # weather file name template/pattern, %s will be replaced with fcode

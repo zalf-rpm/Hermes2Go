@@ -55,6 +55,12 @@ MAIRT:
     - 0.01
 # initial kc factor for evapotranspiration (uncovered soil)
 KcIni: 0.65
+# crop S-content function number for critical and max. S-contents
+SGEFKT: 1
+# exponent for S-content function
+SFunctExp: -0.169
+# base for S-content function
+SCritContent: 0.37
 # number of development phases(max 10)
 NRENTW: 6
 # development stage/phase
@@ -79,6 +85,8 @@ CropDevelopmentStages:
       LAIFKT: 0.002
       # N-content root at the end of phase (fraction)
       WGMAX: 0.02
+      # S-content root at the end of phase (fraction)
+      WGSMAX: 0.002
       # Partitioning at end of phase (fraction, sum should be 1)
       PRO:
         - 0.5
@@ -113,6 +121,8 @@ CropDevelopmentStages:
       LAIFKT: 0.0017
       # N-content root at the end of phase (fraction)
       WGMAX: 0.02
+      # S-content root at the end of phase (fraction)
+      WGSMAX: 0.002
       # Partitioning at end of phase (fraction, sum should be 1)
       PRO:
         - 0.2
@@ -147,6 +157,8 @@ CropDevelopmentStages:
       LAIFKT: 0.0015
       # N-content root at the end of phase (fraction)
       WGMAX: 0.012
+      # S-content root at the end of phase (fraction)
+      WGSMAX: 0.0012
       # Partitioning at end of phase (fraction, sum should be 1)
       PRO:
         - 0.13
@@ -181,6 +193,8 @@ CropDevelopmentStages:
       LAIFKT: 0.0012
       # N-content root at the end of phase (fraction)
       WGMAX: 0.01
+      # S-content root at the end of phase (fraction)
+      WGSMAX: 0.001
       # Partitioning at end of phase (fraction, sum should be 1)
       PRO:
         - 0
@@ -215,6 +229,8 @@ CropDevelopmentStages:
       LAIFKT: 0.0012
       # N-content root at the end of phase (fraction)
       WGMAX: 0.01
+      # S-content root at the end of phase (fraction)
+      WGSMAX: 0.001
       # Partitioning at end of phase (fraction, sum should be 1)
       PRO:
         - 0
@@ -249,6 +265,8 @@ CropDevelopmentStages:
       LAIFKT: 0.002
       # N-content root at the end of phase (fraction)
       WGMAX: 0.01
+      # S-content root at the end of phase (fraction)
+      WGSMAX: 0.001
       # Partitioning at end of phase (fraction, sum should be 1)
       PRO:
         - 0
