@@ -14,7 +14,7 @@ func GroundwaterDebugHttpServer(w http.ResponseWriter, _ *http.Request) {
 
 	page := components.NewPage()
 	keys := extractSortedKeys()
-	dates := keysAsDate(Kalender, keys)
+	dates := keysAsDate(Kalender, keys, false)
 
 	// GW
 	// GRW
@@ -27,10 +27,10 @@ func GroundwaterDebugHttpServer(w http.ResponseWriter, _ *http.Request) {
 		lineMultiGW_WaterContentTop(keys, dates),
 		lineMultiWTop(keys, dates),
 		lineMultiWSub(keys, dates),
-		// lineMultiWGTop(keys, dates),
-		// lineMultiWGSub(keys, dates),
-		// lineMultiWGinPercentTop(keys, dates),
-		// lineMultiWGinPercentSub(keys, dates),
+		lineMultiWGTop(keys, dates),
+		lineMultiWGSub(keys, dates),
+		lineMultiWGinPercentTop(keys, dates),
+		lineMultiWGinPercentSub(keys, dates),
 	)
 
 	page.Render(w)

@@ -1,0 +1,1 @@
+project=water fcode=LYS plotNr=00011 poligonID=LYS resultfolder=RESULT/water

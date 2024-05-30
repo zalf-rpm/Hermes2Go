@@ -1,0 +1,3 @@
+Polyg SID  Field_ID  GH GL Ir comment
+00011 Ly1 LYS000001 99 99 1 """"""    
+end

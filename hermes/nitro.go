@@ -774,8 +774,9 @@ func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			l.KONV[z0] = (Carray[z+1]*g.Q1[z] - Carray[z-1]*g.Q1[z-1]) / g.DZ.Num
 		}
 	}
-	g.DRAINLOSS = g.DRAINLOSS + g.QDRAIN*Carray[g.DRAIDEP]/g.DZ.Num*100*g.DZ.Num
-
+	if g.DRAIDEP < g.N {
+		g.DRAINLOSS = g.DRAINLOSS + g.QDRAIN*Carray[g.DRAIDEP]/g.DZ.Num*100*g.DZ.Num
+	}
 	g.C1NotStable = ""
 	for z := 0; z < g.N; z++ {
 		cKonz := (Carray[z+1]*g.WG[0][z] + l.DISP[z] - l.KONV[z]) * g.DZ.Num * 100

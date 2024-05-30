@@ -28,14 +28,17 @@ import (
 func main() {
 	StartRPCHandler()
 	Kalender = hermes.KalenderConverter(hermes.DateDEshort, ".")
+	KalenderLong = hermes.KalenderConverter(hermes.DateENlong, ".")
 	fmt.Println("Open a browser and connet to: http://localhost:8081 ")
-	fmt.Println("For N2O connet to: http://localhost:8081/n2o ")
+	fmt.Println("For N2O content to: http://localhost:8081/n2o ")
 	fmt.Println("For ground water connet to: http://localhost:8081/groundwater ")
 	fmt.Println("For plant connet to: http://localhost:8081/crop ")
+	fmt.Println("For Water content to: http://localhost:8081/water ")
 	http.HandleFunc("/", c1debughttpserver)
 	http.HandleFunc("/n2o", n2odebughttpserver)
 	http.HandleFunc("/groundwater", GroundwaterDebugHttpServer)
 	http.HandleFunc("/crop", cropdebughttpserver)
+	http.HandleFunc("/water", waterhttpserver)
 	http.ListenAndServe("localhost:8081", nil)
 }
 
@@ -44,11 +47,13 @@ type RPCHandler struct {
 	receivedDumps      map[int]hermes.TransferEnvGlobal // GlobalVarsMain - global vars
 	receivedNitroDumps map[int]hermes.TransferEnvNitro  // NitroSharedVars - local Nitro vars
 	wdtDumps           map[int]hermes.TransferEnvWdt    // wdt calc dump
+	waterBalanceDumps  map[int]hermes.WaterBalance      // water balance dump
 	mux                sync.Mutex
 }
 
 var globalHandler *RPCHandler
 var Kalender hermes.KalenderConverterFunc
+var KalenderLong hermes.KalenderConverterFunc
 
 // StartRPCHandler start RPC handler in another go routine
 func StartRPCHandler() {
@@ -62,6 +67,7 @@ func StartRPCHandler() {
 		receivedDumps:      make(map[int]hermes.TransferEnvGlobal, 11000),
 		receivedNitroDumps: make(map[int]hermes.TransferEnvNitro, 11000),
 		wdtDumps:           make(map[int]hermes.TransferEnvWdt, 11000),
+		waterBalanceDumps:  make(map[int]hermes.WaterBalance, 11000),
 		mux:                sync.Mutex{},
 	}
 	err = rpc.Register(globalHandler)
@@ -109,12 +115,20 @@ func (rh *RPCHandler) DumpWdtCalc(payload hermes.TransferEnvWdt, reply *string) 
 
 }
 
+func (rh *RPCHandler) DumpWaterBalance(payload hermes.WaterBalance, reply *string) error {
+	id := payload.Zeit
+	rh.mux.Lock()
+	rh.waterBalanceDumps[id] = payload
+	rh.mux.Unlock()
+	return nil
+}
+
 // c1debughttpserver for web interface, to render the stuff that has been recieved
 func c1debughttpserver(w http.ResponseWriter, _ *http.Request) {
 
 	page := components.NewPage()
 	keys := extractSortedKeys()
-	dates := keysAsDate(Kalender, keys)
+	dates := keysAsDate(Kalender, keys, false)
 	errKeys := generateErrorItems(keys)
 
 	page.AddCharts(
@@ -326,6 +340,17 @@ func extractSortedKeys() []int {
 	return keys
 }
 
+func extractDailyKeys() []int {
+	globalHandler.mux.Lock()
+	keys := make([]int, 0, len(globalHandler.waterBalanceDumps))
+	for k := range globalHandler.waterBalanceDumps {
+		keys = append(keys, k)
+	}
+	globalHandler.mux.Unlock()
+	sort.Ints(keys)
+	return keys
+}
+
 func makeMultiLine(title string) *charts.Line {
 	line := charts.NewLine()
 	line.SetGlobalOptions(
@@ -362,7 +387,7 @@ func lineMultiC1(keys, errKeys []int, dates []string) *charts.Line {
 	return line
 }
 func errorMarker(errKeys []int, offset float64) charts.SeriesOpts {
-	dates := keysAsDate(Kalender, errKeys)
+	dates := keysAsDate(Kalender, errKeys, false)
 
 	marker := make([]opts.MarkPointNameCoordItem, 0, len(dates))
 	for _, date := range dates {
@@ -395,10 +420,10 @@ func lineMultiQ1(keys, errKeys []int, dates []string) *charts.Line {
 
 	line.SetXAxis(dates)
 	line.AddSeries("Regen ", generateRegenItems(keys))
-	line.AddSeries("Q1 Schicht 0", generateQ1Items(keys, 0), errorMarker(errKeys, 9))
-	line.AddSeries("Q1 Schicht 1", generateQ1Items(keys, 1))
-	line.AddSeries("Q1 Schicht 2", generateQ1Items(keys, 2))
-	line.AddSeries("Q1 Schicht 3", generateQ1Items(keys, 3))
+	line.AddSeries("Q1 Layer 0", generateQ1Items(keys, 0), errorMarker(errKeys, 9))
+	line.AddSeries("Q1 Layer 1", generateQ1Items(keys, 1))
+	line.AddSeries("Q1 Layer 2", generateQ1Items(keys, 2))
+	line.AddSeries("Q1 Layer 3", generateQ1Items(keys, 3))
 
 	return line
 }
@@ -482,14 +507,19 @@ func lineMultiWDT() *charts.Line {
 	return line
 }
 
-func keysAsDate(dateConverter func(int) string, keys []int) []string {
+func keysAsDate(dateConverter func(int) string, keys []int, noSteps bool) []string {
 	asDate := make([]string, 0, len(keys))
 
 	for _, key := range keys {
-		date := key / 100
-		steps := key % 100
+		if noSteps {
+			asDate = append(asDate, dateConverter(key))
+		} else {
 
-		asDate = append(asDate, fmt.Sprintf("%s_%d", dateConverter(date), steps))
+			date := key / 100
+			steps := key % 100
+
+			asDate = append(asDate, fmt.Sprintf("%s_%d", dateConverter(date), steps))
+		}
 	}
 	return asDate
 }

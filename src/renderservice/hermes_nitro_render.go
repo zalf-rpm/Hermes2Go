@@ -14,7 +14,7 @@ func n2odebughttpserver(w http.ResponseWriter, _ *http.Request) {
 
 	page := components.NewPage()
 	keys := extractSortedKeys()
-	dates := keysAsDate(Kalender, keys)
+	dates := keysAsDate(Kalender, keys, false)
 	errKeys := generateErrorItems(keys)
 
 	//NH4N

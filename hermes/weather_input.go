@@ -384,7 +384,7 @@ func ReadWeatherCSV(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDa
 			continue
 		}
 		d.wind, err[0] = strconv.ParseFloat(tokens[h[wind]], 64)
-		d.precip, err[1] = strconv.ParseFloat(tokens[h[precip]], 64)
+		d.precip, err[1] = strconv.ParseFloat(tokens[h[precip]], 64) // in mm
 		if _, ok := h[globrad]; ok {
 			d.globrad, err[2] = strconv.ParseFloat(tokens[h[globrad]], 64)
 		}
@@ -516,7 +516,7 @@ func ReadWeatherCZ(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDat
 		}
 
 		d.wind, err[1] = strconv.ParseFloat(tokens[h[wind]], 64)
-		d.precip, err[2] = strconv.ParseFloat(tokens[h[precip]], 64)
+		d.precip, err[2] = strconv.ParseFloat(tokens[h[precip]], 64) // mm
 		d.tmax, err[3] = strconv.ParseFloat(tokens[h[tmax]], 64)
 		d.tmin, err[4] = strconv.ParseFloat(tokens[h[tmin]], 64)
 		d.relhumid, err[5] = strconv.ParseFloat(tokens[h[relhumid]], 64)

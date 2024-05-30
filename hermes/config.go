@@ -342,6 +342,8 @@ const (
 	DateENshort
 	// DateENlong mmddyyyy
 	DateENlong
+	// DateENyearfirst YYYYmmdd
+	DateENyearfirst
 )
 
 func (s DateFormat) String() string {
@@ -349,17 +351,19 @@ func (s DateFormat) String() string {
 }
 
 var dateFToString = map[DateFormat]string{
-	DateDEshort: "DateDEshort",
-	DateDElong:  "DateDElong",
-	DateENshort: "DateENshort",
-	DateENlong:  "DateENlong",
+	DateDEshort:     "DateDEshort",
+	DateDElong:      "DateDElong",
+	DateENshort:     "DateENshort",
+	DateENlong:      "DateENlong",
+	DateENyearfirst: "DateENyearfirst",
 }
 
 var dateStrToID = map[string]DateFormat{
-	"DateDEshort": DateDEshort,
-	"DateDElong":  DateDElong,
-	"DateENshort": DateENshort,
-	"DateENlong":  DateENlong,
+	"DateDEshort":     DateDEshort,
+	"DateDElong":      DateDElong,
+	"DateENshort":     DateENshort,
+	"DateENlong":      DateENlong,
+	"DateENyearfirst": DateENyearfirst,
 }
 
 // MarshalYAML implement YAML Marshaler

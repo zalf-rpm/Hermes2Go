@@ -19,12 +19,27 @@ CK  00.30 0.00 1.00 0.00 0.00 0.00 dt / ha Calbokalk
 KSL 01.00 0.25 0.20 0.80 0.00 0.10 dt / ha sewage sludge                                                 
 BAK 01.63 0.00 0.05 0.60 0.00 0.00 dt / ha Biowaste compost                                               
 BA2 01.63 0.00 0.05 0.70 0.00 0.00 dt / ha Biowaste compost 2                                               
-URE 01.00 1.00 0.00 0.00 1.00 0.20 kg N/ha Urea                                                          
+URE 01.00 1.00 0.00 0.00 1.00 0.00 kg N/ha Urea                                                          
 RG1 02.40 0.43 0.00 1.00 1.00 0.00 m3 / ha Cattle slurry                                                 
 RG2 01.80 0.43 0.00 1.00 1.00 0.00 m3 / ha Cattle slurry                                                 
 RG3 03.40 0.43 0.00 1.00 1.00 0.00 m3 / ha Cattle slurry                                                 
 RG4 03.70 0.43 0.00 1.00 1.00 0.00 m3 / ha Cattle slurry                                                 
 RG5 03.30 0.43 0.00 1.00 1.00 0.00 m3 / ha Cattle slurry                                                 
 FM  01.00 0.65 0.80 0.20 1.00 0.00 m3 / ha Cattle slurry                                                 
-AS  01.00 1.00 0.00 0.00 0.00 0.00 kg N/ha Ammonium sulphate                                                
-DAP 01.00 1.00 0.00 0.00 0.00 0.00 kg N/ha Diammonphosphate                                               
+AS  01.00 1.00 0.00 0.00 1.00 0.00 kg N/ha Ammonium sulphate                                                
+DAP 01.00 1.00 0.00 0.00 0.00 0.00 kg N/ha Diammonphosphate
+GR  01.00 0.70 0.00 1.00 1.00 0.00 kg N/ha Gaerrest  
+GR1 01.00 0.63 0.00 1.00 1.00 0.00 kg N/ha Gaerrest  
+GR2 01.00 0.60 0.00 1.00 1.00 0.00 kg N/ha Gaerrest  
+GR3 01.00 0.61 0.00 1.00 1.00 0.00 kg N/ha Gaerrest   
+GR4 01.00 0.58 0.00 1.00 1.00 0.00 kg N/ha Gaerrest 
+GR5 01.00 0.57 0.00 1.00 1.00 0.00 kg N/ha Gaerrest                                              
+RGF 01.00 0.43 0.00 1.00 1.00 0.00 kg N/ha Cattle slurry
+PIA 01.00 1.00 0.00 0.00 0.50 0.00 kg N/ha Piamon
+NTS 01.00 1.00 0.00 0.00 0.50 0.00 kg N/ha Mineralduenger
+NS2 01.00 1.00 0.00 0.00 0.50 0.00 kg N/ha Mineralduenger
+MS  01.00 1.00 0.00 0.00 0.50 0.00 kg N/ha Mineralduenger
+MOP 01.00 1.00 0.00 0.00 1.00 0.00 kg N/ha Monoammonphosphate 
+MAP 01.00 1.00 0.00 0.00 1.00 0.00 kg N/ha Monoammonphosphate 
+ASS 01.00 1.00 0.00 0.00 0.50 0.00 kg N/ha Ammonium sulphate salpeter
+RD  01.00 0.15 0.20 0.80 1.00 0.40 kg N/ha Cattle manure

@@ -15,7 +15,7 @@ func cropdebughttpserver(w http.ResponseWriter, _ *http.Request) {
 
 	page := components.NewPage()
 	keys := extractSortedKeys()
-	dates := keysAsDate(Kalender, keys)
+	dates := keysAsDate(Kalender, keys, false)
 	stageKeys, stageValues := generateDevStageItems(keys)
 
 	// GEHMIN
@@ -104,7 +104,7 @@ func lineMultiOrganBioMass(keys, devStage, devStageVal []int, dates []string) *c
 }
 
 func stageMarker(stageKeys, values []int) charts.SeriesOpts {
-	dates := keysAsDate(Kalender, stageKeys)
+	dates := keysAsDate(Kalender, stageKeys, false)
 
 	marker := make([]opts.MarkPointNameCoordItem, 0, len(dates))
 	for idx, date := range dates {

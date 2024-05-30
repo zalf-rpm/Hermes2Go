@@ -33,7 +33,7 @@ func LangTagConverter(century int, dateFormat DateFormat) func(float64, string, 
 		if progDat[1] != '-' {
 			var progja int
 			if format == DateDEshort || format == DateENshort {
-				_, _, progj, err := extractDate(progDat, true)
+				_, _, progj, err := extractDate(progDat, true, false)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -43,7 +43,7 @@ func LangTagConverter(century int, dateFormat DateFormat) func(float64, string, 
 					progja = progj
 				}
 			} else {
-				_, _, progj, err := extractDate(progDat, false)
+				_, _, progj, err := extractDate(progDat, false, false)
 				if err != nil {
 					log.Fatal(err)
 				}

@@ -27,6 +27,7 @@ type InputSharedVars struct {
 	SSAND   [10]float64 // sand in %
 	SLUF    [10]float64 // silt(schluf) in %
 	TON     [10]float64 // clay(ton) in %
+	QMax    [10]float64
 }
 
 // Input modul for reading soil data, crop rotation, cultivation data (Fertilization, tillage) of fields and ploygon units
@@ -156,6 +157,7 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 				l.SSAND = currentSoil.SSAND
 				l.SLUF = currentSoil.SLUF
 				l.TON = currentSoil.TON
+				l.QMax = currentSoil.QMax
 
 				g.DT.SetByIndex(1)
 
@@ -181,6 +183,7 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 					// for every 10 cm in this layer
 					for LT := g.UKT[L-1] + 1; LT <= g.UKT[L]; LT++ {
 						LTindex := LT - 1
+						g.QM[LTindex] = l.QMax[lindex]
 						if g.PTF == 0 {
 							if g.FKA[lindex] > 0 {
 								g.CAPPAR = 1

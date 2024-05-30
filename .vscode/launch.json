@@ -119,6 +119,20 @@
             ]
         },
         {
+            "name": "Launch Watermodel",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "src/hermes2go",
+            "cwd": "examples/",
+            "args": [
+                "-module", "batch",
+                "-concurrent", "1",
+                "-logoutput",
+                "-batch", "water_model_batch.txt" ,
+            ]
+        },
+        {
             "name": "Launch http render service",
             "type": "go",
             "request": "launch",

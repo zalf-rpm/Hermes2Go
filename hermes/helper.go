@@ -126,28 +126,35 @@ func DateConverter(splitCenturyAt int, dateformat DateFormat) func(string) (ztDa
 		var err error
 		switch format {
 		case DateDEshort:
-			TG, MON, YR, err = extractDate(ztdatInNoSpaces, true)
+			TG, MON, YR, err = extractDate(ztdatInNoSpaces, true, false)
 			if YR < cent {
 				YR = YR + 100
 			}
 		case DateDElong:
-			TG, MON, YR, err = extractDate(ztdatInNoSpaces, false)
+			TG, MON, YR, err = extractDate(ztdatInNoSpaces, false, false)
 			if YR < 1901 {
 				log.Fatalf("Error: parsing date! Date before 1901 are not supported: %s \n", ztdatInNoSpaces)
 			}
 			YR = YR - 1900
 		case DateENshort:
-			MON, TG, YR, err = extractDate(ztdatInNoSpaces, true)
+			MON, TG, YR, err = extractDate(ztdatInNoSpaces, true, false)
 			if YR < cent {
 				YR = YR + 100
 			}
 		case DateENlong:
-			MON, TG, YR, err = extractDate(ztdatInNoSpaces, false)
+			MON, TG, YR, err = extractDate(ztdatInNoSpaces, false, false)
+			if YR < 1901 {
+				log.Fatalf("Error: parsing date! Date before 1901 are not supported: %s \n", ztdatInNoSpaces)
+			}
+			YR = YR - 1900
+		case DateENyearfirst:
+			YR, MON, TG, err = extractDate(ztdatInNoSpaces, false, true)
 			if YR < 1901 {
 				log.Fatalf("Error: parsing date! Date before 1901 are not supported: %s \n", ztdatInNoSpaces)
 			}
 			YR = YR - 1900
 		}
+
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -168,7 +175,7 @@ func DateConverter(splitCenturyAt int, dateformat DateFormat) func(string) (ztDa
 	}
 }
 
-func extractDate(date string, short bool) (first, second, third int, err error) {
+func extractDate(date string, short bool, yearfirst bool) (first, second, third int, err error) {
 	if short {
 		if len(date) == 6 {
 			first = int(ValAsInt(date[0:2], "none", date))
@@ -183,16 +190,30 @@ func extractDate(date string, short bool) (first, second, third int, err error) 
 		}
 
 	} else {
-		if len(date) == 8 {
-			first = int(ValAsInt(date[0:2], "none", date))
-			second = int(ValAsInt(date[2:4], "none", date))
-			third = int(ValAsInt(date[4:8], "none", date))
-		} else if len(date) == 10 {
-			first = int(ValAsInt(date[0:2], "none", date))
-			second = int(ValAsInt(date[3:5], "none", date))
-			third = int(ValAsInt(date[6:10], "none", date))
+		if yearfirst {
+			if len(date) == 8 {
+				first = int(ValAsInt(date[0:4], "none", date))
+				second = int(ValAsInt(date[4:6], "none", date))
+				third = int(ValAsInt(date[6:8], "none", date))
+			} else if len(date) == 10 {
+				first = int(ValAsInt(date[0:4], "none", date))
+				second = int(ValAsInt(date[5:7], "none", date))
+				third = int(ValAsInt(date[8:10], "none", date))
+			} else {
+				return first, second, third, errors.New("wrong date format for long year format")
+			}
 		} else {
-			return first, second, third, errors.New("wrong date format for long year format")
+			if len(date) == 8 {
+				first = int(ValAsInt(date[0:2], "none", date))
+				second = int(ValAsInt(date[2:4], "none", date))
+				third = int(ValAsInt(date[4:8], "none", date))
+			} else if len(date) == 10 {
+				first = int(ValAsInt(date[0:2], "none", date))
+				second = int(ValAsInt(date[3:5], "none", date))
+				third = int(ValAsInt(date[6:10], "none", date))
+			} else {
+				return first, second, third, errors.New("wrong date format for long year format")
+			}
 		}
 	}
 	return first, second, third, nil
@@ -232,6 +253,7 @@ func KalenderConverter(dateformat DateFormat, seperator string) func(int) string
 	format := dateformat
 	formatStrShort := "%02d" + seperator + "%02d" + seperator + "%02d"
 	formatStrLong := "%02d" + seperator + "%02d" + seperator + "%d"
+	formatStrLongYearFirst := "%d" + seperator + "%02d" + seperator + "%02d"
 
 	return func(MASDAT int) (KALDAT string) {
 
@@ -254,6 +276,8 @@ func KalenderConverter(dateformat DateFormat, seperator string) func(int) string
 			} else {
 				KALDAT = fmt.Sprintf(formatStrShort, month, day, YR)
 			}
+		case DateENyearfirst:
+			KALDAT = fmt.Sprintf(formatStrLongYearFirst, year, month, day)
 		}
 		return KALDAT
 	}
