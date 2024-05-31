@@ -1,4 +1,4 @@
-Typ Ntot  Ndir Nfst Nslo NH4  Loss  Stot Sdir Sdir Unit    Name
+Typ Ntot  Ndir Nfst Nslo NH4  Loss  Stot Sdir Sfst  Unit    Name
 KAS 01.00 1.00 0.00 0.00 0.50 0.00  0.00 0.00 0.00  kg N/ha Calcium Ammonium Nitrate
 AHL 01.00 1.00 0.00 0.00 1.00 0.00  0.00 0.00 0.00  kg N/ha Ammonium Urea solution
 H   01.00 1.00 0.00 0.00 1.00 0.00  0.00 0.00 0.00  kg N/ha Urea
