@@ -219,13 +219,13 @@ func (cropOW *CropOverwrite) isValidCropOverwrite(numPartitions, numStages int) 
 			}
 		} else if key == "DAYL" {
 			for _, value := range stages {
-				if value < 24 || value > 24 {
+				if value < -24 || value > 24 {
 					return false
 				}
 			}
 		} else if key == "DLBAS" {
 			for _, value := range stages {
-				if value < 24 || value > 24 {
+				if value < -24 || value > 24 {
 					return false
 				}
 			}
@@ -255,7 +255,7 @@ func (cropOW *CropOverwrite) isValidCropOverwrite(numPartitions, numStages int) 
 			}
 		} else if key == "KC" {
 			for _, value := range stages {
-				if value < 0 || value > 1 {
+				if value <= 0 {
 					return false
 				}
 			}
