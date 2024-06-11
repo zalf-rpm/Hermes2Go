@@ -43,20 +43,21 @@ type CropParam struct {
 	CropDevelopmentStages []CropDevelopmentStage `yaml:"CropDevelopmentStages" comment:"development stage/phase"` // development stage/phase
 }
 type CropDevelopmentStage struct {
-	DevelopmentStageName string    `yaml:"DevelopmentStageName" comment:"name of the development stage/phase"`     // name of the development stage/phase
-	ENDBBCH              int       `yaml:"ENDBBCH,omitempty" comment:"end on BBCH-scale"`                          // end on BBCH-scale
-	TSUM                 float64   `yaml:"TSUM" comment:"development phase temperature sum (°C days)"`             // development phase temperatur sum (°C days)
-	BAS                  float64   `yaml:"BAS" comment:"base temperature in phase (°C)"`                           // base temperature in phase (°C)
-	VSCHWELL             float64   `yaml:"VSCHWELL" comment:"vernalisation requirements (days)"`                   // vernalisation requirements (days)
-	DAYL                 float64   `yaml:"DAYL" comment:"day length requirements (hours)"`                         // day length requirements (hours)
-	DLBAS                float64   `yaml:"DLBAS" comment:"base day length in phase (hours)"`                       // base day length in phase (hours)
-	DRYSWELL             float64   `yaml:"DRYSWELL" comment:"drought stress below ETA/ETP-quotient"`               // drought stress below ETA/ETP-quotient
-	LUKRIT               float64   `yaml:"LUKRIT" comment:"critical aircontent in topsoil (cm^3/cm^3)"`            // critical aircontent in topsoil (cm^3/cm^3)
-	LAIFKT               float64   `yaml:"LAIFKT" comment:"specific leave area (LAI per mass) (ha/kg TM)"`         // specific leave area (area per mass) (m2/m2/kg TM)
-	WGMAX                float64   `yaml:"WGMAX" comment:"N-content root at the end of phase (fraction)"`          // N-content root end at the of phase
-	PRO                  []float64 `yaml:"PRO" comment:"Partitioning at end of phase (fraction, sum should be 1)"` // Partitioning at end of phase (fraction)
-	DEAD                 []float64 `yaml:"DEAD" comment:"death rate at end of phase (coefficient, 1/day)"`         // death rate at end of phase (coefficient)
-	Kc                   float64   `yaml:"Kc" comment:"kc factor for evapotranspiration at end of phase"`          // kc factor for evapotranspiration at end of phase
+	DevelopmentStageName string    `yaml:"DevelopmentStageName" comment:"name of the development stage/phase"`                 // name of the development stage/phase
+	ENDBBCH              int       `yaml:"ENDBBCH,omitempty" comment:"end on BBCH-scale"`                                      // end on BBCH-scale
+	TSUM                 float64   `yaml:"TSUM" comment:"development phase temperature sum (°C days)"`                         // development phase temperatur sum (°C days)
+	BAS                  float64   `yaml:"BAS" comment:"base temperature in phase (°C)"`                                       // base temperature in phase (°C)
+	VSCHWELL             float64   `yaml:"VSCHWELL" comment:"vernalisation requirements (days)"`                               // vernalisation requirements (days)
+	DAYL                 float64   `yaml:"DAYL" comment:"day length requirements (hours)"`                                     // day length requirements (hours)
+	DLBAS                float64   `yaml:"DLBAS" comment:"base day length in phase (hours)"`                                   // base day length in phase (hours)
+	DRYSWELL             float64   `yaml:"DRYSWELL" comment:"drought stress below ETA/ETP-quotient"`                           // drought stress below ETA/ETP-quotient
+	LUKRIT               float64   `yaml:"LUKRIT" comment:"critical aircontent in topsoil (cm^3/cm^3)"`                        // critical aircontent in topsoil (cm^3/cm^3)
+	LUKRITTIME           int       `yaml:"LUKRITTIME,omitempty" comment:"time to reach critical aircontent in topsoil (days)"` // time to reach critical aircontent in topsoil (days)
+	LAIFKT               float64   `yaml:"LAIFKT" comment:"specific leave area (LAI per mass) (ha/kg TM)"`                     // specific leave area (area per mass) (m2/m2/kg TM)
+	WGMAX                float64   `yaml:"WGMAX" comment:"N-content root at the end of phase (fraction)"`                      // N-content root end at the of phase
+	PRO                  []float64 `yaml:"PRO" comment:"Partitioning at end of phase (fraction, sum should be 1)"`             // Partitioning at end of phase (fraction)
+	DEAD                 []float64 `yaml:"DEAD" comment:"death rate at end of phase (coefficient, 1/day)"`                     // death rate at end of phase (coefficient)
+	Kc                   float64   `yaml:"Kc" comment:"kc factor for evapotranspiration at end of phase"`                      // kc factor for evapotranspiration at end of phase
 
 }
 
@@ -199,6 +200,12 @@ func ReadCropParamYml(PARANAM string, l *CropSharedVars, g *GlobalVarsMain) {
 		g.DLBAS[i] = cropParam.CropDevelopmentStages[i].DLBAS
 		g.DRYSWELL[i] = cropParam.CropDevelopmentStages[i].DRYSWELL
 		g.LUKRIT[i] = cropParam.CropDevelopmentStages[i].LUKRIT
+		if cropParam.CropDevelopmentStages[i].LUKRITTIME == 0 {
+			g.LUKRITTIME[i] = 4
+		} else {
+			g.LUKRITTIME[i] = cropParam.CropDevelopmentStages[i].LUKRITTIME
+		}
+
 		g.LAIFKT[i] = cropParam.CropDevelopmentStages[i].LAIFKT
 		g.WGMAX[i] = cropParam.CropDevelopmentStages[i].WGMAX
 		for L := 0; L < g.NRKOM; L++ {
@@ -379,6 +386,7 @@ func ReadCropParamClassic(PARANAM string, l *CropSharedVars, g *GlobalVarsMain) 
 		LINE8b := LineInut(scanner)
 		// kritischer Luftporenanteil Entwicklungsstufe I (cm^3/cm^3)
 		g.LUKRIT[i] = ValAsFloat(LINE8b[65:], PARANAM, LINE8b)
+		g.LUKRITTIME[i] = 4 // default value
 		LINE8c := LineInut(scanner)
 		// SLA specific leave area (area per mass) (m2/m2/kg TM) in I
 		g.LAIFKT[i] = ValAsFloat(LINE8c[65:], PARANAM, LINE8c)
@@ -575,6 +583,7 @@ func ConvertCropParamClassicToYml(PARANAM string) (CropParam, error) {
 		LINE8b := LineInut(scanner)
 		// kritischer Luftporenanteil Entwicklungsstufe I (cm^3/cm^3)
 		developmentStage.LUKRIT = ValAsFloat(LINE8b[65:], PARANAM, LINE8b)
+		developmentStage.LUKRITTIME = 4 // default value
 		LINE8c := LineInut(scanner)
 		// SLA specific leave area (area per mass) (m2/m2/kg TM) in I
 		developmentStage.LAIFKT = ValAsFloat(LINE8c[65:], PARANAM, LINE8c)

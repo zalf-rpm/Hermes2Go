@@ -32,6 +32,7 @@ import (
 // DLBAS[i] 	// Basiswert für Tageslänge (h)
 // DRYSWELL[i] 	// Schwelle für Trockenstress (Ta/Tp) Entwicklungsstufe I (0-1)
 // LUKRIT[i] 	// kritischer Luftporenanteil Entwicklungsstufe I (cm^3/cm^3)
+// LUKRITTIME[i] // Zeit unter kritischen Luftporenanteil Entwicklungsstufe I (d)
 // LAIFKT[i] 	// SLA specific leave area (area per mass) (m2/m2/kg TM) in I
 // WGMAX[i] 	// N-content root end of phase I
 // KC[i] 		// crop factor for evapotranspiration (0-1)
@@ -133,6 +134,11 @@ func (cropOW *CropOverwrite) OverwriteCropParameters(cropFile string, g *GlobalV
 			for stage, value := range stages {
 				stageIdx := stage - 1
 				g.LUKRIT[stageIdx] = value
+			}
+		} else if key == "LUKRITTIME" {
+			for stage, value := range stages {
+				stageIdx := stage - 1
+				g.LUKRITTIME[stageIdx] = int(value)
 			}
 		} else if key == "LAIFKT" {
 			for stage, value := range stages {
@@ -238,6 +244,12 @@ func (cropOW *CropOverwrite) isValidCropOverwrite(numPartitions, numStages int) 
 		} else if key == "LUKRIT" {
 			for _, value := range stages {
 				if value < 0 || value > 1 {
+					return false
+				}
+			}
+		} else if key == "LUKRITTIME" {
+			for _, value := range stages {
+				if value < 0 || value > 1000 {
 					return false
 				}
 			}

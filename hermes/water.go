@@ -590,24 +590,28 @@ func Evatra(l *WaterSharedVars, g *GlobalVarsMain, hPath *HFilePath, zeit int) {
 		// ! LURMAX                = Ausmaß Luftmangel (s.u.)
 		// ! LUMDAY                = kumulative Dauer des Luftmangels (Tage), maximum 4
 		// ! LURED                 = Reduktionsfaktor fuer Transpiration
-		LUPOR := (g.PORGES[0] + g.PORGES[1] + g.PORGES[2] - g.WG[0][0] - g.WG[0][1] - g.WG[0][2]) / 3
-		if LUPOR < g.LUKRIT[g.INTWICK.Index] {
-			g.LUMDAY = g.LUMDAY + g.DT.Index
-			if g.LUMDAY > 4 {
-				g.LUMDAY = 4
-			}
-			if LUPOR < 0 {
-				LUPOR = 0.
-			}
-			LURMAX := LUPOR / g.LUKRIT[g.INTWICK.Index]
-			g.LURED = 1 - float64(g.LUMDAY)/4*(1-LURMAX)
-		} else {
-			g.LUMDAY = 0
-			g.LURED = 1
-		}
-		if g.LURED > 1 {
-			g.LURED = 1
-		}
+		// LUPOR := (g.PORGES[0] + g.PORGES[1] + g.PORGES[2] - g.WG[0][0] - g.WG[0][1] - g.WG[0][2]) / 3
+		// if LUPOR < g.LUKRIT[g.INTWICK.Index] {
+		// 	g.LUMDAY = g.LUMDAY + g.DT.Index
+		// 	if g.LUMDAY > 4 {
+		// 		g.LUMDAY = 4
+		// 	}
+		// 	if LUPOR < 0 {
+		// 		LUPOR = 0.
+		// 	}
+		// 	LURMAX := LUPOR / g.LUKRIT[g.INTWICK.Index]
+		// 	g.LURED = 1 - float64(g.LUMDAY)/4*(1-LURMAX)
+		// } else {
+		// 	g.LUMDAY = 0
+		// 	g.LURED = 1
+		// }
+		// if g.LURED > 1 {
+		// 	g.LURED = 1
+		// }
+		// Reduktion bei Luftmangel - nach ...(enter reference)
+		// für obere 30 cm bis Wurzeltiefe
+		g.LUMDAY, g.LURED = CalcOxygenDeficiency(g)
+
 		// ! Verteilung der pot. Tranpiration und Einschränkung der Transpiration bei Luftmangel
 		// ! WURZ = Wurzeltiefe
 		// ! GRW  = Grundwasserstand (Wasseraufnahme nur bis zur ersten GW Schicht)
@@ -1146,4 +1150,35 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 	if g.FLUSS0 > 0 {
 		g.INFILT = g.INFILT + g.FLUSS0*wdt
 	}
+}
+
+func CalcOxygenDeficiency(g *GlobalVarsMain) (LUMDAY int, LURED float64) {
+	LUMDAY = g.LUMDAY
+	// from crop file
+	// "LUKRIT" - "critical aircontent in topsoil (cm^3/cm^3)"
+	criticalOxygenContent := g.LUKRIT[g.INTWICK.Index]
+	// LUKRITTIME - "time under anoxia threshold at stage (days)"
+	timeUnderAnoxiaThresholdAtStage := g.LUKRITTIME[g.INTWICK.Index]
+	sumSaturation := 0.
+	sumSoilMoisture := 0.
+	sumLayers := 0
+	// at least 3 layers are considered or the rooting depth, whichever is higher
+	nols := int(math.Min(math.Max(3, float64(g.WURZ)), float64(g.N)))
+	for i := 0; i < nols; i++ {
+		sumSaturation += g.PORGES[i]
+		sumSoilMoisture += g.WG[0][i]
+		sumLayers++
+	}
+	avgAirFilledPoreVolume := (sumSaturation - sumSoilMoisture) / float64(sumLayers)
+	if avgAirFilledPoreVolume < criticalOxygenContent {
+		LUMDAY = LUMDAY + g.DT.Index
+		timeUnderAnoxia := int(math.Max(float64(LUMDAY), float64(timeUnderAnoxiaThresholdAtStage)))
+		avgAirFilledPoreVolume = math.Max(0, avgAirFilledPoreVolume)
+		maxOxygenDeficit := avgAirFilledPoreVolume / criticalOxygenContent
+		LURED = 1 - float64(timeUnderAnoxia)/float64(timeUnderAnoxiaThresholdAtStage)*(1-maxOxygenDeficit)
+	} else {
+		LUMDAY = 0
+		LURED = 1
+	}
+	return LUMDAY, LURED
 }

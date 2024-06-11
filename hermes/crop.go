@@ -932,7 +932,12 @@ func radia(g *GlobalVarsMain, l *CropSharedVars) (DLE, DLP, GPHOT, MAINT float64
 	if g.LURED == 1 {
 		vswell = g.DRYSWELL[g.INTWICK.Index]
 	} else {
-		if g.FRUCHT[g.AKF.Index] == SM || g.FRUCHT[g.AKF.Index] == K || g.FRUCHT[g.AKF.Index] == WR || g.FRUCHT[g.AKF.Index] == SG || g.FRUCHT[g.AKF.Index] == WW || g.FRUCHT[g.AKF.Index] == WG {
+		if g.FRUCHT[g.AKF.Index] == SM ||
+			g.FRUCHT[g.AKF.Index] == K ||
+			g.FRUCHT[g.AKF.Index] == WR ||
+			g.FRUCHT[g.AKF.Index] == SG ||
+			g.FRUCHT[g.AKF.Index] == WW ||
+			g.FRUCHT[g.AKF.Index] == WG {
 			vswell = 1
 		} else {
 			vswell = 0.8
