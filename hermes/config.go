@@ -49,6 +49,7 @@ type Config struct {
 	CO2method           int           `yaml:"CO2method"`           // CO2method(1=Nonhebel,2=Hoffmann,3=Mitchell)
 	CO2concentration    float64       `yaml:"CO2concentration"`    // CO2 concentration (ppm)
 	CO2StomataInfluence FeatureSwitch `yaml:"CO2StomataInfluence"` // CO2 Stomata influence (1=on/0= off)
+	AnoxiaFct           int           `yaml:"AnoxiaFct"`           // AnoxiaFct method(1=default, 2= with adjustable time per stage)
 	NDeposition         float64       `yaml:"NDeposition"`         // N-Deposition (annual kg/ha)
 
 	//***** Time *****
@@ -123,6 +124,7 @@ func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) C
 	g.AUTOHAR = bool(hconfig.AutoHarvest)
 	g.PTF = hconfig.PTF
 	g.GWPhase = hconfig.GroundWaterPhase
+	g.AnoxiaFct = hconfig.AnoxiaFct
 	if len(hconfig.WeatherFolder) == 0 {
 		hconfig.WeatherFolder = "Weather"
 	}
@@ -229,6 +231,7 @@ func NewDefaultConfig() Config {
 		CO2method:                       2,
 		CO2concentration:                360,
 		CO2StomataInfluence:             true,
+		AnoxiaFct:                       1,
 		NDeposition:                     20,
 		StartYear:                       1980,
 		EndDate:                         "31122010",

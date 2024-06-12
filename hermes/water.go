@@ -590,28 +590,31 @@ func Evatra(l *WaterSharedVars, g *GlobalVarsMain, hPath *HFilePath, zeit int) {
 		// ! LURMAX                = Ausmaß Luftmangel (s.u.)
 		// ! LUMDAY                = kumulative Dauer des Luftmangels (Tage), maximum 4
 		// ! LURED                 = Reduktionsfaktor fuer Transpiration
-		// LUPOR := (g.PORGES[0] + g.PORGES[1] + g.PORGES[2] - g.WG[0][0] - g.WG[0][1] - g.WG[0][2]) / 3
-		// if LUPOR < g.LUKRIT[g.INTWICK.Index] {
-		// 	g.LUMDAY = g.LUMDAY + g.DT.Index
-		// 	if g.LUMDAY > 4 {
-		// 		g.LUMDAY = 4
-		// 	}
-		// 	if LUPOR < 0 {
-		// 		LUPOR = 0.
-		// 	}
-		// 	LURMAX := LUPOR / g.LUKRIT[g.INTWICK.Index]
-		// 	g.LURED = 1 - float64(g.LUMDAY)/4*(1-LURMAX)
-		// } else {
-		// 	g.LUMDAY = 0
-		// 	g.LURED = 1
-		// }
-		// if g.LURED > 1 {
-		// 	g.LURED = 1
-		// }
-		// Reduktion bei Luftmangel - nach ...(enter reference)
-		// für obere 30 cm bis Wurzeltiefe
-		g.LUMDAY, g.LURED = CalcOxygenDeficiency(g)
-
+		if g.AnoxiaFct == 1 {
+			LUPOR := (g.PORGES[0] + g.PORGES[1] + g.PORGES[2] - g.WG[0][0] - g.WG[0][1] - g.WG[0][2]) / 3
+			if LUPOR < g.LUKRIT[g.INTWICK.Index] {
+				g.LUMDAY = g.LUMDAY + g.DT.Index
+				if g.LUMDAY > 4 {
+					g.LUMDAY = 4
+				}
+				if LUPOR < 0 {
+					LUPOR = 0.
+				}
+				LURMAX := LUPOR / g.LUKRIT[g.INTWICK.Index]
+				g.LURED = 1 - float64(g.LUMDAY)/4*(1-LURMAX)
+			} else {
+				g.LUMDAY = 0
+				g.LURED = 1
+			}
+			if g.LURED > 1 {
+				g.LURED = 1
+			}
+		} else {
+			// Reduktion bei Luftmangel - nach ...(enter reference)
+			// für obere 30 cm bis Wurzeltiefe
+			// mit LUMDAY = kumulative Dauer des Luftmangels (Tage), in Abhängigkeit von LUKRITTime
+			g.LUMDAY, g.LURED = CalcOxygenDeficiency(g)
+		}
 		// ! Verteilung der pot. Tranpiration und Einschränkung der Transpiration bei Luftmangel
 		// ! WURZ = Wurzeltiefe
 		// ! GRW  = Grundwasserstand (Wasseraufnahme nur bis zur ersten GW Schicht)
