@@ -218,7 +218,7 @@ type GlobalVarsMain struct {
 	LUKRITTIME      [10]int     // time of critical air content in soil in days per stage
 	LUMDAY          int         // Tage mit Luftmangel / days with air shortage
 	AnoxiaFct       int         //  Anoxia function / Luftmangel Funktion
-	TP              [21]float64 // Wasseraufnahme in Schicht I / water uptake in layer I
+	TP              [21]float64 // Wasseraufnahme der Pflanze in Schicht I / crop water uptake in layer I
 	TRREL           float64     // Water stress factor (1 = no stress, 0 = full stress)
 	REDUK           float64     // Nitrogen stress factor (1 = no stress, 0 = full stress)
 	ETA             float64     // Potential/actual Evapotranspiration (mm)
