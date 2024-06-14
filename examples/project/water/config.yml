@@ -12,9 +12,9 @@ DivideCentury: 60
 # ground water is read from either 'soilfile', 'polygonfile or 'gwTimeSeries'
 GroundWaterFrom: polygonfile
 #0 = hermes # 1 = csv
-ResultFileFormat: 0
+ResultFileFormat: 1
 # (optional) result file extensions (default RES, csv)
-ResultFileExt: "RES"
+ResultFileExt: "csv"
 # Output intervall (days) (0=no time serie)
 OutputIntervall: 1
 # generate output for management events (0=none default)
@@ -49,7 +49,7 @@ WeatherNoneValue: -99.9
 # number of header lines (min = 1, with column names)
 WeatherNumHeader: 3
 # correction precipitation (0= no, 1 = yes, requires <project>/Weather/preco.txt)
-CorrectionPrecipitation: 1
+CorrectionPrecipitation: 0
 # annual average temperature (Degree Celsius)
 AnnualAverageTemperature: 10.3
 
