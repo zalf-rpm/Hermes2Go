@@ -6,13 +6,15 @@ import (
 
 // WaterSharedVars is a struct of shared variables for this module
 type WaterSharedVars struct {
-	LIMIT    [21]float64
-	EVA      [366]float64
-	NFK      [21]float64
-	GWAUF    float64
-	EV       [21]float64
-	SATDEF   float64
-	Maxinfil float64
+	LIMIT   [21]float64
+	EVA     [366]float64
+	NFK     [21]float64
+	GWAUF   float64
+	EV      [21]float64
+	SATDEF  float64
+	Fillcap [20]float64
+	QMAX    [20]float64
+	QMAX0   float64
 }
 
 // Evatra handles evapotansiration and hydrological processes in soil
@@ -858,7 +860,6 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 		g.EvapoLoss = 0
 		g.SickerLoss = 0
 		g.InfilDaily = 0
-		g.WaterDiff = 0
 		gwtab := 0
 		for i := 0; i < g.N; i++ {
 			if g.TP[i] > (g.WG[0][i]-g.WMIN[i])*g.DZ.Num {
@@ -869,146 +870,85 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 				}
 			}
 			WATER[0][i] = g.WG[0][i]*g.DZ.Num - g.TP[i]*wdt
-			g.WaterDiff = g.WaterDiff - g.TP[i]*wdt
 			//! -------- Definition des Stauwasserhorizonts ----------
 			if WATER[0][i]/g.DZ.Num >= g.PORGES[i]-g.TP[i]*wdt && gwtab == 0 {
 				gwtab = i
 			}
+			//! Uebernahme maximaler Fluss (cm/Tag) aus Bodendatei
+			l.QMAX[i] = g.QM[i]
 		}
+
+		// ! Korrektur des maximalen Flusses von oben durch Aufnahmekapazität der Schicht
+		l.QMAX0 = 0.
+		for i := g.N - 1; i >= 0; i-- {
+			l.Fillcap[i] = g.PORGES[i]*g.DZ.Num - WATER[0][i] + l.QMAX[i]
+			if i > 0 {
+				if l.Fillcap[i] < g.QM[i-1] {
+					l.QMAX[i-1] = l.Fillcap[i]
+				}
+			} else {
+				l.QMAX0 = l.Fillcap[i]
+			}
+		}
+
 		// meins
-		if g.STORAGE > 0 {
-			qmax := g.PORGES[0]*g.DZ.Num - WATER[0][0] + g.QM[0]
-			l.Maxinfil = math.Min(g.STORAGE, qmax)
-		} else {
-			l.Maxinfil = 0
-		}
+		// if g.STORAGE > 0 {
+		// 	qmax := g.PORGES[0]*g.DZ.Num - WATER[0][0] + g.QM[0]
+		// 	l.Maxinfil = math.Min(g.STORAGE, qmax)
+		// } else {
+		// 	l.Maxinfil = 0
+		// }
 	} else {
 		for i := 0; i < g.N; i++ {
 			g.WG[0][i] = g.WG[1][i]
 			WATER[0][i] = g.WG[0][i]*g.DZ.Num - g.TP[i]*wdt
-			g.WaterDiff = g.WaterDiff - g.TP[i]*wdt
 		}
 	}
 	g.QDRAIN = 0
-
-	infiltration := func(aIn float64, WATER *[2][21]float64, g *GlobalVarsMain) {
-		rueckstau := make([]float64, g.N)
-		a := aIn
-		//------------------------ Infiltration------------------------
-		for k1 := 1; k1 <= g.N; k1++ {
-			k1INdex := k1 - 1
-			b := a + WATER[0][k1INdex]    // Fluss Input + Wasser in Schicht
-			a = b - g.W[k1INdex]*g.DZ.Num // neuer Fluss Input = neues Wasser in Schicht - Feldkapazität * Schichtdicke
-			if a <= 0 {
-				// Wassergehalt in Schicht ist kleiner als Feldkapazität
-				// Fluss in die Nächste Schicht ist 0
-				g.WaterDiff = g.WaterDiff + b - WATER[0][k1INdex]
-				WATER[1][k1INdex] = b // wasser in Schicht bleibt gleich
-				g.Q1[k1] = 0          // Fluss in die nächste Schicht ist 0
-				a = 0                 // neuer Fluss Input ist 0
-
-			} else {
-				// Wassergehalt in Schicht ist größer, oder Gleich der Feldkapazität
-				// Fluss in die Nächste Schicht ist a aus der vorherigen Schicht
-				var qma float64
-				// wenn die aktuelle Schicht kleiner als die Anzahl der Schichten ist
-				if k1 < g.N {
-					// Durchfluss = Porenvolumen der Nächsten Schicht - Wasser in der Nächsten Schicht + Flusskonstante in die Nächste Schicht
-					// LET qma = PORGES(k1+1)*dz - WATER(0,k1+1) + qm(k1+1)
-					qma = math.Min(g.PORGES[k1INdex+1]*g.DZ.Num-WATER[0][k1INdex+1]+g.QM[k1INdex+1]*wdt, g.QM[k1INdex]*wdt)
-					// qma = PorenVol - Wasser in Schicht + Flusskonstante
-					// das heißt, nur wenn das Wasser der nächsten Schicht dem Porenvolumen entspricht, wird dieser Term 0
-					// es ist mindestens QM der jeweiligen Schicht
-				} else {
-					// im Falle der letzten Schicht, ist der Durchfluss gleich der Flusskonstante
-					// LET qma = qm(k1)
-					qma = g.QM[k1INdex] * wdt
-					// end if
-				}
-				if k1 == g.DRAIDEP {
-					// g.Q1[k1] = (1 - g.DRAIFAK) * a
-					// g.QDRAIN = g.DRAIFAK * a
-					// a = g.Q1[k1]
-
-					// LET Q1(k1) = MIN((1-draifak) * a,qm(k1))
-					//maxQDRAIN := g.DRAIFAK * a
-					//g.Q1[k1] = math.Min((1-g.DRAIFAK)*a, g.QM[k1INdex] * wdt) // rest Fluss in die nächste Schicht, nach Drainage
-					// LET qdrain = a-q1(k1)  !draifak * a
-					//g.QDRAIN = math.Max(a-g.Q1[k1], maxQDRAIN) // Fluss in die Drainage(passt nicht ... die Drainage, kann größer werden als g.DRAIFAK*Fluss)
-					g.QDRAIN = g.DRAIFAK * a
-					a = a - g.QDRAIN
-					b = b - g.QDRAIN
-					// LET a = q1(k1)
-					//a = g.Q1[k1]
-					//LET WATER(1,k1) = W(K1) * dz
-					//WATER[1][k1INdex] = g.W[k1INdex] * g.DZ.Num // Warum wird hier das Wasser pauschal auf FC aufgefüllt?
-
-				}
-				// g.Q1[k1] = a
-				// der Durchfluss in die nächste Schicht ist Limitiert durch durch den Fluss in die nächste Schicht und
-				// die Flusskonstante + Wasserdifferenz in der nächsten Schicht
-				// LET Q1(k1) = MIN(a,qm(k1))
-				g.Q1[k1] = math.Min(a, qma) // Durchfluss begrenzt durch Flusskonstante und Fluss in die nächste Schicht
-
-				// LET a = q1(k1)
-				// wenn der Fluss größer ist als die Flusskonstante, dann ist der Fluss in die nächste Schicht die Flusskonstante
-				// was passiert mit der Differenz zwischen Fluss und Flusskonstante?
-				a = g.Q1[k1]
-				// LET WATER(1,k1) = b-a  ! W(K1) * dz
-				WATER[1][k1INdex] = b - a // Wasser wird reduziert um den Fluss in die nächste Schicht
-				// wenn das Wasser in der nächsten Schicht größer ist als das Porenvolumen, dann wird der Überschuss zurückgehalten
-				// Rückstau
-				if WATER[1][k1INdex] > g.PORGES[k1INdex]*g.DZ.Num {
-					rueckstau[k1INdex] = WATER[1][k1INdex] - g.PORGES[k1INdex]*g.DZ.Num
-					WATER[1][k1INdex] = g.PORGES[k1INdex] * g.DZ.Num
-				}
-				g.WaterDiff = g.WaterDiff + (b - WATER[0][k1INdex] - a)
-
-			}
-		}
-		// Rückstau zurückgeben in die oberen Schichten
-		for i := g.N; i > 0; i-- {
-			idx := i - 1
-			if rueckstau[idx] > 0 {
-				if idx == 0 {
-					// wenn wir in der obersten Schicht sind, dann wird der Rückstau in den Speicher gegeben
-					g.STORAGE = g.STORAGE + rueckstau[idx]
-				} else {
-					if rueckstau[idx] > 0 {
-						// wenn wir in einer tieferen Schicht sind, dann wird der Rückstau in die oberen Schichten gegeben
-						WATER[1][idx-1] = WATER[1][idx-1] + rueckstau[idx]
-
-						g.Q1[idx-1] = g.Q1[idx-1] - rueckstau[idx]
-						// bis zum Porenvolumen
-						if WATER[1][idx-1] > g.PORGES[idx-1]*g.DZ.Num {
-							// der Rest wird hochgegeben
-							rueckstau[idx-1] = WATER[1][idx-1] - g.PORGES[idx-1]*g.DZ.Num + rueckstau[idx-1]
-							WATER[1][idx-1] = g.PORGES[idx-1] * g.DZ.Num
-						}
-					}
-				}
-			}
-		}
-
-	}
-	if g.FLUSS0 > 0 {
+	if g.FLUSS0 >= 0 {
 
 		// ! Bei Wassersättigung und Überstau Infiltration bis kleinste Profilleitfähigkeit
 		// ! +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-		a := l.Maxinfil * wdt
-		if l.Maxinfil*wdt >= g.STORAGE {
-			a = g.STORAGE
-			g.STORAGE = 0
-		} else {
-			g.STORAGE = g.STORAGE - l.Maxinfil*wdt
-		}
+		//LET maxinfil = Min(g.Storage,QMAX0*wdt)
+		maxinfil := math.Min(g.STORAGE, l.QMAX0*wdt)
+		//LET storage = storage - maxinfil
+		g.STORAGE = g.STORAGE - maxinfil
+		//LET a = maxinfil       !qmax * wdt
+		a := maxinfil
 
+		// LET Q1(0) = a
 		g.Q1[0] = a
 		g.InfilDaily += a
-		infiltration(a, &WATER, g)
+
+		//------------------------ Infiltration------------------------
+		for k1 := 1; k1 <= g.N; k1++ {
+			k1INdex := k1 - 1
+			b := a + WATER[0][k1INdex]    // current water = infiltration + water in layer
+			a = b - g.W[k1INdex]*g.DZ.Num // potential flow to next layer = current water in layer - field capacity
+			if a <= 0 {
+				// water content in layer is less than field capacity
+				// flow to the next layer is 0
+				WATER[1][k1INdex] = b // water remains in layer
+				g.Q1[k1] = 0          // new flow is 0
+				a = 0
+			} else {
+				// if layer is drained
+				if k1 == g.DRAIDEP {
+					g.Q1[k1] = math.Min((1-g.DRAIFAK)*a, ((1-g.DRAIFAK)*l.QMAX[k1INdex])*wdt)
+					g.QDRAIN = math.Min(a-g.Q1[k1], g.DRAIFAK/(1-g.DRAIFAK)*l.QMAX[k1INdex]*wdt)
+					a = g.Q1[k1]
+					WATER[1][k1INdex] = b - a - g.QDRAIN
+				} else {
+					g.Q1[k1] = math.Min(a, l.QMAX[k1INdex]*wdt)
+					a = g.Q1[k1]
+					WATER[1][k1INdex] = b - a
+				}
+			}
+		}
 
 		//--------------------------Evaporation------------------------
-	} else if g.FLUSS0 < 0 {
+		//  g.FLUSS0 < 0
+	} else {
 		a := math.Abs(g.FLUSS0) * wdt
 		a1 := a
 		g.Q1[0] = 0
@@ -1024,15 +964,8 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 			var wlost float64
 			if vcap > a1 {
 				wlost = a1
-				//WATER[1][k1] = WATER[0][k1] - wlost
 				g.Q1[k1IdxQ] = 0
-				//LET a1 = 0
 				a1 = 0
-				// for k2 := k1 + 1; k2 < g.N; k2++ {
-				// 	WATER[1][k2] = WATER[0][k2]
-				// 	g.Q1[k2+1] = 0
-				// }
-				//break
 			} else {
 				wlost = vcap
 				a1 = a1 - vcap
@@ -1040,65 +973,36 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 			}
 			WATER[1][k1] = WATER[0][k1] - wlost
 			g.EvapoLoss += wlost / 10
-			g.WaterDiff = g.WaterDiff - wlost
 			//! ++++++++downward water flow of excessive water over FC from previous time steps+++++++++++++++++++++++++
-			//    IF WATER(1,k1) > W(k1)*dz then
 			if WATER[1][k1] > g.W[k1]*g.DZ.Num {
-				//LET a = MIN(WATER(1,k1) - W(K1) * dz,qm(k1))
-				a = math.Min(WATER[1][k1]-g.W[k1]*g.DZ.Num, g.QM[k1]*wdt) // Wasser das aus der Schicht rausfließen könnte
-				// wenn im nächsten Layer noch Platz ist
-				a = math.Min(g.PORGES[k1+1]*g.DZ.Num-WATER[0][k1+1], a)
+
 				if k1 == g.DRAIDEP {
-					g.QDRAIN = g.DRAIFAK * a
-					a = a - g.QDRAIN
+					aDown := WATER[1][k1] - g.W[k1]*g.DZ.Num                                  // Wasser das aus der Schicht rausfließen möchte
+					Q1down := math.Min((1-g.DRAIFAK)*aDown, ((1-g.DRAIFAK)*l.QMAX[k1])*wdt)   // Wasser das aus der Schicht in die nächste Schicht fließen kann
+					g.QDRAIN = math.Min(aDown-Q1down, g.DRAIFAK/(1-g.DRAIFAK)*l.QMAX[k1]*wdt) // Wasser das in die Drainage fließt
+					g.Q1[k1IdxQ] = g.Q1[k1IdxQ] + Q1down                                      // neuer Fluss in die nächste Schicht
+					WATER[1][k1] = WATER[1][k1] - Q1down - g.QDRAIN                           // Wasser das in der Schicht bleibt
+
+				} else {
+					//LET a = MIN(WATER(1,k1) - W(K1) * dz,qmax(k1) *wdt)
+					a = math.Min(WATER[1][k1]-g.W[k1]*g.DZ.Num, l.QMAX[k1]*wdt) // Wasser das aus der Schicht rausfließen könnte
+					//LET WATER(1,k1) = WATER(1,k1)-a
+					WATER[1][k1] = WATER[1][k1] - a
+					//LET Q1(k1) = q1(k1) + a
+					g.Q1[k1IdxQ] = g.Q1[k1IdxQ] + a
 				}
-				//LET WATER(1,k1) = WATER(1,k1)-a
-				WATER[1][k1] = WATER[1][k1] - a - g.QDRAIN
-				g.WaterDiff = g.WaterDiff - a
-				//LET Q1(k1) = q1(k1) + a
-				g.Q1[k1IdxQ] = g.Q1[k1IdxQ] + a
 				//IF q1(k1) > 0 then
 				if g.Q1[k1IdxQ] > 0 {
 					//LET a1 = 0
 					a1 = 0
 					//LET WATER(0,k1+1) = Water (0,k1+1) + Q1(k1)
 					WATER[0][k1+1] = WATER[0][k1+1] + a
-					//ELSE
 				} else {
 					//LET a1 = -q1(k1)
 					a1 = -g.Q1[k1IdxQ]
-					//END IF
 				}
-				//END IF
 			}
 			//! +++++++++++++++++++++++++++++++++++
-		}
-	} else {
-		//infiltration(0, &WATER, g)
-		for i := 0; i < g.N; i++ {
-			WATER[1][i] = WATER[0][i]
-			g.Q1[i+1] = 0
-		}
-		for k1 := 0; k1 < g.N; k1++ {
-			k1IdxQ := k1 + 1
-			if WATER[1][k1] > g.W[k1]*g.DZ.Num {
-				//LET a = MIN(WATER(1,k1) - W(K1) * dz,qm(k1))
-				a := math.Min(WATER[1][k1]-g.W[k1]*g.DZ.Num, g.QM[k1]*wdt) // Wasser das aus der Schicht rausfließen könnte
-				// wenn im nächsten Layer noch Platz ist
-				a = math.Min(g.PORGES[k1+1]*g.DZ.Num-WATER[0][k1+1]+g.QM[k1+1]*wdt, a)
-				if k1 == g.DRAIDEP {
-					g.QDRAIN = g.DRAIFAK * a
-					a = a - g.QDRAIN
-				}
-				//LET WATER(1,k1) = WATER(1,k1)-a
-				WATER[1][k1] = WATER[1][k1] - a
-
-				g.WaterDiff = g.WaterDiff - a
-				//LET Q1(k1) = q1(k1) + a
-				g.Q1[k1IdxQ] = a
-				//LET WATER(0,k1+1) = Water (0,k1+1) + Q1(k1)
-				WATER[0][k1+1] = WATER[0][k1+1] + g.Q1[k1IdxQ]
-			}
 		}
 	}
 
@@ -1139,7 +1043,6 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 				if GWDIST > .9 {
 					GWDISTindex := int(math.Round(math.Max(GWDIST, 1))) - 1
 					WATER[1][caplayIndex] = WATER[1][caplayIndex] + g.CAPS[GWDISTindex]*g.DZ.Num*wdt
-					g.WaterDiff = g.WaterDiff + g.CAPS[GWDISTindex]*g.DZ.Num*wdt
 					for i := caplay; i <= g.N; i++ {
 						g.Q1[i] = g.Q1[i] - g.CAPS[GWDISTindex]*g.DZ.Num*wdt
 					}
