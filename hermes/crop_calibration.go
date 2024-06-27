@@ -169,6 +169,7 @@ func (cropOW *CropOverwrite) OverwriteCropParameters(cropFile string, g *GlobalV
 				partIdx := part.Part - 1
 				g.PRO[stageIdx][partIdx] = value
 			}
+			CheckPROSum(g, l.NRENTW)
 		} else if key == "DEAD" {
 			for part, value := range parts {
 				stageIdx := part.Stage - 1
