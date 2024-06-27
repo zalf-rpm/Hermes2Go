@@ -183,7 +183,7 @@ CropDevelopmentStages:
       # Partitioning at end of phase (fraction, sum should be 1)
       PRO:
         - 0
-        - 0.1
+        - 0
         - 0.13
         - 0.87
       # death rate at end of phase (coefficient, 1/day)
