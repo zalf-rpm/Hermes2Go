@@ -1107,30 +1107,35 @@ func Water(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *WaterSharedVar
 	}
 }
 
+// calcOxygenDeficiency calculates the oxygen deficiency in the soil (From MONICA by M.Palka)
+// based on the critical oxygen content and the time spent under the anoxia threshold
+// LUMDAY - time spent under anoxia threshold
+// LURED - oxygen deficiency
 func CalcOxygenDeficiency(g *GlobalVarsMain) (LUMDAY int, LURED float64) {
-	LUMDAY = g.LUMDAY
+	LUMDAY = g.LUMDAY // (Luftmangel Tage) time spent under anoxia threshold
 	// from crop file
-	// "LUKRIT" - "critical aircontent in topsoil (cm^3/cm^3)"
+	// "LUKRIT" - "critical aircontent in topsoil (in cm^3/cm^3)"
 	criticalOxygenContent := g.LUKRIT[g.INTWICK.Index]
-	// LUKRITTIME - "time under anoxia threshold at stage (days)"
+	// LUKRITTIME - "time under anoxia threshold at stage (in days)"
 	timeUnderAnoxiaThresholdAtStage := g.LUKRITTIME[g.INTWICK.Index]
+
 	sumSaturation := 0.
 	sumSoilMoisture := 0.
 	sumLayers := 0
 	// at least 3 layers are considered or the rooting depth, whichever is higher
 	nols := int(math.Min(math.Max(3, float64(g.WURZ)), float64(g.N)))
 	for i := 0; i < nols; i++ {
-		sumSaturation += g.PORGES[i]
-		sumSoilMoisture += g.WG[0][i]
+		sumSaturation += g.PORGES[i]  // saturation / Porenvolumen
+		sumSoilMoisture += g.WG[0][i] // soil moisture / Wassergehalt
 		sumLayers++
 	}
 	avgAirFilledPoreVolume := (sumSaturation - sumSoilMoisture) / float64(sumLayers)
 	if avgAirFilledPoreVolume < criticalOxygenContent {
-		LUMDAY = LUMDAY + g.DT.Index
-		timeUnderAnoxia := int(math.Max(float64(LUMDAY), float64(timeUnderAnoxiaThresholdAtStage)))
+		LUMDAY = LUMDAY + g.DT.Index // TimeUnderAnoxia + TimeStep
+		timeUnderAnoxia := int(math.Min(float64(LUMDAY), float64(timeUnderAnoxiaThresholdAtStage)))
 		avgAirFilledPoreVolume = math.Max(0, avgAirFilledPoreVolume)
 		maxOxygenDeficit := avgAirFilledPoreVolume / criticalOxygenContent
-		LURED = 1 - float64(timeUnderAnoxia)/float64(timeUnderAnoxiaThresholdAtStage)*(1-maxOxygenDeficit)
+		LURED = 1 - float64(timeUnderAnoxia)/float64(timeUnderAnoxiaThresholdAtStage)*(1-maxOxygenDeficit) // OxygenDeficit
 	} else {
 		LUMDAY = 0
 		LURED = 1
