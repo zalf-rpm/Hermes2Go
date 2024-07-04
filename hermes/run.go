@@ -15,7 +15,6 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 
 	returnedWithErr := func() error {
 		// Shared
-		var ETPOT, ETAKT, NMINSU, SREGEN [151]float64
 		var SWCY float64
 		var SWC1 float64
 		var PR bool
@@ -703,11 +702,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			if g.TAG.Index+1 == OUTDAY {
 				g.AUS[JZ] = g.OUTSUM
 				g.SIC[JZ] = (g.SICKER - math.Abs(g.CAPSUM))
-				ETPOT[JZ-1] = g.VERDUNST * 10
-				ETAKT[JZ-1] = g.PFTRANS * 10
 				g.AUFNA[JZ] = g.AUFNASUM
-				NMINSU[JZ-1] = g.MINSUM
-				SREGEN[JZ-1] = g.REGENSUM
 
 				g.PerY = g.SICKER - math.Abs(g.CAPSUM)
 				g.SWCY1 = SWCY1 / float64(g.JTAG)
