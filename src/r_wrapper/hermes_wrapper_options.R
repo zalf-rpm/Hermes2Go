@@ -210,7 +210,7 @@ check_model_options <- function(model_options) {
 #' element per values of parameters) containing usms outputs data.frames) and an
 #' error code (`error`) indicating if at least one simulation ended with an
 #' error.
-read_hermes2go_output <- function(result_dir, sit_names, out_variable_names) {
+read_hermes2go_output <- function(result_dir, sit_names, out_variable_names, param_values = NULL) {
 
   # check if sit_names is empty
   if (is.null(sit_names)) {

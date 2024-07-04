@@ -2,6 +2,7 @@ package hermes
 
 import (
 	"fmt"
+	"log"
 	"path/filepath"
 	"strings"
 )
@@ -68,7 +69,15 @@ func (cropOW *CropOverwrite) OverwriteCropParameters(cropFile string, g *GlobalV
 	if cropOW.CropFile != filepath.Base(cropFile) {
 		return
 	}
-	if !cropOW.isValidCropOverwrite(g.NRKOM, l.NRENTW) {
+	if ok, err := cropOW.isValidCropOverwrite(g.NRKOM, l.NRENTW); !ok {
+		if err != nil {
+			errorStr := fmt.Sprintf("%s Error in crop overwrite parameters: %v", g.LOGID, err)
+			if g.DEBUGCHANNEL != nil {
+				g.DEBUGCHANNEL <- errorStr
+			} else {
+				log.Print(errorStr)
+			}
+		}
 		return
 	}
 	// overwrite base parameters
@@ -166,6 +175,7 @@ func (cropOW *CropOverwrite) OverwriteCropParameters(cropFile string, g *GlobalV
 				partIdx := part.Part - 1
 				g.PRO[stageIdx][partIdx] = value
 			}
+			CheckPROSum(g, l.NRENTW)
 		} else if key == "DEAD" {
 			for part, value := range parts {
 				stageIdx := part.Stage - 1
@@ -177,74 +187,74 @@ func (cropOW *CropOverwrite) OverwriteCropParameters(cropFile string, g *GlobalV
 }
 
 // check if crop overwrite parameters are in valid range
-func (cropOW *CropOverwrite) isValidCropOverwrite(numPartitions, numStages int) bool {
+func (cropOW *CropOverwrite) isValidCropOverwrite(numPartitions, numStages int) (bool, error) {
 	if cropOW.CropFile == "" {
-		return false
+		return false, nil
 	}
 	for key, value := range cropOW.BaseFloatParameters {
 		if key == "MAXAMAX" && (value <= 0 || value > 100) {
-			return false
+			return false, fmt.Errorf("invalid value for MAXAMAX: %f", value)
 		} else if key == "MINTMP" && (value <= -30 || value >= 50) {
-			return false
+			return false, fmt.Errorf("invalid value for MINTMP: %f", value)
 		} else if key == "WUMAXPF" && (value <= 0 || value > 20) {
-			return false
+			return false, fmt.Errorf("invalid value for WUMAXPF: %f", value)
 		} else if key == "VELOC" && (value <= 0 || value > 1) {
-			return false
+			return false, fmt.Errorf("invalid value for VELOC: %f", value)
 		} else if key == "YIFAK" && (value < 0 || value > 1) {
-			return false
+			return false, fmt.Errorf("invalid value for YIFAK: %f", value)
 		} else if key == "INITCONCNBIOM" && (value < 0 || value > 100) {
-			return false
+			return false, fmt.Errorf("invalid value for INITCONCNBIOM: %f", value)
 		} else if key == "INITCONCNROOT" && (value < 0 || value > 100) {
-			return false
+			return false, fmt.Errorf("invalid value for INITCONCNROOT: %f", value)
 		}
 	}
 	for key, stages := range cropOW.DevelopmentStageParameters {
 		// check if stage is within valid range
 		for stage := range stages {
 			if stage < 1 || stage > numStages {
-				return false
+				return false, fmt.Errorf("invalid stage index: %d", stage)
 			}
 		}
 		if key == "TSUM" {
 			for _, value := range stages {
 				if value < 0 || value > 10000 {
-					return false
+					return false, fmt.Errorf("invalid value for TSUM: %f", value)
 				}
 			}
 		} else if key == "BAS" {
 			for _, value := range stages {
 				if value < -10 || value > 40 {
-					return false
+					return false, fmt.Errorf("invalid value for BAS: %f", value)
 				}
 			}
 		} else if key == "VSCHWELL" {
 			for _, value := range stages {
 				if value < 0 || value > 100 {
-					return false
+					return false, fmt.Errorf("invalid value for VSCHWELL: %f", value)
 				}
 			}
 		} else if key == "DAYL" {
 			for _, value := range stages {
-				if value < 24 || value > 24 {
-					return false
+				if value < -24 || value > 24 {
+					return false, fmt.Errorf("invalid value for DAYL: %f", value)
 				}
 			}
 		} else if key == "DLBAS" {
 			for _, value := range stages {
-				if value < 24 || value > 24 {
-					return false
+				if value < -24 || value > 24 {
+					return false, fmt.Errorf("invalid value for DLBAS: %f", value)
 				}
 			}
 		} else if key == "DRYSWELL" {
 			for _, value := range stages {
 				if value < 0 || value > 1 {
-					return false
+					return false, fmt.Errorf("invalid value for DRYSWELL: %f", value)
 				}
 			}
 		} else if key == "LUKRIT" {
 			for _, value := range stages {
 				if value < 0 || value > 1 {
-					return false
+					return false, fmt.Errorf("invalid value for LUKRIT: %f", value)
 				}
 			}
 		} else if key == "LUKRITTIME" {
@@ -256,54 +266,54 @@ func (cropOW *CropOverwrite) isValidCropOverwrite(numPartitions, numStages int) 
 		} else if key == "LAIFKT" {
 			for _, value := range stages {
 				if value < 0 || value > 100 {
-					return false
+					return false, fmt.Errorf("invalid value for LAIFKT: %f", value)
 				}
 			}
 		} else if key == "WGMAX" {
 			for _, value := range stages {
 				if value < 0 || value > 100 {
-					return false
+					return false, fmt.Errorf("invalid value for WGMAX: %f", value)
 				}
 			}
 		} else if key == "KC" {
 			for _, value := range stages {
-				if value < 0 || value > 1 {
-					return false
+				if value <= 0 {
+					return false, fmt.Errorf("invalid value for KC: %f", value)
 				}
 			}
 		} else {
-			return false
+			return false, fmt.Errorf("invalid crop parameter name: " + key)
 		}
 	}
 	for key, parts := range cropOW.PartitioningParameters {
 		// check if stage and partition are within valid range
 		for pair := range parts {
 			if pair.Stage < 1 || pair.Stage > numStages {
-				return false
+				return false, fmt.Errorf("invalid stage for patitioning index: %d", pair.Stage)
 			}
 			if pair.Part < 1 || pair.Part > numPartitions {
-				return false
+				return false, fmt.Errorf("invalid partition index: %d", pair.Part)
 			}
 		}
 
 		if key == "PRO" {
 			for _, value := range parts {
 				if value < 0 || value > 1 {
-					return false
+					return false, fmt.Errorf("invalid value for PRO: %f", value)
 				}
 			}
 		} else if key == "DEAD" {
 			for _, value := range parts {
 				if value < 0 || value > 1 {
-					return false
+					return false, fmt.Errorf("invalid value for DEAD: %f", value)
 				}
 			}
 		} else {
-			return false
+			return false, fmt.Errorf("invalid crop parameter name: " + key)
 		}
 	}
 
-	return true
+	return true, nil
 }
 
 // crop overwrite parameters from command line

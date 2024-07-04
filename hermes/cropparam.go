@@ -1,7 +1,9 @@
 package hermes
 
 import (
+	"fmt"
 	"log"
+	"math"
 	"os"
 	"path/filepath"
 	"strings"
@@ -215,6 +217,7 @@ func ReadCropParamYml(PARANAM string, l *CropSharedVars, g *GlobalVarsMain) {
 		l.kc[i] = cropParam.CropDevelopmentStages[i].Kc
 		l.tendsum = l.tendsum + g.TSUM[i]
 	}
+	CheckPROSum(g, l.NRENTW)
 }
 
 // ReadCropParamClassic reads the crop parameters from an hermes crop file (classic format)
@@ -406,7 +409,7 @@ func ReadCropParamClassic(PARANAM string, l *CropSharedVars, g *GlobalVarsMain) 
 		//kc factor for evapotranspiration at end of phase I
 		l.kc[i] = ValAsFloat(LINE9c[65:], PARANAM, LINE9c)
 	}
-
+	CheckPROSum(g, l.NRENTW)
 }
 
 func ConvertCropParamClassicToYml(PARANAM string) (CropParam, error) {
@@ -605,5 +608,49 @@ func ConvertCropParamClassicToYml(PARANAM string) (CropParam, error) {
 		developmentStage.Kc = ValAsFloat(LINE9c[65:], PARANAM, LINE9c)
 		cropParam.CropDevelopmentStages = append(cropParam.CropDevelopmentStages, developmentStage)
 	}
+	// Check if the sum of the partitioning factors is 1
+	for stageIdx := range cropParam.CropDevelopmentStages {
+
+		sum := 0.0
+		for _, val := range cropParam.CropDevelopmentStages[stageIdx].PRO {
+			sum += val
+		}
+		senescence := (stageIdx == len(cropParam.CropDevelopmentStages)-1) && math.Abs(sum) < 0.0001
+		fine := math.Abs(sum-1) < 0.0001
+		if !senescence && !fine {
+			err := fmt.Errorf("crop overwrite parameters: PRO sum in stage %d is not equal to 1", stageIdx+1)
+			return cropParam, err
+		}
+	}
+
 	return cropParam, nil
+}
+
+func CheckPROSum(g *GlobalVarsMain, numberOfStages int) bool {
+
+	allFine := true
+	CheckPROSum := func(stage int) (float64, bool) {
+		sum := 0.0
+		for _, val := range g.PRO[stage] {
+			sum += val
+		}
+		return sum, math.Abs(sum-1) < 0.0001
+	}
+	for stageIdx := 0; stageIdx < numberOfStages; stageIdx++ {
+		if sum, ok := CheckPROSum(stageIdx); !ok {
+			// partitioning factors should sum up to 1, except for the last stage(senescence), where it could sum up to 0
+			senescence := (stageIdx == numberOfStages-1) && math.Abs(sum) < 0.0001
+			if senescence {
+				continue
+			}
+			errorStr := fmt.Sprintf("%s Error in crop %s parameters: PRO sum in stage %d is not equal to 1", g.LOGID, g.CropTypeToString(g.FRUCHT[g.AKF.Index], false), stageIdx+1)
+			if g.DEBUGCHANNEL != nil {
+				g.DEBUGCHANNEL <- errorStr
+			} else {
+				log.Print(errorStr)
+			}
+			allFine = false
+		}
+	}
+	return allFine
 }

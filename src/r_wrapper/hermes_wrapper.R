@@ -112,7 +112,8 @@ hermes2go_wrapper <- function(param_values,
     results_tmp <- output_function(
       result_folder,
       sit_names,
-      var_names
+      var_names,
+      param_values
     )
     res$sim_list <- results_tmp
   }
