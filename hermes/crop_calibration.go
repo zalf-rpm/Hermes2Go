@@ -260,7 +260,7 @@ func (cropOW *CropOverwrite) isValidCropOverwrite(numPartitions, numStages int) 
 		} else if key == "LUKRITTIME" {
 			for _, value := range stages {
 				if value < 0 || value > 1000 {
-					return false
+					return false, fmt.Errorf("invalid value for LUKRITTIME: %f", value)
 				}
 			}
 		} else if key == "LAIFKT" {
