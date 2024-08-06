@@ -78,7 +78,7 @@ type ManagementConfig struct {
 	// Management output configuration
 	EventFormats  map[ManagementEventType]*ManagementEventConfig
 	SeperatorRune rune
-	file          *Fout
+	file          OutWriter
 }
 
 func (s *ManagementConfig) AnyOutputEnabled() bool {

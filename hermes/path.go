@@ -15,6 +15,7 @@ import (
 // HermesFilePool file pool for shared files
 var HermesFilePool FilePool
 var HermesRPCService RPCService
+var HermesOutWriter OutWriterGenerator
 
 // Modfil default module filename
 const Modfil = "modinp.txt"
@@ -227,6 +228,34 @@ func (fp *FilePool) Close() {
 	fp.mux.Lock()
 	fp.list = nil
 	fp.mux.Unlock()
+}
+
+// interface for Fout
+type OutWriter interface {
+	Write(string) (int, error)
+	WriteBytes([]byte) (int, error)
+	WriteRune(rune) (int, error)
+	Close()
+}
+
+type OutWriterGenerator func(string, bool) (OutWriter, error)
+
+func DefaultFoutGenerator(filePath string, append bool) (OutWriter, error) {
+
+	var flags int
+	if append {
+		flags = os.O_CREATE | os.O_APPEND | os.O_WRONLY
+	} else {
+		flags = os.O_CREATE | os.O_TRUNC | os.O_WRONLY
+	}
+
+	file, err := os.OpenFile(filePath, flags, 0600)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open result file: %s ", filePath)
+	}
+
+	fwriter := bufio.NewWriter(file)
+	return &Fout{file, fwriter}, nil
 }
 
 // Fout bufferd file writer

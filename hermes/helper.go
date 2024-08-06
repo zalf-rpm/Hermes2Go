@@ -422,24 +422,20 @@ func ReadFile(fd *FileDescriptior) ([]byte, error) {
 }
 
 // OpenResultFile opens a file for writing - options append, if append is false, it will truncate the file and override
-func OpenResultFile(filePath string, append bool) *Fout {
-	var flags int
-	if append {
-		flags = os.O_CREATE | os.O_APPEND | os.O_WRONLY
-	} else {
-		flags = os.O_CREATE | os.O_TRUNC | os.O_WRONLY
-	}
+func OpenResultFile(filePath string, append bool) OutWriter {
 
-	file, err := os.OpenFile(filePath, flags, 0600)
-	if err != nil {
-		log.Fatalf("Error occured while opening result file: %s   \n", filePath)
+	if HermesOutWriter == nil {
+		HermesOutWriter = DefaultFoutGenerator
 	}
-	fwriter := bufio.NewWriter(file)
-	return &Fout{file, fwriter}
+	res, err := HermesOutWriter(filePath, append)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return res
 }
 
 // PrintTo prints a string into a file
-func PrintTo(file *Fout, text string) {
+func PrintTo(file OutWriter, text string) {
 	if _, err := file.Write(text); err != nil {
 		log.Fatal(err)
 	}

@@ -136,7 +136,7 @@ func main() {
 
 }
 
-func WriteSoil(soilData hermes.SoilFileData, out *hermes.Fout) error {
+func WriteSoil(soilData hermes.SoilFileData, out hermes.OutWriter) error {
 
 	formatCGEHALT := func(val float64) string {
 		if math.Round(val) >= 10 {
@@ -204,7 +204,7 @@ func WriteSoil(soilData hermes.SoilFileData, out *hermes.Fout) error {
 	return nil
 }
 
-func WriteSoilCSV(soilData hermes.SoilFileData, out *hermes.Fout, withBulkdensityColumn bool) error {
+func WriteSoilCSV(soilData hermes.SoilFileData, out hermes.OutWriter, withBulkdensityColumn bool) error {
 	for layer := 0; layer < soilData.AZHO; layer++ {
 
 		if !withBulkdensityColumn {

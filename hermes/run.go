@@ -250,9 +250,9 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		OUTINT := driConfig.OutputIntervall
 		WriteManagementEvents := driConfig.ManagementEvents
 
-		var VNAMfile *Fout
+		var VNAMfile OutWriter
 		var dailyOutputConfig OutputConfig
-		var pfFile *Fout
+		var pfFile OutWriter
 		var pfOutputConfig OutputConfig
 		if OUTINT > 0 {
 			if _, err := os.Stat(herPath.dailyOutput); err != nil {
