@@ -4,19 +4,41 @@ package main
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/zalf-rpm/Hermes2Go/hermes"
 )
 
 // RunScheduler runs the scheduler
-func runScheduler(newSessionChan, closedSession <-chan *Hermes_Session, maxConcurrent uint) {
+func runScheduler(newSessionChan, closedSession <-chan *Hermes_Session, hermesRun <-chan *Hermes_Run, maxConcurrent uint, writeLogoutput bool) {
 
 	// list of all sessions
 	sessions := make([]*Hermes_Session, 0)
-
+	toDoRuns := make([]*Hermes_Run, 0)
+	var activeRuns uint
+	logOutputChan := make(chan string)
+	resultChannel := make(chan string)
 	for {
+		// check if we can start a new run
+		for activeRuns < maxConcurrent && len(toDoRuns) > 0 {
+			run := toDoRuns[0]
+			toDoRuns = toDoRuns[1:]
+			if run.session.done {
+				// drop left over runs if session is done
+				continue
+			}
+			activeRuns++
+			go hermes.Run(run.session.workingDir, run.args, run.runID, resultChannel, logOutputChan)
+		}
 		select {
+		case result := <-resultChannel:
+			activeRuns--
+			if writeLogoutput {
+				fmt.Println(result)
+			}
+		case log := <-logOutputChan:
+			if writeLogoutput {
+				fmt.Println(log)
+			}
 		case newSession := <-newSessionChan:
 			sessions = append(sessions, newSession)
 		case sessionClosed := <-closedSession:
@@ -29,68 +51,16 @@ func runScheduler(newSessionChan, closedSession <-chan *Hermes_Session, maxConcu
 					break
 				}
 			}
+		case run := <-hermesRun:
+			toDoRuns = append(toDoRuns, run)
 		}
+
 	}
 
 }
 
-func doConcurrentBatchRun(workingDir string, writeLogoutput bool, configLines []string) {
-	logOutputChan := make(chan string)
-	resultChannel := make(chan string)
-	var activeRuns uint
-	errorSummary := checkResultForError()
-	var errorSummaryResult []string
-	for i, line := range configLines {
-		for activeRuns == concurrentOperations {
-			select {
-			case result := <-resultChannel:
-				activeRuns--
-				errorSummaryResult = errorSummary(result)
-			case log := <-logOutputChan:
-				if writeLogoutput {
-					fmt.Println(log)
-				}
-			}
-		}
-
-		if activeRuns < concurrentOperations {
-			activeRuns++
-			logID := fmt.Sprintf("[%v]", i)
-			if writeLogoutput {
-				fmt.Println(logID)
-			}
-			args := strings.Fields(line)
-			go hermes.Run(workingDir, args, logID, resultChannel, logOutputChan)
-		}
-	}
-	// fetch output of last runs
-	for activeRuns > 0 {
-		select {
-		case result := <-resultChannel:
-			activeRuns--
-			errorSummaryResult = errorSummary(result)
-		case log := <-logOutputChan:
-			if writeLogoutput {
-				fmt.Println(log)
-			}
-		}
-	}
-	var numErr int
-	for _, line := range errorSummaryResult {
-		fmt.Println(line)
-		numErr++
-	}
-
-	fmt.Printf("Number of errors: %v \n", numErr-1)
-}
-
-// checkResultForError concurrent output for error/ success, and add it to a summary
-func checkResultForError() func(string) []string {
-	var errSummary = []string{"Error Summary:"}
-	return func(result string) []string {
-		if !strings.HasSuffix(result, "Success") {
-			errSummary = append(errSummary, result)
-		}
-		return errSummary
-	}
+type Hermes_Run struct {
+	session *Hermes_Session
+	runID   string
+	args    []string
 }

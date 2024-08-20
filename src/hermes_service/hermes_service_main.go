@@ -51,6 +51,10 @@ func main() {
 		l.Close()
 		hermes.HermesFilePool.Close()
 	}()
+	sessionChan := make(chan *Hermes_Session)
+	closedSession := make(chan *Hermes_Session)
+	hermesRun := make(chan *Hermes_Run)
+	go runScheduler(sessionChan, closedSession, hermesRun, concurrentOperations, writeLogoutput)
 
 	for {
 		// accept connections and serve
@@ -95,6 +99,7 @@ func main() {
 type Hermes_SessionServer struct {
 	workingDir     string
 	writeLogoutput bool
+	sessionChan    chan<- *Hermes_Session
 }
 
 func (a *Hermes_SessionServer) NewSession(ctx context.Context, call hermes_service_capnp.SessionServer_newSession) error {
@@ -102,13 +107,17 @@ func (a *Hermes_SessionServer) NewSession(ctx context.Context, call hermes_servi
 	if err != nil {
 		return err
 	}
-	fmt.Println("server: NewSession Received", env)
+	if a.writeLogoutput {
+		fmt.Println("server: NewSession Received", env)
+	}
 	// create a new session
 	session := &Hermes_Session{
 		workingDir:   a.workingDir,
 		runParams:    make(map[string][]string),
 		runCallbacks: make(map[string]hermes_service_capnp.Callback),
 	}
+	// send the session to the scheduler
+	a.sessionChan <- session
 	// return the session
 	results, err := call.AllocResults()
 	if err != nil {
@@ -128,10 +137,12 @@ func (a *Hermes_SessionServer) NewSession(ctx context.Context, call hermes_servi
 //	Close(context.Context, Session_close) error
 
 type Hermes_Session struct {
-	workingDir   string
-	runParams    map[string][]string
-	runCallbacks map[string]hermes_service_capnp.Callback
-	done         bool
+	workingDir    string
+	hermesRun     chan<- *Hermes_Run
+	runParams     map[string][]string
+	runCallbacks  map[string]hermes_service_capnp.Callback
+	done          bool
+	closedSession chan<- *Hermes_Session
 }
 
 func (a *Hermes_Session) Send(ctx context.Context, call hermes_service_capnp.Session_send) error {
@@ -162,13 +173,19 @@ func (a *Hermes_Session) Send(ctx context.Context, call hermes_service_capnp.Ses
 		a.runParams[runId] = paramList
 	}
 	a.runCallbacks[runId] = call.Args().ResultCallback()
+	// send the run to the scheduler
+	a.hermesRun <- &Hermes_Run{
+		session: a,
+		runID:   runId,
+		args:    a.runParams[runId],
+	}
 
 	return nil
 }
 
 func (a *Hermes_Session) Close(ctx context.Context, call hermes_service_capnp.Session_close) error {
 	fmt.Println("server: Close Received")
-	a.done = true
+	a.closedSession <- a
 	// close all runs, do not send results
 	return nil
 }
