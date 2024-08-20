@@ -9,4 +9,6 @@ use (
     ./src/climatefileconverter
     ./src/calcSoil
     ./src/cropfileconverter
+    ./src/hermes_service
+    ./src/hermes_service/capnp/hermes_service_capnp
 )
