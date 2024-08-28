@@ -93,10 +93,10 @@ func NewSoilFileData(soilID string) SoilFileData {
 	}
 }
 
-func LoadSoil(withGroundwater bool, LOGID string, hPath *HFilePath, soilID string) (SoilFileData, error) {
+func LoadSoil(withGroundwater bool, LOGID string, hPath *HFilePath, soilID string, session *HermesSession) (SoilFileData, error) {
 
 	soildata := NewSoilFileData(soilID)
-	_, scannerSoilFile, err := Open(&FileDescriptior{FilePath: hPath.bofile, FileDescription: "soil file", UseFilePool: true})
+	_, scannerSoilFile, err := session.Open(&FileDescriptior{FilePath: hPath.bofile, FileDescription: "soil file", UseFilePool: true})
 	if err != nil {
 		return SoilFileData{}, err
 	}
@@ -185,10 +185,10 @@ func LoadSoil(withGroundwater bool, LOGID string, hPath *HFilePath, soilID strin
 	return soildata, nil
 }
 
-func LoadSoilCSV(withGroundwater bool, LOGID string, hPath *HFilePath, soilID string) (SoilFileData, error) {
+func LoadSoilCSV(withGroundwater bool, LOGID string, hPath *HFilePath, soilID string, session *HermesSession) (SoilFileData, error) {
 
 	soildata := NewSoilFileData(soilID)
-	_, scanner, err := Open(&FileDescriptior{FilePath: hPath.bofile, FileDescription: "soil file", UseFilePool: true})
+	_, scanner, err := session.Open(&FileDescriptior{FilePath: hPath.bofile, FileDescription: "soil file", UseFilePool: true})
 	if err != nil {
 		return SoilFileData{}, err
 	}
@@ -698,7 +698,7 @@ func ReadGroundWaterTimeSeries(g *GlobalVarsMain, hPath *HFilePath, sid string) 
 	g.GWTimeSeriesValues = make(map[int]float64)
 	g.GWTimestamps = make([]int, 0)
 
-	_, scanner, err := Open(&FileDescriptior{FilePath: hPath.gwtimeseries, FileDescription: "ground water time series file", UseFilePool: true})
+	_, scanner, err := g.Session.Open(&FileDescriptior{FilePath: hPath.gwtimeseries, FileDescription: "ground water time series file", UseFilePool: true})
 	if err != nil {
 		return err
 	}
@@ -760,8 +760,8 @@ func GetGroundWaterLevel(g *GlobalVarsMain, date int) (float64, error) {
 	return level, nil
 }
 
-func FindTextureInHypar(textureIn, hyparName string) string {
-	_, scannerHyPar, _ := Open(&FileDescriptior{FilePath: hyparName, UseFilePool: true})
+func FindTextureInHypar(textureIn, hyparName string, session *HermesSession) string {
+	_, scannerHyPar, _ := session.Open(&FileDescriptior{FilePath: hyparName, UseFilePool: true})
 
 	for scannerHyPar.Scan() {
 		wa := scannerHyPar.Text()
@@ -772,8 +772,8 @@ func FindTextureInHypar(textureIn, hyparName string) string {
 	}
 	return "not found"
 }
-func FindTextureInPARCAP(textureIn, filepath string) string {
-	_, scanner, _ := Open(&FileDescriptior{FilePath: filepath, UseFilePool: true})
+func FindTextureInPARCAP(textureIn, filepath string, session *HermesSession) string {
+	_, scanner, _ := session.Open(&FileDescriptior{FilePath: filepath, UseFilePool: true})
 
 	for scanner.Scan() {
 		first := scanner.Text()

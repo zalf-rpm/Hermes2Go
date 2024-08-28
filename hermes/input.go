@@ -44,7 +44,7 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 	// ! IRRIGAT        = Trigger zum Einlesen von Bewässerungsdaten
 	// ! BOF$           = Boden-ID
 	// ! ------------------------------------------------------------------------------
-	_, scanner, _ := Open(&FileDescriptior{FilePath: hPath.polnam, FileDescription: "polygonfile", UseFilePool: true})
+	_, scanner, _ := g.Session.Open(&FileDescriptior{FilePath: hPath.polnam, FileDescription: "polygonfile", UseFilePool: true})
 	LineInut(scanner)
 
 	for scanner.Scan() {
@@ -114,9 +114,9 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 				groundwaterFormSoilfile := g.GROUNDWATERFROM == Soilfile
 
 				if strings.HasSuffix(hPath.bofile, "csv") {
-					currentSoil, soilLoadError = LoadSoilCSV(groundwaterFormSoilfile, g.LOGID, hPath, sid)
+					currentSoil, soilLoadError = LoadSoilCSV(groundwaterFormSoilfile, g.LOGID, hPath, sid, g.Session)
 				} else {
-					currentSoil, soilLoadError = LoadSoil(groundwaterFormSoilfile, g.LOGID, hPath, sid)
+					currentSoil, soilLoadError = LoadSoil(groundwaterFormSoilfile, g.LOGID, hPath, sid, g.Session)
 				}
 				if soilLoadError != nil {
 					return soilLoadError
@@ -279,7 +279,7 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 					l.ANZBREG = 0
 					if l.IRRIGAT {
 						Bereg := hPath.irrigation
-						_, scannerIrrFile, _ := Open(&FileDescriptior{FilePath: Bereg, FileDescription: "irrigation file", UseFilePool: true})
+						_, scannerIrrFile, _ := g.Session.Open(&FileDescriptior{FilePath: Bereg, FileDescription: "irrigation file", UseFilePool: true})
 						LineInut(scannerIrrFile)
 
 						for SCHLAG, SLAGtoken, ok := NextLineInut(0, scannerIrrFile, strings.Fields); ok; SCHLAG, SLAGtoken, ok = NextLineInut(0, scannerIrrFile, strings.Fields) {
@@ -329,7 +329,7 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 				// !----------------------------------------------------------------------------------------------------------------------
 
 				ROTA := hPath.crop
-				_, scannerRotation, _ := Open(&FileDescriptior{FilePath: ROTA, FileDescription: "rotation file", UseFilePool: true})
+				_, scannerRotation, _ := g.Session.Open(&FileDescriptior{FilePath: ROTA, FileDescription: "rotation file", UseFilePool: true})
 				cropHeader := LineInut(scannerRotation)
 
 				hSchlag := 0
@@ -424,7 +424,7 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 						if SLFIND > 1 {
 							if g.AUTOIRRI || g.AUTOFERT || g.AUTOHAR || g.AUTOMAN {
 								autfil := hPath.auto
-								_, autoScanner, _ := Open(&FileDescriptior{FilePath: autfil, FileDescription: "automated file", UseFilePool: true})
+								_, autoScanner, _ := g.Session.Open(&FileDescriptior{FilePath: autfil, FileDescription: "automated file", UseFilePool: true})
 								LineInut(autoScanner)
 								for autoScanner.Scan() {
 									crpman := autoScanner.Text()
@@ -519,7 +519,7 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 							g.ITAG = ERNDAT
 							if g.AUTOHAR || g.AUTOFERT {
 								autfil := hPath.auto
-								_, autoScanner, _ := Open(&FileDescriptior{FilePath: autfil, FileDescription: "automated file", UseFilePool: true})
+								_, autoScanner, _ := g.Session.Open(&FileDescriptior{FilePath: autfil, FileDescription: "automated file", UseFilePool: true})
 								LineInut(autoScanner)
 								for autoScanner.Scan() {
 									crpman := autoScanner.Text()
@@ -591,7 +591,7 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 				// ! KONZ1
 				// LET OBS$ = PATH$ & "init_" & locid$ & ".txt"
 				obs := hPath.obs
-				_, scannerObserv, _ := Open(&FileDescriptior{FilePath: obs, FileDescription: "observation file", UseFilePool: true})
+				_, scannerObserv, _ := g.Session.Open(&FileDescriptior{FilePath: obs, FileDescription: "observation file", UseFilePool: true})
 				var Fident string
 				if g.INIWAHL == 1 {
 					Fident = "ALLE"
@@ -616,7 +616,7 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 
 				// ! ********************** Bodenbearbeitungsmassnahmen lesen ***********************************
 				til := hPath.til
-				_, scannertilage, err := Open(&FileDescriptior{FilePath: til, FileDescription: "tillage file", UseFilePool: false, ContinueOnError: true})
+				_, scannertilage, err := g.Session.Open(&FileDescriptior{FilePath: til, FileDescription: "tillage file", UseFilePool: false, ContinueOnError: true})
 				if err == nil {
 					LineInut(scannertilage)
 					LineInut(scannertilage)
@@ -651,7 +651,7 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 				if !g.AUTOFERT {
 					// ! ********************** Düngungsmassnahmen lesen ***********************************
 					dun := hPath.dun
-					_, scannerFert, _ := Open(&FileDescriptior{FilePath: dun, FileDescription: "fertilization file", UseFilePool: true})
+					_, scannerFert, _ := g.Session.Open(&FileDescriptior{FilePath: dun, FileDescription: "fertilization file", UseFilePool: true})
 					LineInut(scannerFert)
 					NDu := 1
 					for SCHLAG, fertilizerToken, valid := NextLineInut(0, scannerFert, strings.Fields); valid; SCHLAG, fertilizerToken, valid = NextLineInut(0, scannerFert, strings.Fields) {
@@ -1125,7 +1125,7 @@ func Hydro(las1 int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFilePath
 	lIndex := las1 - 1
 	BDART := g.BART[lIndex]
 	if las1 == g.AZHO {
-		_, scannerParCap, _ := Open(&FileDescriptior{FilePath: hPath.parcap, UseFilePool: true})
+		_, scannerParCap, _ := g.Session.Open(&FileDescriptior{FilePath: hPath.parcap, UseFilePool: true})
 
 		for ok := true; ok; ok = g.CAPS[0] == 0 {
 			PARA := LineInut(scannerParCap)
@@ -1149,7 +1149,7 @@ func Hydro(las1 int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFilePath
 	g.IZM = 30
 
 	hyparName := hPath.hypar
-	_, scannerHyPar, _ := Open(&FileDescriptior{FilePath: hyparName, UseFilePool: true})
+	_, scannerHyPar, _ := g.Session.Open(&FileDescriptior{FilePath: hyparName, UseFilePool: true})
 
 	for {
 		wa := LineInut(scannerHyPar)
@@ -1383,7 +1383,7 @@ func residi(g *GlobalVarsMain, hPath *HFilePath) {
 	//   Mineralisationspotentiale aus Vorfruchtresiduen
 	// "CROP_N.TXT"
 	cropN := hPath.cropn
-	_, scanner, _ := Open(&FileDescriptior{FilePath: cropN, UseFilePool: true})
+	_, scanner, _ := g.Session.Open(&FileDescriptior{FilePath: cropN, UseFilePool: true})
 
 	var KOSTRO, NERNT, NKOPP, NWURA, NFAST float64
 	for scanner.Scan() {
@@ -1443,24 +1443,24 @@ func potmin1(g *GlobalVarsMain, l *InputSharedVars) {
 	}
 }
 
-func verdun(gloInput *GlobalVarsMain, hPath *HFilePath) {
-	if gloInput.ETMETH == 1 {
+func verdun(g *GlobalVarsMain, hPath *HFilePath) {
+	if g.ETMETH == 1 {
 		//   ! Read Haude/Heger factors
 		filename := hPath.evapo
-		_, scanner, _ := Open(&FileDescriptior{FilePath: filename, FileDescription: "evapo file", UseFilePool: true})
+		_, scanner, _ := g.Session.Open(&FileDescriptior{FilePath: filename, FileDescription: "evapo file", UseFilePool: true})
 
 		LineInut(scanner)
-		if gloInput.AKF.Num == 1 {
+		if g.AKF.Num == 1 {
 			HAUF := LineInut(scanner)
 			for i := 1; i <= 12; i++ {
-				gloInput.FKU[i-1] = ValAsFloat(HAUF[5*i-1:3+5*i], filename, HAUF)
+				g.FKU[i-1] = ValAsFloat(HAUF[5*i-1:3+5*i], filename, HAUF)
 			}
 		} else {
 			for scanner.Scan() {
 				HAUF := scanner.Text()
-				if gloInput.ToCropType(HAUF[0:3]) == gloInput.FRUCHT[gloInput.AKF.Index] {
+				if g.ToCropType(HAUF[0:3]) == g.FRUCHT[g.AKF.Index] {
 					for i := 1; i <= 12; i++ {
-						gloInput.FKF[i-1] = ValAsFloat(HAUF[5*i-1:3+5*i], filename, HAUF)
+						g.FKF[i-1] = ValAsFloat(HAUF[5*i-1:3+5*i], filename, HAUF)
 					}
 				}
 			}
@@ -1472,7 +1472,7 @@ func verdun(gloInput *GlobalVarsMain, hPath *HFilePath) {
 func dueng(i int, g *GlobalVarsMain, l *InputSharedVars, hPath *HFilePath) {
 	// "FERTILIZ.TXT"
 	dungfile := hPath.dung
-	_, scanner, _ := Open(&FileDescriptior{FilePath: dungfile, FileDescription: "fertilization file", UseFilePool: true})
+	_, scanner, _ := g.Session.Open(&FileDescriptior{FilePath: dungfile, FileDescription: "fertilization file", UseFilePool: true})
 	for scanner.Scan() {
 		du := scanner.Text()
 		token := strings.Fields(du)

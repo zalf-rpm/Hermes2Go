@@ -2,7 +2,6 @@ package hermes
 
 import (
 	"bufio"
-	"bytes"
 	"encoding"
 	"errors"
 	"fmt"
@@ -350,90 +349,6 @@ func MakeDir(outPath string) {
 	}
 }
 
-// FileDescriptior describes a file with name, usage description and debug log output channel
-type FileDescriptior struct {
-	FilePath        string        // absolute file path
-	FileDescription string        // file useage/description (optional)
-	UseFilePool     bool          // store file content, load file only once (optional, default false)
-	debugOut        chan<- string // debug output channel for concurrent execution (optional, default nil)
-	logID           string        // log ID to identify run (optional)
-	ContinueOnError bool          // terminate the programm on error or continue (optional, default false)
-}
-
-// Open will Open a file and create a scanner, to iterate through the file
-func Open(fd *FileDescriptior) (*os.File, *bufio.Scanner, error) {
-
-	// remove space characters
-	fileCorrected := strings.TrimSpace(fd.FilePath)
-	fd.FilePath = fileCorrected
-
-	if fd.UseFilePool {
-		byteData := HermesFilePool.Get(fd)
-		r := bytes.NewReader(byteData)
-		scanner := bufio.NewScanner(r)
-		return nil, scanner, nil
-	}
-
-	file, err := os.Open(fd.FilePath)
-	if err != nil {
-		if fd.ContinueOnError {
-			if fd.debugOut != nil {
-				fd.debugOut <- fmt.Sprintf("%s Error occured while reading %s: %s   \n", fd.logID, fd.FileDescription, fd.FilePath)
-			} else {
-				fmt.Printf("Error occured while reading %s: %s   \n", fd.FileDescription, fd.FilePath)
-			}
-
-			return nil, nil, err
-		}
-		log.Fatalf("Error occured while reading %s: %s   \n", fd.FileDescription, fd.FilePath)
-	}
-	// if fd.debugOut != nil {
-	// 	fd.debugOut <- fmt.Sprintf("%s %s", fd.logID, fd.filePath)
-	// }
-	scanner := bufio.NewScanner(file)
-	return file, scanner, nil
-}
-
-func ReadFile(fd *FileDescriptior) ([]byte, error) {
-
-	// remove space characters
-	fileCorrected := strings.TrimSpace(fd.FilePath)
-	fd.FilePath = fileCorrected
-
-	if fd.UseFilePool {
-		byteData := HermesFilePool.Get(fd)
-		return byteData, nil
-	}
-
-	byteData, err := os.ReadFile(fd.FilePath)
-	if err != nil {
-		if fd.ContinueOnError {
-			if fd.debugOut != nil {
-				fd.debugOut <- fmt.Sprintf("%s Error occured while reading %s: %s   \n", fd.logID, fd.FileDescription, fd.FilePath)
-			} else {
-				fmt.Printf("Error occured while reading %s: %s   \n", fd.FileDescription, fd.FilePath)
-			}
-
-			return nil, err
-		}
-		log.Fatalf("Error occured while reading %s: %s   \n", fd.FileDescription, fd.FilePath)
-	}
-	return byteData, nil
-}
-
-// OpenResultFile opens a file for writing - options append, if append is false, it will truncate the file and override
-func OpenResultFile(filePath string, append bool) OutWriter {
-
-	if HermesOutWriter == nil {
-		HermesOutWriter = DefaultFoutGenerator
-	}
-	res, err := HermesOutWriter(filePath, append)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return res
-}
-
 // PrintTo prints a string into a file
 func PrintTo(file OutWriter, text string) {
 	if _, err := file.Write(text); err != nil {
@@ -476,21 +391,6 @@ func printError(logID, errorMsg string, out, logout chan<- string) {
 	}
 }
 
-// DumpStructToFile debug dump global variables to a file
-func DumpStructToFile(filename string, global interface{}) {
-
-	file := OpenResultFile(filename, false)
-	defer file.Close()
-
-	data, err := yaml.Marshal(global)
-	if err != nil {
-		log.Fatalf("error: %v", err)
-	}
-
-	if _, err := file.WriteBytes(data); err != nil {
-		log.Fatal(err)
-	}
-}
 func isNil(value reflect.Value) bool {
 	if !value.IsValid() {
 		return true

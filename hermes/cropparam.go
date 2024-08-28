@@ -99,7 +99,7 @@ func WriteCropParam(filename string, cropParam CropParam) error {
 }
 
 func ReadCropParamYml(PARANAM string, l *CropSharedVars, g *GlobalVarsMain) {
-	ymlData, err := ReadFile(&FileDescriptior{FilePath: PARANAM, FileDescription: "crop file", UseFilePool: true})
+	ymlData, err := g.Session.ReadFile(&FileDescriptior{FilePath: PARANAM, FileDescription: "crop file", UseFilePool: true})
 	if err != nil {
 		log.Fatalf("Error reading crop parameters from file %s: %s", PARANAM, err)
 	}
@@ -216,7 +216,7 @@ func ReadCropParamYml(PARANAM string, l *CropSharedVars, g *GlobalVarsMain) {
 // ReadCropParamClassic reads the crop parameters from an hermes crop file (classic format)
 func ReadCropParamClassic(PARANAM string, l *CropSharedVars, g *GlobalVarsMain) {
 
-	_, scanner, _ := Open(&FileDescriptior{FilePath: PARANAM, FileDescription: "crop file", UseFilePool: true})
+	_, scanner, _ := g.Session.Open(&FileDescriptior{FilePath: PARANAM, FileDescription: "crop file", UseFilePool: true})
 	LineInut(scanner)
 	LineInut(scanner)
 	LineInut(scanner)
@@ -404,7 +404,7 @@ func ReadCropParamClassic(PARANAM string, l *CropSharedVars, g *GlobalVarsMain) 
 	CheckPROSum(g, l.NRENTW)
 }
 
-func ConvertCropParamClassicToYml(PARANAM string) (CropParam, error) {
+func ConvertCropParamClassicToYml(PARANAM string, session *HermesSession) (CropParam, error) {
 
 	cropParam := CropParam{
 		CropName:              "",
@@ -435,7 +435,7 @@ func ConvertCropParamClassicToYml(PARANAM string) (CropParam, error) {
 		CropDevelopmentStages: []CropDevelopmentStage{},
 	}
 
-	_, scanner, err := Open(&FileDescriptior{FilePath: PARANAM, FileDescription: "crop file", UseFilePool: true})
+	_, scanner, err := session.Open(&FileDescriptior{FilePath: PARANAM, FileDescription: "crop file", UseFilePool: true})
 	if err != nil {
 		return cropParam, err
 	}

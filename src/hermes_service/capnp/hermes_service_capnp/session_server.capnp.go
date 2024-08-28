@@ -27,7 +27,7 @@ func (c SessionServer) NewSession(ctx context.Context, params func(SessionServer
 		},
 	}
 	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(SessionServer_newSession_Params(s)) }
 	}
 
@@ -178,12 +178,12 @@ type SessionServer_newSession_Params capnp.Struct
 const SessionServer_newSession_Params_TypeID = 0xa548460511093a50
 
 func NewSessionServer_newSession_Params(s *capnp.Segment) (SessionServer_newSession_Params, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
 	return SessionServer_newSession_Params(st), err
 }
 
 func NewRootSessionServer_newSession_Params(s *capnp.Segment) (SessionServer_newSession_Params, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
 	return SessionServer_newSession_Params(st), err
 }
 
@@ -219,22 +219,40 @@ func (s SessionServer_newSession_Params) Message() *capnp.Message {
 func (s SessionServer_newSession_Params) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s SessionServer_newSession_Params) Env() (string, error) {
+func (s SessionServer_newSession_Params) Workdir() (string, error) {
 	p, err := capnp.Struct(s).Ptr(0)
 	return p.Text(), err
 }
 
-func (s SessionServer_newSession_Params) HasEnv() bool {
+func (s SessionServer_newSession_Params) HasWorkdir() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s SessionServer_newSession_Params) EnvBytes() ([]byte, error) {
+func (s SessionServer_newSession_Params) WorkdirBytes() ([]byte, error) {
 	p, err := capnp.Struct(s).Ptr(0)
 	return p.TextBytes(), err
 }
 
-func (s SessionServer_newSession_Params) SetEnv(v string) error {
+func (s SessionServer_newSession_Params) SetWorkdir(v string) error {
 	return capnp.Struct(s).SetText(0, v)
+}
+
+func (s SessionServer_newSession_Params) ResultCallback() Callback {
+	p, _ := capnp.Struct(s).Ptr(1)
+	return Callback(p.Interface().Client())
+}
+
+func (s SessionServer_newSession_Params) HasResultCallback() bool {
+	return capnp.Struct(s).HasPtr(1)
+}
+
+func (s SessionServer_newSession_Params) SetResultCallback(v Callback) error {
+	if !v.IsValid() {
+		return capnp.Struct(s).SetPtr(1, capnp.Ptr{})
+	}
+	seg := s.Segment()
+	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
+	return capnp.Struct(s).SetPtr(1, in.ToPtr())
 }
 
 // SessionServer_newSession_Params_List is a list of SessionServer_newSession_Params.
@@ -242,7 +260,7 @@ type SessionServer_newSession_Params_List = capnp.StructList[SessionServer_newSe
 
 // NewSessionServer_newSession_Params creates a new list of SessionServer_newSession_Params.
 func NewSessionServer_newSession_Params_List(s *capnp.Segment, sz int32) (SessionServer_newSession_Params_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
 	return capnp.StructList[SessionServer_newSession_Params](l), err
 }
 
@@ -252,6 +270,9 @@ type SessionServer_newSession_Params_Future struct{ *capnp.Future }
 func (f SessionServer_newSession_Params_Future) Struct() (SessionServer_newSession_Params, error) {
 	p, err := f.Future.Ptr()
 	return SessionServer_newSession_Params(p.Struct()), err
+}
+func (p SessionServer_newSession_Params_Future) ResultCallback() Callback {
+	return Callback(p.Future.Field(1, nil).Client())
 }
 
 type SessionServer_newSession_Results capnp.Struct
@@ -355,7 +376,7 @@ func (c Session) Send(ctx context.Context, params func(Session_send_Params) erro
 		},
 	}
 	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 3}
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Session_send_Params(s)) }
 	}
 
@@ -557,12 +578,12 @@ type Session_send_Params capnp.Struct
 const Session_send_Params_TypeID = 0xd73b4c8dfa07fc7f
 
 func NewSession_send_Params(s *capnp.Segment) (Session_send_Params, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3})
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
 	return Session_send_Params(st), err
 }
 
 func NewRootSession_send_Params(s *capnp.Segment) (Session_send_Params, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3})
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
 	return Session_send_Params(st), err
 }
 
@@ -639,30 +660,13 @@ func (s Session_send_Params) NewParams(n int32) (capnp.TextList, error) {
 	err = capnp.Struct(s).SetPtr(1, l.ToPtr())
 	return l, err
 }
-func (s Session_send_Params) ResultCallback() Callback {
-	p, _ := capnp.Struct(s).Ptr(2)
-	return Callback(p.Interface().Client())
-}
-
-func (s Session_send_Params) HasResultCallback() bool {
-	return capnp.Struct(s).HasPtr(2)
-}
-
-func (s Session_send_Params) SetResultCallback(v Callback) error {
-	if !v.IsValid() {
-		return capnp.Struct(s).SetPtr(2, capnp.Ptr{})
-	}
-	seg := s.Segment()
-	in := capnp.NewInterface(seg, seg.Message().CapTable().Add(capnp.Client(v)))
-	return capnp.Struct(s).SetPtr(2, in.ToPtr())
-}
 
 // Session_send_Params_List is a list of Session_send_Params.
 type Session_send_Params_List = capnp.StructList[Session_send_Params]
 
 // NewSession_send_Params creates a new list of Session_send_Params.
 func NewSession_send_Params_List(s *capnp.Segment, sz int32) (Session_send_Params_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3}, sz)
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
 	return capnp.StructList[Session_send_Params](l), err
 }
 
@@ -672,9 +676,6 @@ type Session_send_Params_Future struct{ *capnp.Future }
 func (f Session_send_Params_Future) Struct() (Session_send_Params, error) {
 	p, err := f.Future.Ptr()
 	return Session_send_Params(p.Struct()), err
-}
-func (p Session_send_Params_Future) ResultCallback() Callback {
-	return Callback(p.Future.Field(2, nil).Client())
 }
 
 type Session_send_Results capnp.Struct
@@ -877,43 +878,23 @@ type Callback capnp.Client
 // Callback_TypeID is the unique identifier for the type Callback.
 const Callback_TypeID = 0x8f7ad1d41e816a04
 
-func (c Callback) SendHeader(ctx context.Context, params func(Callback_sendHeader_Params) error) (Callback_sendHeader_Results_Future, capnp.ReleaseFunc) {
+func (c Callback) SendData(ctx context.Context, params func(Callback_sendData_Params) error) (Callback_sendData_Results_Future, capnp.ReleaseFunc) {
 
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x8f7ad1d41e816a04,
 			MethodID:      0,
 			InterfaceName: "session_server.capnp:Callback",
-			MethodName:    "sendHeader",
+			MethodName:    "sendData",
 		},
 	}
 	if params != nil {
 		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Callback_sendHeader_Params(s)) }
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Callback_sendData_Params(s)) }
 	}
 
 	ans, release := capnp.Client(c).SendCall(ctx, s)
-	return Callback_sendHeader_Results_Future{Future: ans.Future()}, release
-
-}
-
-func (c Callback) SendResult(ctx context.Context, params func(Callback_sendResult_Params) error) (Callback_sendResult_Results_Future, capnp.ReleaseFunc) {
-
-	s := capnp.Send{
-		Method: capnp.Method{
-			InterfaceID:   0x8f7ad1d41e816a04,
-			MethodID:      1,
-			InterfaceName: "session_server.capnp:Callback",
-			MethodName:    "sendResult",
-		},
-	}
-	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
-		s.PlaceArgs = func(s capnp.Struct) error { return params(Callback_sendResult_Params(s)) }
-	}
-
-	ans, release := capnp.Client(c).SendCall(ctx, s)
-	return Callback_sendResult_Results_Future{Future: ans.Future()}, release
+	return Callback_sendData_Results_Future{Future: ans.Future()}, release
 
 }
 
@@ -922,7 +903,7 @@ func (c Callback) Done(ctx context.Context, params func(Callback_done_Params) er
 	s := capnp.Send{
 		Method: capnp.Method{
 			InterfaceID:   0x8f7ad1d41e816a04,
-			MethodID:      2,
+			MethodID:      1,
 			InterfaceName: "session_server.capnp:Callback",
 			MethodName:    "done",
 		},
@@ -1010,9 +991,7 @@ func (c Callback) GetFlowLimiter() fc.FlowLimiter {
 
 // A Callback_Server is a Callback with a local implementation.
 type Callback_Server interface {
-	SendHeader(context.Context, Callback_sendHeader) error
-
-	SendResult(context.Context, Callback_sendResult) error
+	SendData(context.Context, Callback_sendData) error
 
 	Done(context.Context, Callback_done) error
 }
@@ -1033,7 +1012,7 @@ func Callback_ServerToClient(s Callback_Server) Callback {
 // This can be used to create a more complicated Server.
 func Callback_Methods(methods []server.Method, s Callback_Server) []server.Method {
 	if cap(methods) == 0 {
-		methods = make([]server.Method, 0, 3)
+		methods = make([]server.Method, 0, 2)
 	}
 
 	methods = append(methods, server.Method{
@@ -1041,10 +1020,10 @@ func Callback_Methods(methods []server.Method, s Callback_Server) []server.Metho
 			InterfaceID:   0x8f7ad1d41e816a04,
 			MethodID:      0,
 			InterfaceName: "session_server.capnp:Callback",
-			MethodName:    "sendHeader",
+			MethodName:    "sendData",
 		},
 		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.SendHeader(ctx, Callback_sendHeader{call})
+			return s.SendData(ctx, Callback_sendData{call})
 		},
 	})
 
@@ -1052,18 +1031,6 @@ func Callback_Methods(methods []server.Method, s Callback_Server) []server.Metho
 		Method: capnp.Method{
 			InterfaceID:   0x8f7ad1d41e816a04,
 			MethodID:      1,
-			InterfaceName: "session_server.capnp:Callback",
-			MethodName:    "sendResult",
-		},
-		Impl: func(ctx context.Context, call *server.Call) error {
-			return s.SendResult(ctx, Callback_sendResult{call})
-		},
-	})
-
-	methods = append(methods, server.Method{
-		Method: capnp.Method{
-			InterfaceID:   0x8f7ad1d41e816a04,
-			MethodID:      2,
 			InterfaceName: "session_server.capnp:Callback",
 			MethodName:    "done",
 		},
@@ -1075,38 +1042,21 @@ func Callback_Methods(methods []server.Method, s Callback_Server) []server.Metho
 	return methods
 }
 
-// Callback_sendHeader holds the state for a server call to Callback.sendHeader.
+// Callback_sendData holds the state for a server call to Callback.sendData.
 // See server.Call for documentation.
-type Callback_sendHeader struct {
+type Callback_sendData struct {
 	*server.Call
 }
 
 // Args returns the call's arguments.
-func (c Callback_sendHeader) Args() Callback_sendHeader_Params {
-	return Callback_sendHeader_Params(c.Call.Args())
+func (c Callback_sendData) Args() Callback_sendData_Params {
+	return Callback_sendData_Params(c.Call.Args())
 }
 
 // AllocResults allocates the results struct.
-func (c Callback_sendHeader) AllocResults() (Callback_sendHeader_Results, error) {
+func (c Callback_sendData) AllocResults() (Callback_sendData_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Callback_sendHeader_Results(r), err
-}
-
-// Callback_sendResult holds the state for a server call to Callback.sendResult.
-// See server.Call for documentation.
-type Callback_sendResult struct {
-	*server.Call
-}
-
-// Args returns the call's arguments.
-func (c Callback_sendResult) Args() Callback_sendResult_Params {
-	return Callback_sendResult_Params(c.Call.Args())
-}
-
-// AllocResults allocates the results struct.
-func (c Callback_sendResult) AllocResults() (Callback_sendResult_Results, error) {
-	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Callback_sendResult_Results(r), err
+	return Callback_sendData_Results(r), err
 }
 
 // Callback_done holds the state for a server call to Callback.done.
@@ -1122,7 +1072,7 @@ func (c Callback_done) Args() Callback_done_Params {
 
 // AllocResults allocates the results struct.
 func (c Callback_done) AllocResults() (Callback_done_Results, error) {
-	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
 	return Callback_done_Results(r), err
 }
 
@@ -1135,352 +1085,175 @@ func NewCallback_List(s *capnp.Segment, sz int32) (Callback_List, error) {
 	return capnp.CapList[Callback](l), err
 }
 
-type Callback_sendHeader_Params capnp.Struct
+type Callback_sendData_Params capnp.Struct
 
-// Callback_sendHeader_Params_TypeID is the unique identifier for the type Callback_sendHeader_Params.
-const Callback_sendHeader_Params_TypeID = 0xab248615ff957386
+// Callback_sendData_Params_TypeID is the unique identifier for the type Callback_sendData_Params.
+const Callback_sendData_Params_TypeID = 0xab248615ff957386
 
-func NewCallback_sendHeader_Params(s *capnp.Segment) (Callback_sendHeader_Params, error) {
+func NewCallback_sendData_Params(s *capnp.Segment) (Callback_sendData_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Callback_sendHeader_Params(st), err
+	return Callback_sendData_Params(st), err
 }
 
-func NewRootCallback_sendHeader_Params(s *capnp.Segment) (Callback_sendHeader_Params, error) {
+func NewRootCallback_sendData_Params(s *capnp.Segment) (Callback_sendData_Params, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Callback_sendHeader_Params(st), err
+	return Callback_sendData_Params(st), err
 }
 
-func ReadRootCallback_sendHeader_Params(msg *capnp.Message) (Callback_sendHeader_Params, error) {
+func ReadRootCallback_sendData_Params(msg *capnp.Message) (Callback_sendData_Params, error) {
 	root, err := msg.Root()
-	return Callback_sendHeader_Params(root.Struct()), err
+	return Callback_sendData_Params(root.Struct()), err
 }
 
-func (s Callback_sendHeader_Params) String() string {
+func (s Callback_sendData_Params) String() string {
 	str, _ := text.Marshal(0xab248615ff957386, capnp.Struct(s))
 	return str
 }
 
-func (s Callback_sendHeader_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+func (s Callback_sendData_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
 	return capnp.Struct(s).EncodeAsPtr(seg)
 }
 
-func (Callback_sendHeader_Params) DecodeFromPtr(p capnp.Ptr) Callback_sendHeader_Params {
-	return Callback_sendHeader_Params(capnp.Struct{}.DecodeFromPtr(p))
+func (Callback_sendData_Params) DecodeFromPtr(p capnp.Ptr) Callback_sendData_Params {
+	return Callback_sendData_Params(capnp.Struct{}.DecodeFromPtr(p))
 }
 
-func (s Callback_sendHeader_Params) ToPtr() capnp.Ptr {
+func (s Callback_sendData_Params) ToPtr() capnp.Ptr {
 	return capnp.Struct(s).ToPtr()
 }
-func (s Callback_sendHeader_Params) IsValid() bool {
+func (s Callback_sendData_Params) IsValid() bool {
 	return capnp.Struct(s).IsValid()
 }
 
-func (s Callback_sendHeader_Params) Message() *capnp.Message {
+func (s Callback_sendData_Params) Message() *capnp.Message {
 	return capnp.Struct(s).Message()
 }
 
-func (s Callback_sendHeader_Params) Segment() *capnp.Segment {
+func (s Callback_sendData_Params) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s Callback_sendHeader_Params) RunId() (string, error) {
+func (s Callback_sendData_Params) RunId() (string, error) {
 	p, err := capnp.Struct(s).Ptr(0)
 	return p.Text(), err
 }
 
-func (s Callback_sendHeader_Params) HasRunId() bool {
+func (s Callback_sendData_Params) HasRunId() bool {
 	return capnp.Struct(s).HasPtr(0)
 }
 
-func (s Callback_sendHeader_Params) RunIdBytes() ([]byte, error) {
+func (s Callback_sendData_Params) RunIdBytes() ([]byte, error) {
 	p, err := capnp.Struct(s).Ptr(0)
 	return p.TextBytes(), err
 }
 
-func (s Callback_sendHeader_Params) SetRunId(v string) error {
+func (s Callback_sendData_Params) SetRunId(v string) error {
 	return capnp.Struct(s).SetText(0, v)
 }
 
-func (s Callback_sendHeader_Params) Header() (capnp.TextList, error) {
+func (s Callback_sendData_Params) OutData() (string, error) {
 	p, err := capnp.Struct(s).Ptr(1)
-	return capnp.TextList(p.List()), err
+	return p.Text(), err
 }
 
-func (s Callback_sendHeader_Params) HasHeader() bool {
+func (s Callback_sendData_Params) HasOutData() bool {
 	return capnp.Struct(s).HasPtr(1)
 }
 
-func (s Callback_sendHeader_Params) SetHeader(v capnp.TextList) error {
-	return capnp.Struct(s).SetPtr(1, v.ToPtr())
+func (s Callback_sendData_Params) OutDataBytes() ([]byte, error) {
+	p, err := capnp.Struct(s).Ptr(1)
+	return p.TextBytes(), err
 }
 
-// NewHeader sets the header field to a newly
-// allocated capnp.TextList, preferring placement in s's segment.
-func (s Callback_sendHeader_Params) NewHeader(n int32) (capnp.TextList, error) {
-	l, err := capnp.NewTextList(capnp.Struct(s).Segment(), n)
-	if err != nil {
-		return capnp.TextList{}, err
-	}
-	err = capnp.Struct(s).SetPtr(1, l.ToPtr())
-	return l, err
+func (s Callback_sendData_Params) SetOutData(v string) error {
+	return capnp.Struct(s).SetText(1, v)
 }
 
-// Callback_sendHeader_Params_List is a list of Callback_sendHeader_Params.
-type Callback_sendHeader_Params_List = capnp.StructList[Callback_sendHeader_Params]
+// Callback_sendData_Params_List is a list of Callback_sendData_Params.
+type Callback_sendData_Params_List = capnp.StructList[Callback_sendData_Params]
 
-// NewCallback_sendHeader_Params creates a new list of Callback_sendHeader_Params.
-func NewCallback_sendHeader_Params_List(s *capnp.Segment, sz int32) (Callback_sendHeader_Params_List, error) {
+// NewCallback_sendData_Params creates a new list of Callback_sendData_Params.
+func NewCallback_sendData_Params_List(s *capnp.Segment, sz int32) (Callback_sendData_Params_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[Callback_sendHeader_Params](l), err
+	return capnp.StructList[Callback_sendData_Params](l), err
 }
 
-// Callback_sendHeader_Params_Future is a wrapper for a Callback_sendHeader_Params promised by a client call.
-type Callback_sendHeader_Params_Future struct{ *capnp.Future }
+// Callback_sendData_Params_Future is a wrapper for a Callback_sendData_Params promised by a client call.
+type Callback_sendData_Params_Future struct{ *capnp.Future }
 
-func (f Callback_sendHeader_Params_Future) Struct() (Callback_sendHeader_Params, error) {
+func (f Callback_sendData_Params_Future) Struct() (Callback_sendData_Params, error) {
 	p, err := f.Future.Ptr()
-	return Callback_sendHeader_Params(p.Struct()), err
+	return Callback_sendData_Params(p.Struct()), err
 }
 
-type Callback_sendHeader_Results capnp.Struct
+type Callback_sendData_Results capnp.Struct
 
-// Callback_sendHeader_Results_TypeID is the unique identifier for the type Callback_sendHeader_Results.
-const Callback_sendHeader_Results_TypeID = 0xc83cd0cad7e27568
+// Callback_sendData_Results_TypeID is the unique identifier for the type Callback_sendData_Results.
+const Callback_sendData_Results_TypeID = 0xc83cd0cad7e27568
 
-func NewCallback_sendHeader_Results(s *capnp.Segment) (Callback_sendHeader_Results, error) {
+func NewCallback_sendData_Results(s *capnp.Segment) (Callback_sendData_Results, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Callback_sendHeader_Results(st), err
+	return Callback_sendData_Results(st), err
 }
 
-func NewRootCallback_sendHeader_Results(s *capnp.Segment) (Callback_sendHeader_Results, error) {
+func NewRootCallback_sendData_Results(s *capnp.Segment) (Callback_sendData_Results, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Callback_sendHeader_Results(st), err
+	return Callback_sendData_Results(st), err
 }
 
-func ReadRootCallback_sendHeader_Results(msg *capnp.Message) (Callback_sendHeader_Results, error) {
+func ReadRootCallback_sendData_Results(msg *capnp.Message) (Callback_sendData_Results, error) {
 	root, err := msg.Root()
-	return Callback_sendHeader_Results(root.Struct()), err
+	return Callback_sendData_Results(root.Struct()), err
 }
 
-func (s Callback_sendHeader_Results) String() string {
+func (s Callback_sendData_Results) String() string {
 	str, _ := text.Marshal(0xc83cd0cad7e27568, capnp.Struct(s))
 	return str
 }
 
-func (s Callback_sendHeader_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+func (s Callback_sendData_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
 	return capnp.Struct(s).EncodeAsPtr(seg)
 }
 
-func (Callback_sendHeader_Results) DecodeFromPtr(p capnp.Ptr) Callback_sendHeader_Results {
-	return Callback_sendHeader_Results(capnp.Struct{}.DecodeFromPtr(p))
+func (Callback_sendData_Results) DecodeFromPtr(p capnp.Ptr) Callback_sendData_Results {
+	return Callback_sendData_Results(capnp.Struct{}.DecodeFromPtr(p))
 }
 
-func (s Callback_sendHeader_Results) ToPtr() capnp.Ptr {
+func (s Callback_sendData_Results) ToPtr() capnp.Ptr {
 	return capnp.Struct(s).ToPtr()
 }
-func (s Callback_sendHeader_Results) IsValid() bool {
+func (s Callback_sendData_Results) IsValid() bool {
 	return capnp.Struct(s).IsValid()
 }
 
-func (s Callback_sendHeader_Results) Message() *capnp.Message {
+func (s Callback_sendData_Results) Message() *capnp.Message {
 	return capnp.Struct(s).Message()
 }
 
-func (s Callback_sendHeader_Results) Segment() *capnp.Segment {
+func (s Callback_sendData_Results) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
 
-// Callback_sendHeader_Results_List is a list of Callback_sendHeader_Results.
-type Callback_sendHeader_Results_List = capnp.StructList[Callback_sendHeader_Results]
+// Callback_sendData_Results_List is a list of Callback_sendData_Results.
+type Callback_sendData_Results_List = capnp.StructList[Callback_sendData_Results]
 
-// NewCallback_sendHeader_Results creates a new list of Callback_sendHeader_Results.
-func NewCallback_sendHeader_Results_List(s *capnp.Segment, sz int32) (Callback_sendHeader_Results_List, error) {
+// NewCallback_sendData_Results creates a new list of Callback_sendData_Results.
+func NewCallback_sendData_Results_List(s *capnp.Segment, sz int32) (Callback_sendData_Results_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Callback_sendHeader_Results](l), err
+	return capnp.StructList[Callback_sendData_Results](l), err
 }
 
-// Callback_sendHeader_Results_Future is a wrapper for a Callback_sendHeader_Results promised by a client call.
-type Callback_sendHeader_Results_Future struct{ *capnp.Future }
+// Callback_sendData_Results_Future is a wrapper for a Callback_sendData_Results promised by a client call.
+type Callback_sendData_Results_Future struct{ *capnp.Future }
 
-func (f Callback_sendHeader_Results_Future) Struct() (Callback_sendHeader_Results, error) {
+func (f Callback_sendData_Results_Future) Struct() (Callback_sendData_Results, error) {
 	p, err := f.Future.Ptr()
-	return Callback_sendHeader_Results(p.Struct()), err
-}
-
-type Callback_sendResult_Params capnp.Struct
-
-// Callback_sendResult_Params_TypeID is the unique identifier for the type Callback_sendResult_Params.
-const Callback_sendResult_Params_TypeID = 0xe970781fd54f568e
-
-func NewCallback_sendResult_Params(s *capnp.Segment) (Callback_sendResult_Params, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Callback_sendResult_Params(st), err
-}
-
-func NewRootCallback_sendResult_Params(s *capnp.Segment) (Callback_sendResult_Params, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return Callback_sendResult_Params(st), err
-}
-
-func ReadRootCallback_sendResult_Params(msg *capnp.Message) (Callback_sendResult_Params, error) {
-	root, err := msg.Root()
-	return Callback_sendResult_Params(root.Struct()), err
-}
-
-func (s Callback_sendResult_Params) String() string {
-	str, _ := text.Marshal(0xe970781fd54f568e, capnp.Struct(s))
-	return str
-}
-
-func (s Callback_sendResult_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Callback_sendResult_Params) DecodeFromPtr(p capnp.Ptr) Callback_sendResult_Params {
-	return Callback_sendResult_Params(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Callback_sendResult_Params) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Callback_sendResult_Params) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Callback_sendResult_Params) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Callback_sendResult_Params) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-func (s Callback_sendResult_Params) RunId() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return p.Text(), err
-}
-
-func (s Callback_sendResult_Params) HasRunId() bool {
-	return capnp.Struct(s).HasPtr(0)
-}
-
-func (s Callback_sendResult_Params) RunIdBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return p.TextBytes(), err
-}
-
-func (s Callback_sendResult_Params) SetRunId(v string) error {
-	return capnp.Struct(s).SetText(0, v)
-}
-
-func (s Callback_sendResult_Params) ResultLine() (capnp.TextList, error) {
-	p, err := capnp.Struct(s).Ptr(1)
-	return capnp.TextList(p.List()), err
-}
-
-func (s Callback_sendResult_Params) HasResultLine() bool {
-	return capnp.Struct(s).HasPtr(1)
-}
-
-func (s Callback_sendResult_Params) SetResultLine(v capnp.TextList) error {
-	return capnp.Struct(s).SetPtr(1, v.ToPtr())
-}
-
-// NewResultLine sets the resultLine field to a newly
-// allocated capnp.TextList, preferring placement in s's segment.
-func (s Callback_sendResult_Params) NewResultLine(n int32) (capnp.TextList, error) {
-	l, err := capnp.NewTextList(capnp.Struct(s).Segment(), n)
-	if err != nil {
-		return capnp.TextList{}, err
-	}
-	err = capnp.Struct(s).SetPtr(1, l.ToPtr())
-	return l, err
-}
-
-// Callback_sendResult_Params_List is a list of Callback_sendResult_Params.
-type Callback_sendResult_Params_List = capnp.StructList[Callback_sendResult_Params]
-
-// NewCallback_sendResult_Params creates a new list of Callback_sendResult_Params.
-func NewCallback_sendResult_Params_List(s *capnp.Segment, sz int32) (Callback_sendResult_Params_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return capnp.StructList[Callback_sendResult_Params](l), err
-}
-
-// Callback_sendResult_Params_Future is a wrapper for a Callback_sendResult_Params promised by a client call.
-type Callback_sendResult_Params_Future struct{ *capnp.Future }
-
-func (f Callback_sendResult_Params_Future) Struct() (Callback_sendResult_Params, error) {
-	p, err := f.Future.Ptr()
-	return Callback_sendResult_Params(p.Struct()), err
-}
-
-type Callback_sendResult_Results capnp.Struct
-
-// Callback_sendResult_Results_TypeID is the unique identifier for the type Callback_sendResult_Results.
-const Callback_sendResult_Results_TypeID = 0xbc40e8a99586a665
-
-func NewCallback_sendResult_Results(s *capnp.Segment) (Callback_sendResult_Results, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Callback_sendResult_Results(st), err
-}
-
-func NewRootCallback_sendResult_Results(s *capnp.Segment) (Callback_sendResult_Results, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
-	return Callback_sendResult_Results(st), err
-}
-
-func ReadRootCallback_sendResult_Results(msg *capnp.Message) (Callback_sendResult_Results, error) {
-	root, err := msg.Root()
-	return Callback_sendResult_Results(root.Struct()), err
-}
-
-func (s Callback_sendResult_Results) String() string {
-	str, _ := text.Marshal(0xbc40e8a99586a665, capnp.Struct(s))
-	return str
-}
-
-func (s Callback_sendResult_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
-	return capnp.Struct(s).EncodeAsPtr(seg)
-}
-
-func (Callback_sendResult_Results) DecodeFromPtr(p capnp.Ptr) Callback_sendResult_Results {
-	return Callback_sendResult_Results(capnp.Struct{}.DecodeFromPtr(p))
-}
-
-func (s Callback_sendResult_Results) ToPtr() capnp.Ptr {
-	return capnp.Struct(s).ToPtr()
-}
-func (s Callback_sendResult_Results) IsValid() bool {
-	return capnp.Struct(s).IsValid()
-}
-
-func (s Callback_sendResult_Results) Message() *capnp.Message {
-	return capnp.Struct(s).Message()
-}
-
-func (s Callback_sendResult_Results) Segment() *capnp.Segment {
-	return capnp.Struct(s).Segment()
-}
-
-// Callback_sendResult_Results_List is a list of Callback_sendResult_Results.
-type Callback_sendResult_Results_List = capnp.StructList[Callback_sendResult_Results]
-
-// NewCallback_sendResult_Results creates a new list of Callback_sendResult_Results.
-func NewCallback_sendResult_Results_List(s *capnp.Segment, sz int32) (Callback_sendResult_Results_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
-	return capnp.StructList[Callback_sendResult_Results](l), err
-}
-
-// Callback_sendResult_Results_Future is a wrapper for a Callback_sendResult_Results promised by a client call.
-type Callback_sendResult_Results_Future struct{ *capnp.Future }
-
-func (f Callback_sendResult_Results_Future) Struct() (Callback_sendResult_Results, error) {
-	p, err := f.Future.Ptr()
-	return Callback_sendResult_Results(p.Struct()), err
+	return Callback_sendData_Results(p.Struct()), err
 }
 
 type Callback_done_Params capnp.Struct
 
 // Callback_done_Params_TypeID is the unique identifier for the type Callback_done_Params.
-const Callback_done_Params_TypeID = 0xcdbc9fb380c2572b
+const Callback_done_Params_TypeID = 0xe970781fd54f568e
 
 func NewCallback_done_Params(s *capnp.Segment) (Callback_done_Params, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
@@ -1498,7 +1271,7 @@ func ReadRootCallback_done_Params(msg *capnp.Message) (Callback_done_Params, err
 }
 
 func (s Callback_done_Params) String() string {
-	str, _ := text.Marshal(0xcdbc9fb380c2572b, capnp.Struct(s))
+	str, _ := text.Marshal(0xe970781fd54f568e, capnp.Struct(s))
 	return str
 }
 
@@ -1545,15 +1318,15 @@ func (f Callback_done_Params_Future) Struct() (Callback_done_Params, error) {
 type Callback_done_Results capnp.Struct
 
 // Callback_done_Results_TypeID is the unique identifier for the type Callback_done_Results.
-const Callback_done_Results_TypeID = 0xaa964acaea262bc8
+const Callback_done_Results_TypeID = 0xbc40e8a99586a665
 
 func NewCallback_done_Results(s *capnp.Segment) (Callback_done_Results, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
 	return Callback_done_Results(st), err
 }
 
 func NewRootCallback_done_Results(s *capnp.Segment) (Callback_done_Results, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
 	return Callback_done_Results(st), err
 }
 
@@ -1563,7 +1336,7 @@ func ReadRootCallback_done_Results(msg *capnp.Message) (Callback_done_Results, e
 }
 
 func (s Callback_done_Results) String() string {
-	str, _ := text.Marshal(0xaa964acaea262bc8, capnp.Struct(s))
+	str, _ := text.Marshal(0xbc40e8a99586a665, capnp.Struct(s))
 	return str
 }
 
@@ -1589,13 +1362,30 @@ func (s Callback_done_Results) Message() *capnp.Message {
 func (s Callback_done_Results) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
+func (s Callback_done_Results) RunId() (string, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.Text(), err
+}
+
+func (s Callback_done_Results) HasRunId() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Callback_done_Results) RunIdBytes() ([]byte, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.TextBytes(), err
+}
+
+func (s Callback_done_Results) SetRunId(v string) error {
+	return capnp.Struct(s).SetText(0, v)
+}
 
 // Callback_done_Results_List is a list of Callback_done_Results.
 type Callback_done_Results_List = capnp.StructList[Callback_done_Results]
 
 // NewCallback_done_Results creates a new list of Callback_done_Results.
 func NewCallback_done_Results_List(s *capnp.Segment, sz int32) (Callback_done_Results_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
 	return capnp.StructList[Callback_done_Results](l), err
 }
 
@@ -1607,60 +1397,54 @@ func (f Callback_done_Results_Future) Struct() (Callback_done_Results, error) {
 	return Callback_done_Results(p.Struct()), err
 }
 
-const schema_c4b468a2826bb79b = "x\xda\x9cU]h\x1cU\x14>\xe7\xde;\x9dF6" +
-	"]\xae\x93E*\xa4\x8b\xba\x8a\xb5\xcd\xd24\xe4\xa1Q" +
-	"\xc9\xe0\xb6\x9a\x94\x05\xf7\xa6\xa0\x18Z\xec4{ec" +
-	"\xb7\xb3\xcbL~JAj\x0b\xa6 \xd6\xfa\xd2BQ" +
-	"QJ+\xb4>(\xad\xe2K\x05\x09\x01C `@" +
-	"\xc9\x83\xf8\xa0O&\x10\x10AP1\x8c\xdc;;\xbb" +
-	"\x93M\x97,y\xdb=\xe7;\xe7\xfb\xce\xf7]v\x0f" +
-	"<Ll\xd6\xdbye\x07\x10\x917v\x04\xec\xcd\x0b" +
-	"{~\\:w\x05x\x8a\x06\x1f~s\xfa\xe2\x8d\xd2" +
-	"Ws\x00h\xf5\xd0?\xadC\xd4\x04\xb0\xfa\xe9\xf7\xd6" +
-	"\xd7\xeaS07{j\xf9\xdb\xb5\xee\xeb\x9b\xc0\x1f\xd3" +
-	"U\xeb\xb6\x06\xdf\xa2\x97\xac\xbf4\xf8\xa1\xbfo.>" +
-	"\xf2G\xf1\xd3fp\xdf/\xf4Q\xb4\xd64z\x85\xbe" +
-	"d\xa5\x98B\x1f_\xbf\x9c\xc9]\xb7o\x02\xefF\x00" +
-	"U\xea[\xa7#\x08,(\x0ctp\xe3\xc5\xa1[\xc0" +
-	"\x9f@\x00\x03Uk\x85\xdeA@\xeb\x1f:\x08\x18\xcc" +
-	"\xef{ju\xe1\xe8\xb5;\xc0\xf7D\xa3\xbb\xd9\xa8\x1a" +
-	"\x9d\xf1\xaf\x06\xa9\x99\xcc\xe7a\xc7 \xaae\xb0\x8bj" +
-	"\x94\xb3i\xc0 \x7f\xc8~\xef\xc6\x1b?\x7f\x19c}" +
-	"\x8biV\xf9\xd9\xcc\xd5\xdb\xbf\xdb\xf7cK\xc7\xd9\xbb" +
-	"\xaas\xed\xd7w\xfc\x0f\xee]\xf8.6\xf3ZHW" +
-	"\x9a\xfcmy\xe1\x87\xe7\xe6c3G\xc2\x99}\xaf\xce" +
-	"\xbe}\xef\x93\xfb\x8b\xb1N\x7f\xc8s\xf6\xd2\xfe\xbb\x1f" +
-	"\x9d\\\\\x8a_\xf7\x18\xbb\xab$\xf62u\xdd\xf9\xff" +
-	"\xcc\x7f/\xe7\x9f]\x0e\xe9\x0ce[\x9f`G\x15\xe0" +
-	"\x04\xfb\x020x\xff\x95\x97\x7fJ\x9f\xad\xae\xc4\x8f\xec" +
-	"0\xf4\x91)c\x1az\x02_\xfa\xfex\xc5}\x9d\xf8" +
-	"\xd2\x9b\x92^v\xcc\xa9\xba\xd5\x81\x9cSN\x97O9" +
-	"c\xa7\x0b\x88\"A\x0d\x80\xba]\x18\x1d\xc2\xc5(\x10" +
-	">lb\x83\x05#c\xf8\xf3\xaa\xd7o\"\xa9_\x87" +
-	"Q\x12|\xef3@x\xb7\x19\xf8\xd2-\x0eI\xa7\x08" +
-	"Tz6\xea\xaf#\xd2\x9f\x04Z\x9e\xb01Y\xac\xb8" +
-	"\xd2\xc6\x02b\x0b\x89\xc7\xa4\x9fTe\xa5p\xa7V\x18" +
-	"\x99\x81Qp\xbcW1=\xa9\x14F/\x08\xa3\x80\xf8" +
-	"\xee\x83@x\xa7\x99T\xb46\xa6\xc7\xca\x15\xbf\x89\x8f" +
-	"6\xf3\xa9\xea1\xe9MQ\xe9)V\xa6Y\xa3\x17\x88" +
-	"QX\x9c\xab\xdb;\xcc\xc0\x95\xd3z\x08h\xc5\xdd\xb8" +
-	"\x99=hsVK\xc8\x14\x1c\xcf9\x83~\x1dk\xb4" +
-	"R!\xbdl\xc4Pq3\x05'\xe99g|\xc1(" +
-	"\x03`\x08\xc0;\x1f\x07\x10;)\x8a.\x82\xa6t\xa7" +
-	"0\x01\x04\x13\xd0JE\xce)\xeb\xc4\xb3\xca\xf8\x8c\x0a" +
-	"\xa2L'Z\xc9\xa8\x83\xa3\x0c\xa5\x17\x0a\xf7\x15e\xa4" +
-	"`\xefA\x00\x91\xa1(\x0e\x10\xe4\x88]\xa8\x8a=\x03" +
-	"\x00\xe2i\x8a\xe20\xc1\xb47\xe9\x0e\x17#a\x83%" +
-	"\xbd\x08w\x01\x16(\xea\xea.\xd8\xca4% T;" +
-	"\x81m\xa9\x0d\xb1\xb5\x11\x1f\xa0\xadP\xb6a\xc7V\x04" +
-	"\x1b\xfd\xdef\xea#2\xadY\xe2\xb1\xbf\xd0\x88\xfd|" +
-	"m\x1d\xf2\xc6\xaf3 \xf2\xf6\\\xad\x05\x0a\"Q_" +
-	"~D%jS\x14\xf9X\xa2\xc3*\xd1\xc3\x14\xc5I" +
-	"\x82\x9c\x90.$\x00\xfc\xc49\x00q\x9c\xa2(m\x8a" +
-	"\xb9\xaa\xf76\xc7\xeci\xbfr\x0e\x0c\x86\xbe o\xfc" +
-	"\xfd4i\xde:\xddv\xdf\xe2(\x80\xd8OQ\x0c5" +
-	"\x8b\xac\xc9\xc9\x8f\x03ue\x93\xd4\xff\x03\x00\x00\xff\xff" +
-	"vD\x1c!"
+const schema_c4b468a2826bb79b = "x\xda\x94\x94_h\x13Y\x14\xc6\xcf\x99{\xb3\xd3." +
+	"m\xc3eZ\x96.\xb4a\xd9\x14\xb6K\x1b\x9av\x17" +
+	"v\xbb[\x92m\xca\xfe)\x85\xcd\xa4(X\x14\x9d6" +
+	"#\x8dM'q&ik_B\x05\xdb\x17\xeb\x9f\x87" +
+	"\x0aE\x1f\xa4TA}\x91*\xf8\xa2 \xd2\x07Q\x0a" +
+	"\x16\x0c}\x10\x91\xfa\xa4\x82 >\x89(#\xf7&\x93" +
+	"\xa4\xb1\xa9\xf5\xf5\xde\xef|\xdf\xef\x9esf:\x1eb" +
+	"\x90\xfak\x9f\xb9@R\xfb\\\xdf\xd8\xf4\xc8L\xf3\xe3" +
+	"\xf5\xe9\xd3\xc0\x1a\x88}\xfe\xd6\xd8\xf1\xa5\xd1\x9b\xab\x00" +
+	"\xa8d\xa5\xb7\xca\xa6$\x03(O\xa59\xc5Od\x00" +
+	"{\xf5\xde\xf0\xc6\x9d\xd7M\x8b\x9f\x89\x1b\xc9+\xa5\x85" +
+	"K\x94\x1f\xc8\x9crT\x88\xbf}\xb7\xbc\xf6\xdd\x9b\xe8" +
+	"\xc5rq\xd7>\xf2=*1\xa1\xd6\xc9?\xcaY\xa1" +
+	"\xde\xffq\xde\x1bZ\x0c.\x03kB\x00*\x03t\x1d" +
+	"#\x11\x04j\x87\xbb\xab\x99\xeb\xef\x7f/\x01\xfb\x11\x01" +
+	"\\\x1c\xa9K'W\x11PI\x93I@{\xd6Z\xb0" +
+	"\x1bf\xbd\xd7\x805\x17\x04Ybr\xc1\xa6\x10\x0c\xfc" +
+	"\x1e<\xb9t\xf8\xc9\xf5\x12\xef\x1e*\xbc\xf5\xcb\xb3\x0b" +
+	"W^\x04o\xe7K\x91_\xb5\xd2!^\xfa+\x0d\x00" +
+	"\xda\xe76OXgn\xcc\xdc-)\xdd\xc3\xef\xa9=" +
+	"\x9a~\xbe\xf1\xe0\xd1\x9f\xf7s\xa5\xe2\xe6/:\xcdo" +
+	"\xa6\xe6\xdaV.\x1cZ[\xcf\x03\x0b\xd3v\xba\xc2M" +
+	"{\x84i\xe6\x83\xfc~~\xe0\x8f\x8d\x9ci\x0e\xf8\x00" +
+	"\xed\xe7\x82\x18\xe5\xc0\xa7\xf6\xfe\x9f\xf5L%_\x96x" +
+	"g9p\x87m\xe9\x96\x15K\x18\x07%K7't" +
+	"\xd37\xa2%\x8ddwH\x8b{\xe2\xc3\xda\xc8X\x18" +
+	"Q\xad\".\x80BS\xd0\xe1d\xfe~\x90X\xab\x8c" +
+	"E{t\x9e\xcf\x9a~\x06\x891\xd9\xb6t#\xda\xa7" +
+	"\xa54\x00\x08\xa2;\x9a0\xf4 \x86\x11+\xc4\x0e\xea" +
+	"\x96\x9b\x1f\x17S\x9d\x97\xa1\xd3r\xe6\xe7\xce-<\xd5" +
+	"\x990:=e\x8d\x9d \xb1Z\xd9\xcdS\x83\xe8\x19" +
+	"\x89'\xac\xb2<R\x9e\xc7O\x07us\x82\xe8&O" +
+	"\xa5\"\xd5\xd9\x10t:\xcf\xd8\x10H\xacZ\xb6\x0d}" +
+	"R\x14\x01I\x18[\x9d\xe9v\xce>\x81\xe0\x0dk\xa6" +
+	"6\x8eVA\xeb\xaaD\xa1\x9b>'!ax\xc3\x9a" +
+	"\xdb\xd4\xc6-\xb5\x8aP\x00\x8a\x00\xac\xb5\x17@\xf5\x12" +
+	"T;$d\x88\xf5\xc8\x0f\xdb\xa7\x01\xd46\x82\xeao" +
+	"\x12f&\x13\xe6X4fb\x0dHX\x03h\x9b\xba" +
+	"\x95\x8e\xa7B\x1a\x04\xe2b\xa0\xc8\x8a_( 2\xa8" +
+	"\xf4\x82\x90\x96+\xf09#\xf4\x86=Z9N\xe7v" +
+	"8\x9c\xf1'\x82\xea/\x12z\xcc\xb4\xf1_\xd4\x81\xc9" +
+	"$\xd2)\xeeT\x80\xdb\xb9w<\xd8\x1b\x11\xfc%\xbd" +
+	"\xab@\xc9W+'&)K\xa5\x05\xc4Z\x8eXE" +
+	"P\xad/\xa7\xd9\xd5\xe4\x1c\xc7]7)\x12\x10\xc0_" +
+	"=\xeb\x88\xee\x11u\xa5\xe8\xbdE\xf4L\xde\x0eY\xf1" +
+	"\x9f\xb9\xe3\xf8\xb64Q\xec\x9f%\xdcv\x1e]w~" +
+	"t}\xe5\xcd\x0a$\x85\x05\xd6\x01\x86\x09\x8a\xd3\xba/" +
+	"\xaf\x8e\x18J~\xf9?\x05\x00\x00\xff\xff<Z\xcd\xc1"
 
 func RegisterSchema(reg *schemas.Registry) {
 	reg.Register(&schemas.Schema{
@@ -1671,13 +1455,11 @@ func RegisterSchema(reg *schemas.Registry) {
 			0xa064f017cda4f80a,
 			0xa4409943248dfd5c,
 			0xa548460511093a50,
-			0xaa964acaea262bc8,
 			0xab248615ff957386,
 			0xb0db66a28c40394c,
 			0xbc40e8a99586a665,
 			0xc081b3907385e196,
 			0xc83cd0cad7e27568,
-			0xcdbc9fb380c2572b,
 			0xd1cd609cb22c8778,
 			0xd73b4c8dfa07fc7f,
 			0xe970781fd54f568e,

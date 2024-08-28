@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"flag"
 	"fmt"
@@ -22,8 +23,6 @@ var concurrentOperations uint = 10
 func main() {
 
 	// cmd line arguments:
-	// working directory for project setups
-	workingDir := flag.String("workingdir", "", "working directory for project setups")
 	// number of concurrent operations
 	concurrentOperations = *flag.Uint("concurrent", 10, "number of concurrent operations")
 	// print version
@@ -49,12 +48,11 @@ func main() {
 	go func() {
 		<-sigs
 		l.Close()
-		hermes.HermesFilePool.Close()
+
 	}()
-	sessionChan := make(chan *Hermes_Session)
 	closedSession := make(chan *Hermes_Session)
 	hermesRun := make(chan *Hermes_Run)
-	go runScheduler(sessionChan, closedSession, hermesRun, concurrentOperations, writeLogoutput)
+	go runScheduler(closedSession, hermesRun, concurrentOperations, writeLogoutput)
 
 	for {
 		// accept connections and serve
@@ -65,8 +63,10 @@ func main() {
 		fmt.Println("server: accepted connection from", c.RemoteAddr())
 		go func() {
 			server := Hermes_SessionServer{
-				workingDir:     *workingDir,
 				writeLogoutput: writeLogoutput,
+				sessions:       []*Hermes_Session{},
+				runChan:        hermesRun,
+				closeChan:      closedSession,
 			}
 			client := hermes_service_capnp.SessionServer_ServerToClient(&server)
 			errorChan := make(chan error)
@@ -79,9 +79,15 @@ func main() {
 				select {
 				case <-conn.Done():
 					fmt.Println("Connection closed")
+					for _, session := range server.sessions {
+						session.closedSession <- session
+					}
 					return
 				case err := <-errorChan:
 					fmt.Println("Error reported:", err)
+					for _, session := range server.sessions {
+						session.closedSession <- session
+					}
 					return
 				case msg := <-msgChan:
 					fmt.Println("Message reported:", msg)
@@ -97,27 +103,31 @@ func main() {
 
 // Hermes_Server implements the interface for the capnp schema SessionServer_Server
 type Hermes_SessionServer struct {
-	workingDir     string
 	writeLogoutput bool
-	sessionChan    chan<- *Hermes_Session
+	sessions       []*Hermes_Session
+	runChan        chan<- *Hermes_Run
+	closeChan      chan<- *Hermes_Session
 }
 
 func (a *Hermes_SessionServer) NewSession(ctx context.Context, call hermes_service_capnp.SessionServer_newSession) error {
-	env, err := call.Args().Env()
+	workdir, err := call.Args().Workdir()
 	if err != nil {
 		return err
 	}
 	if a.writeLogoutput {
-		fmt.Println("server: NewSession Received", env)
+		fmt.Println("server: NewSession Received for WORKDIR: ", workdir)
 	}
+	callback := call.Args().ResultCallback()
+
 	// create a new session
 	session := &Hermes_Session{
-		workingDir:   a.workingDir,
-		runParams:    make(map[string][]string),
-		runCallbacks: make(map[string]hermes_service_capnp.Callback),
+		workingDir:    workdir,
+		hermesRun:     a.runChan,
+		done:          false,
+		closedSession: a.closeChan,
+		hermesSession: hermes.NewHermesSession(),
 	}
-	// send the session to the scheduler
-	a.sessionChan <- session
+	session.hermesSession.HermesOutWriter = NewOutWriterCallback(callback)
 	// return the session
 	results, err := call.AllocResults()
 	if err != nil {
@@ -127,6 +137,7 @@ func (a *Hermes_SessionServer) NewSession(ctx context.Context, call hermes_servi
 	if err != nil {
 		return err
 	}
+	a.sessions = append(a.sessions, session)
 
 	return nil
 }
@@ -139,10 +150,9 @@ func (a *Hermes_SessionServer) NewSession(ctx context.Context, call hermes_servi
 type Hermes_Session struct {
 	workingDir    string
 	hermesRun     chan<- *Hermes_Run
-	runParams     map[string][]string
-	runCallbacks  map[string]hermes_service_capnp.Callback
 	done          bool
 	closedSession chan<- *Hermes_Session
+	hermesSession *hermes.HermesSession
 }
 
 func (a *Hermes_Session) Send(ctx context.Context, call hermes_service_capnp.Session_send) error {
@@ -154,30 +164,23 @@ func (a *Hermes_Session) Send(ctx context.Context, call hermes_service_capnp.Ses
 	if err != nil {
 		return err
 	}
-	if params.Len() == 0 {
-		fmt.Println("server: Received empty params, run default")
-		// run default
-		a.runParams[runId] = []string{}
-	} else {
-		paramList := make([]string, params.Len())
-		// print the params
-		fmt.Println("server: Received Params:")
-		for i := 0; i < params.Len(); i++ {
-			param, err := params.At(i)
-			if err != nil {
-				return err
-			}
-			fmt.Println(param)
-			paramList[i] = param
+	paramList := make([]string, params.Len())
+	// print the params
+	fmt.Println("server: Received Params:")
+	for i := 0; i < params.Len(); i++ {
+		param, err := params.At(i)
+		if err != nil {
+			return err
 		}
-		a.runParams[runId] = paramList
+		fmt.Println(param)
+		paramList[i] = param
 	}
-	a.runCallbacks[runId] = call.Args().ResultCallback()
+
 	// send the run to the scheduler
 	a.hermesRun <- &Hermes_Run{
 		session: a,
 		runID:   runId,
-		args:    a.runParams[runId],
+		args:    paramList,
 	}
 
 	return nil
@@ -189,14 +192,66 @@ func (a *Hermes_Session) Close(ctx context.Context, call hermes_service_capnp.Se
 	// close all runs, do not send results
 	return nil
 }
+func NewOutWriterCallback(c hermes_service_capnp.Callback) func(string, bool) (hermes.OutWriter, error) {
+	return func(filename string, append bool) (hermes.OutWriter, error) {
+		callbackWriter := &CallbackWriter{
+			id:       filename,
+			callback: c,
+		}
+		fwriter := bufio.NewWriter(callbackWriter)
+		return &CallBackOutwriter{cWriter: callbackWriter, fwriter: fwriter}, nil
+	}
+}
 
-// type Callback_Server interface {
-// 	SendHeader(context.Context, Callback_sendHeader) error
+// implements io.Writer
+type CallbackWriter struct {
+	id       string
+	callback hermes_service_capnp.Callback
+}
 
-// 	SendResult(context.Context, Callback_sendResult) error
+func (c *CallbackWriter) Write(data []byte) (n int, err error) {
 
-// 	Done(context.Context, Callback_done) error
-// }
+	future, rel := c.callback.SendData(context.Background(), func(p hermes_service_capnp.Callback_sendData_Params) error {
+		err := p.SetRunId(c.id)
+		if err != nil {
+			return err
+		}
+		err = p.SetOutData(string(data))
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	defer rel()
+	_, err = future.Struct()
+	if err != nil {
+		return 0, err
+	}
+
+	return len(data), nil
+}
+
+// implement interface hermes.OutWriter
+type CallBackOutwriter struct {
+	cWriter *CallbackWriter
+	fwriter *bufio.Writer
+}
+
+func (c *CallBackOutwriter) Write(s string) (int, error) {
+	return c.fwriter.WriteString(s)
+}
+func (c *CallBackOutwriter) WriteBytes(b []byte) (int, error) {
+	return c.fwriter.Write(b)
+}
+func (c *CallBackOutwriter) WriteRune(r rune) (int, error) {
+	return c.fwriter.WriteRune(r)
+}
+func (c *CallBackOutwriter) Close() {
+	err := c.fwriter.Flush()
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
 
 type ConnError struct {
 	Out chan<- error

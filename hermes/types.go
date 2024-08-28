@@ -421,6 +421,7 @@ type GlobalVarsMain struct {
 	CropTypeLookup   map[string]CropType    `yaml:"-"`
 	managementConfig *ManagementConfig      `yaml:"-"`
 	CropOverwrite    *CropOverwrite         `yaml:"-"`
+	Session          *HermesSession         `yaml:"-"` // current session
 }
 
 // CropOutputVars at harvest

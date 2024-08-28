@@ -3,31 +3,29 @@ package main
 // event loop for the scheduler
 
 import (
+	"container/list"
 	"fmt"
-
-	"github.com/zalf-rpm/Hermes2Go/hermes"
 )
 
 // RunScheduler runs the scheduler
-func runScheduler(newSessionChan, closedSession <-chan *Hermes_Session, hermesRun <-chan *Hermes_Run, maxConcurrent uint, writeLogoutput bool) {
+func runScheduler(closedSession <-chan *Hermes_Session, hermesRun <-chan *Hermes_Run, maxConcurrent uint, writeLogoutput bool) {
 
-	// list of all sessions
-	sessions := make([]*Hermes_Session, 0)
-	toDoRuns := make([]*Hermes_Run, 0)
+	toDoRuns := list.New()
 	var activeRuns uint
 	logOutputChan := make(chan string)
 	resultChannel := make(chan string)
 	for {
 		// check if we can start a new run
-		for activeRuns < maxConcurrent && len(toDoRuns) > 0 {
-			run := toDoRuns[0]
-			toDoRuns = toDoRuns[1:]
+		for activeRuns < maxConcurrent && toDoRuns.Len() > 0 {
+			runEl := toDoRuns.Front()
+			toDoRuns.Remove(runEl)
+			run := runEl.Value.(*Hermes_Run)
 			if run.session.done {
 				// drop left over runs if session is done
 				continue
 			}
 			activeRuns++
-			go hermes.Run(run.session.workingDir, run.args, run.runID, resultChannel, logOutputChan)
+			go run.session.hermesSession.Run(run.session.workingDir, run.args, run.runID, resultChannel, logOutputChan)
 		}
 		select {
 		case result := <-resultChannel:
@@ -39,20 +37,10 @@ func runScheduler(newSessionChan, closedSession <-chan *Hermes_Session, hermesRu
 			if writeLogoutput {
 				fmt.Println(log)
 			}
-		case newSession := <-newSessionChan:
-			sessions = append(sessions, newSession)
-		case sessionClosed := <-closedSession:
-			// TBI: stop session
-			for i, session := range sessions {
-				session.done = true
-				// close all runs, do not send results
-				if session == sessionClosed {
-					sessions = append(sessions[:i], sessions[i+1:]...)
-					break
-				}
-			}
+		case session := <-closedSession:
+			session.done = true
 		case run := <-hermesRun:
-			toDoRuns = append(toDoRuns, run)
+			toDoRuns.PushBack(run)
 		}
 
 	}

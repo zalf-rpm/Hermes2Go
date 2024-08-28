@@ -453,9 +453,10 @@ func TestConvertCropParamClassicToYml(t *testing.T) {
 			},
 		}, false},
 	}
+	session := NewHermesSession()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := ConvertCropParamClassicToYml(tt.args.PARANAM)
+			got, err := ConvertCropParamClassicToYml(tt.args.PARANAM, session)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ConvertCropParamClassicToYml() error = %v, wantErr %v", err, tt.wantErr)
 				return

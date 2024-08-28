@@ -183,9 +183,10 @@ func TestSandAndClayToKa5TextureInHypar(t *testing.T) {
 			want string
 		}{texture, args{texture, hyparName}, texture})
 	}
+	session := NewHermesSession()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := FindTextureInHypar(tt.args.texture, tt.args.path); got != tt.want {
+			if got := FindTextureInHypar(tt.args.texture, tt.args.path, session); got != tt.want {
 				t.Errorf("Hypar() = %v, want %v", got, tt.want)
 			}
 		})
@@ -231,9 +232,10 @@ func TestSandAndClayToKa5TextureInParcap(t *testing.T) {
 			want string
 		}{texture, args{texture, hyparName}, texture})
 	}
+	session := NewHermesSession()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := FindTextureInPARCAP(tt.args.texture, tt.args.path); got != tt.want {
+			if got := FindTextureInPARCAP(tt.args.texture, tt.args.path, session); got != tt.want {
 				t.Errorf("PARCAP() = %v, want %v", got, tt.want)
 			}
 		})

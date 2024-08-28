@@ -12,10 +12,10 @@ import (
 	"sync"
 )
 
-// HermesFilePool file pool for shared files
-var HermesFilePool FilePool
-var HermesRPCService RPCService
-var HermesOutWriter OutWriterGenerator
+// // HermesFilePool file pool for shared files
+// var HermesFilePool FilePool
+// var HermesRPCService RPCService
+// var HermesOutWriter OutWriterGenerator
 
 // Modfil default module filename
 const Modfil = "modinp.txt"

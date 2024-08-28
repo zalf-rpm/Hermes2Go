@@ -31,6 +31,9 @@ func main() {
 
 	argsWithoutProg := os.Args[1:]
 
+	// hermes session
+	session := hermes.NewHermesSession()
+
 	for i := 0; i < len(argsWithoutProg); i++ {
 		arg := argsWithoutProg[i]
 		// switch between single(simplace version) and batch (long version) e.g. "-module batch"
@@ -138,7 +141,7 @@ func main() {
 			address := argsWithoutProg[i+1]
 			rpcService, err := hermes.NewRPCService(address)
 			if err == nil {
-				hermes.HermesRPCService = rpcService
+				session.HermesRPCService = rpcService
 			}
 		} else {
 			otherArgs = append(otherArgs, arg)
@@ -147,7 +150,7 @@ func main() {
 
 	if module == "single" {
 		root := hermes.AskDirectory()
-		file, scanner, err := hermes.Open(&hermes.FileDescriptior{FilePath: root + "/project/" + hermes.Modfil, FileDescription: "modinp"})
+		file, scanner, err := session.Open(&hermes.FileDescriptior{FilePath: root + "/project/" + hermes.Modfil, FileDescription: "modinp"})
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -166,27 +169,27 @@ func main() {
 					fmt.Sprintf("project=%s", locid),
 					fmt.Sprintf("plotNr=%s", snam),
 				}
-				hermes.Run(workingDir, singleArgs, "1", nil, nil)
+				session.Run(workingDir, singleArgs, "1", nil, nil)
 			}
 
 		}
 	} else if module == "batch" {
 		if len(configLines) > 0 {
-			doConcurrentBatchRun(workingDir, startLine, endLine, writeLogoutput, configLines)
+			doConcurrentBatchRun(session, workingDir, startLine, endLine, writeLogoutput, configLines)
 		} else {
-			hermes.Run(workingDir, otherArgs, "1", nil, nil)
+			session.Run(workingDir, otherArgs, "1", nil, nil)
 		}
 	} else {
 		log.Fatalf("module type '%s' not recognized", module)
 	}
 
-	hermes.HermesFilePool.Close()
+	session.Close()
 	end := time.Now()
 	elapsed := end.Sub(start)
 	fmt.Println("Execution time: ", elapsed)
 }
 
-func doConcurrentBatchRun(workingDir string, startLine, numberOfLines int, writeLogoutput bool, configLines []string) {
+func doConcurrentBatchRun(session *hermes.HermesSession, workingDir string, startLine, numberOfLines int, writeLogoutput bool, configLines []string) {
 	fmt.Printf("Working Dir: %s \n", workingDir)
 	fmt.Printf("Start Line: %d \n", startLine)
 	fmt.Printf("End Line: %d \n", numberOfLines)
@@ -223,7 +226,7 @@ func doConcurrentBatchRun(workingDir string, startLine, numberOfLines int, write
 				fmt.Println(logID)
 			}
 			args := strings.Fields(line)
-			go hermes.Run(workingDir, args, logID, resultChannel, logOutputChan)
+			go session.Run(workingDir, args, logID, resultChannel, logOutputChan)
 		}
 	}
 	// fetch output of last runs

@@ -5,8 +5,6 @@ import (
 	"log"
 	"strconv"
 	"time"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 // Input units for weather files
@@ -111,7 +109,7 @@ func WetterK(VWDAT string, year int, g *GlobalVarsMain, s *WeatherDataShared, hP
 		return err
 	}
 	// open weather file
-	vwDatfile, scanner, err := Open(&FileDescriptior{
+	vwDatfile, scanner, err := g.Session.Open(&FileDescriptior{
 		FilePath:        VWDAT,
 		FileDescription: "weather file",
 		debugOut:        g.DEBUGCHANNEL,
@@ -218,7 +216,7 @@ func ReadPreco(g *GlobalVarsMain, hPath *HFilePath) ([12]float64, error) {
 	var CORRK [12]float64
 	if g.PRECO {
 		PRECORR := hPath.precorr
-		_, scanner, err := Open(&FileDescriptior{
+		_, scanner, err := g.Session.Open(&FileDescriptior{
 			FilePath:        PRECORR,
 			FileDescription: "preco file",
 			UseFilePool:     true,
@@ -308,7 +306,7 @@ func ReadWeatherCSV(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDa
 		return err
 	}
 	// open weather file with multible years
-	vwDatfile, scanner, _ := Open(&FileDescriptior{
+	vwDatfile, scanner, _ := g.Session.Open(&FileDescriptior{
 		FilePath:        VWDAT,
 		FileDescription: "weather file",
 		debugOut:        g.DEBUGCHANNEL,
@@ -461,7 +459,7 @@ func ReadWeatherCZ(VWDAT string, startyear int, g *GlobalVarsMain, s *WeatherDat
 		return err
 	}
 	// open weather file with multible years
-	vwDatfile, scanner, err := Open(&FileDescriptior{
+	vwDatfile, scanner, err := g.Session.Open(&FileDescriptior{
 		FilePath:        VWDAT,
 		FileDescription: "weather file",
 		debugOut:        g.DEBUGCHANNEL,
@@ -739,19 +737,4 @@ func LoadYear(g *GlobalVarsMain, s *WeatherDataShared, year int) error {
 // check if sunhours are given
 func (s *WeatherDataShared) HasSunHours() bool {
 	return s.hasSUND
-}
-
-func DumpWeatherDataToFile(filename string, s *WeatherDataShared) {
-
-	file := OpenResultFile(filename, false)
-	defer file.Close()
-
-	data, err := yaml.Marshal(s)
-	if err != nil {
-		log.Fatalf("error: %v", err)
-	}
-
-	if _, err := file.WriteBytes(data); err != nil {
-		log.Fatal(err)
-	}
 }

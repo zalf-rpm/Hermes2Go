@@ -26,7 +26,7 @@ func main() {
 	}
 
 	// read the input file & convert the data
-	cropParam, err := hermes.ConvertCropParamClassicToYml(*input)
+	cropParam, err := hermes.ConvertCropParamClassicToYml(*input, hermes.NewHermesSession())
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -2044,7 +2044,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 }
 
 // LoadHermesOutputConfig loads a output file and reflects to programm variables
-func LoadHermesOutputConfig(path string, g interface{}) (OutputConfig, error) {
+func LoadHermesOutputConfig(path string, g interface{}, session *HermesSession) (OutputConfig, error) {
 	outConfig := OutputConfig{
 		numHeadLines:       0,
 		numDataColumns:     0,
@@ -2060,7 +2060,7 @@ func LoadHermesOutputConfig(path string, g interface{}) (OutputConfig, error) {
 
 	// if config files exists, read it into outConfig
 	if _, err := os.Stat(path); err == nil {
-		byteData := HermesFilePool.Get(&FileDescriptior{FilePath: path, ContinueOnError: true, UseFilePool: true})
+		byteData := session.HermesFilePool.Get(&FileDescriptior{FilePath: path, ContinueOnError: true, UseFilePool: true})
 		err := yaml.Unmarshal(byteData, &outConfig)
 		if err != nil {
 			return outConfig, err
