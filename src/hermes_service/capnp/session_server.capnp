@@ -18,5 +18,5 @@ interface Session {
 # Callback for the result of a sim data, implemented by the client
 interface Callback {
     sendData @0 (runId :Text, outData :Text) -> (); #  result of a sim data
-    done @1 () -> (runId :Text,); # end of a result data for the runId
+    done @1 (runId :Text) -> (); # end of a result data for the runId
 }

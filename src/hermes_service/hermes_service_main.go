@@ -36,7 +36,7 @@ func main() {
 		return
 	}
 	// listen on a socket
-	l, err := net.Listen("tcp", "localhost:1234")
+	l, err := net.Listen("tcp", "localhost:8841")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -251,6 +251,16 @@ func (c *CallBackOutwriter) Close() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	// send done
+	future, rel := c.cWriter.callback.Done(context.Background(), func(p hermes_service_capnp.Callback_done_Params) error {
+		err := p.SetRunId(c.cWriter.id)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	defer rel()
+	_, err = future.Struct()
 }
 
 type ConnError struct {

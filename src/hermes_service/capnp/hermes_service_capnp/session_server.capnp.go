@@ -909,7 +909,7 @@ func (c Callback) Done(ctx context.Context, params func(Callback_done_Params) er
 		},
 	}
 	if params != nil {
-		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 0}
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
 		s.PlaceArgs = func(s capnp.Struct) error { return params(Callback_done_Params(s)) }
 	}
 
@@ -1072,7 +1072,7 @@ func (c Callback_done) Args() Callback_done_Params {
 
 // AllocResults allocates the results struct.
 func (c Callback_done) AllocResults() (Callback_done_Results, error) {
-	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
 	return Callback_done_Results(r), err
 }
 
@@ -1256,12 +1256,12 @@ type Callback_done_Params capnp.Struct
 const Callback_done_Params_TypeID = 0xe970781fd54f568e
 
 func NewCallback_done_Params(s *capnp.Segment) (Callback_done_Params, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
 	return Callback_done_Params(st), err
 }
 
 func NewRootCallback_done_Params(s *capnp.Segment) (Callback_done_Params, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
 	return Callback_done_Params(st), err
 }
 
@@ -1297,13 +1297,30 @@ func (s Callback_done_Params) Message() *capnp.Message {
 func (s Callback_done_Params) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
+func (s Callback_done_Params) RunId() (string, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.Text(), err
+}
+
+func (s Callback_done_Params) HasRunId() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Callback_done_Params) RunIdBytes() ([]byte, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.TextBytes(), err
+}
+
+func (s Callback_done_Params) SetRunId(v string) error {
+	return capnp.Struct(s).SetText(0, v)
+}
 
 // Callback_done_Params_List is a list of Callback_done_Params.
 type Callback_done_Params_List = capnp.StructList[Callback_done_Params]
 
 // NewCallback_done_Params creates a new list of Callback_done_Params.
 func NewCallback_done_Params_List(s *capnp.Segment, sz int32) (Callback_done_Params_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
 	return capnp.StructList[Callback_done_Params](l), err
 }
 
@@ -1321,12 +1338,12 @@ type Callback_done_Results capnp.Struct
 const Callback_done_Results_TypeID = 0xbc40e8a99586a665
 
 func NewCallback_done_Results(s *capnp.Segment) (Callback_done_Results, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
 	return Callback_done_Results(st), err
 }
 
 func NewRootCallback_done_Results(s *capnp.Segment) (Callback_done_Results, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
 	return Callback_done_Results(st), err
 }
 
@@ -1362,30 +1379,13 @@ func (s Callback_done_Results) Message() *capnp.Message {
 func (s Callback_done_Results) Segment() *capnp.Segment {
 	return capnp.Struct(s).Segment()
 }
-func (s Callback_done_Results) RunId() (string, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return p.Text(), err
-}
-
-func (s Callback_done_Results) HasRunId() bool {
-	return capnp.Struct(s).HasPtr(0)
-}
-
-func (s Callback_done_Results) RunIdBytes() ([]byte, error) {
-	p, err := capnp.Struct(s).Ptr(0)
-	return p.TextBytes(), err
-}
-
-func (s Callback_done_Results) SetRunId(v string) error {
-	return capnp.Struct(s).SetText(0, v)
-}
 
 // Callback_done_Results_List is a list of Callback_done_Results.
 type Callback_done_Results_List = capnp.StructList[Callback_done_Results]
 
 // NewCallback_done_Results creates a new list of Callback_done_Results.
 func NewCallback_done_Results_List(s *capnp.Segment, sz int32) (Callback_done_Results_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
 	return capnp.StructList[Callback_done_Results](l), err
 }
 
@@ -1397,54 +1397,54 @@ func (f Callback_done_Results_Future) Struct() (Callback_done_Results, error) {
 	return Callback_done_Results(p.Struct()), err
 }
 
-const schema_c4b468a2826bb79b = "x\xda\x94\x94_h\x13Y\x14\xc6\xcf\x99{\xb3\xd3." +
-	"m\xc3eZ\x96.\xb4a\xd9\x14\xb6K\x1b\x9av\x17" +
-	"v\xbb[\x92m\xca\xfe)\x85\xcd\xa4(X\x14\x9d6" +
-	"#\x8dM'q&ik_B\x05\xdb\x17\xeb\x9f\x87" +
-	"\x0aE\x1f\xa4TA}\x91*\xf8\xa2 \xd2\x07Q\x0a" +
-	"\x16\x0c}\x10\x91\xfa\xa4\x82 >\x89(#\xf7&\x93" +
-	"\xa4\xb1\xa9\xf5\xf5\xde\xef|\xdf\xef\x9esf:\x1eb" +
-	"\x90\xfak\x9f\xb9@R\xfb\\\xdf\xd8\xf4\xc8L\xf3\xe3" +
-	"\xf5\xe9\xd3\xc0\x1a\x88}\xfe\xd6\xd8\xf1\xa5\xd1\x9b\xab\x00" +
-	"\xa8d\xa5\xb7\xca\xa6$\x03(O\xa59\xc5Od\x00" +
-	"{\xf5\xde\xf0\xc6\x9d\xd7M\x8b\x9f\x89\x1b\xc9+\xa5\x85" +
-	"K\x94\x1f\xc8\x9crT\x88\xbf}\xb7\xbc\xf6\xdd\x9b\xe8" +
-	"\xc5rq\xd7>\xf2=*1\xa1\xd6\xc9?\xcaY\xa1" +
-	"\xde\xffq\xde\x1bZ\x0c.\x03kB\x00*\x03t\x1d" +
-	"#\x11\x04j\x87\xbb\xab\x99\xeb\xef\x7f/\x01\xfb\x11\x01" +
-	"\\\x1c\xa9K'W\x11PI\x93I@{\xd6Z\xb0" +
-	"\x1bf\xbd\xd7\x805\x17\x04Ybr\xc1\xa6\x10\x0c\xfc" +
-	"\x1e<\xb9t\xf8\xc9\xf5\x12\xef\x1e*\xbc\xf5\xcb\xb3\x0b" +
-	"W^\x04o\xe7K\x91_\xb5\xd2!^\xfa+\x0d\x00" +
-	"\xda\xe76OXgn\xcc\xdc-)\xdd\xc3\xef\xa9=" +
-	"\x9a~\xbe\xf1\xe0\xd1\x9f\xf7s\xa5\xe2\xe6/:\xcdo" +
-	"\xa6\xe6\xdaV.\x1cZ[\xcf\x03\x0b\xd3v\xba\xc2M" +
-	"{\x84i\xe6\x83\xfc~~\xe0\x8f\x8d\x9ci\x0e\xf8\x00" +
-	"\xed\xe7\x82\x18\xe5\xc0\xa7\xf6\xfe\x9f\xf5L%_\x96x" +
-	"g9p\x87m\xe9\x96\x15K\x18\x07%K7't" +
-	"\xd37\xa2%\x8ddwH\x8b{\xe2\xc3\xda\xc8X\x18" +
-	"Q\xad\".\x80BS\xd0\xe1d\xfe~\x90X\xab\x8c" +
-	"E{t\x9e\xcf\x9a~\x06\x891\xd9\xb6t#\xda\xa7" +
-	"\xa54\x00\x08\xa2;\x9a0\xf4 \x86\x11+\xc4\x0e\xea" +
-	"\x96\x9b\x1f\x17S\x9d\x97\xa1\xd3r\xe6\xe7\xce-<\xd5" +
-	"\x990:=e\x8d\x9d \xb1Z\xd9\xcdS\x83\xe8\x19" +
-	"\x89'\xac\xb2<R\x9e\xc7O\x07us\x82\xe8&O" +
-	"\xa5\"\xd5\xd9\x10t:\xcf\xd8\x10H\xacZ\xb6\x0d}" +
-	"R\x14\x01I\x18[\x9d\xe9v\xce>\x81\xe0\x0dk\xa6" +
-	"6\x8eVA\xeb\xaaD\xa1\x9b>'!ax\xc3\x9a" +
-	"\xdb\xd4\xc6-\xb5\x8aP\x00\x8a\x00\xac\xb5\x17@\xf5\x12" +
-	"T;$d\x88\xf5\xc8\x0f\xdb\xa7\x01\xd46\x82\xeao" +
-	"\x12f&\x13\xe6X4fb\x0dHX\x03h\x9b\xba" +
-	"\x95\x8e\xa7B\x1a\x04\xe2b\xa0\xc8\x8a_( 2\xa8" +
-	"\xf4\x82\x90\x96+\xf09#\xf4\x86=Z9N\xe7v" +
-	"8\x9c\xf1'\x82\xea/\x12z\xcc\xb4\xf1_\xd4\x81\xc9" +
-	"$\xd2)\xeeT\x80\xdb\xb9w<\xd8\x1b\x11\xfc%\xbd" +
-	"\xab@\xc9W+'&)K\xa5\x05\xc4Z\x8eXE" +
-	"P\xad/\xa7\xd9\xd5\xe4\x1c\xc7]7)\x12\x10\xc0_" +
-	"=\xeb\x88\xee\x11u\xa5\xe8\xbdE\xf4L\xde\x0eY\xf1" +
-	"\x9f\xb9\xe3\xf8\xb64Q\xec\x9f%\xdcv\x1e]w~" +
-	"t}\xe5\xcd\x0a$\x85\x05\xd6\x01\x86\x09\x8a\xd3\xba/" +
-	"\xaf\x8e\x18J~\xf9?\x05\x00\x00\xff\xff<Z\xcd\xc1"
+const schema_c4b468a2826bb79b = "x\xda\x94T_HSa\x14?\xe7~w]\x0du" +
+	"|\\%\x0c\xe6\x88&\xb4\xd0\xe1\xb4\x87\xb2b\xa3I" +
+	"\x7fDhwB\x90\x04uu74\xe7\xdd\xbawS" +
+	"\xf3e\x18\xa4/\xd9\x9f\x07\x03\xa9\x87\x12\x0b\xaa\x97\xb0" +
+	"\xa0\x97\x82\x08\x1f\xa2\x10\x12\x12\x1f\"\xc2\x9e*\x10\xa2" +
+	"\xa7\x88\xe4\xc6\xf7mw\x9b\xd3i\xbd~\xe7w~\xbf" +
+	"\xdf9\xbfso\xd3;\x0c\x8a\xfe\xca\xcf\x0e\x10\x946" +
+	"\xc76K\xbc0Z\xf7aa\xe4:\xd0\x1ab\xdd~" +
+	"\xde\x7fy\xba\xf7\xd9\x1c\x00\xca\x8b\xc2OyY\x90\x00" +
+	"\xe4O\xc2\xb8\xec'\x12\x805\xf7\xba{\xe9\xe5\x8ak" +
+	"j\x1d\xb8\x96|\x97\xeb\x19D\xdeE\xc6\xe5\x8b\x1c\xbc" +
+	"\xfd\xd7\xcc\xfc\x8e\x1f\xd1\xbb\xc5\xe0\x96\xd3d'\xca}" +
+	"\x1c\xad\x91c\xf2M\x8e>\xb3:\xe1\x09M\x05g\x80" +
+	"\xba\x10@\x94\x00Z.\x91\x08\x82h\x85[\xcb\xa9\xe3" +
+	"\xe8\xf1\xfb@w#\x80\x83Yj\xd1\xc8#\x04\x94S" +
+	"d\x08\xd0\x1a3'\xad\x9a1\xcfc\xa0u9\xc0\"" +
+	"1\x18`\x99\x03:\x0e\x04\xafN\x9f\xff\xf8\xa4\x80\xfb" +
+	"\xb0\xc8\xb9\xb5\x07c\x93\x0f\xbf\x06_dZy\xc5+" +
+	"v\xb1\xca\xad\xe5+\xe6\x8d\xa7\xa3\xaf\x0azj2\x95" +
+	"\xde\xd4\x97\xa5\xb7\xef\x0f\xbd)\xe8Aq\x84U\x86\xc7" +
+	"\x1bf\xef\x9c\x9b_\xc8:EVZ!\xb3\xcc\xc8*" +
+	"\x09\x00Z\xe9?\xd2\xef\x89\x8e\x83K\x19\xd2\x8cS\x97" +
+	"\xd8\xce\x00^\x919\xbdv\xea\xe4\xa2{8\xf1-;" +
+	"\x0ag\x98dVQ\xbe'\x06\xa0\xd125\xd3\xec\x8b" +
+	"\xebg\x05S3\x065\xc3\xd7\xa3&\xf4DkH\x8d" +
+	"\xb9c\xddjO\x7f\x18Q)#\x0e\x80\xdcR\xd0\xb6" +
+	"K\xfd\xed P\xaf\x84y\x15\xb4\xc7\xa7\xae\xbd P" +
+	"*Y\xa6\xa6G\xdb\xd4\xa4\x0a\x00AtF\xe3\xba\x16" +
+	"\xc40b\x09\xd9N\xcdt\xb2\xe7\xbc\xaa= \xda+" +
+	"\xa7~\xc6\\\xcfT\xed\x84\xd1^-\xadm\x06\x81V" +
+	"JN\xa6\x1aDwO,n\x16\xe9\x91b=\xf6\xda" +
+	"\xa9\x19\x83D3\x98\xaa\xc8U\xed\x0bA;\x00J\xbb" +
+	"@\xa0\xe5\x92\xa5kC\xbc\x09H\\_\xcb,n\xc4" +
+	"\xec\xe3\x16<a\xd5P\x07\xd0\xcca\x1d\xa5\\h\x86" +
+	"\xcfV\x88\xeb\x9e\xb0\xea4\xd4\x01S)#\"\x80\x88" +
+	"\x00\xd4{\x04@\xf1\x10T\x9a\x04\xa4\x88\xd5\xc8\x1e\x1b" +
+	"G\x00\x94\x06\x82\xca~\x01\xd3Cq\xa3?\xdag`" +
+	"\x05\x08X\x01h\x19\x9a\x99\x8a%C*\x04b<P" +
+	"\xa4\xf9/\x14\x10)\x94\x9a \xa4f\x1a|v\x84\x9e" +
+	"\xb0[-\xb6\xd3\xbc\x91\x1d\xe6q\x0fAe\x9f\x80n" +
+	"#\xa5\x9f\x88\xdaf\xd2\xf1T\x921\xe5\xccm\xbe;" +
+	"&\xec\x89p\xff\x05\xbb+\xe1\x92\x9dV\x06L\x92\xe6" +
+	"?\x85\xb2\x05x\xfd\xfc\x91\x00\xf7\xf2\xdf1F47" +
+	"\xefS\xc4\xdc\xe2*\xd9\x8e\xca\x08*\xd5\x02\xa6\xb3t" +
+	"H\xf3\xbf\xc3M\x93Y\xb3\x1f~Z&g\xdb<\x95" +
+	"\xd6l*m\xc5\xa9\x04\x12\x9c\x02\xab\x00\xc3\x04\xf9k" +
+	"\xd5\xd6W\xc1\xf7\x9d\xbd\xeb\xc2\xc1\x9a\xf3\x83\xad\x95\xf9" +
+	"\x1b\x00\x00\xff\xff\x04\xf0\xcek"
 
 func RegisterSchema(reg *schemas.Registry) {
 	reg.Register(&schemas.Schema{
