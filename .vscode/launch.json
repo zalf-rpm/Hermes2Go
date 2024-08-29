@@ -5,6 +5,30 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Launch Hermes_Service",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "src/hermes_service",
+            "args": [
+                "-log",
+            ]
+
+        },
+        {
+            "name": "Launch Producer_Consumer",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "src/producer_consumer",
+            "cwd": "examples/",
+            "args": [
+                "-batch", "bd_muencheberg_batch.txt",
+                "-workdir", "C:/Users/sschulz/Desktop/water_model_2/Hermes2Go/examples"
+            ]
+
+        },
+        {
             "name": "Launch verify_project",
             "type": "go",
             "request": "launch",
