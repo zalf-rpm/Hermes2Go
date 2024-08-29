@@ -117,13 +117,13 @@ func (a *Hermes_SessionServer) NewSession(ctx context.Context, call hermes_servi
 	if a.writeLogoutput {
 		fmt.Println("server: NewSession Received for WORKDIR: ", workdir)
 	}
-	callback := call.Args().ResultCallback()
-
+	callback := call.Args().ResultCallback().AddRef()
 	// create a new session
 	session := &Hermes_Session{
 		workingDir:    workdir,
 		hermesRun:     a.runChan,
 		done:          false,
+		callBack:      callback,
 		closedSession: a.closeChan,
 		hermesSession: hermes.NewHermesSession(),
 	}
@@ -151,6 +151,7 @@ type Hermes_Session struct {
 	workingDir    string
 	hermesRun     chan<- *Hermes_Run
 	done          bool
+	callBack      hermes_service_capnp.Callback
 	closedSession chan<- *Hermes_Session
 	hermesSession *hermes.HermesSession
 }
@@ -261,6 +262,9 @@ func (c *CallBackOutwriter) Close() {
 	})
 	defer rel()
 	_, err = future.Struct()
+	if err != nil {
+		log.Fatalln(err)
+	}
 }
 
 type ConnError struct {
