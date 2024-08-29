@@ -39,6 +39,9 @@ func runScheduler(closedSession <-chan *Hermes_Session, hermesRun <-chan *Hermes
 			}
 		case session := <-closedSession:
 			session.done = true
+			session.callBack.Release()
+			session.hermesSession.Close()
+
 		case run := <-hermesRun:
 			toDoRuns.PushBack(run)
 		}
