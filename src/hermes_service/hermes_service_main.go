@@ -87,7 +87,6 @@ func main() {
 					for _, session := range server.sessions {
 						session.closedSession <- session
 					}
-					return
 				case msg := <-msgChan:
 					fmt.Println("Message reported:", msg)
 				}
@@ -187,7 +186,7 @@ func (a *Hermes_Session) Send(ctx context.Context, call hermes_service_capnp.Ses
 }
 
 func (a *Hermes_Session) Close(ctx context.Context, call hermes_service_capnp.Session_close) error {
-	fmt.Println("server: Close Received")
+	fmt.Println("session: Close Received")
 	a.closedSession <- a
 	// close all runs, do not send results
 	return nil

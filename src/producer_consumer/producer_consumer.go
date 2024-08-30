@@ -65,11 +65,12 @@ func runProducer(workDir, hService string, cb *ResultCallback, done chan<- bool,
 	}
 	defer conn.Close()
 	// establish connection to registry
-	connection := rpc.NewConn(rpc.NewPackedStreamTransport(conn), nil)
-	// get ModelRunController Bootstrap
+	transport := rpc.NewPackedStreamTransport(conn)
+	connection := rpc.NewConn(transport, nil)
+	// get Bootstrap
 	client := connection.Bootstrap(context.Background())
 	mrc := hermes_service_capnp.SessionServer(client)
-	//defer mrc.Release()
+	defer client.Release()
 
 	// create a new session
 	sessionFut, relSession := mrc.NewSession(context.Background(), func(p hermes_service_capnp.SessionServer_newSession_Params) error {
@@ -116,16 +117,15 @@ func runProducer(workDir, hService string, cb *ResultCallback, done chan<- bool,
 	doneFut, relDone := sessionFut.Session().Close(context.Background(), func(p hermes_service_capnp.Session_close_Params) error {
 		return nil
 	})
-	doneFut.Struct()
-	relDone()
-	// close the connection
-	mrc.Release()
-	err = connection.Close()
-	if err != nil {
+	if err := doneFut.Client().Resolve(context.Background()); err != nil {
 		log.Println(err)
 	}
-	// mrc.Release()
-	// connection.Close()
+	relDone()
+
+	if err := connection.Close(); err != nil {
+		log.Println(err)
+	}
+
 	done <- true
 }
 
@@ -144,7 +144,7 @@ func runConsumer(consumer <-chan *resultData, done chan<- bool) {
 			} else {
 				log.Println("run data:", r.runId, r.data)
 			}
-		case <-time.After(60 * time.Second):
+		case <-time.After(10 * time.Second):
 			log.Println("timeout")
 			timeout = true
 		}
