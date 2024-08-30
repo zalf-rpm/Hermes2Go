@@ -41,6 +41,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer setup.close()
 
 	doneProducer := make(chan bool)
 	doneConsumer := make(chan bool)
@@ -68,7 +69,7 @@ func runProducer(workDir, hService string, cb *ResultCallback, done chan<- bool,
 	// get ModelRunController Bootstrap
 	client := connection.Bootstrap(context.Background())
 	mrc := hermes_service_capnp.SessionServer(client)
-	defer mrc.Release()
+	//defer mrc.Release()
 
 	// create a new session
 	sessionFut, relSession := mrc.NewSession(context.Background(), func(p hermes_service_capnp.SessionServer_newSession_Params) error {
@@ -82,9 +83,9 @@ func runProducer(workDir, hService string, cb *ResultCallback, done chan<- bool,
 	})
 	defer relSession()
 
-	if run, ok := setup.nextRun(); ok {
+	for run, ok := setup.nextRun(); ok; run, ok = setup.nextRun() {
 
-		_, relSend := sessionFut.Session().Send(context.Background(), func(p hermes_service_capnp.Session_send_Params) error {
+		fut, relSend := sessionFut.Session().Send(context.Background(), func(p hermes_service_capnp.Session_send_Params) error {
 			err := p.SetRunId(run.id)
 			if err != nil {
 				return err
@@ -102,7 +103,12 @@ func runProducer(workDir, hService string, cb *ResultCallback, done chan<- bool,
 			err = p.SetParams(paramList)
 			return err
 		})
+		_, err := fut.Struct() // force sending the message
 		relSend()
+		if err != nil {
+			log.Println(err)
+			break
+		}
 	}
 	<-doneConsumer // wait for consumer to finish
 
@@ -112,6 +118,15 @@ func runProducer(workDir, hService string, cb *ResultCallback, done chan<- bool,
 	})
 	doneFut.Struct()
 	relDone()
+	// close the connection
+	mrc.Release()
+	err = connection.Close()
+	if err != nil {
+		log.Println(err)
+	}
+	// mrc.Release()
+	// connection.Close()
+	done <- true
 }
 
 // runConsumer receives the results from the hermes_service
@@ -122,10 +137,12 @@ func runConsumer(consumer <-chan *resultData, done chan<- bool) {
 	for !timeout {
 		select {
 		case r := <-consumer:
-			if r.done {
-				log.Println("run done", r.runId)
+			if r.errorSummary != "" {
+				log.Println("run error:", r.runId, r.errorSummary)
+			} else if r.done {
+				log.Println("run done:", r.runId)
 			} else {
-				log.Println("run data", r.runId, r.data)
+				log.Println("run data:", r.runId, r.data)
 			}
 		case <-time.After(60 * time.Second):
 			log.Println("timeout")
@@ -137,9 +154,10 @@ func runConsumer(consumer <-chan *resultData, done chan<- bool) {
 
 // data received from the hermes_service
 type resultData struct {
-	runId string
-	data  string
-	done  bool
+	runId        string
+	data         string
+	errorSummary string
+	done         bool
 }
 
 // implement the ResultCallback interface
@@ -157,6 +175,7 @@ func (r *ResultCallback) SendData(ctx context.Context, call hermes_service_capnp
 	if err != nil {
 		return err
 	}
+	fmt.Println("data received", runId)
 	r.consumer <- &resultData{runId: runId, data: data, done: false}
 
 	return nil
@@ -169,5 +188,20 @@ func (r *ResultCallback) Done(ctx context.Context, call hermes_service_capnp.Cal
 		return err
 	}
 	r.consumer <- &resultData{runId: runId, done: true}
+	return nil
+}
+
+// SendError(context.Context, Callback_sendError) error
+func (r *ResultCallback) SendError(ctx context.Context, call hermes_service_capnp.Callback_sendError) error {
+	runId, err := call.Args().RunId()
+	if err != nil {
+		return err
+	}
+	data, err := call.Args().Error()
+	if err != nil {
+		return err
+	}
+	fmt.Println("error received", runId)
+	r.consumer <- &resultData{runId: runId, errorSummary: data, done: true}
 	return nil
 }
