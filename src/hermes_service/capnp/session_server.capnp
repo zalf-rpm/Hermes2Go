@@ -19,4 +19,5 @@ interface Session {
 interface Callback {
     sendData @0 (runId :Text, outData :Text) -> (); #  result of a sim data
     done @1 (runId :Text) -> (); # end of a result data for the runId
+    sendError @2 (runId :Text, error :Text) -> (); # error of a sim data
 }

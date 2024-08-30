@@ -918,6 +918,26 @@ func (c Callback) Done(ctx context.Context, params func(Callback_done_Params) er
 
 }
 
+func (c Callback) SendError(ctx context.Context, params func(Callback_sendError_Params) error) (Callback_sendError_Results_Future, capnp.ReleaseFunc) {
+
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0x8f7ad1d41e816a04,
+			MethodID:      2,
+			InterfaceName: "session_server.capnp:Callback",
+			MethodName:    "sendError",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 2}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(Callback_sendError_Params(s)) }
+	}
+
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return Callback_sendError_Results_Future{Future: ans.Future()}, release
+
+}
+
 func (c Callback) WaitStreaming() error {
 	return capnp.Client(c).WaitStreaming()
 }
@@ -994,6 +1014,8 @@ type Callback_Server interface {
 	SendData(context.Context, Callback_sendData) error
 
 	Done(context.Context, Callback_done) error
+
+	SendError(context.Context, Callback_sendError) error
 }
 
 // Callback_NewServer creates a new Server from an implementation of Callback_Server.
@@ -1012,7 +1034,7 @@ func Callback_ServerToClient(s Callback_Server) Callback {
 // This can be used to create a more complicated Server.
 func Callback_Methods(methods []server.Method, s Callback_Server) []server.Method {
 	if cap(methods) == 0 {
-		methods = make([]server.Method, 0, 2)
+		methods = make([]server.Method, 0, 3)
 	}
 
 	methods = append(methods, server.Method{
@@ -1036,6 +1058,18 @@ func Callback_Methods(methods []server.Method, s Callback_Server) []server.Metho
 		},
 		Impl: func(ctx context.Context, call *server.Call) error {
 			return s.Done(ctx, Callback_done{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0x8f7ad1d41e816a04,
+			MethodID:      2,
+			InterfaceName: "session_server.capnp:Callback",
+			MethodName:    "sendError",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.SendError(ctx, Callback_sendError{call})
 		},
 	})
 
@@ -1074,6 +1108,23 @@ func (c Callback_done) Args() Callback_done_Params {
 func (c Callback_done) AllocResults() (Callback_done_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
 	return Callback_done_Results(r), err
+}
+
+// Callback_sendError holds the state for a server call to Callback.sendError.
+// See server.Call for documentation.
+type Callback_sendError struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c Callback_sendError) Args() Callback_sendError_Params {
+	return Callback_sendError_Params(c.Call.Args())
+}
+
+// AllocResults allocates the results struct.
+func (c Callback_sendError) AllocResults() (Callback_sendError_Results, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Callback_sendError_Results(r), err
 }
 
 // Callback_List is a list of Callback.
@@ -1397,54 +1448,225 @@ func (f Callback_done_Results_Future) Struct() (Callback_done_Results, error) {
 	return Callback_done_Results(p.Struct()), err
 }
 
-const schema_c4b468a2826bb79b = "x\xda\x94T_HSa\x14?\xe7~w]\x0du" +
-	"|\\%\x0c\xe6\x88&\xb4\xd0\xe1\xb4\x87\xb2b\xa3I" +
-	"\x7fDhwB\x90\x04uu74\xe7\xdd\xbawS" +
-	"\xf3e\x18\xa4/\xd9\x9f\x07\x03\xa9\x87\x12\x0b\xaa\x97\xb0" +
-	"\xa0\x97\x82\x08\x1f\xa2\x10\x12\x12\x1f\"\xc2\x9e*\x10\xa2" +
-	"\xa7\x88\xe4\xc6\xf7mw\x9b\xd3i\xbd~\xe7w~\xbf" +
-	"\xdf9\xbfso\xd3;\x0c\x8a\xfe\xca\xcf\x0e\x10\x946" +
-	"\xc76K\xbc0Z\xf7aa\xe4:\xd0\x1ab\xdd~" +
-	"\xde\x7fy\xba\xf7\xd9\x1c\x00\xca\x8b\xc2OyY\x90\x00" +
-	"\xe4O\xc2\xb8\xec'\x12\x805\xf7\xba{\xe9\xe5\x8ak" +
-	"j\x1d\xb8\x96|\x97\xeb\x19D\xdeE\xc6\xe5\x8b\x1c\xbc" +
-	"\xfd\xd7\xcc\xfc\x8e\x1f\xd1\xbb\xc5\xe0\x96\xd3d'\xca}" +
-	"\x1c\xad\x91c\xf2M\x8e>\xb3:\xe1\x09M\x05g\x80" +
-	"\xba\x10@\x94\x00Z.\x91\x08\x82h\x85[\xcb\xa9\xe3" +
-	"\xe8\xf1\xfb@w#\x80\x83Yj\xd1\xc8#\x04\x94S" +
-	"d\x08\xd0\x1a3'\xad\x9a1\xcfc\xa0u9\xc0\"" +
-	"1\x18`\x99\x03:\x0e\x04\xafN\x9f\xff\xf8\xa4\x80\xfb" +
-	"\xb0\xc8\xb9\xb5\x07c\x93\x0f\xbf\x06_dZy\xc5+" +
-	"v\xb1\xca\xad\xe5+\xe6\x8d\xa7\xa3\xaf\x0azj2\x95" +
-	"\xde\xd4\x97\xa5\xb7\xef\x0f\xbd)\xe8Aq\x84U\x86\xc7" +
-	"\x1bf\xef\x9c\x9b_\xc8:EVZ!\xb3\xcc\xc8*" +
-	"\x09\x00Z\xe9?\xd2\xef\x89\x8e\x83K\x19\xd2\x8cS\x97" +
-	"\xd8\xce\x00^\x919\xbdv\xea\xe4\xa2{8\xf1-;" +
-	"\x0ag\x98dVQ\xbe'\x06\xa0\xd125\xd3\xec\x8b" +
-	"\xebg\x05S3\x065\xc3\xd7\xa3&\xf4DkH\x8d" +
-	"\xb9c\xddjO\x7f\x18Q)#\x0e\x80\xdcR\xd0\xb6" +
-	"K\xfd\xed P\xaf\x84y\x15\xb4\xc7\xa7\xae\xbd P" +
-	"*Y\xa6\xa6G\xdb\xd4\xa4\x0a\x00AtF\xe3\xba\x16" +
-	"\xc40b\x09\xd9N\xcdt\xb2\xe7\xbc\xaa= \xda+" +
-	"\xa7~\xc6\\\xcfT\xed\x84\xd1^-\xadm\x06\x81V" +
-	"JN\xa6\x1aDwO,n\x16\xe9\x91b=\xf6\xda" +
-	"\xa9\x19\x83D3\x98\xaa\xc8U\xed\x0bA;\x00J\xbb" +
-	"@\xa0\xe5\x92\xa5kC\xbc\x09H\\_\xcb,n\xc4" +
-	"\xec\xe3\x16<a\xd5P\x07\xd0\xcca\x1d\xa5\\h\x86" +
-	"\xcfV\x88\xeb\x9e\xb0\xea4\xd4\x01S)#\"\x80\x88" +
-	"\x00\xd4{\x04@\xf1\x10T\x9a\x04\xa4\x88\xd5\xc8\x1e\x1b" +
-	"G\x00\x94\x06\x82\xca~\x01\xd3Cq\xa3?\xdag`" +
-	"\x05\x08X\x01h\x19\x9a\x99\x8a%C*\x04b<P" +
-	"\xa4\xf9/\x14\x10)\x94\x9a \xa4f\x1a|v\x84\x9e" +
-	"\xb0[-\xb6\xd3\xbc\x91\x1d\xe6q\x0fAe\x9f\x80n" +
-	"#\xa5\x9f\x88\xdaf\xd2\xf1T\x921\xe5\xccm\xbe;" +
-	"&\xec\x89p\xff\x05\xbb+\xe1\x92\x9dV\x06L\x92\xe6" +
-	"?\x85\xb2\x05x\xfd\xfc\x91\x00\xf7\xf2\xdf1F47" +
-	"\xefS\xc4\xdc\xe2*\xd9\x8e\xca\x08*\xd5\x02\xa6\xb3t" +
-	"H\xf3\xbf\xc3M\x93Y\xb3\x1f~Z&g\xdb<\x95" +
-	"\xd6l*m\xc5\xa9\x04\x12\x9c\x02\xab\x00\xc3\x04\xf9k" +
-	"\xd5\xd6W\xc1\xf7\x9d\xbd\xeb\xc2\xc1\x9a\xf3\x83\xad\x95\xf9" +
-	"\x1b\x00\x00\xff\xff\x04\xf0\xcek"
+type Callback_sendError_Params capnp.Struct
+
+// Callback_sendError_Params_TypeID is the unique identifier for the type Callback_sendError_Params.
+const Callback_sendError_Params_TypeID = 0xcdbc9fb380c2572b
+
+func NewCallback_sendError_Params(s *capnp.Segment) (Callback_sendError_Params, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
+	return Callback_sendError_Params(st), err
+}
+
+func NewRootCallback_sendError_Params(s *capnp.Segment) (Callback_sendError_Params, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
+	return Callback_sendError_Params(st), err
+}
+
+func ReadRootCallback_sendError_Params(msg *capnp.Message) (Callback_sendError_Params, error) {
+	root, err := msg.Root()
+	return Callback_sendError_Params(root.Struct()), err
+}
+
+func (s Callback_sendError_Params) String() string {
+	str, _ := text.Marshal(0xcdbc9fb380c2572b, capnp.Struct(s))
+	return str
+}
+
+func (s Callback_sendError_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Callback_sendError_Params) DecodeFromPtr(p capnp.Ptr) Callback_sendError_Params {
+	return Callback_sendError_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Callback_sendError_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Callback_sendError_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Callback_sendError_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Callback_sendError_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s Callback_sendError_Params) RunId() (string, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.Text(), err
+}
+
+func (s Callback_sendError_Params) HasRunId() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s Callback_sendError_Params) RunIdBytes() ([]byte, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.TextBytes(), err
+}
+
+func (s Callback_sendError_Params) SetRunId(v string) error {
+	return capnp.Struct(s).SetText(0, v)
+}
+
+func (s Callback_sendError_Params) Error() (string, error) {
+	p, err := capnp.Struct(s).Ptr(1)
+	return p.Text(), err
+}
+
+func (s Callback_sendError_Params) HasError() bool {
+	return capnp.Struct(s).HasPtr(1)
+}
+
+func (s Callback_sendError_Params) ErrorBytes() ([]byte, error) {
+	p, err := capnp.Struct(s).Ptr(1)
+	return p.TextBytes(), err
+}
+
+func (s Callback_sendError_Params) SetError(v string) error {
+	return capnp.Struct(s).SetText(1, v)
+}
+
+// Callback_sendError_Params_List is a list of Callback_sendError_Params.
+type Callback_sendError_Params_List = capnp.StructList[Callback_sendError_Params]
+
+// NewCallback_sendError_Params creates a new list of Callback_sendError_Params.
+func NewCallback_sendError_Params_List(s *capnp.Segment, sz int32) (Callback_sendError_Params_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
+	return capnp.StructList[Callback_sendError_Params](l), err
+}
+
+// Callback_sendError_Params_Future is a wrapper for a Callback_sendError_Params promised by a client call.
+type Callback_sendError_Params_Future struct{ *capnp.Future }
+
+func (f Callback_sendError_Params_Future) Struct() (Callback_sendError_Params, error) {
+	p, err := f.Future.Ptr()
+	return Callback_sendError_Params(p.Struct()), err
+}
+
+type Callback_sendError_Results capnp.Struct
+
+// Callback_sendError_Results_TypeID is the unique identifier for the type Callback_sendError_Results.
+const Callback_sendError_Results_TypeID = 0xaa964acaea262bc8
+
+func NewCallback_sendError_Results(s *capnp.Segment) (Callback_sendError_Results, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Callback_sendError_Results(st), err
+}
+
+func NewRootCallback_sendError_Results(s *capnp.Segment) (Callback_sendError_Results, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return Callback_sendError_Results(st), err
+}
+
+func ReadRootCallback_sendError_Results(msg *capnp.Message) (Callback_sendError_Results, error) {
+	root, err := msg.Root()
+	return Callback_sendError_Results(root.Struct()), err
+}
+
+func (s Callback_sendError_Results) String() string {
+	str, _ := text.Marshal(0xaa964acaea262bc8, capnp.Struct(s))
+	return str
+}
+
+func (s Callback_sendError_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (Callback_sendError_Results) DecodeFromPtr(p capnp.Ptr) Callback_sendError_Results {
+	return Callback_sendError_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s Callback_sendError_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s Callback_sendError_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s Callback_sendError_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s Callback_sendError_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
+// Callback_sendError_Results_List is a list of Callback_sendError_Results.
+type Callback_sendError_Results_List = capnp.StructList[Callback_sendError_Results]
+
+// NewCallback_sendError_Results creates a new list of Callback_sendError_Results.
+func NewCallback_sendError_Results_List(s *capnp.Segment, sz int32) (Callback_sendError_Results_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
+	return capnp.StructList[Callback_sendError_Results](l), err
+}
+
+// Callback_sendError_Results_Future is a wrapper for a Callback_sendError_Results promised by a client call.
+type Callback_sendError_Results_Future struct{ *capnp.Future }
+
+func (f Callback_sendError_Results_Future) Struct() (Callback_sendError_Results, error) {
+	p, err := f.Future.Ptr()
+	return Callback_sendError_Results(p.Struct()), err
+}
+
+const schema_c4b468a2826bb79b = "x\xda\x8cU]h\x1cU\x14>g\xee\x9dnZ\x92" +
+	".\x97i(\x0a\xe9>\xb8\x15\xb5\xcd\xd2l\x15lT" +
+	"v0\xad\xda\x10pf\x0b\x8aE\xd1iv\xa41\x9b" +
+	"\x99\xf5\xcenS\xf3\xb2\xb6\xd0\xf4\xc5\x18_\x12\x08*" +
+	"JH\x84D\x04I\x14_\"H\x88\x18\x02\x01\x03\x86" +
+	"<\x88\x0f\xfad\x02\x01\x11\x02*\x86\x91{gg\xff" +
+	"\x92\x8d\xfb\xb6\xdc\xf3\x9d\xef\xe7\x9c\xb3\xbb\x17N+:" +
+	"\xedj\x1b?\x06\x8a\xd9\xa7\x1e\xf3\xe9[w\xce\xfc\xb4" +
+	"12\x0e\xac\x9d\xf8\x1f~3xw\xfa\xe6W+\x00" +
+	"\xa8u\x92?\xb5K$\x02\xa0=A~\xd0\xbe\x16\x9f" +
+	"\xfc\x95\xe5\x1b[\xdf\xeevL\x1d\x00\x7fLv\xb49" +
+	"\x09\x9e%\xf7\xb5=\x09>\xf1\xd7\xcc\xfa\xe9?2\x9f" +
+	"\xd6\x83/\xfeB\x1eDmW\xa2\xb7\xc9\xf3Z;\x15" +
+	"\xe8W\xf7\xc7\xe2=S\xfa\x0c\xb0\x0e\x04\x10O\x17\xf7" +
+	"I\x1a\x81\xfaF\xf7q\xa6>\xf7\xc2,\xb0\x87\x10@" +
+	"UDi\x9b\xcc#\xa0\xf67\x19\x06\xf4W\xcf=\xbc" +
+	"\xb3\xd6;9\x0f\xecL\xd8\xfa\x0a\xbd+ZG\xbd\x09" +
+	"\xbf}4\xfeyP\x09Z\xafP.ZM*Z\xfb" +
+	".\xe9\xefM\xbf\xf9\xf3\x97U\xaa_P\xa9j\x7f6" +
+	":1\xf7\xbb\xbeTE:E\xaf\x8b\xca\xe4\xaf\xf7\xbc" +
+	"\x0f\x16\xef|W\xd5s/\xa8\xdc,\xfc\xb6\xb5\xf6\xe3" +
+	"\xd3\xabU=o\xd3\x11Q9\xf7\xf2\xf2\xbb\x8b\x9f," +
+	"\xadW\x1byM\x94P\x1b\x90Fn\xdf?\xbf\xf0\xd1" +
+	"\x1b\xeb\x1b\xa5\x90(\x00\xdf\xd3\x05\x01\xd8\xa4)@\xbf" +
+	"\xf8o\xe4\x9f\xb1\xbe\xa7\xb6\x02\xd5\x80a\x8f\xf6\x0a\x00" +
+	"\xaa\x82\xe1\xfd\x97^\xdc\x8c\xdd\xcem\x97$$\xc3\x90" +
+	"\x9a\x16\x80w\xd4\x14t\xfa\x9e\xedy\x03\xae\xf3\xba\xe2" +
+	"\xd9\xfc\x96\xcd\x13\xfdV\xce\xc9u\xf7X\xd9X\xf6\x86" +
+	"\xd5?h \x9a\xadD\x05(O\x0d\xc3<\xcc\xec\x05" +
+	"\x85]\x8d`E\x05\xc3\xf9\xb0g\x1e\x03\x85uEP" +
+	")\x87\xc4p!\xecl\x1a\x14\xd6\x11\xf1=\xdb\xc9\\" +
+	"\xb6\xf2\x16\x00\xe8\x18\xcd\xb8\x8e\xad\xa3|\xbc\xc2\xb9\x0b" +
+	"\xc8u4\x10\x1b\x18\xbcf{Q\xf1,\xfc\xb5H\x7f" +
+	"\xe1(0\xdc\x1e\xeb\x12\x1e\xce\x0a\x7f\xe1\x19a\xb8%" +
+	"\xf6@\x12\x14\xd6\x16\x89\x0a9\x1dc\xfdY\xd7\xb3k" +
+	"\xf5H\xbd\x9ex\xbdf\xf3[\xc4\xe6B\x95J\xd5\xf0" +
+	"\x0c1\\\x15c\xd7Aa\xc7#\xbec\x0f\xcb& " +
+	"\xaeS\xcbL\x0fcNH\x0bq\xc3\xe2\xd6\x10ze" +
+	"\xac\xda\xc8\x85\xcd\x13\xa1\x82\xeb\xc4\x0d+\xca\xad!\xcf" +
+	"l!\x14\x80\"\x00{\xf4Y\x003N\xd0\xbc\xa0 " +
+	"C<\x85\xe2\xb1s\x04\xc0<O\xd0|R\xc1\xe2\xb0" +
+	"\xcb\x073\x03\x1c[A\xc1V@\x9f\xdb^!\x9b\xef" +
+	"\xb1 \x95\x95\xabGV\xf9\x19\x00D\x06\x95\x04'\xea" +
+	"\x8fE6$\xc2\xdd\xf1xZry\x1064\xc6\x8b" +
+	"\x03\x88\x1b1\xab\xde~\xf20\xfb\"\xd3#\x04\xcd\xc7" +
+	"\x15\x8c\xf1\x82s5\x13\x9a/\xba\x85\xbc`*\x879" +
+	"z\xd6B\xb8\xe4\xb1j\xd6\xf4p\x97\xe20\x030\xc9" +
+	"{M-\xf1\x7f\xc0\x07\xf3\xa7S\xc1\xbc\x9ai\x08\x06" +
+	"\x9c2\x9a\x9bX\xb2\xd1\xc4b\xb6\xe090\xaf&\xef" +
+	"-m\xc7\xa4a\x93\x96\xf5\xdb\xc4rZ\x08\x9a\xa7\x14" +
+	",\x96\xe8\x90U\xfe\x1c\xeaN\xe8\x88\xc5\x04\xd1$\xdb" +
+	"\xd1\xe1\xbaK\xe1.\xd7\x87K\xe5$\x05\x9e\x044\x08" +
+	"\xca\xd7\x93\x0d\xb5k\x17]\xfa\x02V\x07KV\x82\xd5" +
+	"\xca\xfc\x17\x00\x00\xff\xff\xdd\x0c\x1e,"
 
 func RegisterSchema(reg *schemas.Registry) {
 	reg.Register(&schemas.Schema{
@@ -1455,11 +1677,13 @@ func RegisterSchema(reg *schemas.Registry) {
 			0xa064f017cda4f80a,
 			0xa4409943248dfd5c,
 			0xa548460511093a50,
+			0xaa964acaea262bc8,
 			0xab248615ff957386,
 			0xb0db66a28c40394c,
 			0xbc40e8a99586a665,
 			0xc081b3907385e196,
 			0xc83cd0cad7e27568,
+			0xcdbc9fb380c2572b,
 			0xd1cd609cb22c8778,
 			0xd73b4c8dfa07fc7f,
 			0xe970781fd54f568e,
