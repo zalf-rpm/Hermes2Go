@@ -5,6 +5,8 @@ package main
 import (
 	"container/list"
 	"fmt"
+
+	"github.com/zalf-rpm/Hermes2Go/hermes"
 )
 
 // RunScheduler runs the scheduler
@@ -13,7 +15,7 @@ func runScheduler(closedSession <-chan *Hermes_Session, hermesRun <-chan *Hermes
 	toDoRuns := list.New()
 	var activeRuns uint
 	logOutputChan := make(chan string)
-	resultChannel := make(chan string)
+	resultChannel := make(chan *hermes.RunReturn)
 	for {
 		// check if we can start a new run
 		for activeRuns < maxConcurrent && toDoRuns.Len() > 0 {
@@ -30,6 +32,10 @@ func runScheduler(closedSession <-chan *Hermes_Session, hermesRun <-chan *Hermes
 		select {
 		case result := <-resultChannel:
 			activeRuns--
+			if !result.Success {
+				// TODO send error to client
+
+			}
 			if writeLogoutput {
 				fmt.Println(result)
 			}
