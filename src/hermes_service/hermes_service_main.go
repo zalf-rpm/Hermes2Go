@@ -18,16 +18,15 @@ import (
 )
 
 var version = "undefined"
-var concurrentOperations uint = 10
 
 func main() {
 
 	// cmd line arguments:
 	// number of concurrent operations
-	concurrentOperations = *flag.Uint("concurrent", 10, "number of concurrent operations")
+	concurrentOperations := flag.Uint("concurrent", 10, "number of concurrent operations")
 	// print version
 	printVersion := flag.Bool("version", false, "print version")
-	writeLogoutput := *flag.Bool("log", false, "write log output")
+	writeLogoutput := flag.Bool("log", false, "write log output")
 
 	flag.Parse()
 
@@ -52,7 +51,7 @@ func main() {
 	}()
 	closedSession := make(chan *Hermes_Session)
 	hermesRun := make(chan *Hermes_Run)
-	go runScheduler(closedSession, hermesRun, concurrentOperations, writeLogoutput)
+	go runScheduler(closedSession, hermesRun, *concurrentOperations, *writeLogoutput)
 
 	for {
 		// accept connections and serve
@@ -63,7 +62,7 @@ func main() {
 		fmt.Println("server: accepted connection from", c.RemoteAddr())
 		go func() {
 			server := Hermes_SessionServer{
-				writeLogoutput: writeLogoutput,
+				writeLogoutput: *writeLogoutput,
 				sessions:       []*Hermes_Session{},
 				runChan:        hermesRun,
 				closeChan:      closedSession,
@@ -284,5 +283,5 @@ func (cerr *ConnError) Warn(message string, args ...any) {
 }
 
 func (cerr *ConnError) Error(message string, args ...any) {
-	cerr.Out <- fmt.Errorf(message)
+	cerr.Out <- fmt.Errorf(message, args...)
 }
