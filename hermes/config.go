@@ -5,6 +5,7 @@ import (
 	"os"
 	"reflect"
 	"strconv"
+	"strings"
 
 	yaml "gopkg.in/yaml.v3"
 )
@@ -127,7 +128,11 @@ func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) C
 		hconfig.WeatherFolder = "Weather"
 	}
 	if len(hconfig.WeatherRootFolder) == 0 {
-		hconfig.WeatherRootFolder = hp.path
+		hconfig.WeatherRootFolder = hp.rootPath
+	}
+	// resolve ./ to workdir, not executable dir
+	if strings.HasPrefix(hconfig.WeatherRootFolder, "./") || strings.HasPrefix(hconfig.WeatherRootFolder, ".\\") {
+		hconfig.WeatherRootFolder = hp.rootPath + strings.TrimPrefix(hconfig.WeatherRootFolder, ".")
 	}
 	if len(hconfig.ResultFileExt) == 0 {
 		if OutputFileFormat(hconfig.ResultFileFormat) == csvOut {

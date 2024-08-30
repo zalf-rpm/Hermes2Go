@@ -22,6 +22,7 @@ const Modfil = "modinp.txt"
 
 // HFilePath list of hermes file pathes and path template
 type HFilePath struct {
+	rootPath     string
 	path         string
 	locid        string
 	parameter    string
@@ -68,6 +69,7 @@ type HFilePath struct {
 
 // NewHermesFilePath create an initialized HermesFilePath struct
 func NewHermesFilePath(root, locid, uniqueOutputId, parameterOverride, resultOverride string) HFilePath {
+	rootPath := root
 	pathToProject := path.Join(root, "project", locid)
 	parameter := path.Join(root, "parameter")
 	if len(parameterOverride) > 0 {
@@ -80,6 +82,7 @@ func NewHermesFilePath(root, locid, uniqueOutputId, parameterOverride, resultOve
 		out = path.Join(pathToProject, "RESULT")
 	}
 	return HFilePath{
+		rootPath:     rootPath,
 		locid:        locid,         // location id, equals project folder name
 		path:         pathToProject, // project folder
 		parameter:    parameter,     // parameter folder
