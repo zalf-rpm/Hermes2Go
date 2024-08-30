@@ -195,7 +195,7 @@ func doConcurrentBatchRun(session *hermes.HermesSession, workingDir string, star
 	fmt.Printf("End Line: %d \n", numberOfLines)
 
 	logOutputChan := make(chan string)
-	resultChannel := make(chan string)
+	resultChannel := make(chan *hermes.RunReturn)
 	var activeRuns uint16
 	errorSummary := checkResultForError()
 	var errorSummaryResult []string
@@ -251,11 +251,12 @@ func doConcurrentBatchRun(session *hermes.HermesSession, workingDir string, star
 }
 
 // checkResultForError concurrent output for error/ success, and add it to a summary
-func checkResultForError() func(string) []string {
+func checkResultForError() func(result *hermes.RunReturn) []string {
 	var errSummary = []string{"Error Summary:"}
-	return func(result string) []string {
-		if !strings.HasSuffix(result, "Success") {
-			errSummary = append(errSummary, result)
+
+	return func(result *hermes.RunReturn) []string {
+		if !result.Success {
+			errSummary = append(errSummary, result.String())
 		}
 		return errSummary
 	}

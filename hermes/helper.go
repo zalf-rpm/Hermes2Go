@@ -379,18 +379,6 @@ func (g *GlobalVarsMain) printToLimit(n int) func(int, interface{}) {
 	}
 }
 
-// print out error message to chanel or fail Fatal
-func printError(logID, errorMsg string, out, logout chan<- string) {
-	if logout != nil {
-		logout <- fmt.Sprintf("%s Error: %s", logID, errorMsg)
-	}
-	if out != nil {
-		out <- fmt.Sprintf("%s Error: %s", logID, errorMsg)
-	} else {
-		log.Fatal(errorMsg)
-	}
-}
-
 func isNil(value reflect.Value) bool {
 	if !value.IsValid() {
 		return true

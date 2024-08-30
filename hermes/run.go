@@ -11,7 +11,7 @@ import (
 )
 
 // Run a hermes simulation setup
-func (session *HermesSession) Run(workingDir string, args []string, logID string, out, logout chan<- string) {
+func (session *HermesSession) Run(workingDir string, args []string, logID string, out chan<- *RunReturn, logout chan<- string) {
 
 	returnedWithErr := func() error {
 		// Shared
@@ -760,13 +760,35 @@ func (session *HermesSession) Run(workingDir string, args []string, logID string
 		}
 		return nil
 	}()
-	if returnedWithErr != nil {
-		printError(logID, returnedWithErr.Error(), out, logout)
-	} else {
-		// calculation terminated with success
-		if out != nil {
-			cmdresult := logID + "Success"
-			out <- cmdresult
+	result := &RunReturn{
+		LogID:   logID,
+		Success: returnedWithErr == nil,
+		Err:     returnedWithErr,
+	}
+	if !result.Success {
+		// execution finished with error, send error to logout channel, or fatal log
+		if logout != nil {
+			logout <- result.String()
+		} else {
+			log.Fatal(result.String())
 		}
+	}
+	// execution finished, send result to channel
+	if out != nil {
+		out <- result
+	}
+}
+
+type RunReturn struct {
+	LogID   string
+	Success bool
+	Err     error
+}
+
+func (r RunReturn) String() string {
+	if r.Success {
+		return fmt.Sprintf("%s Success", r.LogID)
+	} else {
+		return fmt.Sprintf("%s Error: %s", r.LogID, r.Err)
 	}
 }
