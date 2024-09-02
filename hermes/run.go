@@ -762,6 +762,7 @@ func (session *HermesSession) Run(workingDir string, args []string, logID string
 	}()
 	result := &RunReturn{
 		LogID:   logID,
+		Session: session,
 		Success: returnedWithErr == nil,
 		Err:     returnedWithErr,
 	}
@@ -777,10 +778,12 @@ func (session *HermesSession) Run(workingDir string, args []string, logID string
 	if out != nil {
 		out <- result
 	}
+
 }
 
 type RunReturn struct {
 	LogID   string
+	Session *HermesSession
 	Success bool
 	Err     error
 }

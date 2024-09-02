@@ -32,9 +32,14 @@ func runScheduler(closedSession <-chan *Hermes_Session, hermesRun <-chan *Hermes
 		select {
 		case result := <-resultChannel:
 			activeRuns--
-			if !result.Success {
-				// TODO send error to client
 
+			if !result.Success {
+				// send error to client
+				writer, err := result.Session.HermesOutWriter(result.LogID, true)
+				if err != nil {
+					fmt.Println(err)
+				}
+				writer.WriteError(result.Err)
 			}
 			if writeLogoutput {
 				fmt.Println(result)

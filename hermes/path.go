@@ -238,6 +238,7 @@ type OutWriter interface {
 	Write(string) (int, error)
 	WriteBytes([]byte) (int, error)
 	WriteRune(rune) (int, error)
+	WriteError(error) (int, error)
 	Close()
 }
 
@@ -280,6 +281,11 @@ func (f *Fout) WriteBytes(s []byte) (int, error) {
 // WriteRune writes a bufferd rune
 func (f *Fout) WriteRune(s rune) (int, error) {
 	return f.fwriter.WriteRune(s)
+}
+
+// WriteError writes an error to the bufferd file
+func (f *Fout) WriteError(err error) (int, error) {
+	return f.fwriter.WriteString(err.Error())
 }
 
 // Close file writer

@@ -245,6 +245,21 @@ func (c *CallBackOutwriter) WriteBytes(b []byte) (int, error) {
 func (c *CallBackOutwriter) WriteRune(r rune) (int, error) {
 	return c.fwriter.WriteRune(r)
 }
+func (c *CallBackOutwriter) WriteError(errOut error) (int, error) {
+	_, _ = c.cWriter.callback.SendError(context.Background(), func(p hermes_service_capnp.Callback_sendError_Params) error {
+		err := p.SetRunId(c.cWriter.id)
+		if err != nil {
+			return err
+		}
+		err = p.SetError(errOut.Error())
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	return 0, nil
+}
+
 func (c *CallBackOutwriter) Close() {
 	err := c.fwriter.Flush()
 	if err != nil {
