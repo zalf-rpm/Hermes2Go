@@ -13,10 +13,10 @@
             "mode": "auto",
             "program": "src/hermes_service",
             "args": [
-                "-log", "true",
+                "-log",
                 "-concurrent", "4",
+                "-tlspath", "C:/Users/sschulz/cert-test",
             ]
-
         },
         {
             "name": "Launch Producer_Consumer",
@@ -27,7 +27,8 @@
             "cwd": "examples/",
             "args": [
                 "-batch", "bd_muencheberg_batch.txt",
-                "-workdir", "C:/Users/sschulz/Desktop/water_model_2/Hermes2Go/examples"
+                "-workdir", "C:/Users/sschulz/Desktop/water_model_2/Hermes2Go/examples",
+                "-tlspath", "C:/Users/sschulz/cert-test"
             ]
 
         },

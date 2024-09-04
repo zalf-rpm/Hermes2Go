@@ -2,10 +2,14 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"flag"
 	"fmt"
 	"log"
 	"net"
+	"os"
+	"path/filepath"
 	"time"
 
 	"capnproto.org/go/capnp/v3/rpc"
@@ -25,6 +29,8 @@ func main() {
 	workDir := flag.String("workdir", "", "working directory")
 	// batch file
 	batchFile := flag.String("batch", "", "batch file")
+	// tls path
+	tlsPath := flag.String("tlspath", "", "path to tls root cert")
 
 	flag.Parse()
 
@@ -37,6 +43,28 @@ func main() {
 	if *batchFile == "" {
 		log.Fatal("batch file not specified")
 	}
+	var tlsconfig *tls.Config
+	if *tlsPath != "" {
+		caFile := filepath.Join(*tlsPath, "ca.crt")
+		_, err := os.Stat(caFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		data, err := os.ReadFile(caFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		roots := x509.NewCertPool()
+		ok := roots.AppendCertsFromPEM(data)
+		if !ok {
+			log.Fatal("failed to parse root certificate")
+		}
+
+		tlsconfig = &tls.Config{
+			RootCAs: roots,
+		}
+	}
+
 	setup, err := setupFromBatch(*batchFile)
 	if err != nil {
 		log.Fatal(err)
@@ -48,7 +76,7 @@ func main() {
 	// create a new ResultCallback
 	cb := &ResultCallback{consumer: make(chan *resultData)}
 	go runConsumer(cb.consumer, doneConsumer)
-	go runProducer(*workDir, *hServive, cb, doneProducer, doneConsumer, setup)
+	go runProducer(*workDir, *hServive, cb, doneProducer, doneConsumer, setup, tlsconfig)
 
 	// wait for the producer and consumer to finish
 	<-doneProducer
@@ -56,14 +84,24 @@ func main() {
 }
 
 // runProducer generates setups and sends them to the hermes_service
-func runProducer(workDir, hService string, cb *ResultCallback, done chan<- bool, doneConsumer <-chan bool, setup *setup) {
+func runProducer(workDir, hService string, cb *ResultCallback, done chan<- bool, doneConsumer <-chan bool, setup *setup, tlsconfig *tls.Config) {
 	defer func() { done <- true }()
-
-	conn, err := net.Dial("tcp", hService)
-	if err != nil {
-		log.Fatal(err)
+	var conn net.Conn
+	var err error
+	if tlsconfig != nil {
+		conn, err = tls.Dial("tcp", hService, tlsconfig)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer conn.Close()
+	} else {
+		conn, err := net.Dial("tcp", hService)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer conn.Close()
 	}
-	defer conn.Close()
+
 	// establish connection to registry
 	transport := rpc.NewPackedStreamTransport(conn)
 	connection := rpc.NewConn(transport, nil)
@@ -125,8 +163,6 @@ func runProducer(workDir, hService string, cb *ResultCallback, done chan<- bool,
 	if err := connection.Close(); err != nil {
 		log.Println(err)
 	}
-
-	done <- true
 }
 
 // runConsumer receives the results from the hermes_service

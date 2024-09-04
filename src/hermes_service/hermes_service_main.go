@@ -3,13 +3,13 @@ package main
 import (
 	"bufio"
 	"context"
+	"crypto/tls"
 	"flag"
 	"fmt"
 	"log"
 	"net"
 	"os"
-	"os/signal"
-	"syscall"
+	"path/filepath"
 
 	"capnproto.org/go/capnp/v3"
 	"capnproto.org/go/capnp/v3/rpc"
@@ -27,6 +27,8 @@ func main() {
 	// print version
 	printVersion := flag.Bool("version", false, "print version")
 	writeLogoutput := flag.Bool("log", false, "write log output")
+	port := flag.String("port", "8841", "port to listen on")
+	useTLS := flag.String("tlspath", "", "path to tls cert and key")
 
 	flag.Parse()
 
@@ -34,28 +36,47 @@ func main() {
 		fmt.Println("Version: ", version)
 		return
 	}
-	// listen on a socket
-	l, err := net.Listen("tcp", "localhost:8841")
-	if err != nil {
-		log.Fatal(err)
+	var listener net.Listener
+	var err error
+	if *useTLS != "" {
+		// read the cert and key file
+		certFile := filepath.Join(*useTLS, "server.crt")
+		keyFile := filepath.Join(*useTLS, "server.key")
+		_, err = os.Stat(certFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		_, err = os.Stat(keyFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		cfg := &tls.Config{Certificates: []tls.Certificate{cert}}
+		listener, err = tls.Listen("tcp", "localhost:"+*port, cfg)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer listener.Close()
+	} else {
+
+		// listen on a socket
+		listener, err = net.Listen("tcp", "localhost:"+*port)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer listener.Close()
 	}
-	defer l.Close()
 
-	// catch signals to close the listener
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	go func() {
-		<-sigs
-		l.Close()
-
-	}()
 	closedSession := make(chan *Hermes_Session)
 	hermesRun := make(chan *Hermes_Run)
 	go runScheduler(closedSession, hermesRun, *concurrentOperations, *writeLogoutput)
 
 	for {
 		// accept connections and serve
-		c, err := l.Accept()
+		c, err := listener.Accept()
 		if err != nil {
 			log.Fatal(err)
 		}
