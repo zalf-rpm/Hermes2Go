@@ -1,5 +1,5 @@
-#Download base image alpine 3.10
-FROM golang:1.22.1-alpine3.19 AS build-env
+#Download base image alpine 3.20
+FROM golang:1.22.7-alpine3.20 AS build-env
 
 RUN apk update && apk add --no-cache binutils git curl unzip tar
 
@@ -14,7 +14,7 @@ RUN VERSION=$(cat /version.txt) && go build -v -ldflags "-X main.version=${VERSI
 WORKDIR /go/src/github.com/zalf-rpm/Hermes2Go/src/calcHermesBatch
 RUN VERSION=$(cat /version.txt) && go build -v -ldflags "-X main.version=${VERSION}"
 
-FROM alpine:3.19
+FROM alpine3.20
 
 COPY --from=build-env /go/src/github.com/zalf-rpm/Hermes2Go/src/hermes2go/hermes2go /hermes2go/
 COPY --from=build-env /go/src/github.com/zalf-rpm/Hermes2Go/src/calcHermesBatch/calcHermesBatch /hermes2go/
