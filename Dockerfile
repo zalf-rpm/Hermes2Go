@@ -14,7 +14,7 @@ RUN VERSION=$(cat /version.txt) && go build -v -ldflags "-X main.version=${VERSI
 WORKDIR /go/src/github.com/zalf-rpm/Hermes2Go/src/calcHermesBatch
 RUN VERSION=$(cat /version.txt) && go build -v -ldflags "-X main.version=${VERSION}"
 
-FROM alpine3.20
+FROM alpine:3.20
 
 COPY --from=build-env /go/src/github.com/zalf-rpm/Hermes2Go/src/hermes2go/hermes2go /hermes2go/
 COPY --from=build-env /go/src/github.com/zalf-rpm/Hermes2Go/src/calcHermesBatch/calcHermesBatch /hermes2go/
