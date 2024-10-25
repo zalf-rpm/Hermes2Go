@@ -179,6 +179,30 @@
             ]
         },
         {
+            "name": "CalcBatch Array",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "src/calcHermesBatch/calchermesbatch.go",
+            "cwd": "examples",
+            "args": [
+                "-list", "10",
+                "-batch", "rue_muencheberg_batch.txt"
+            ]
+        },
+        {
+            "name": "CalcBatch size",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "src/calcHermesBatch/calchermesbatch.go",
+            "cwd": "examples",
+            "args": [
+                "-size", "10",
+                "-batch", "rue_muencheberg_batch.txt"
+            ]
+        },
+        {
             "name": "Attach to R process",
             "type": "R-Debugger",
             "request": "attach",
