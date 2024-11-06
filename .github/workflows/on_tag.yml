@@ -74,12 +74,14 @@ jobs:
         mkdir ./Hermes2Go_${{ github.ref_name }}/project/myP
         mkdir ./Hermes2Go_${{ github.ref_name }}/weather/historical
         mkdir ./Hermes2Go_${{ github.ref_name }}/parameter
+        mkdir ./Hermes2Go_${{ github.ref_name }}/doc
         cp ./examples/project/modinp_myP.txt ./Hermes2Go_${{ github.ref_name }}/project/modinp.txt
         cp ./examples/weather/historical/109_120.csv ./Hermes2Go_${{ github.ref_name }}/weather/historical
         cp ./examples/project/myP/* ./Hermes2Go_${{ github.ref_name }}/project/myP
         cp ./examples/parameter/* ./Hermes2Go_${{ github.ref_name }}/parameter
         cp ./examples/myP_batch.txt ./Hermes2Go_${{ github.ref_name }}/
         cp ./examples/README.md ./Hermes2Go_${{ github.ref_name }}/
+        cp ./doc/* ./Hermes2Go_${{ github.ref_name }}/doc
         Compress-Archive -Path ./Hermes2Go_${{ github.ref_name }}/* -Destination Hermes2Go_win_${{ github.ref_name }}.zip
   
     - name: Create release
