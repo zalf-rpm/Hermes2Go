@@ -85,7 +85,7 @@ type GlobalVarsMain struct {
 	CAPS     [21]float64 // capillary rise (Kapillarer Aufstieg) (cm)
 	LIM      [10]float64 // permanent wilting point (Welkepunkt) from file
 	PRGES    [10]float64
-	//WUMAX              [10]float64 // obsolete
+
 	AD                 float64
 	GRLO               int             // ground water level low (Grundwasserstand)
 	GRHI               int             // ground water level high (Grundwasserstand)
@@ -414,19 +414,15 @@ type GlobalVarsMain struct {
 	SGEHMIN     float64              // minimal S-Content in plants
 	SC          float64              // percentage of Sulfur in crop (in %)
 	HEGzuNEG    map[CropType]float64 // map Harvest residues ratio for crops (HauptErnteGut NebenErnteGut)
-	//TM          map[CropType]float64
-	N_HEG     map[CropType]float64 // map of N-content of main harvest residues for crops
-	S_HEG     map[CropType]float64 // map of S-content of main harvest residues for crops
-	N_NEG     map[CropType]float64 // map of N-content of secondary harvest residues for crops
-	S_NEG     map[CropType]float64 // map of S-content of secondary harvest residues for crops
-	SWura     map[CropType]float64 // S content in root by crop
-	Nfas      map[CropType]float64 // N fast uptake fraction
-	Sfas      map[CropType]float64 // S fast uptake fraction
-	SNRatio   map[CropType]float64 // S-N-Ratio for crops
-	SGEHOB    float64              //S content in upper plant organs
-	SREDUK    float64              //S reduction factor
-	SREDUKSUM float64              //S reduction factor sum
-	SUPTAKE   float64              //S-uptake at harvest
+	N_HEG       map[CropType]float64 // map of N-content of main harvest residues for crops
+	S_HEG       map[CropType]float64 // map of S-content of main harvest residues for crops
+	N_NEG       map[CropType]float64 // map of N-content of secondary harvest residues for crops
+	S_NEG       map[CropType]float64 // map of S-content of secondary harvest residues for crops
+	SNRatio     map[CropType]float64 // S-N-Ratio for crops
+	SGEHOB      float64              //S content in upper plant organs
+	SREDUK      float64              //S reduction factor
+	SREDUKSUM   float64              //S reduction factor sum
+	SUPTAKE     float64              //S-uptake at harvest
 
 	// output parameters
 	PerY            float64 // accumulated output

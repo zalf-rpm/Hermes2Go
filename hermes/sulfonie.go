@@ -506,6 +506,7 @@ func sResidi(g *GlobalVarsMain, hPath *HFilePath) {
 	g.SDIR[0] = 0.0
 }
 
+// read crop data, calculate S/N Ratio
 func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
 
 	// Notes : https://d-nb.info/1175826456/34
@@ -530,39 +531,23 @@ func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
 	headerTokens := strings.Fields(header)
 
 	cDHeader := map[string]int{
-		"Crop":         -1,
-		"ZF":           -1,
-		"S_Funct":      -1,
-		"critSContent": -1,
-		"Exp":          -1,
-		"HEGzuNEG":     -1,
-		"TM_":          -1,
-		"N_HEG":        -1,
-		"S_HEG":        -1,
-		"N_NEG":        -1,
-		"S_NEG":        -1,
-		"SWura":        -1,
-		"Nfas":         -1,
-		"Sfas":         -1,
+		"Crop":     -1,
+		"HEGzuNEG": -1,
+		"N_HEG":    -1,
+		"S_HEG":    -1,
+		"N_NEG":    -1,
+		"S_NEG":    -1,
 	}
 	for i, token := range headerTokens {
 		if _, ok := cDHeader[token]; ok {
 			cDHeader[token] = i
 		}
 	}
-	// g.ZF = make(map[CropType]float64)
-	// g.CRITSGEHALT = make(map[CropType]float64)
-	// g.CRITSEXP = make(map[CropType]float64)
-	// g.SGEFKT = make(map[CropType]int)
 	g.HEGzuNEG = make(map[CropType]float64)
-	//g.TM = make(map[CropType]float64)
 	g.N_HEG = make(map[CropType]float64)
 	g.S_HEG = make(map[CropType]float64)
 	g.N_NEG = make(map[CropType]float64)
 	g.S_NEG = make(map[CropType]float64)
-	g.SWura = make(map[CropType]float64)
-	g.Nfas = make(map[CropType]float64)
-	g.Sfas = make(map[CropType]float64)
 	g.SNRatio = make(map[CropType]float64)
 
 	for scannerCropDataFile.Scan() {
@@ -571,22 +556,11 @@ func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
 
 		if len(token) >= len(cDHeader) {
 			crop := token[cDHeader["Crop"]]
-			//zf := token[cDHeader["ZF"]]
-			// critSContent := token[cDHeader["critSContent"]]
 			cropt := g.ToCropType(crop)
-			// Sgefkt := token[cDHeader["S_Funct"]]
-			// critsexp := token[cDHeader["Exp"]]
-			//g.ZF[cropt] = ValAsFloat(zf, cData, line)
-			// g.CRITSGEHALT[cropt] = ValAsFloat(critSContent, cData, line)
-			// g.SGEFKT[cropt] = int(ValAsInt(Sgefkt, cData, line))
-			// g.CRITSEXP[cropt] = ValAsFloat(critsexp, cData, line)
-			g.Sfas[cropt] = ValAsFloat(token[cDHeader["Sfas"]], cData, line)
-			g.SWura[cropt] = ValAsFloat(token[cDHeader["SWura"]], cData, line)
 			g.S_HEG[cropt] = ValAsFloat(token[cDHeader["S_HEG"]], cData, line)
 			g.S_NEG[cropt] = ValAsFloat(token[cDHeader["S_NEG"]], cData, line)
 			g.N_HEG[cropt] = ValAsFloat(token[cDHeader["N_HEG"]], cData, line)
 			g.N_NEG[cropt] = ValAsFloat(token[cDHeader["N_NEG"]], cData, line)
-			//g.TM[cropt] = ValAsFloat(token[cDHeader["TM_"]], cData, line)
 			g.HEGzuNEG[cropt] = ValAsFloat(token[cDHeader["HEGzuNEG"]], cData, line)
 
 			// calculate SNRatio
@@ -605,6 +579,7 @@ func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
 	return nil
 }
 
+// read Smin measurements
 func readSmin(g *GlobalVarsMain, Fident string, hPath *HFilePath) {
 	// only read this file if sulfonie is enabled
 	if g.Sulfonie {
