@@ -398,7 +398,7 @@ func sMove(wdt float64, subd int, g *GlobalVarsMain) {
 func sResid(g *GlobalVarsMain, hPath *HFilePath) (SSA, SLA, SDI float64) {
 	// 		!Mineralisationspotentiale aus Vorfruchtresiduen
 	CRONAM := hPath.cropn
-	_, scanner, _ := Open(&FileDescriptior{FilePath: CRONAM, UseFilePool: true})
+	_, scanner, _ := g.Session.Open(&FileDescriptior{FilePath: CRONAM, UseFilePool: true})
 	var SERNT, SWURA, SFAST float64
 	for scanner.Scan() {
 		CROP := scanner.Text()
@@ -465,7 +465,7 @@ func sResidi(g *GlobalVarsMain, hPath *HFilePath) {
 	// ! ******  Mineralisationspotentiale aus Vorfruchtresiduen
 	// CROP_S.TXT
 	CRONAM := hPath.cropn
-	_, scanner, _ := Open(&FileDescriptior{FilePath: CRONAM, UseFilePool: true})
+	_, scanner, _ := g.Session.Open(&FileDescriptior{FilePath: CRONAM, UseFilePool: true})
 	var KOSTRO, SKOPP, SERNT, SWURA, SFAST float64
 	for scanner.Scan() {
 		CROP := scanner.Text()
@@ -522,7 +522,7 @@ func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
 	}
 	cData := hpath.cropdata
 	// check if file exists
-	_, scannerCropDataFile, err := Open(&FileDescriptior{FilePath: cData, FileDescription: "crop data file", UseFilePool: true})
+	_, scannerCropDataFile, err := g.Session.Open(&FileDescriptior{FilePath: cData, FileDescription: "crop data file", UseFilePool: true})
 	if err != nil {
 		return err
 	}
@@ -609,7 +609,7 @@ func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
 func readSmin(g *GlobalVarsMain, Fident string, hPath *HFilePath) {
 	// only read this file if sulfonie is enabled
 	if g.Sulfonie {
-		_, scannerSminFile, _ := Open(&FileDescriptior{FilePath: hPath.smin, FileDescription: "smin file", UseFilePool: true})
+		_, scannerSminFile, _ := g.Session.Open(&FileDescriptior{FilePath: hPath.smin, FileDescription: "smin file", UseFilePool: true})
 
 		g.SI = make(map[int][]float64)
 
