@@ -793,10 +793,10 @@ func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 		}
 	}
 	// this part will only be triggerd if a RPC service was connected at start
-	if err := HermesRPCService.SendGV(g, zeit, wdt, subd); err != nil {
+	if err := g.Session.HermesRPCService.SendGV(g, zeit, wdt, subd); err != nil {
 		fmt.Println(err)
 	}
-	if err := HermesRPCService.SendNV(l, zeit, wdt, subd); err != nil {
+	if err := g.Session.HermesRPCService.SendNV(l, zeit, wdt, subd); err != nil {
 		fmt.Println(err)
 	}
 
@@ -844,7 +844,7 @@ func resid(g *GlobalVarsMain, ln *NitroBBBSharedVars, hPath *HFilePath) (NDI, NS
 	// PESUM              = aufgenommene N-Menge der Pflanze (kg N/ha) / N amount taken up by the crop (kg N/ha)
 
 	CRONAM := hPath.cropn
-	_, scanner, _ := Open(&FileDescriptior{FilePath: CRONAM, UseFilePool: true})
+	_, scanner, _ := g.Session.Open(&FileDescriptior{FilePath: CRONAM, UseFilePool: true})
 	var KOSTRO, NERNT, NKOPP, NWURA, NFAST float64
 	for scanner.Scan() {
 		CROP := scanner.Text()

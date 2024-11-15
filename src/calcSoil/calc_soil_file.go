@@ -30,15 +30,16 @@ func main() {
 
 	hpath := hermes.NewHermesFilePath("", "0", "", "", "")
 	hpath.OverrideBofile(*inputFile)
-	defer hermes.HermesFilePool.Close()
+	session := hermes.NewHermesSession()
+	defer session.Close()
 
-	listOfSoilIds := readSoilIds(*inputFile)
+	listOfSoilIds := readSoilIds(*inputFile, session)
 	soilData := make([]hermes.SoilFileData, 0)
 	if strings.HasSuffix(*inputFile, ".csv") {
 
 		// read csv file
 		for _, soilId := range listOfSoilIds {
-			data, err := hermes.LoadSoilCSV(true, "any", &hpath, soilId)
+			data, err := hermes.LoadSoilCSV(true, "any", &hpath, soilId, session)
 			if err != nil {
 				panic(err)
 			}
@@ -47,7 +48,7 @@ func main() {
 	} else {
 		// read txt file
 		for _, soilId := range listOfSoilIds {
-			data, err := hermes.LoadSoil(true, "any", &hpath, soilId)
+			data, err := hermes.LoadSoil(true, "any", &hpath, soilId, session)
 			if err != nil {
 				panic(err)
 			}
@@ -104,7 +105,7 @@ func main() {
 		}
 
 	}
-	out := hermes.OpenResultFile(*outputFile, false)
+	out := session.OpenResultFile(*outputFile, false)
 	defer out.Close()
 
 	// write output file
@@ -312,8 +313,8 @@ func WriteSoilCSV(soilData hermes.SoilFileData, out hermes.OutWriter, withBulkde
 	return nil
 }
 
-func readSoilIds(inFile string) []string {
-	_, scanner, err := hermes.Open(&hermes.FileDescriptior{FilePath: inFile, FileDescription: "soil file", UseFilePool: true})
+func readSoilIds(inFile string, session *hermes.HermesSession) []string {
+	_, scanner, err := session.Open(&hermes.FileDescriptior{FilePath: inFile, FileDescription: "soil file", UseFilePool: true})
 	if err != nil {
 		panic(err)
 	}

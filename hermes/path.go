@@ -12,16 +12,17 @@ import (
 	"sync"
 )
 
-// HermesFilePool file pool for shared files
-var HermesFilePool FilePool
-var HermesRPCService RPCService
-var HermesOutWriter OutWriterGenerator
+// // HermesFilePool file pool for shared files
+// var HermesFilePool FilePool
+// var HermesRPCService RPCService
+// var HermesOutWriter OutWriterGenerator
 
 // Modfil default module filename
 const Modfil = "modinp.txt"
 
 // HFilePath list of hermes file pathes and path template
 type HFilePath struct {
+	rootPath     string
 	path         string
 	locid        string
 	parameter    string
@@ -68,6 +69,7 @@ type HFilePath struct {
 
 // NewHermesFilePath create an initialized HermesFilePath struct
 func NewHermesFilePath(root, locid, uniqueOutputId, parameterOverride, resultOverride string) HFilePath {
+	rootPath := root
 	pathToProject := path.Join(root, "project", locid)
 	parameter := path.Join(root, "parameter")
 	if len(parameterOverride) > 0 {
@@ -80,6 +82,7 @@ func NewHermesFilePath(root, locid, uniqueOutputId, parameterOverride, resultOve
 		out = path.Join(pathToProject, "RESULT")
 	}
 	return HFilePath{
+		rootPath:     rootPath,
 		locid:        locid,         // location id, equals project folder name
 		path:         pathToProject, // project folder
 		parameter:    parameter,     // parameter folder
@@ -235,6 +238,7 @@ type OutWriter interface {
 	Write(string) (int, error)
 	WriteBytes([]byte) (int, error)
 	WriteRune(rune) (int, error)
+	WriteError(error) (int, error)
 	Close()
 }
 
@@ -277,6 +281,11 @@ func (f *Fout) WriteBytes(s []byte) (int, error) {
 // WriteRune writes a bufferd rune
 func (f *Fout) WriteRune(s rune) (int, error) {
 	return f.fwriter.WriteRune(s)
+}
+
+// WriteError writes an error to the bufferd file
+func (f *Fout) WriteError(err error) (int, error) {
+	return f.fwriter.WriteString(err.Error())
 }
 
 // Close file writer
