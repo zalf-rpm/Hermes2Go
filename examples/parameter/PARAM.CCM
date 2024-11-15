@@ -1,11 +1,11 @@
 Parameter crop model
-Frucht: Corn-Cob-K�rner
+Frucht: Corn-Cob-Koerner
 Fruchtnummer/ Abkurzung  .....................................   20 CCM 
 AMAX: Max. CO2 Assimilationsrate (kg CO2/ha Blatt/h).....80.98   96
-Typ der Temperaturabh�ngigkeit (C3 = 1/ C4 = 2) ..............   2
+Typ der Temperaturabhängigkeit (C3 = 1/ C4 = 2) ..............   2
 Minimumtemperatur Pflanzenwachstum (Grad C) ..................   6     
 maximale effektive Wurzeltiefe (dm) .............monica14.....   7
-root depth increase in mm/C�..................................   0.6
+root depth increase in mm/C°..................................   0.6
 crop N-content no.    a=0.0448 b=-0.556 below gr. organ org=S0   5
 Oberidische Organe (Nummern der Kompartimente aufsteigend) ...   234
 organ no. for yield and fraction of organ.(organ 4 80% =4.80).   4.78  

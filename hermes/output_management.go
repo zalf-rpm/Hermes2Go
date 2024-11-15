@@ -78,7 +78,7 @@ type ManagementConfig struct {
 	// Management output configuration
 	EventFormats  map[ManagementEventType]*ManagementEventConfig
 	SeperatorRune rune
-	file          *Fout
+	file          OutWriter
 }
 
 func (s *ManagementConfig) AnyOutputEnabled() bool {
@@ -140,11 +140,11 @@ func NewManagentConfig() *ManagementConfig {
 	}
 }
 
-func LoadManagementConfig(hp *HFilePath) (*ManagementConfig, error) {
+func LoadManagementConfig(hp *HFilePath, session *HermesSession) (*ManagementConfig, error) {
 	config := NewManagentConfig()
 	// if config files exists, read it into hconfig
 	if _, err := os.Stat(hp.managementOutput); err == nil {
-		byteData := HermesFilePool.Get(&FileDescriptior{FilePath: hp.managementOutput, ContinueOnError: true, UseFilePool: true})
+		byteData := session.HermesFilePool.Get(&FileDescriptior{FilePath: hp.managementOutput, ContinueOnError: true, UseFilePool: true})
 		err := yaml.Unmarshal(byteData, &config)
 		if err != nil {
 			return nil, err
@@ -156,7 +156,7 @@ func LoadManagementConfig(hp *HFilePath) (*ManagementConfig, error) {
 
 	if anyOutPut := config.AnyOutputEnabled(); anyOutPut {
 		// open management output file
-		config.file = OpenResultFile(hp.mnam, false)
+		config.file = session.OpenResultFile(hp.mnam, false)
 	}
 
 	for _, eventConf := range config.EventFormats {

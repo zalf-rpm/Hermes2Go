@@ -66,7 +66,7 @@ Trockenstress ab ETA/ETP-Quotient von ........................   0.9
 kritischer Luftgehalt im Oberboden ...........................   0.00 
 Umrechnung Blattgewicht in Blattflaeche (m2/m2/kg TM) ........   0.003
 N-Gehalt Wurzel Ende 4. Phase ................................   0.014
-Partitionierung Ende 4. Phase... 0.000.. 0.100.. 0.130.. 0.870.. 0.000
+Partitionierung Ende 4. Phase... 0.000.. 0.000.. 0.130.. 0.870.. 0.000
 Sterberaten Ende 4. Phase ...... 0.000.. 0.010.. 0.000.. 0.000.. 0.000
 kc factor for evapotranspiration at end of phase 1 ...........   1.15
 -------- Entwicklungsphase 5: End of leave growth----------------------

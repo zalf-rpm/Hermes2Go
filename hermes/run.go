@@ -11,11 +11,10 @@ import (
 )
 
 // Run a hermes simulation setup
-func Run(workingDir string, args []string, logID string, out, logout chan<- string) {
+func (session *HermesSession) Run(workingDir string, args []string, logID string, out chan<- *RunReturn, logout chan<- string) {
 
 	returnedWithErr := func() error {
 		// Shared
-		var ETPOT, ETAKT, NMINSU, SREGEN [151]float64
 		var SWCY float64
 		var SWC1 float64
 		var PR bool
@@ -27,6 +26,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		g := NewGlobalVarsMain()
 		g.DEBUGCHANNEL = logout
 		g.LOGID = logID
+		g.Session = session
 		var herInputVars InputSharedVars
 		var cropSharedVars CropSharedVars
 		var nitroSharedVars NitroSharedVars
@@ -91,7 +91,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		// if a configutation file cannot be found, generate a new one
 		if _, err := os.Stat(herPath.config); err != nil {
 			fmt.Println("Generate config", herPath.config)
-			WriteYamlConfig(herPath.config, NewDefaultConfig())
+			session.WriteYamlConfig(herPath.config, NewDefaultConfig())
 		}
 		driConfig := readConfig(&g, argValues, &herPath)
 		herPath.SetOutputExtension(driConfig.ResultFileExt)
@@ -151,17 +151,17 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		if _, err := os.Stat(herPath.yearlyOutput); err != nil {
 			fmt.Println("Generate config for yearly outpu: ", herPath.yearlyOutput)
 			yearlyOutConfig = NewDefaultOutputConfigYearly(&g)
-			WriteYamlConfig(herPath.yearlyOutput, yearlyOutConfig)
+			session.WriteYamlConfig(herPath.yearlyOutput, yearlyOutConfig)
 			log.Fatal("Generated yearly output configuration")
 		} else {
-			yearlyOutConfig, err = LoadHermesOutputConfig(herPath.yearlyOutput, &g)
+			yearlyOutConfig, err = LoadHermesOutputConfig(herPath.yearlyOutput, &g, session)
 			if err != nil {
 				log.Fatal(err)
 			}
 		}
 		yearlyOutConfig.formatType = OutputFileFormat(driConfig.ResultFileFormat)
 
-		pnamFile := OpenResultFile(herPath.pnam, false)
+		pnamFile := session.OpenResultFile(herPath.pnam, false)
 		defer pnamFile.Close()
 		yearlyOutConfig.WriteHeader(pnamFile)
 
@@ -234,52 +234,52 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		if _, err := os.Stat(herPath.cropOutput); err != nil {
 			fmt.Println("Generate config for crop output: ", herPath.cropOutput)
 			cropOutputConfig = NewDefaultCropOutputConfig(&cropOut)
-			WriteYamlConfig(herPath.cropOutput, cropOutputConfig)
+			session.WriteYamlConfig(herPath.cropOutput, cropOutputConfig)
 			log.Fatal("Generated crop output configuration")
 		} else {
-			cropOutputConfig, err = LoadHermesOutputConfig(herPath.cropOutput, &cropOut)
+			cropOutputConfig, err = LoadHermesOutputConfig(herPath.cropOutput, &cropOut, session)
 			if err != nil {
 				log.Fatal(err)
 			}
 		}
 		cropOutputConfig.formatType = OutputFileFormat(driConfig.ResultFileFormat)
 
-		CNAMfile := OpenResultFile(herPath.cnam, false)
+		CNAMfile := session.OpenResultFile(herPath.cnam, false)
 		defer CNAMfile.Close()
 		cropOutputConfig.WriteHeader(CNAMfile)
 
 		OUTINT := driConfig.OutputIntervall
 		WriteManagementEvents := driConfig.ManagementEvents
 
-		var VNAMfile *Fout
+		var VNAMfile OutWriter
 		var dailyOutputConfig OutputConfig
-		var pfFile *Fout
+		var pfFile OutWriter
 		var pfOutputConfig OutputConfig
 		if OUTINT > 0 {
 			if _, err := os.Stat(herPath.dailyOutput); err != nil {
 				fmt.Println("Generate config for daily output: ", herPath.dailyOutput)
 				dailyOutputConfig = NewDefaultDailyOutputConfig(&g)
-				WriteYamlConfig(herPath.dailyOutput, dailyOutputConfig)
+				session.WriteYamlConfig(herPath.dailyOutput, dailyOutputConfig)
 				log.Fatal("Generated daily output configuration")
 			} else {
-				dailyOutputConfig, err = LoadHermesOutputConfig(herPath.dailyOutput, &g)
+				dailyOutputConfig, err = LoadHermesOutputConfig(herPath.dailyOutput, &g, session)
 				if err != nil {
 					log.Fatal(err)
 				}
 			}
 			dailyOutputConfig.formatType = OutputFileFormat(driConfig.ResultFileFormat)
-			VNAMfile = OpenResultFile(herPath.vnam, false)
+			VNAMfile = session.OpenResultFile(herPath.vnam, false)
 			defer VNAMfile.Close()
 			dailyOutputConfig.WriteHeader(VNAMfile)
 
 			// TODO: find a good name
 			if _, err := os.Stat(herPath.pfOutput); err == nil {
-				pfOutputConfig, err = LoadHermesOutputConfig(herPath.pfOutput, &g)
+				pfOutputConfig, err = LoadHermesOutputConfig(herPath.pfOutput, &g, session)
 				pfOutputConfig.formatType = OutputFileFormat(driConfig.ResultFileFormat)
 				if err != nil {
 					log.Fatal(err)
 				}
-				pfFile = OpenResultFile(herPath.pfnam, false)
+				pfFile = session.OpenResultFile(herPath.pfnam, false)
 				defer pfFile.Close()
 				pfOutputConfig.WriteHeader(pfFile)
 			}
@@ -288,10 +288,10 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			if _, err := os.Stat(herPath.managementOutput); err != nil {
 				fmt.Println("Generate config for management output: ", herPath.managementOutput)
 				g.managementConfig = NewManagentConfig()
-				WriteYamlConfig(herPath.managementOutput, g.managementConfig)
+				session.WriteYamlConfig(herPath.managementOutput, g.managementConfig)
 				log.Fatal("Generated management output configuration")
 			} else {
-				g.managementConfig, err = LoadManagementConfig(&herPath)
+				g.managementConfig, err = LoadManagementConfig(&herPath, session)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -537,7 +537,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			}
 			WDT = 1 / math.Ceil(ZSR)
 
-			HermesRPCService.SendWdt(&g, ZEIT, WDT)
+			g.Session.HermesRPCService.SendWdt(&g, ZEIT, WDT)
 
 			// *************** BERECHNUNG DER BODENTEMPERATUR ***************
 			// *************** CALCULATION OF SOIL TEMPERATURE ***************
@@ -743,11 +743,7 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 			if g.TAG.Index+1 == OUTDAY {
 				g.AUS[JZ] = g.OUTSUM
 				g.SIC[JZ] = (g.SICKER - math.Abs(g.CAPSUM))
-				ETPOT[JZ-1] = g.VERDUNST * 10
-				ETAKT[JZ-1] = g.PFTRANS * 10
 				g.AUFNA[JZ] = g.AUFNASUM
-				NMINSU[JZ-1] = g.MINSUM
-				SREGEN[JZ-1] = g.REGENSUM
 
 				g.PerY = g.SICKER - math.Abs(g.CAPSUM)
 				g.SWCY1 = SWCY1 / float64(g.JTAG)
@@ -804,13 +800,38 @@ func Run(workingDir string, args []string, logID string, out, logout chan<- stri
 		}
 		return nil
 	}()
-	if returnedWithErr != nil {
-		printError(logID, returnedWithErr.Error(), out, logout)
-	} else {
-		// calculation terminated with success
-		if out != nil {
-			cmdresult := logID + "Success"
-			out <- cmdresult
+	result := &RunReturn{
+		LogID:   logID,
+		Session: session,
+		Success: returnedWithErr == nil,
+		Err:     returnedWithErr,
+	}
+	if !result.Success {
+		// execution finished with error, send error to logout channel, or fatal log
+		if logout != nil {
+			logout <- result.String()
+		} else {
+			log.Fatal(result.String())
 		}
+	}
+	// execution finished, send result to channel
+	if out != nil {
+		out <- result
+	}
+
+}
+
+type RunReturn struct {
+	LogID   string
+	Session *HermesSession
+	Success bool
+	Err     error
+}
+
+func (r RunReturn) String() string {
+	if r.Success {
+		return fmt.Sprintf("%s Success", r.LogID)
+	} else {
+		return fmt.Sprintf("%s Error: %s", r.LogID, r.Err)
 	}
 }

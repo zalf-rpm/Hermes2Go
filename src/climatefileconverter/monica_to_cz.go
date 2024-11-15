@@ -23,7 +23,10 @@ func ConvertFileMonicaToCZ(in, out string) error {
 		headline = "@YYYYJJJ   TMIN    TMAX     RAD    PREC    WIND      RH     SUNH \n"
 	}
 
-	file := hermes.OpenResultFile(out, false)
+	file, err := hermes.DefaultFoutGenerator(out, false)
+	if err != nil {
+		return err
+	}
 	defer file.Close()
 
 	if _, err := file.Write(headline); err != nil {

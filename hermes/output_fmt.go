@@ -48,7 +48,7 @@ type OutHeaderColum struct {
 }
 
 // WriteHeader of an output file
-func (c *OutputConfig) WriteHeader(file *Fout) error {
+func (c *OutputConfig) WriteHeader(file OutWriter) error {
 	arrStartIndex := make([]int, len(c.DataColumns)+1)
 	for i, col := range c.DataColumns {
 		arrStartIndex[i+1] = arrStartIndex[i] + col.Width + 1
@@ -2044,7 +2044,7 @@ func NewDefaultDailyOutputConfig(g *GlobalVarsMain) OutputConfig {
 }
 
 // LoadHermesOutputConfig loads a output file and reflects to programm variables
-func LoadHermesOutputConfig(path string, g interface{}) (OutputConfig, error) {
+func LoadHermesOutputConfig(path string, g interface{}, session *HermesSession) (OutputConfig, error) {
 	outConfig := OutputConfig{
 		numHeadLines:       0,
 		numDataColumns:     0,
@@ -2060,7 +2060,7 @@ func LoadHermesOutputConfig(path string, g interface{}) (OutputConfig, error) {
 
 	// if config files exists, read it into outConfig
 	if _, err := os.Stat(path); err == nil {
-		byteData := HermesFilePool.Get(&FileDescriptior{FilePath: path, ContinueOnError: true, UseFilePool: true})
+		byteData := session.HermesFilePool.Get(&FileDescriptior{FilePath: path, ContinueOnError: true, UseFilePool: true})
 		err := yaml.Unmarshal(byteData, &outConfig)
 		if err != nil {
 			return outConfig, err
@@ -2138,7 +2138,7 @@ func LoadHermesOutputConfig(path string, g interface{}) (OutputConfig, error) {
 }
 
 // WriteLine to outputfile
-func (c *OutputConfig) WriteLine(file *Fout) error {
+func (c *OutputConfig) WriteLine(file OutWriter) error {
 
 	outLine := NewOutputLine(c.numDataColumns)
 	for _, col := range c.DataColumns {
@@ -2268,7 +2268,7 @@ func (l *OutputLine) AddDate(format string, date string, size int) {
 	}
 }
 
-func (l *OutputLine) writeCSVString(file *Fout, seperatorRune rune) error {
+func (l *OutputLine) writeCSVString(file OutWriter, seperatorRune rune) error {
 	var err error
 	for i, line := range l.format {
 		_, err = file.Write(line)
@@ -2293,7 +2293,7 @@ func (l *OutputLine) writeCSVString(file *Fout, seperatorRune rune) error {
 	return err
 }
 
-func (l *OutputLine) writeHermesString(file *Fout, c *OutputConfig) error {
+func (l *OutputLine) writeHermesString(file OutWriter, c *OutputConfig) error {
 	var err error
 	if c.numDataColumns != l.counter {
 		return fmt.Errorf("number of output columns: %d does not match counted values: %d", c.numDataColumns, l.counter)

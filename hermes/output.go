@@ -340,7 +340,7 @@ func progout(NAPP int, ABZEIT int, g *GlobalVarsMain, hPath *HFilePath) {
 	// CLOSE #6
 	// OPEN #6:NAME fert$,ACCESS OUTIN,CREATE NEWOLD,ORGANIZATION TEXT
 	// SET #6:MARGIN 90
-	fertFile := OpenResultFile(fert, false)
+	fertFile := g.Session.OpenResultFile(fert, false)
 	defer fertFile.Close()
 	// PRINT #6:"Fläche Nr ";Slnr
 	str := fmt.Sprintln("Fläche Nr " + strconv.Itoa(g.SLNR))

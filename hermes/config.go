@@ -5,6 +5,7 @@ import (
 	"os"
 	"reflect"
 	"strconv"
+	"strings"
 
 	yaml "gopkg.in/yaml.v3"
 )
@@ -30,7 +31,7 @@ type Config struct {
 	SoilFile              string          `yaml:"SoilFile"`                   // soil profile file name (without projectname)
 	SoilFileExtension     string          `yaml:"SoilFileExtension"`          // soil file extension (txt = hermes soil, csv = csv table format)
 	CropFileFormat        string          `yaml:"CropFileFormat"`             // crop file format (txt = hermes crop, csv = csv table format)
-	CropParameterFormat   string          `yaml:"CropParameterFormat"`        // crop parameter file format (txt = hermes crop, yaml = yaml format)
+	CropParameterFormat   string          `yaml:"CropParameterFormat"`        // crop parameter file format (txt = hermes crop, yml = yml format)
 	MeasurementFileFormat string          `yaml:"MeasurementFileFormat"`      // Measurement file (endit_*.) format (txt = old Hermes, csv = csv table format)
 	PolygonGridFileName   string          `yaml:"PolygonGridFileName"`        // Name of Polygon resp. grid file
 
@@ -87,7 +88,7 @@ func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) C
 	hconfig := NewDefaultConfig()
 	// if config files exists, read it into hconfig
 	if _, err := os.Stat(hp.config); err == nil {
-		byteData := HermesFilePool.Get(&FileDescriptior{FilePath: hp.config, ContinueOnError: true, UseFilePool: true})
+		byteData := g.Session.HermesFilePool.Get(&FileDescriptior{FilePath: hp.config, ContinueOnError: true, UseFilePool: true})
 		err := yaml.Unmarshal(byteData, &hconfig)
 		if err != nil {
 			log.Fatalf("error: %v", err)
@@ -137,7 +138,11 @@ func readConfig(g *GlobalVarsMain, argValues map[string]string, hp *HFilePath) C
 		hconfig.WeatherFolder = "Weather"
 	}
 	if len(hconfig.WeatherRootFolder) == 0 {
-		hconfig.WeatherRootFolder = hp.path
+		hconfig.WeatherRootFolder = hp.rootPath
+	}
+	// resolve ./ to workdir, not executable dir
+	if strings.HasPrefix(hconfig.WeatherRootFolder, "./") || strings.HasPrefix(hconfig.WeatherRootFolder, ".\\") {
+		hconfig.WeatherRootFolder = hp.rootPath + strings.TrimPrefix(hconfig.WeatherRootFolder, ".")
 	}
 	if len(hconfig.ResultFileExt) == 0 {
 		if OutputFileFormat(hconfig.ResultFileFormat) == csvOut {
@@ -194,20 +199,6 @@ func commandlineOverride(argValues map[string]string, hconfig *Config) error {
 		}
 	}
 	return nil
-}
-
-// WriteYamlConfig write a default config file
-func WriteYamlConfig(filename string, structIn interface{}) {
-	file := OpenResultFile(filename, false)
-	defer file.Close()
-	data, err := yaml.Marshal(structIn)
-	if err != nil {
-		log.Fatalf("error: %v", err)
-	}
-
-	if _, err := file.WriteBytes(data); err != nil {
-		log.Fatal(err)
-	}
 }
 
 // NewDefaultConfig creates a config file with default setup
