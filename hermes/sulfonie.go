@@ -6,21 +6,20 @@ import (
 	"strings"
 )
 
+// potential sulfur mineralization
 func sPotMin(g *GlobalVarsMain) {
-	//IF CGEHALT(1) > 14 THEN
 	if g.CGEHALT[0] > 14 {
 		g.SALTOS = 5000 * g.SGEHALT[0] * g.SAKT * float64(g.UKT[1])
-		//ELSE IF CGEHALT(1) > 5 THEN
 	} else if g.CGEHALT[0] > 5 {
 		g.SALTOS = 11000 * g.SGEHALT[0] * g.SAKT * float64(g.UKT[1])
-		//ELSE IF CGEHALT(1) < 1 THEN
 	} else if g.CGEHALT[0] < 1 {
 		g.SALTOS = 15000 * g.SGEHALT[0] * g.SAKT * float64(g.UKT[1])
-		//ELSE
 	} else {
 		g.SALTOS = 15000 * g.SGEHALT[0] * g.SAKT * float64(g.UKT[1])
 	}
 }
+
+// sulfur fertilization event
 func writeSulfurFertilizationEvent(fertName string, s interface{}, zeit int, g *GlobalVarsMain) error {
 	err := g.managementConfig.WriteManagementEvent(NewManagementEvent(Fertilization, zeit, map[string]interface{}{
 		"Fertilizer": fertName,
@@ -29,7 +28,7 @@ func writeSulfurFertilizationEvent(fertName string, s interface{}, zeit int, g *
 	return err
 }
 
-// SUB SULFO() call before nitro()
+// Smin calculation, must be called before nitro()
 func Sulfo(wdt float64, subd, zeit int, g *GlobalVarsMain, hPath *HFilePath) error {
 
 	if subd == 1 {
@@ -556,7 +555,7 @@ func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
 	// g.CRITSEXP = make(map[CropType]float64)
 	// g.SGEFKT = make(map[CropType]int)
 	g.HEGzuNEG = make(map[CropType]float64)
-	g.TM = make(map[CropType]float64)
+	//g.TM = make(map[CropType]float64)
 	g.N_HEG = make(map[CropType]float64)
 	g.S_HEG = make(map[CropType]float64)
 	g.N_NEG = make(map[CropType]float64)
@@ -587,7 +586,7 @@ func sReadCropData(g *GlobalVarsMain, hpath *HFilePath) error {
 			g.S_NEG[cropt] = ValAsFloat(token[cDHeader["S_NEG"]], cData, line)
 			g.N_HEG[cropt] = ValAsFloat(token[cDHeader["N_HEG"]], cData, line)
 			g.N_NEG[cropt] = ValAsFloat(token[cDHeader["N_NEG"]], cData, line)
-			g.TM[cropt] = ValAsFloat(token[cDHeader["TM_"]], cData, line)
+			//g.TM[cropt] = ValAsFloat(token[cDHeader["TM_"]], cData, line)
 			g.HEGzuNEG[cropt] = ValAsFloat(token[cDHeader["HEGzuNEG"]], cData, line)
 
 			// calculate SNRatio

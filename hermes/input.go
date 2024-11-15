@@ -1185,7 +1185,7 @@ func Hydro(las1 int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFilePath
 				g.PRGES[lIndex] = ValAsFloat(wa[28:30], hyparName, wa) / 100
 			}
 
-			g.WUMAX[lIndex] = ValAsFloat(wa[31:33], hyparName, wa)
+			//g.WUMAX[lIndex] = ValAsFloat(wa[31:33], hyparName, wa)
 			if las1 == 1 {
 				calcWRed(g.LIM[lIndex]*100, local.FK[lIndex]*100, g)
 			}
@@ -1436,6 +1436,7 @@ func residi(g *GlobalVarsMain, hPath *HFilePath) {
 	g.NDIR[0] = 0.0
 }
 
+// potmin0 calculates potential N mineralization in soil (default)
 func potmin0(g *GlobalVarsMain, l *InputSharedVars) {
 	if g.CGEHALT[0] > 14 {
 		g.NALTOS = 5000 * l.NGEHALT[0] * g.NAKT * float64(g.UKT[1])
@@ -1448,6 +1449,7 @@ func potmin0(g *GlobalVarsMain, l *InputSharedVars) {
 	}
 }
 
+// potential N mineralization in soil, using bulk density
 func potmin1(g *GlobalVarsMain, l *InputSharedVars) {
 	if g.CGEHALT[0] > 14 {
 		g.NALTOS = g.BULK[0] * 5000 * l.NGEHALT[0] * g.NAKT * float64(g.UKT[1])

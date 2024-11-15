@@ -51,66 +51,66 @@ func NewDualType(baseIndex int, offset int) DualType {
 // GlobalVarsMain contains all variables that are use by multiple sub modules
 type GlobalVarsMain struct {
 	IZM     int
-	DT      DualType
-	DZ      DualType //= 10 (cm to mm)
+	DT      DualType // time step (days), default = 1
+	DZ      DualType // dezimeter (cm to mm), default = 10
 	N       int      // max number of layer (changed by soil file)
 	DV      float64  // Dispersion length (Dispersionlänge) (cm) (default = 4.9 cm)
 	ALPH    float64
 	SATBETA float64
 	AKF     DualType // current crop index (aktuelle frucht)
 
-	NFOS               [21]float64 // Nitrogen in fast decomposable fraction (kg N ha-1)
-	W                  [21]float64 // Field capacity (Feldkapazität pro Schicht ((cm^3/cm^3) (inkl. Stauwasser))
-	WMIN               [21]float64 // Permanent Wilting point (Wassergehalt PWP (cm^3/cm^3) aus Bodenprofildatei 1. Schicht)
-	PORGES             [21]float64 // Pore volume  (Gesamtporenvolumen Schicht I (cm3/cm3))
-	NAKT               float64
-	ETMETH             int         // evapo transpiration methode selection
-	PTF                int         // pedotransfer function methode selection
-	INIWAHL            int         // initial field values setup selection
-	DUNGSZEN           float64     // percentage of fertilizer applied to the field in relation to what is set in fert_file
-	AZHO               int         // number of layer in soil profile (Anzahl Horizonte des Bodenprofils)
-	WURZMAX            int         // effective root depth in profile (effektive Wurzeltiefe des Profils)
-	DRAIDEP            int         // drainage depth (Tiefe der Drainung)
-	DRAIFAK            float64     // part of drainage water in soakage (Anteil des Drainwassers am Sickerwasseranfakk (fraction))
-	UKT                [11]int     //(0:10) layer depth (in dm)
-	BART               [10]string  // soil type by KA5(Bodenkundlichen Kartieranleitung 5. Auflage) (special spelling convertions)
-	LD                 [10]int     // bulk density KA5 (1-5) (Lagerungsdichtestufe nach KA5 (1-5))
-	BULK               [10]float64 // avarage bulk density (Zuweisung mittlere Lagerungsdichte von LD(I) (g/cm^3))
-	CGEHALT            [10]float64 // C organic content in soil layer (Corg-Gehalt in Horizont I (Gew.%))
-	HUMUS              [21]float64 // humus content in soil layer (Humusgehalt in Hor. I (Gew.%))
-	STEIN              [10]float64 // stone content in soil layer (%)
-	FKA                [10]float64 // water content at field capacity (Wassergehalt bei Feldkapazität) (Vol. %)
-	WP                 [10]float64
-	GPV                [10]float64 // total interstice percentage (Gesamtporenvolumen) (Vol%)
-	CAPS               [21]float64
-	LIM                [10]float64
-	PRGES              [10]float64
-	WUMAX              [10]float64 // obsolete
+	NFOS     [21]float64 // Nitrogen in fast decomposable fraction (kg N ha-1)
+	W        [21]float64 // Field capacity (Feldkapazität pro Schicht ((cm^3/cm^3) (inkl. Stauwasser))
+	WMIN     [21]float64 // Permanent Wilting point (Wassergehalt PWP (cm^3/cm^3) aus Bodenprofildatei 1. Schicht)
+	PORGES   [21]float64 // Pore volume  (Gesamtporenvolumen Schicht I (cm3/cm3))
+	NAKT     float64     // Mineralisable proportion of organic matter (mineralisierbarer Anteil des organischen Materials)
+	ETMETH   int         // evapo transpiration methode selection
+	PTF      int         // pedotransfer function methode selection
+	INIWAHL  int         // initial field values setup selection
+	DUNGSZEN float64     // percentage of fertilizer applied to the field in relation to what is set in fert_file
+	AZHO     int         // number of layer in soil profile (Anzahl Horizonte des Bodenprofils)
+	WURZMAX  int         // effective root depth in profile (effektive Wurzeltiefe des Profils)
+	DRAIDEP  int         // drainage depth (Tiefe der Drainung)
+	DRAIFAK  float64     // part of drainage water in soakage (Anteil des Drainwassers am Sickerwasseranfakk (fraction))
+	UKT      [11]int     //(0:10) layer depth (in dm)
+	BART     [10]string  // soil type by KA5(Bodenkundlichen Kartieranleitung 5. Auflage) (special spelling convertions)
+	LD       [10]int     // bulk density KA5 (1-5) (Lagerungsdichtestufe nach KA5 (1-5))
+	BULK     [10]float64 // avarage bulk density (Zuweisung mittlere Lagerungsdichte von LD(I) (g/cm^3))
+	CGEHALT  [10]float64 // C organic content in soil layer (Corg-Gehalt in Horizont I (Gew.%))
+	HUMUS    [21]float64 // humus content in soil layer (Humusgehalt in Hor. I (Gew.%))
+	STEIN    [10]float64 // stone content in soil layer (%)
+	FKA      [10]float64 // water content at field capacity (Wassergehalt bei Feldkapazität) (Vol. %)
+	WP       [10]float64 // Permanent Wilting point (Welkepunkt) (Vol. %)
+	GPV      [10]float64 // total pore volume (Gesamtporenvolumen) (Vol%)
+	CAPS     [21]float64 // capillary rise (Kapillarer Aufstieg) (cm)
+	LIM      [10]float64 // permanent wilting point (Welkepunkt) from file
+	PRGES    [10]float64
+	//WUMAX              [10]float64 // obsolete
 	AD                 float64
-	GRLO               int
-	GRHI               int
-	GRW                float64
-	GW                 float64
-	AMPL               float64
-	GWTimeSeriesValues map[int]float64
-	GWTimestamps       []int
-	GWPhase            int
-	W_Backup           [21]float64
-	WMIN_Backup        [21]float64
-	PORGES_Backup      [21]float64
-	WNOR_Backup        [21]float64
-	PKT                string
-	WRED               float64 // top layer reduced field capacity (Feldkapazität) depending on soil type (cm^3/cm^3)
+	GRLO               int             // ground water level low (Grundwasserstand)
+	GRHI               int             // ground water level high (Grundwasserstand)
+	GRW                float64         // ground water level (Grundwasserstand)
+	GW                 float64         // ground water level (Grundwasserstand)
+	AMPL               float64         // amplitude of ground water level (Amplitude des Grundwasserstandes)
+	GWTimeSeriesValues map[int]float64 // ground water level time series values
+	GWTimestamps       []int           // ground water level time series timestamps
+	GWPhase            int             // ground water level phase
+	W_Backup           [21]float64     // water content at field capacity (cm^3/cm^3) backup
+	WMIN_Backup        [21]float64     // Permanent Wilting point (cm^3/cm^3) backup
+	PORGES_Backup      [21]float64     // Pore volume  (cm3/cm3) backup
+	WNOR_Backup        [21]float64     // water content at field capacity uncorrected (cm^3/cm^3) backup
+	PKT                string          // field number (Parzellenkennzeichen)
+	WRED               float64         // top layer reduced field capacity (Feldkapazität) depending on soil type (cm^3/cm^3)
 	PROP               float64
 	NORMFK             [10]float64
 	FELDW              [10]float64 // water content at field capacity (cm^3/cm^3)
 	CAPPAR             int         // used to check if hydrological parameters need to be recalulated on changing ground water
 	BD                 [21]float64 // bulk density
 	WNOR               [21]float64 // water content at field capacity uncorrected (cm^3/cm^3)
-	NALTOS             float64
-	BREG               []float64 // irrigation amount (in mm)
-	BRKZn              []float64 // N-Concentration in irrigation water (in ppm)
-	ZTBR               []int     // irrigation time (timestamp since 1900)
+	NALTOS             float64     // N in old organic matter (N in altem organischem Material)
+	BREG               []float64   // irrigation amount (in mm)
+	BRKZn              []float64   // N-Concentration in irrigation water (in ppm)
+	ZTBR               []int       // irrigation time (timestamp since 1900)
 	BEGINN             int
 	ENDE               int
 	FRUCHT             [300]CropType
@@ -372,39 +372,39 @@ type GlobalVarsMain struct {
 	PARSUM      float64 // sum of daily PAR
 
 	// Sulfonie Parameter
-	Sulfonie  bool        // enable Sulfonie
-	SAKT      float64     // mineralizable part of soil organic matter
-	SGEHALT   [10]float64 // S organic content in soil layer (Sorg-Gehalt in Horizont I (Gew.%))
-	SALTOS    float64
-	SFOS      [21]float64       //Sulfur in slowly decomposable pool (kg N ha-1)
-	S1        [21]float64       // Smin-content in layer Z (kg N/ha)
-	SI        map[int][]float64 // observed Smin-content in layer Z (kg N/ha)
+	Sulfonie  bool              // enable Sulfonie
+	SAKT      float64           // mineralizable part of soil organic matter
+	SGEHALT   [10]float64       // S organic content in soil layer (Sorg-Gehalt in Horizont I (Gew.%))
+	SALTOS    float64           // S in old organic matter (S in altem organischem Material)
+	SFOS      [21]float64       // S in fast decomposable fraction (kg S ha-1)
+	S1        [21]float64       // Smin-content in layer Z (kg S/ha)
+	SI        map[int][]float64 // observed Smin-content in layer Z (kg S/ha)
 	sMESS     []int             // date for observed Smin-content
 	sMessIdx  int               // current index for sMESS
 	SDiff     float64           // difference sum between observed and simulated Smin-content
-	SAOS      [21]float64       // sulfur in slowly decomposable pool (kg N ha-1)
-	Sminaos   [21]float64
-	Sminfos   [21]float64
-	SDSUMM    float64 // sum of mineral sulphur fertilization
-	SFOSUM    float64
-	SAOSUM    float64
-	SSUM      float64
-	SFSUM     float64     //SF Sum over all layers
-	SF        [21]float64 //SF Smin not in solution in kg S/ha per layer(SF ist die nicht gelöste Smin-Menge in kg S/ha)
-	SSAS      [300]float64
-	SLAS      [300]float64
-	SDIR      [300]float64
-	PESUMS    float64
-	SMINSUM   float64
-	DNS       [21]float64 // source term from mineralisation (kg S/ha) in layer
-	PES       [21]float64 // S-uptake of crop in soil layer Z (kg S/ha)
-	SKSAT     float64     // Saettigungs-Loesungskonzentration in Gramm S/Liter
-	KLOS      float64     // S Loesungskoeffizient (Geschwindigkeit)
-	SDEPOS    float64     // S-Deposition depending on site
-	SOUTSUM   float64     // sum of S-drainage in soil
-	SAUFNASUM float64     // s aufnahme summe / S-uptake sum
-	SDV       float64     // Dispersionslänge (cm) for sulfonie
-	BRKZs     []float64   // S-Concentration in irrigation water (in ppm)
+	SAOS      [21]float64       // S in slow decomposable faction (kg S ha-1)
+	Sminaos   [21]float64       // mixed SAOS after tillage per layer
+	Sminfos   [21]float64       // mixed SFOS after tillage per layer
+	SDSUMM    float64           // sum of mineral sulphur fertilization
+	SFOSUM    float64           // sum of fast decomposable S in layer affected by tillage
+	SAOSUM    float64           // sum of slow decomposable S in layer affected by tillage
+	SSUM      float64           // sum of Smin in affected tillage
+	SFSUM     float64           //SF Sum over all layers
+	SF        [21]float64       //SF Smin not in solution in kg S/ha per layer(SF ist die nicht gelöste Smin-Menge in kg S/ha)
+	SSAS      [300]float64      // fast decomposing Sulfur in org in fertilizer kg S ha-1
+	SLAS      [300]float64      // slow decomposing Sulfur in org in fertilizer kg S ha-1
+	SDIR      [300]float64      // plant available Sulfur in fertilizer kg S ha-1
+	PESUMS    float64           // sum of S-uptake of crop (kg S/ha)
+	SMINSUM   float64           // mineralized S from fertilizer
+	DNS       [21]float64       // source term from mineralisation (kg S/ha) in layer
+	PES       [21]float64       // S-uptake of crop in soil layer Z (kg S/ha)
+	SKSAT     float64           // solution saturation concentration in S g/l  (Saettigungs-Loesungskonzentration in Gramm S/Liter)
+	KLOS      float64           // solution saturation concentration velocity (S Loesungskoeffizient (Geschwindigkeit))
+	SDEPOS    float64           // S-Deposition depending on site
+	SOUTSUM   float64           // sum of S-drainage from soil
+	SAUFNASUM float64           // s aufnahme summe / S-uptake sum
+	SDV       float64           // Dispersionslänge (cm) for sulfonie
+	BRKZs     []float64         // S-Concentration in irrigation water (in ppm)
 	// ZF          map[CropType]float64 // map of ZF increase parameter for S-Uptake curve (Steigungparameter) per crop
 	MaxScurrent float64              // max S in crop in kg S/ha
 	CRITSGEHALT float64              // constant for critical S-Content funktion in crops
@@ -414,25 +414,25 @@ type GlobalVarsMain struct {
 	SGEHMIN     float64              // minimal S-Content in plants
 	SC          float64              // percentage of Sulfur in crop (in %)
 	HEGzuNEG    map[CropType]float64 // map Harvest residues ratio for crops (HauptErnteGut NebenErnteGut)
-	TM          map[CropType]float64
-	N_HEG       map[CropType]float64 // map of N-content of main harvest residues for crops
-	S_HEG       map[CropType]float64 // map of S-content of main harvest residues for crops
-	N_NEG       map[CropType]float64 // map of N-content of secondary harvest residues for crops
-	S_NEG       map[CropType]float64 // map of S-content of secondary harvest residues for crops
-	SWura       map[CropType]float64 // S content in root by crop
-	Nfas        map[CropType]float64 // N fast uptake fraction
-	Sfas        map[CropType]float64 // S fast uptake fraction
-	SNRatio     map[CropType]float64 // S-N-Ratio for crops
-	SGEHOB      float64              //S content in upper plant organs
-	SREDUK      float64              //S reduction factor
-	SREDUKSUM   float64              //S reduction factor sum
-	SUPTAKE     float64              //S-uptake at harvest
+	//TM          map[CropType]float64
+	N_HEG     map[CropType]float64 // map of N-content of main harvest residues for crops
+	S_HEG     map[CropType]float64 // map of S-content of main harvest residues for crops
+	N_NEG     map[CropType]float64 // map of N-content of secondary harvest residues for crops
+	S_NEG     map[CropType]float64 // map of S-content of secondary harvest residues for crops
+	SWura     map[CropType]float64 // S content in root by crop
+	Nfas      map[CropType]float64 // N fast uptake fraction
+	Sfas      map[CropType]float64 // S fast uptake fraction
+	SNRatio   map[CropType]float64 // S-N-Ratio for crops
+	SGEHOB    float64              //S content in upper plant organs
+	SREDUK    float64              //S reduction factor
+	SREDUKSUM float64              //S reduction factor sum
+	SUPTAKE   float64              //S-uptake at harvest
 
 	// output parameters
 	PerY            float64 // accumulated output
 	SWCY1           float64 // accumulated output
 	SWCY2           float64 // accumulated output
-	SOC1            float64 // accumulated output
+	SOC1            float64 // Soil organic carbon - accumulated output
 	Nmin9to20       float64 // sum of C1 from layer 9 to 20
 	Smin9to20       float64 // sum of Smin from layer 9 to 20
 	SickerDaily     float64 // sicker - capsum daily update
