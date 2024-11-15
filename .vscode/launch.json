@@ -15,7 +15,7 @@
             "args": [
                 "-log",
                 "-concurrent", "4",
-                "-tlspath", "C:/Users/sschulz/cert-test",
+                "-tlspath", "./cert-test",
             ]
         },
         {
@@ -27,8 +27,8 @@
             "cwd": "examples/",
             "args": [
                 "-batch", "bd_muencheberg_batch.txt",
-                "-workdir", "C:/Users/sschulz/Desktop/water_model_2/Hermes2Go/examples",
-                "-tlspath", "C:/Users/sschulz/cert-test"
+                "-workdir", "./examples",
+                "-tlspath", "./cert-test"
             ]
 
         },
