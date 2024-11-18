@@ -210,9 +210,12 @@ func sMineral(g *GlobalVarsMain) {
 
 // SUB SMOVE(#5)
 func sMove(wdt float64, subd int, g *GlobalVarsMain) {
-	// ---------------------      N-Verlagerung konvektions-Dispersionsgleichung ---------------------
+	// ---------------------      S-Verlagerung konvektions-Dispersionsgleichung ---------------------
 	//Inputs:
 	// DV                        = Dispersionslänge (cm)
+	// KLOS                      = Loeslichkeitskonstante (1/d)
+	// SKSAT					 = Saettigungs-Loesungskonzentration (g S/L)
+	// SDV                       = Dispersionslängenkoeffizient (cm^2/d)
 	// FLUSS=                    = Infiltration durch Bodenoberfläche (cm/d)
 	// Q1(Z)                     = Fluss durch Untergrenze (cm/d)
 	// QDRAIN                    = Ausfluss in Drainrohr (cm/d)
