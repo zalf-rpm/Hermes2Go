@@ -239,19 +239,23 @@ func sMove(wdt float64, subd int, g *GlobalVarsMain) {
 		// ! --- Berechnung des Diffusionskoeffizienten am unteren Kompartimentrand ---
 		// LET D(Z) = D0S * (AD*EXP((WG(0,Z)+WG(0,Z+1))*5)/((WG(0,Z)+WG(0,Z+1))/2))*DT
 		DiffCoeff[z] = 2.14 * (g.AD * math.Exp((g.WG[0][z]+g.WG[0][z+1])*5) / ((g.WG[0][z] + g.WG[0][z+1]) / 2)) * wdt
-
 		// ** Loeslichkeitsobergrenzen und Loesungs-/Faellungsreaktion **
 		// SKSAT ist die Saettigungs-Loesungskonzentration in Gramm S/Liter
 		//  SF(z) ist die nicht gelöste Smin-Menge in kg S/ha
 		//LET S(Z) = (S1(Z)-SF(Z))/(wg(0,z)*DZ*100)
+		// Sarrray is the concentration of S in solution
 		Sarray[z1] = (g.S1[z] - g.SF[z]) / (g.WG[0][z] * g.DZ.Num * 100)
 		//IF S(Z) >= SKSAT then
 		if Sarray[z1] >= g.SKSAT {
+			// satturation is reached
+			// cap Smin to SKSAT
 			//LET S(Z) = SKSAT
 			Sarray[z1] = g.SKSAT
 			//LET SF(Z) = S1(Z) - S(Z)*(wg(0,z)*dz*100)
 			g.SF[z] = g.S1[z] - Sarray[z1]*(g.WG[0][z]*g.DZ.Num*100)
 		} else {
+			// satturation is not reached
+			// add Smin from SF
 			//LET S(Z)  = S(Z) + (Sksat-S(Z)) * (1-EXP(-klos*(SF(Z)/(WG(0,z)*dz*100))))
 			Sarray[z1] += (g.SKSAT - Sarray[z1]) * (1 - math.Exp(-g.KLOS*(g.SF[z]/(g.WG[0][z]*g.DZ.Num*100))))
 			//LET SF(Z) = S1(Z) - S(Z)*(wg(0,z)*dz*100)
@@ -271,13 +275,15 @@ func sMove(wdt float64, subd int, g *GlobalVarsMain) {
 
 			//LET PESUMS = PESUMS + PES(Z)/2
 			g.PESUMS += g.PES[z] / 2
-			//LET AUFNASUM = AUFNASUM + PES(Z)/2
-			g.SAUFNASUM += g.PES[z] / 2
+
+			g.S1[z] = g.S1[z] - g.PES[z]/2
+
 		}
+
 		// Umrechnung in Bodenloesungskonzentration (kg/ha --> g/l)
 		// Quellen und Senken jeweils halb bei Beginn/Ende Zeitschritt
 		// LET S(Z) = (S1(Z)-SF(Z) + DNS(Z)/2 - PES(Z)/2)/(wg(0,z)*DZ*100)
-		Sarray[z1] = (g.S1[z] - g.SF[z] + g.DNS[z]*wdt/2 - g.PES[z]/2) / (g.WG[0][z] * g.DZ.Num * 100)
+		Sarray[z1] = (g.S1[z] - g.SF[z] + g.DNS[z]*wdt/2) / (g.WG[0][z] * g.DZ.Num * 100)
 
 	}
 	var V, DB, DISP, KONV [21]float64
@@ -293,7 +299,7 @@ func sMove(wdt float64, subd int, g *GlobalVarsMain) {
 		//LET V(Z) = ABS(Q1(Z)/((W(Z)+W(Z+1))*.5))
 		V[z0] = math.Abs(g.Q1[z1] / ((g.WG[0][z0] + g.WG[0][z0+1]) * .5)) // note: in nitro it is W not WG[0]
 		//LET DB(Z) = (WG(0,Z)+WG(0,Z+1))/2*(D(Z) + DV*V(Z))-.5*dz*ABS(q1(z))+.5*dt*ABS((q1(z)+q1(z-1))/2)*v(z)
-		DB[z0] = (g.WG[0][z0]+g.WG[0][z0+1])/2*(DiffCoeff[z0]+g.SDV*V[z0]) - .5*g.DZ.Num*math.Abs(g.Q1[z1]) + .5*wdt*math.Abs((g.Q1[z1]+g.Q1[z1-1])/2)*V[z0]
+		DB[z0] = (g.WG[0][z0]+g.WG[0][z0+1])/2*(DiffCoeff[z0]+g.SDV*V[z0]) - .5*wdt*g.DZ.Num*math.Abs(g.Q1[z1]) + .5*wdt*math.Abs((g.Q1[z1]+g.Q1[z1-1])/2)*V[z0]
 		if z1 == 1 {
 			// LET DISP(Z) = - DB(Z) * (S(Z)-S(Z+1))/DZ^2
 			DISP[z0] = -DB[z0] * (Sarray[z1] - Sarray[z1+1]) / sqrdDZ
@@ -351,6 +357,7 @@ func sMove(wdt float64, subd int, g *GlobalVarsMain) {
 		g.S1[z0] = (Sarray[z1]*g.WG[0][z0]+DISP[z0]-KONV[z0])*g.DZ.Num*100 + g.SF[z0]
 		// 	NEXT Z
 	}
+	// 	! Auswaschungsberechnung
 	// 	IF Q1(outn) > 0 then
 	if g.Q1[g.OUTN] > 0 {
 		// If Outn < n then
@@ -368,26 +375,34 @@ func sMove(wdt float64, subd int, g *GlobalVarsMain) {
 			g.SOUTSUM = g.SOUTSUM + (g.Q1[g.OUTN] * Sarray[g.OUTN+1] / g.DZ.Num * 100 * g.DZ.Num) + (DB[g.OUTN] * (Sarray[g.OUTN] - Sarray[g.OUTN+1]) / sqrdDZ * 100 * g.DZ.Num)
 		}
 	}
+	// out of last layer
+	if g.Q1[g.N] > 0 {
+		g.SoutLastLayer = g.SoutLastLayer + g.Q1[g.N]*Sarray[g.N]/g.DZ.Num*100*g.DZ.Num
+	}
 
 	// 	! 2. Haelfte Quellen und Senken nach Verlagerung
 	// 	FOR Z = 1 TO N
 	for z0 := 0; z0 < g.N; z0++ {
 
-		//IF PES(Z)/2 > S1(Z)-SF(Z)-.02 THEN
-		if g.PES[z0]/2 > g.S1[z0]-g.SF[z0]-0.02 {
-			//LET PES(Z) = (S1(Z)-SF(Z)-.02) * 2
-			g.PES[z0] = (g.S1[z0] - g.SF[z0] - 0.02) * 2
+		if subd == 1 {
+			//IF PES(Z)/2 > S1(Z)-SF(Z)-.02 THEN
+			if g.PES[z0]/2 > g.S1[z0]-g.SF[z0]-0.02 {
+				//LET PES(Z) = (S1(Z)-SF(Z)-.02) * 2
+				g.PES[z0] = (g.S1[z0] - g.SF[z0] - 0.02) * 2
+			}
+			//IF PES(Z) < 0 THEN LET PES(Z) = 0
+			if g.PES[z0] < 0 {
+				g.PES[z0] = 0
+			}
+			//LET PESUMS = PESUMS + PES(Z)/2
+			g.PESUMS = g.PESUMS + g.PES[z0]/2
+			//LET S1(Z) = S1(Z) + DNS(Z)/2 - PES(Z)/2
+			g.S1[z0] = g.S1[z0] + g.DNS[z0]*wdt/2 - g.PES[z0]/2
+		} else {
+			//LET S1(Z) = S1(Z) + DNS(Z)/2
+			g.S1[z0] = g.S1[z0] + g.DNS[z0]*wdt/2
 		}
-		//IF PES(Z) < 0 THEN LET PES(Z) = 0
-		if g.PES[z0] < 0 {
-			g.PES[z0] = 0
-		}
-		//LET S1(Z) = S1(Z) + DNS(Z)/2 - PES(Z)/2
-		g.S1[z0] = g.S1[z0] + g.DNS[z0]/2 - g.PES[z0]/2
-		//LET PESUMS = PESUMS + PES(Z)/2
-		g.PESUMS = g.PESUMS + g.PES[z0]/2
-		//LET AUFNASUM = AUFNASUM + PES(Z)/2
-		g.SAUFNASUM = g.SAUFNASUM + g.PES[z0]/2
+
 		//IF S1(Z) < 0 THEN
 		if g.S1[z0] < 0 {
 			//LET S1(Z) = 0.0001

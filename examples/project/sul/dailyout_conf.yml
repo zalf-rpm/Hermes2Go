@@ -221,11 +221,21 @@ DataColumns:
 - Format: '%05.2f'
   VariableName: WINDdaily     
 - Format: '%05.2f'
+  Modifier: 10
   VariableName: REGENdaily    
 - Format: '%05.2f'
   VariableName: EffectiveIRRIG
 - Format: '%s'
   VariableName: C1NotStable
+- Format: '%7.6f'
+  VariableName: SminSoil
+- Format: '%7.6f'
+  VariableName: Sin
+- Format: '%7.6f'
+  VariableName: Sout
+- Format: '%05.3f'
+  VariableName: PESUMS
+
 Headlines:
   1: 
   - ColumnName: Date
@@ -314,8 +324,12 @@ Headlines:
   - ColumnName: REGENdaily    
   - ColumnName: EffIRRIG
   - ColumnName: Error
+  - ColumnName: SminSoil
+  - ColumnName: Sin
+  - ColumnName: Sout
+  - ColumnName: PESUMS
   2:
-  - ColumnName: 'dd.mm.yyyy'
+  - ColumnName: 'mm.dd.yyyy'
   - ColumnName: '%'
   - ColumnName: '%'
   - ColumnName: '%'
@@ -357,3 +371,7 @@ Headlines:
   - ColumnName: '----'
   - ColumnName: kg/ha
   - ColumnName: --
+  - ColumnName: S kg/ha
+  - ColumnName: S kg/ha
+  - ColumnName: S kg/ha
+  - ColumnName: S kg/ha

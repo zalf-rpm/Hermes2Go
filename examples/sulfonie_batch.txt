@@ -1,5 +1,5 @@
-project=sul WeatherFolder=historical soilId=075 fcode=109_120 plotNr=10001 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT/sulfonie
-project=sul WeatherFolder=historical soilId=075 fcode=109_120 plotNr=10002 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT/sulfonie
+project=sul WeatherFolder=historical soilId=002 fcode=109_120 plotNr=10001 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT/sulfonie
+project=sul WeatherFolder=historical soilId=002 fcode=109_120 plotNr=10002 Altitude=73 Latitude=52.6732 poligonID=29872 resultfolder=RESULT/sulfonie
 project=sul WeatherFolder=historical soilId=160 fcode=109_120 plotNr=10001 Altitude=73 Latitude=52.6728 poligonID=29873 resultfolder=RESULT/sulfonie
 project=sul WeatherFolder=historical soilId=160 fcode=109_120 plotNr=10002 Altitude=73 Latitude=52.6728 poligonID=29873 resultfolder=RESULT/sulfonie
 project=sul WeatherFolder=historical soilId=041 fcode=109_120 plotNr=10001 Altitude=73 Latitude=52.6680 poligonID=29876 resultfolder=RESULT/sulfonie

@@ -458,6 +458,7 @@ func (session *HermesSession) Run(workingDir string, args []string, logID string
 				sConcentrationInWater := g.BRKZs[g.NBR-1] * g.BREG[g.NBR-1] * 0.01
 				if sConcentrationInWater > 0 {
 					g.S1[0] = g.S1[0] + sConcentrationInWater
+					g.Sirrig += sConcentrationInWater
 				}
 
 				g.managementConfig.WriteManagementEvent(NewManagementEvent(
@@ -492,7 +493,7 @@ func (session *HermesSession) Run(workingDir string, args []string, logID string
 						g.WG[1][Zindex] = g.WG[g.MZ+1][Zindex]
 					}
 				}
-				g.DSUMM, g.OUTSUM, g.SICKER, g.CAPSUM = 0, 0, 0, 0
+				g.DSUMM, g.OUTSUM, g.SOUTSUM, g.SICKER, g.CAPSUM = 0, 0, 0, 0, 0
 				g.UMS = 0
 				g.MZ++
 			}
@@ -697,7 +698,20 @@ func (session *HermesSession) Run(workingDir string, args []string, logID string
 					} else {
 						g.SNratioCrop = 0
 					}
-
+					// everything that adds to Smin
+					DNSsum := 0.0
+					g.SminSoil = 0
+					for si := 0; si < g.N; si++ {
+						// smin sum for all layers
+						g.SminSoil += g.S1[si]
+						// mineralization sum for all layers
+						DNSsum += g.DNS[si]
+					}
+					// s irrigation, s deposition, S from mineralization
+					g.Sin += g.Sirrig + g.SDEPOS/365*g.DT.Num + DNSsum
+					// s outflow lowest layer, crop uptake
+					g.Sout = g.SoutLastLayer + g.PESUMS
+					// smin sum for all layers
 					dailyOutputConfig.WriteLine(VNAMfile)
 				}
 
@@ -737,7 +751,6 @@ func (session *HermesSession) Run(workingDir string, args []string, logID string
 					}
 				}
 			}
-
 			// *********************** JAHRESAUSGABE ***************************
 			// *********************** ANNUAL OUTPUT ***************************
 			if g.TAG.Index+1 == OUTDAY {
@@ -765,6 +778,11 @@ func (session *HermesSession) Run(workingDir string, args []string, logID string
 				g.CUMDENIT = 0
 				g.N2Odencum = 0
 				g.N2onitsum = 0
+				g.Sirrig = 0
+				g.Sout = 0
+				g.Sin = 0
+				g.SoutLastLayer = 0
+
 			}
 			//  ************ 1. EINSCHUB VON DUENGERBEDARFSPROGNOSE ************
 			//  ************ 1. INSERTION OF FERTILIZATION FORECAST ************
