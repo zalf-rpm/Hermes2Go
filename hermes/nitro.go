@@ -840,7 +840,9 @@ func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 		}
 	}
 	if zeit >= g.SAAT[g.AKF.Index] && zeit <= g.ERNTE2[g.AKF.Index] {
-		g.PESUM = g.PESUM + g.SCHNORR
+		if subd == 1 && g.SCHNORR > 0 {
+			g.PESUM = g.PESUM + g.SCHNORR
+		}
 	}
 }
 
