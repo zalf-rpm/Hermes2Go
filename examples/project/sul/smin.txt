@@ -1,7 +1,4 @@
 Plot_ID   DATE    Smi03  Smi3-6  Smi6-9  Smi912  Smi1215 Smi1520  Comment in SO4-S kg per ha
 10001   nan      016.71  083.82  087.35  044.39  033.32  045.42 test data - initial value
-10001  04052019  011.11  007.44  004.77  002.01  000.03  003.15 test data - measured value
-10001  04052020  005.64  002.22  000.72  001.92  002.68  005.58 test data - measured value
 10002   nan      014.87  008.51  006.16  003.91  008.25  013.33 test data - initial value 
-10002  04052019  050.00  020.00  006.16  003.91  008.25  013.33 test data - measured value
-10002  04052020  109.65  184.57  077.39  003.00  003.00  005.00 test data - measured value
+
