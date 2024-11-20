@@ -345,8 +345,8 @@ type GlobalVarsMain struct {
 	DEV         [10]int  // day of year (like sowing, maturity, harvest)
 	BBCH_DOY    [100]int // day of year in which BBCH stage was reached
 	BBCH_TIME   [100]int
-	REDUKSUM    float64
-	TRRELSUM    float64
+	REDUKSUM    float64 // sum of N-reduction factor
+	TRRELSUM    float64 // sum of water stress factor
 	LAIMAX      float64
 	ODU         [300]float64
 	NDEM1       [300]float64
