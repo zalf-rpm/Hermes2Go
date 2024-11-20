@@ -9,7 +9,7 @@
 Dateformat: DateENlong
 # not used on long date format - Year to divide 20. and 21. Century (YY)
 DivideCentury: 60
-# ground water is read from either 'soilfile' or 'polygonfile
+# ground water is read from either 'soilfile', 'polygonfile or 'gwTimeSeries'
 GroundWaterFrom: soilfile
 #0 = hermes # 1 = csv
 ResultFileFormat: 1
@@ -18,7 +18,7 @@ ResultFileExt: "csv"
 # Output intervall (days) (0=no time serie)
 OutputIntervall: 1
 #From POLY_XXX.txt, Uses: 1= all (if the word ALLE is written in the file),
-# 2= Field_ID, 3= Polyg
+# 2= Field_ID, 3= Polyg, 4= SoilID
 InitSelection: 3
 # soil profile file name (without projectname)
 SoilFile: soil
@@ -65,7 +65,6 @@ NDeposition: 20
 #S-Deposition (annual kg/ha) 
 SDeposition: 7
 
-
 #***** Time *****
 # Starting year of simulation (YYYY)
 StartYear: 1980
@@ -95,12 +94,14 @@ SmineralPartOrgSoilMatter: 0.15
 PTF: 0
 # kc factor for bare soil
 KcFactorBareSoil: 0.4
+# phase shift, if ground water is read from polygonfile, (default 80)
+GroundWaterPhase: 80
+# potenial mineralization methode (0 = old 1 = new with bulk density)
+PotMineralisation: 0
 # Saturated Solution Concentration (SKSAT) in Gramms S/Liter
 SulfurSatSolutionConcentration : 0.2
 # Sulfur Solution Coefficient (KLOS)
 SulfurSolutionCoefficient : 0.1
-
-
 
 #***** Management *****
 # fertilization scenario (fertilization in %)
