@@ -3,4 +3,8 @@ ToDo List for Sulfonie:
 - implement Auto-fertilization as for N fertilization (currently only works with fixed dates in fert_x.txt and irr_x.txt files)
 (requires a rework of automan.txt file and how it is read, may cause compatibility issues with older versions)
 - implement a S as a stress factor in the model (requires research on the topic)
-- S content values for crops, during development stages, to correctly calculate S residue after harvest
+- S content values for crops in relation to dry bio mass, during development stages, to correctly calculate S residue after harvest
+- find out if S/N Ratio is a good indicator for S stress in crops 
+- find out Smin wash out of the model is realistic (requires research on the topic/field data)
+
+

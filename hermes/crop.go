@@ -62,6 +62,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 
 		g.TRRELSUM = 0
 		g.REDUKSUM = 0
+		g.SREDUKSUM = 0
 		g.ETAG = 0
 		g.TRAG = 0
 		g.PERG = 0
@@ -463,11 +464,22 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			}
 			// TBD: need to find reference for this formula
 			if g.SGEHOB < g.SGEHMIN {
+				// brainstorming:
+
 				AUX := g.SGEHOB / g.SGEHMIN
+				// this function is a copy of the N reduction function, it does not make sense to use it for S
 				g.SREDUK = math.Pow((1 - math.Exp(1+1/(AUX-1))), 2)
+				// some plants are sensitive to S deficiency other are not so much
+				// but you may get a reduced quality of the product, even if the yield has a similar amount,
+				// or you get a slight reduction
+				// could make sence to declare that there will be a defict and calculate the amount of S that is missing, for fertilization purposes
+				// and only reduce the yield for crops that are sensitive to S deficiency in that way
+				// or set a threshold for the S stress for each crop
+
 			} else {
 				g.SREDUK = 1.
 			}
+
 			g.REDUKSUM = g.REDUKSUM + g.REDUK
 			g.SREDUKSUM = g.SREDUKSUM + g.SREDUK
 

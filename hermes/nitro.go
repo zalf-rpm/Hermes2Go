@@ -409,8 +409,8 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			output.Smin3 = g.S1[6] + g.S1[7] + g.S1[8]
 			output.NLeaG = g.NLEAG
 			output.TRRel = TRRELAV
-			output.Reduk = REDUKAV
-			output.SReduk = SREDUKAV
+			output.Reduk = REDUKAV   // reduction by N stess average
+			output.SReduk = SREDUKAV // reduction by S stess average
 			output.DryD1 = g.DRYD1
 			output.DryD2 = g.DRYD2
 			output.Nresid = ln.NRESID
