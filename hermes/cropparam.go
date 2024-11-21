@@ -15,31 +15,31 @@ import (
 
 type CropParam struct {
 	// CropParam is a struct to hold the crop parameters
-	CropName string `yaml:"CropName" comment:"name of the crop"`
+	CropName string `yaml:"CropName" comment:"crop name"`
 	ABBr     string `yaml:"CropAbbreviation" comment:"crop no./ abbreviation"` // Abbreviation of the crop
-	Variety  string `yaml:"Variaty" comment:"variaty of the crop"`             // Variaty of the crop
+	Variety  string `yaml:"Variety" comment:"cultivar of the crop"`            // Variety of the crop
 
-	MAXAMAX           float64       `yaml:"MAXAMAX" comment:"AMAX Max. CO2 assimilation rate (kg CO2/ha leave/h)"`                               // AMAX Max. CO2 assimilation rate (kg CO2/ha leave/h)
-	TempTyp           int           `yaml:"TempTyp" comment:"type of temperature dependency (C3 = 1/ C4 = 2)"`                                   // type of temperature dependency (C3 = 1/ C4 = 2)
-	MINTMP            float64       `yaml:"MINTMP" comment:"minimum temperature crop growth (in C°)"`                                            // minimum temperature crop growth (in C°)
-	WUMAXPF           float64       `yaml:"WUMAXPF" comment:"crop specific maximum effective rooting depth(dm)"`                                 // crop specific maximum effective rooting depth(dm)
-	VELOC             float64       `yaml:"VELOC" comment:"root depth increase in mm/C°"`                                                        // root depth increase in mm/C°
-	NGEFKT            int           `yaml:"NGEFKT" comment:"crop N-content function number for critical and max. N-contents"`                    // crop N-content function number for critical and max. N-contents
-	RGA               float64       `yaml:"RGA,omitempty" comment:" RGA parameter for crop N-content function number 5"`                         // RGA parameter for crop N-content function number 5
-	RGB               float64       `yaml:"RGB,omitempty" comment:"RGB parameter for crop N-content function number 5"`                          // RGB parameter for crop N-content function number 5
-	SubOrgan          int           `yaml:"SubOrgan,omitempty" comment:"SubOrgan parameter for crop N-content function number"`                  // SubOrgan parameter for crop N-content function number 5
-	AboveGroundOrgans []int         `yaml:"AboveGroundOrgans" comment:"list of above ground organs (numbers of compartiments increasing order)"` // SubOrgan parameter for crop N-content function number
-	YORGAN            int           `yaml:"YORGAN" comment:"organ number for yield"`                                                             // organ number for yield
-	YIFAK             float64       `yaml:"YIFAK" comment:"fraction of yield organ (90% = 0.90)"`                                                // fraction of yield organ (90% = 0.90)
-	INITCONCNBIOM     float64       `yaml:"INITCONCNBIOM" comment:"start concentration N in above ground biomass (% i. d.m.)"`                   // start conzentration N in above ground biomass (% i. d.m.)
-	INITCONCNROOT     float64       `yaml:"INITCONCNROOT" comment:"start concentration N in roots (% i. d.m.)"`                                  // start concentration N in roots (% i. d.m.)
-	NRKOM             int           `yaml:"NRKOM" comment:"Number of crop compartiments"`                                                        // Number of crop compartiments
-	CompartimentNames []string      `yaml:"CompartimentNames" comment:"list of compartiment names"`                                              // list of compartiment names
-	DAUERKULT         FeatureSwitch `yaml:"DAUERKULT" comment:"Dauerkultur - Is Permaculture true/false 1/0"`                                    // Dauerkultur - Permaculture D / Non Permaculture 0
-	LEGUM             FeatureSwitch `yaml:"LEGUM" comment:"Legume - Is Legume true/false 1/0"`                                                   // Legume L / Non Legume 0
-	WORG              []float64     `yaml:"WORG" comment:"initial weight kg d.m./ha of organ I"`                                                 // initial weight kg d.m./ha of organ I
-	MAIRT             []float64     `yaml:"MAIRT" comment:"maintainance rates of organ I (1/day)"`                                               // Maintainance rates of organ I
-	KcIni             float64       `yaml:"KcIni" comment:"initial kc factor for evapotranspiration (uncovered soil)"`                           // initial kc factor for evapotranspiration (uncovered soil)
+	MAXAMAX           float64       `yaml:"MAXAMAX" comment:"AMAX Max. CO2 assimilation rate (kg CO2/ha leave/h)"`                              // AMAX Max. CO2 assimilation rate (kg CO2/ha leave/h)
+	TempTyp           int           `yaml:"TempTyp" comment:"type of temperature dependency (C3 = 1/ C4 = 2)"`                                  // type of temperature dependency (C3 = 1/ C4 = 2)
+	MINTMP            float64       `yaml:"MINTMP" comment:"minimum temperature crop growth (in C°)"`                                           // minimum temperature crop growth (in C°)
+	WUMAXPF           float64       `yaml:"WUMAXPF" comment:"crop specific maximum effective rooting depth(dm)"`                                // crop specific maximum effective rooting depth(dm)
+	VELOC             float64       `yaml:"VELOC" comment:"root depth increase in mm/C°"`                                                       // root depth increase in mm/C°
+	NGEFKT            int           `yaml:"NGEFKT" comment:"crop N-content function number for critical and max. N-contents"`                   // crop N-content function number for critical and max. N-contents
+	RGA               float64       `yaml:"RGA,omitempty" comment:" RGA parameter for crop N-content function number 5"`                        // RGA parameter for crop N-content function number 5
+	RGB               float64       `yaml:"RGB,omitempty" comment:"RGB parameter for crop N-content function number 5"`                         // RGB parameter for crop N-content function number 5
+	SubOrgan          int           `yaml:"SubOrgan,omitempty" comment:"SubOrgan parameter for crop N-content function number"`                 // SubOrgan parameter for crop N-content function number 5
+	AboveGroundOrgans []int         `yaml:"AboveGroundOrgans" comment:"list of above ground organs (numbers of compartments increasing order)"` // SubOrgan parameter for crop N-content function number
+	YORGAN            int           `yaml:"YORGAN" comment:"organ number for yield"`                                                            // organ number for yield
+	YIFAK             float64       `yaml:"YIFAK" comment:"fraction of yield organ (90% = 0.90)"`                                               // fraction of yield organ (90% = 0.90)
+	INITCONCNBIOM     float64       `yaml:"INITCONCNBIOM" comment:"start concentration N in above ground biomass (% i. d.m.)"`                  // start conzentration N in above ground biomass (% i. d.m.)
+	INITCONCNROOT     float64       `yaml:"INITCONCNROOT" comment:"start concentration N in roots (% i. d.m.)"`                                 // start concentration N in roots (% i. d.m.)
+	NRKOM             int           `yaml:"NRKOM" comment:"Number of crop compartments"`                                                        // Number of crop compartments
+	CompartmentNames  []string      `yaml:"CompartmentNames" comment:"list of compartment names"`                                               // list of compartment names
+	DAUERKULT         FeatureSwitch `yaml:"DAUERKULT" comment:"Dauerkultur - Is Permaculture true/false 1/0"`                                   // Dauerkultur - Permaculture D / Non Permaculture 0
+	LEGUM             FeatureSwitch `yaml:"LEGUM" comment:"Legume - Is Legume true/false 1/0"`                                                  // Legume L / Non Legume 0
+	WORG              []float64     `yaml:"WORG" comment:"initial weight kg d.m./ha of organ I"`                                                // initial weight kg d.m./ha of organ I
+	MAIRT             []float64     `yaml:"MAIRT" comment:"maintenance rates of organ I (1/day)"`                                               // Maintenance rates of organ I
+	KcIni             float64       `yaml:"KcIni" comment:"initial kc factor for evapotranspiration (uncovered soil)"`                          // initial kc factor for evapotranspiration (uncovered soil)
 
 	NRENTW                int                    `yaml:"NRENTW" comment:"number of development phases(max 10)"`   // number of development phases(max 10)
 	CropDevelopmentStages []CropDevelopmentStage `yaml:"CropDevelopmentStages" comment:"development stage/phase"` // development stage/phase
@@ -53,8 +53,8 @@ type CropDevelopmentStage struct {
 	DAYL                 float64   `yaml:"DAYL" comment:"day length requirements (hours)"`                         // day length requirements (hours)
 	DLBAS                float64   `yaml:"DLBAS" comment:"base day length in phase (hours)"`                       // base day length in phase (hours)
 	DRYSWELL             float64   `yaml:"DRYSWELL" comment:"drought stress below ETA/ETP-quotient"`               // drought stress below ETA/ETP-quotient
-	LUKRIT               float64   `yaml:"LUKRIT" comment:"critical aircontent in topsoil (cm^3/cm^3)"`            // critical aircontent in topsoil (cm^3/cm^3)
-	LAIFKT               float64   `yaml:"LAIFKT" comment:"specific leave area (LAI per mass) (ha/kg TM)"`         // specific leave area (area per mass) (m2/m2/kg TM)
+	LUKRIT               float64   `yaml:"LUKRIT" comment:"critical air content in topsoil (cm^3/cm^3)"`           // critical air content in topsoil (cm^3/cm^3)
+	LAIFKT               float64   `yaml:"LAIFKT" comment:"specific leaf area (LAI per mass) (ha/kg TM)"`          // specific leaf area (area per mass) (m2/m2/kg TM)
 	WGMAX                float64   `yaml:"WGMAX" comment:"N-content root at the end of phase (fraction)"`          // N-content root end at the of phase
 	PRO                  []float64 `yaml:"PRO" comment:"Partitioning at end of phase (fraction, sum should be 1)"` // Partitioning at end of phase (fraction)
 	DEAD                 []float64 `yaml:"DEAD" comment:"death rate at end of phase (coefficient, 1/day)"`         // death rate at end of phase (coefficient)
@@ -127,7 +127,7 @@ func ReadCropParamYml(PARANAM string, l *CropSharedVars, g *GlobalVarsMain) {
 	g.NRKOM = cropParam.NRKOM
 	maxOrgans := 5
 	if g.NRKOM > maxOrgans {
-		log.Fatalf("Error: too many crop compartiments! File: %s \n", PARANAM)
+		log.Fatalf("Error: too many crop compartments! File: %s \n", PARANAM)
 	}
 	l.AboveGroundOrgans = cropParam.AboveGroundOrgans
 	// check that all organs are in the range of 1 to NRKOM
@@ -166,9 +166,9 @@ func ReadCropParamYml(PARANAM string, l *CropSharedVars, g *GlobalVarsMain) {
 		}
 	}
 
-	// check if NRKOM is the same as the length of the CompartimentNames, WORG and MAIRT
-	if g.NRKOM != len(cropParam.CompartimentNames) {
-		log.Fatalf("Error: reading crop compartiment names! File: %s \n", PARANAM)
+	// check if NRKOM is the same as the length of the CompartmentNames, WORG and MAIRT
+	if g.NRKOM != len(cropParam.CompartmentNames) {
+		log.Fatalf("Error: reading crop compartment names! File: %s \n", PARANAM)
 	}
 	if g.NRKOM != len(cropParam.WORG) {
 		log.Fatalf("Error: reading crop WORG! File: %s \n", PARANAM)
@@ -278,7 +278,7 @@ func ReadCropParamClassic(PARANAM string, l *CropSharedVars, g *GlobalVarsMain) 
 	}
 
 	LINE05 := LineInut(scanner)
-	//above ground organs (numbers of compartiments increasing order)
+	//above ground organs (numbers of compartments increasing order)
 	progip1Trimed := strings.TrimSpace(LINE05[65:])
 	nrkob := len(progip1Trimed)
 	l.AboveGroundOrgans = make([]int, nrkob)
@@ -383,7 +383,7 @@ func ReadCropParamClassic(PARANAM string, l *CropSharedVars, g *GlobalVarsMain) 
 		// kritischer Luftporenanteil Entwicklungsstufe I (cm^3/cm^3)
 		g.LUKRIT[i] = ValAsFloat(LINE8b[65:], PARANAM, LINE8b)
 		LINE8c := LineInut(scanner)
-		// SLA specific leave area (area per mass) (m2/m2/kg TM) in I
+		// SLA specific leaf area (area per mass) (m2/m2/kg TM) in I
 		g.LAIFKT[i] = ValAsFloat(LINE8c[65:], PARANAM, LINE8c)
 		LINE8d := LineInut(scanner)
 		// N-content root end of phase I
@@ -425,7 +425,7 @@ func ConvertCropParamClassicToYml(PARANAM string, session *HermesSession) (CropP
 		INITCONCNBIOM:         0,
 		INITCONCNROOT:         0,
 		NRKOM:                 0,
-		CompartimentNames:     []string{},
+		CompartmentNames:      []string{},
 		DAUERKULT:             false,
 		LEGUM:                 false,
 		WORG:                  []float64{},
@@ -515,9 +515,9 @@ func ConvertCropParamClassicToYml(PARANAM string, session *HermesSession) (CropP
 	LINE1 := LineInut(scanner)
 	cropParam.NRKOM = int(ValAsInt(LINE1[65:], PARANAM, LINE1))
 	compNames := LineInut(scanner)
-	cropParam.CompartimentNames = strings.Fields(compNames)
+	cropParam.CompartmentNames = strings.Fields(compNames)
 	// drop first element and last element if it is empty
-	cropParam.CompartimentNames = cropParam.CompartimentNames[1 : cropParam.NRKOM+1]
+	cropParam.CompartmentNames = cropParam.CompartmentNames[1 : cropParam.NRKOM+1]
 
 	LINE1bVal := LineInut(scanner)
 	LINE1b := []rune(LINE1bVal)
@@ -579,7 +579,7 @@ func ConvertCropParamClassicToYml(PARANAM string, session *HermesSession) (CropP
 		// kritischer Luftporenanteil Entwicklungsstufe I (cm^3/cm^3)
 		developmentStage.LUKRIT = ValAsFloat(LINE8b[65:], PARANAM, LINE8b)
 		LINE8c := LineInut(scanner)
-		// SLA specific leave area (area per mass) (m2/m2/kg TM) in I
+		// SLA specific leaf area (area per mass) (m2/m2/kg TM) in I
 		developmentStage.LAIFKT = ValAsFloat(LINE8c[65:], PARANAM, LINE8c)
 		LINE8d := LineInut(scanner)
 		// N-content root end of phase I

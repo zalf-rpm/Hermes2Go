@@ -1,9 +1,9 @@
-# name of the crop
+# crop name
 CropName: Potatoes
 # crop no./ abbreviation
 CropAbbreviation: K
-# variaty of the crop
-Variaty: ""
+# cultivar of the crop
+Variety: ""
 # AMAX Max. CO2 assimilation rate (kg CO2/ha leave/h)
 MAXAMAX: 35
 # type of temperature dependency (C3 = 1/ C4 = 2)
@@ -16,7 +16,7 @@ WUMAXPF: 6
 VELOC: 0.7
 # crop N-content function number for critical and max. N-contents
 NGEFKT: 4
-# list of above ground organs (numbers of compartiments increasing order)
+# list of above ground organs (numbers of compartments increasing order)
 AboveGroundOrgans:
     - 2
     - 3
@@ -28,10 +28,10 @@ YIFAK: 0.99
 INITCONCNBIOM: 6
 # start concentration N in roots (% i. d.m.)
 INITCONCNROOT: 2
-# Number of crop compartiments
+# Number of crop compartments
 NRKOM: 4
-# list of compartiment names
-CompartimentNames:
+# list of compartment names
+CompartmentNames:
     - roots
     - leaves
     - stems
@@ -46,7 +46,7 @@ WORG:
     - 46
     - 10
     - 0
-# maintainance rates of organ I (1/day)
+# maintenance rates of organ I (1/day)
 MAIRT:
     - 0.01
     - 0.03
@@ -72,9 +72,9 @@ CropDevelopmentStages:
       DLBAS: 0
       # drought stress below ETA/ETP-quotient
       DRYSWELL: 1
-      # critical aircontent in topsoil (cm^3/cm^3)
+      # critical air content in topsoil (cm^3/cm^3)
       LUKRIT: 0
-      # specific leave area (LAI per mass) (ha/kg TM)
+      # specific leaf area (LAI per mass) (ha/kg TM)
       LAIFKT: 0.003
       # N-content root at the end of phase (fraction)
       WGMAX: 0.02
@@ -106,9 +106,9 @@ CropDevelopmentStages:
       DLBAS: 0
       # drought stress below ETA/ETP-quotient
       DRYSWELL: 1
-      # critical aircontent in topsoil (cm^3/cm^3)
+      # critical air content in topsoil (cm^3/cm^3)
       LUKRIT: 0
-      # specific leave area (LAI per mass) (ha/kg TM)
+      # specific leaf area (LAI per mass) (ha/kg TM)
       LAIFKT: 0.003
       # N-content root at the end of phase (fraction)
       WGMAX: 0.02
@@ -140,9 +140,9 @@ CropDevelopmentStages:
       DLBAS: 0
       # drought stress below ETA/ETP-quotient
       DRYSWELL: 1
-      # critical aircontent in topsoil (cm^3/cm^3)
+      # critical air content in topsoil (cm^3/cm^3)
       LUKRIT: 0
-      # specific leave area (LAI per mass) (ha/kg TM)
+      # specific leaf area (LAI per mass) (ha/kg TM)
       LAIFKT: 0.003
       # N-content root at the end of phase (fraction)
       WGMAX: 0.018
@@ -174,9 +174,9 @@ CropDevelopmentStages:
       DLBAS: 0
       # drought stress below ETA/ETP-quotient
       DRYSWELL: 0.9
-      # critical aircontent in topsoil (cm^3/cm^3)
+      # critical air content in topsoil (cm^3/cm^3)
       LUKRIT: 0
-      # specific leave area (LAI per mass) (ha/kg TM)
+      # specific leaf area (LAI per mass) (ha/kg TM)
       LAIFKT: 0.003
       # N-content root at the end of phase (fraction)
       WGMAX: 0.014
@@ -208,9 +208,9 @@ CropDevelopmentStages:
       DLBAS: 0
       # drought stress below ETA/ETP-quotient
       DRYSWELL: 0.9
-      # critical aircontent in topsoil (cm^3/cm^3)
+      # critical air content in topsoil (cm^3/cm^3)
       LUKRIT: 0
-      # specific leave area (LAI per mass) (ha/kg TM)
+      # specific leaf area (LAI per mass) (ha/kg TM)
       LAIFKT: 0.002
       # N-content root at the end of phase (fraction)
       WGMAX: 0.01
@@ -242,9 +242,9 @@ CropDevelopmentStages:
       DLBAS: 0
       # drought stress below ETA/ETP-quotient
       DRYSWELL: 0.7
-      # critical aircontent in topsoil (cm^3/cm^3)
+      # critical air content in topsoil (cm^3/cm^3)
       LUKRIT: 0
-      # specific leave area (LAI per mass) (ha/kg TM)
+      # specific leaf area (LAI per mass) (ha/kg TM)
       LAIFKT: 0.002
       # N-content root at the end of phase (fraction)
       WGMAX: 0.01
