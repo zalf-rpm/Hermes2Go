@@ -29,3 +29,5 @@
 ./cropfileconverter.exe -input ../../examples/parameter/PARAM.WRC 
 ./cropfileconverter.exe -input ../../examples/parameter/PARAM.WW 
 ./cropfileconverter.exe -input ../../examples/parameter/PARAM.ZR
+./cropfileconverter.exe -input ../../examples/parameter/PARAM_chrnew.ZR
+./cropfileconverter.exe -input ../../examples/parameter/PARAM.CCM

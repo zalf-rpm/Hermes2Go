@@ -1,9 +1,9 @@
-# name of the crop
+# crop name
 CropName: Oelrettich
 # crop no./ abbreviation
 CropAbbreviation: ORH
-# variaty of the crop
-Variaty: ""
+# cultivar of the crop
+Variety: ""
 # AMAX Max. CO2 assimilation rate (kg CO2/ha leave/h)
 MAXAMAX: 55
 # type of temperature dependency (C3 = 1/ C4 = 2)
@@ -16,7 +16,7 @@ WUMAXPF: 12
 VELOC: 0.8
 # crop N-content function number for critical and max. N-contents
 NGEFKT: 1
-# list of above ground organs (numbers of compartiments increasing order)
+# list of above ground organs (numbers of compartments increasing order)
 AboveGroundOrgans:
     - 2
     - 3
@@ -29,10 +29,10 @@ YIFAK: 0
 INITCONCNBIOM: 2
 # start concentration N in roots (% i. d.m.)
 INITCONCNROOT: 2
-# Number of crop compartiments
+# Number of crop compartments
 NRKOM: 4
-# list of compartiment names
-CompartimentNames:
+# list of compartment names
+CompartmentNames:
     - Wurzel
     - Blatt
     - Spross
@@ -47,7 +47,7 @@ WORG:
     - 53
     - 0
     - 0
-# maintainance rates of organ I (1/day)
+# maintenance rates of organ I (1/day)
 MAIRT:
     - 0.01
     - 0.03
@@ -73,9 +73,9 @@ CropDevelopmentStages:
       DLBAS: 0
       # drought stress below ETA/ETP-quotient
       DRYSWELL: 0.7
-      # critical aircontent in topsoil (cm^3/cm^3)
+      # critical air content in topsoil (cm^3/cm^3)
       LUKRIT: 0.08
-      # specific leave area (LAI per mass) (ha/kg TM)
+      # specific leaf area (LAI per mass) (ha/kg TM)
       LAIFKT: 0.002
       # N-content root at the end of phase (fraction)
       WGMAX: 0.02
@@ -107,9 +107,9 @@ CropDevelopmentStages:
       DLBAS: 0
       # drought stress below ETA/ETP-quotient
       DRYSWELL: 0.8
-      # critical aircontent in topsoil (cm^3/cm^3)
+      # critical air content in topsoil (cm^3/cm^3)
       LUKRIT: 0.08
-      # specific leave area (LAI per mass) (ha/kg TM)
+      # specific leaf area (LAI per mass) (ha/kg TM)
       LAIFKT: 0.002
       # N-content root at the end of phase (fraction)
       WGMAX: 0.02
@@ -141,9 +141,9 @@ CropDevelopmentStages:
       DLBAS: 7
       # drought stress below ETA/ETP-quotient
       DRYSWELL: 0.7
-      # critical aircontent in topsoil (cm^3/cm^3)
+      # critical air content in topsoil (cm^3/cm^3)
       LUKRIT: 0.08
-      # specific leave area (LAI per mass) (ha/kg TM)
+      # specific leaf area (LAI per mass) (ha/kg TM)
       LAIFKT: 0.002
       # N-content root at the end of phase (fraction)
       WGMAX: 0.012
