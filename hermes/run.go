@@ -631,7 +631,7 @@ func (session *HermesSession) Run(workingDir string, args []string, logID string
 			for I := 1; I <= g.N; I++ {
 				g.PE[I-1] = 0
 			}
-			if g.BART[0][0:1] == "H" {
+			if g.BART[0][0] == 'H' {
 				Denitmo(&g)
 			} else {
 				Denitr(&g, false)
