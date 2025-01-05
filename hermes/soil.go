@@ -105,6 +105,9 @@ func LoadSoil(withGroundwater bool, LOGID string, hPath *HFilePath, soilID strin
 
 	for scannerSoilFile.Scan() {
 		bodenLine := scannerSoilFile.Text()
+		if len(bodenLine) < 3 {
+			continue
+		}
 		boden := bodenLine[0:3] // SID - first 3 character
 		if boden == soilID {
 
