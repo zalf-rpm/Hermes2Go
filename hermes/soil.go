@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"strings"
+	"unicode"
 )
 
 // ! ++++++++++++++++++++++ Einlesen der Bodenkartiereinheit (Boden-ID) +++++++++++++++++++++++++++++
@@ -128,6 +129,10 @@ func LoadSoil(withGroundwater bool, LOGID string, hPath *HFilePath, soilID strin
 			soildata.UKT[0] = 0
 			for i := 0; i < soildata.AZHO; i++ {
 				soildata.BART[i] = bodenLine[9:12]
+				err := VerifyAndCorrectTexture(&soildata, i)
+				if err != nil {
+					return SoilFileData{}, err
+				}
 				soildata.UKT[i+1] = int(ValAsInt(bodenLine[13:15], "none", bodenLine))
 				soildata.LD[i] = int(ValAsInt(bodenLine[16:17], "none", bodenLine))
 
@@ -229,13 +234,9 @@ func LoadSoilCSV(withGroundwater bool, LOGID string, hPath *HFilePath, soilID st
 					}
 				}
 				soildata.BART[i] = tokens[header[texture]]
-				textLenght := len(soildata.BART[i])
-				if textLenght > 3 || textLenght == 0 {
-					return SoilFileData{}, fmt.Errorf("invalid texture '%s'", soildata.BART[i])
-				} else if textLenght == 2 {
-					soildata.BART[i] = soildata.BART[i] + " "
-				} else if textLenght == 1 {
-					soildata.BART[i] = soildata.BART[i] + "  "
+				err := VerifyAndCorrectTexture(&soildata, i)
+				if err != nil {
+					return SoilFileData{}, err
 				}
 				soildata.UKT[i+1] = int(ValAsInt(tokens[header[layerdepth]], "none", bodenLine))
 				soildata.LD[i] = int(ValAsInt(tokens[header[bulkdensityclass]], "none", bodenLine))
@@ -788,4 +789,70 @@ func FindTextureInPARCAP(textureIn, filepath string, session *HermesSession) str
 		}
 	}
 	return "not found"
+}
+
+// verify texture and correct if necessary (add space)
+// texture must be 3 characters long
+func VerifyAndCorrectTexture(soildata *SoilFileData, i int) error {
+
+	// check length of texture
+	textLenght := len(soildata.BART[i])
+	if textLenght > 3 || textLenght == 0 {
+		return fmt.Errorf("invalid texture '%s'", soildata.BART[i])
+	} else if textLenght == 2 {
+		soildata.BART[i] = soildata.BART[i] + " "
+	} else if textLenght == 1 {
+		soildata.BART[i] = soildata.BART[i] + "  "
+	}
+
+	return nil
+}
+
+// load valid soil textures from hypar and/or parcap file
+func LoadValidSoilTextures(path string, session *HermesSession, dropHeader bool) []string {
+	_, scannerParCap, _ := session.Open(&FileDescriptior{FilePath: path, UseFilePool: true})
+
+	textures := make([]string, 0)
+	for scannerParCap.Scan() {
+		if dropHeader {
+			dropHeader = false
+			continue
+		}
+		line := scannerParCap.Text()
+		if len(line) < 3 {
+			continue
+		}
+		texture := line[0:3]
+		// check if texture contains only space
+		if strings.TrimSpace(texture) == "" {
+			continue
+		}
+
+		// check if texture contains only letters, digits or space
+		if !IsAlphaNumericSpace(texture) {
+			continue
+		}
+		// check if texture is already in list
+		found := false
+		for _, t := range textures {
+			if t == texture {
+				found = true
+				break
+			}
+		}
+		if !found {
+			textures = append(textures, texture)
+		}
+	}
+	return textures
+}
+
+// IsAlphaNumericSpace check if string contains only letters, digits or space
+func IsAlphaNumericSpace(s string) bool {
+	for _, r := range s {
+		if !unicode.IsLetter(r) && !unicode.IsDigit(r) && !unicode.IsSpace(r) {
+			return false
+		}
+	}
+	return true
 }
