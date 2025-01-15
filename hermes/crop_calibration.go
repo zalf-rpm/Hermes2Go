@@ -270,7 +270,7 @@ func (cropOW *CropOverwrite) isValidCropOverwrite(numPartitions, numStages int) 
 				}
 			}
 		} else {
-			return false, fmt.Errorf("invalid crop parameter name: " + key)
+			return false, fmt.Errorf("invalid crop parameter name: %v", key)
 		}
 	}
 	for key, parts := range cropOW.PartitioningParameters {
@@ -297,7 +297,7 @@ func (cropOW *CropOverwrite) isValidCropOverwrite(numPartitions, numStages int) 
 				}
 			}
 		} else {
-			return false, fmt.Errorf("invalid crop parameter name: " + key)
+			return false, fmt.Errorf("invalid crop parameter name: %v", key)
 		}
 	}
 
@@ -333,7 +333,7 @@ func ParseCropOverwrites(args map[string]string) (*CropOverwrite, error) {
 			paramName := paramSplit[1]
 			if !isValidCropParameter(paramName) {
 				// fail if parameter name is not valid
-				return nil, fmt.Errorf("invalid crop parameter name: " + paramName)
+				return nil, fmt.Errorf("invalid crop parameter name: %v", paramName)
 			}
 			// check if param is a base parameter
 			if len(paramSplit) == 2 {
@@ -346,7 +346,7 @@ func ParseCropOverwrites(args map[string]string) (*CropOverwrite, error) {
 				developmentStage := int(ValAsInt(paramSplit[2], "cmd line", arg))
 				if developmentStage < 1 || developmentStage > 9 {
 					// fail if development stage is not valid
-					return nil, fmt.Errorf("invalid development stage index: " + paramSplit[2])
+					return nil, fmt.Errorf("invalid development stage index: %v", paramSplit[2])
 				}
 				// add parameter to map
 				if _, ok := cropOW.DevelopmentStageParameters[paramName]; !ok {
@@ -359,13 +359,13 @@ func ParseCropOverwrites(args map[string]string) (*CropOverwrite, error) {
 				developmentStage := int(ValAsInt(paramSplit[2], "cmd line", arg))
 				if developmentStage < 1 || developmentStage > 9 {
 					// fail if development stage is not valid
-					return nil, fmt.Errorf("invalid development stage index: " + paramSplit[2])
+					return nil, fmt.Errorf("invalid development stage index: %v", paramSplit[2])
 				}
 				// extract partition
 				partition := int(ValAsInt(paramSplit[3], "cmd line", arg))
 				if partition < 1 || partition > 5 {
 					// fail if partition is not valid
-					return nil, fmt.Errorf("invalid partition index: " + paramSplit[3])
+					return nil, fmt.Errorf("invalid partition index: %v", paramSplit[3])
 				}
 				// add parameter to map
 				if _, ok := cropOW.PartitioningParameters[paramName]; !ok {
@@ -374,7 +374,7 @@ func ParseCropOverwrites(args map[string]string) (*CropOverwrite, error) {
 				cropOW.PartitioningParameters[paramName][PartPair{Stage: developmentStage, Part: partition}] = paramValue
 			} else {
 				// fail if parameter name is not valid
-				return nil, fmt.Errorf("invalid crop parameter name: " + paramName)
+				return nil, fmt.Errorf("invalid crop parameter name: %v", paramName)
 			}
 		}
 	}
