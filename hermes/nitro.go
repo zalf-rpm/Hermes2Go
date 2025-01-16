@@ -694,7 +694,7 @@ func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 	// Q1(Z)                     = Fluss durch Untergrenze (cm/d)
 	// QDRAIN                    = Ausfluss in Drainrohr (cm/d)
 	// DRAIDEP                   = Tiefe des Drains (dm)
-	// AD                        = Faktor für Diffusivität?
+	// AD                        = Faktor in Abhängigkeit von der Textur des Bodens (Olsen & Kemper 1968)
 	// DZ                        = Schichtdicke (cm)
 	// WG(0,Z)                   = Wassergehalt am Anfang Zeitschritt in Schicht Z  (cm^3/cm^3)
 	// WNOR(Z)                   = NORM-FK (ohne Wasserstau) in Schicht Z (cm^3/cm^3)
