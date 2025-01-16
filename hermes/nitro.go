@@ -707,7 +707,7 @@ func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 	var Carray [22]float64
 	for z := 0; z < g.N; z++ {
 		// --- Berechnung des Diffusionskoeffizienten am unteren Kompartimentrand ---
-		l.D[z] = 2.14 * (g.AD * math.Exp((g.WG[0][z]+g.WG[0][z+1])*5) / ((g.WG[0][z] + g.WG[0][z+1]) / 2)) * wdt
+		l.D[z] = 2.14 * (g.AD[z] * math.Exp((g.WG[0][z]+g.WG[0][z+1])*5) / ((g.WG[0][z] + g.WG[0][z+1]) / 2)) * wdt
 		if subd == 1 {
 			if g.PE[z] > g.C1[z]-.5 {
 				g.PE[z] = (g.C1[z] - .5)

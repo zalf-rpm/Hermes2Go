@@ -86,7 +86,7 @@ type GlobalVarsMain struct {
 	LIM                [10]float64
 	PRGES              [10]float64
 	WUMAX              [10]float64 // obsolete
-	AD                 float64
+	AD                 [20]float64 // Factor a in Kersebaum 1989 p.24 for Loess soils
 	GRLO               int
 	GRHI               int
 	GRW                float64

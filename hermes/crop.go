@@ -679,7 +679,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			NMINSUM = NMINSUM + (g.C1[index] - .75)
 			MASS[index] = g.TP[index] * (g.C1[index] / (g.WG[0][index] * g.DZ.Num)) * g.DT.Num
 			TRNSUM = TRNSUM + g.TP[index]*(g.C1[index]/(g.WG[0][index]*g.DZ.Num))*g.DT.Num
-			D[index] = 2.14 * (g.AD * math.Exp(g.WG[0][index]*10)) / g.WG[0][index]
+			D[index] = 2.14 * (g.AD[index] * math.Exp(g.WG[0][index]*10)) / g.WG[0][index]
 			DIFF[index] = (D[index] * g.WG[0][index] * 2 * math.Pi * WRAD[index] * (g.C1[index]/1000/g.WG[0][index] - .000014) * math.Sqrt(math.Pi*g.WUDICH[index])) * g.WUDICH[index] * 1000 * g.DT.Num
 			SUMDIFF = SUMDIFF + DIFF[index]
 		}

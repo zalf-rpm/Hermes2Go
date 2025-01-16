@@ -804,21 +804,23 @@ func VerifyAndCorrectTexture(soildata *SoilFileData, i int) error {
 	} else if textLenght == 1 {
 		soildata.BART[i] = soildata.BART[i] + "  "
 	}
+	soildata.BART[i] = strings.ToUpper(soildata.BART[i]) // convert to uppercase
 
 	return nil
 }
 
 // load valid soil textures from hypar and/or parcap file
 func LoadValidSoilTextures(path string, session *HermesSession, dropHeader bool) []string {
-	_, scannerParCap, _ := session.Open(&FileDescriptior{FilePath: path, UseFilePool: true})
+	_, scanner, _ := session.Open(&FileDescriptior{FilePath: path, UseFilePool: true})
 
 	textures := make([]string, 0)
-	for scannerParCap.Scan() {
+	for scanner.Scan() {
 		if dropHeader {
+			// some files have a one-line header, drop it
 			dropHeader = false
 			continue
 		}
-		line := scannerParCap.Text()
+		line := scanner.Text()
 		if len(line) < 3 {
 			continue
 		}
@@ -832,6 +834,8 @@ func LoadValidSoilTextures(path string, session *HermesSession, dropHeader bool)
 		if !IsAlphaNumericSpace(texture) {
 			continue
 		}
+		// convert to uppercase
+		texture = strings.ToUpper(texture)
 		// check if texture is already in list
 		found := false
 		for _, t := range textures {
