@@ -86,7 +86,7 @@ type GlobalVarsMain struct {
 	LIM                [10]float64
 	PRGES              [10]float64
 	WUMAX              [10]float64 // obsolete
-	AD                 [20]float64 // Factor depending on soil texture for fomula of inverse tortuosity (see Kersebaum 1989 p.9 / Olsen & Kemper 1968)
+	AD                 [20]float64 // Factor depending on soil texture for fomula of inverse tortuosity (see Kersebaum 1989 p.9, p.24 / Olsen & Kemper 1968)
 	GRLO               int
 	GRHI               int
 	GRW                float64
