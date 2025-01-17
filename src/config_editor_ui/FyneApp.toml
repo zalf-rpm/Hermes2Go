@@ -1,0 +1,6 @@
+[Details]
+  Icon = "logo_hermes2Go.png"
+  Name = "Config Editor"
+  ID = "io.hermes.config_editor_ui"
+  Version = "0.0.1"
+  Build = 0

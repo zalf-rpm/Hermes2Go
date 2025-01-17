@@ -1,15 +1,16 @@
-go 1.19
+go 1.23.3
 
 use (
-    ./src/hermes2go
-    ./src/renderservice
-    ./hermes
-    ./src/calcHermesBatch
-    ./src/ptf_testing
-    ./src/climatefileconverter
-    ./src/calcSoil
-    ./src/cropfileconverter
-    ./src/hermes_service
-    ./src/hermes_service/capnp/hermes_service_capnp
-    ./src/producer_consumer
+	./hermes
+	./src/calcHermesBatch
+	./src/calcSoil
+	./src/climatefileconverter
+	./src/cropfileconverter
+	./src/hermes2go
+	./src/hermes_service
+	./src/hermes_service/capnp/hermes_service_capnp
+	./src/producer_consumer
+	./src/ptf_testing
+	./src/renderservice
+	./src/config_editor_ui
 )
