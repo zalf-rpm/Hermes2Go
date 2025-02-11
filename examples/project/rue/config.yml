@@ -37,9 +37,9 @@ CropParameterFormat: 'txt'
 
 #***** Weather *****
 # weather file name template/pattern, %s will be replaced with fcode
-WeatherFile: '%s.csv'
+WeatherFile: '%s.w6d'
 # Weather file format (0=separator(, ; \t), 1 year per file ) (1=separator(, ; \t), multiple years per file)
-WeatherFileFormat: 1
+WeatherFileFormat: 2
 # Weather scenario folder
 WeatherFolder: "historical"
 # weather root directory without scenario folder or filename
@@ -47,7 +47,7 @@ WeatherRootFolder: "./weather/"
 # weather none value, default -99.9
 WeatherNoneValue: 999.9
 # number of header lines (min = 1, with column names)
-WeatherNumHeader: 2
+WeatherNumHeader: 1
 # correction precipitation (0= no, 1 = yes, requires <project>/Weather/preco.txt)
 CorrectionPrecipitation: 0
 # annual average temperature (Degree Celsius)

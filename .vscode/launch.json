@@ -238,8 +238,8 @@
             "program": "src/climatefileconverter",
             "cwd": "examples",
             "args": [
-                "-in", "weather/historical/109_120.csv",
-                "-out", "weather/historical/109_120.w6d"
+                "-in", "weather/historical/109_121.csv",
+                "-out", "weather/historical/109_121.w6d"
             ]
         },
 
