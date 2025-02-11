@@ -231,6 +231,19 @@
             ]
         },
         {
+            "name": "ClimateFileConverter",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "src/climatefileconverter",
+            "cwd": "examples",
+            "args": [
+                "-in", "weather/historical/109_120.csv",
+                "-out", "weather/historical/109_120.w6d"
+            ]
+        },
+
+        {
             "name": "Attach to R process",
             "type": "R-Debugger",
             "request": "attach",
