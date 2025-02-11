@@ -25,6 +25,7 @@ func main() {
 	ptf := flag.Int("ptf", 0, "calculate with ptf (1,2,3,4) 0=none (Pedotransferfunktion see Hermes2Go)")
 	calBulkDensity := flag.Bool("stdbulk", false, "set default bulk density class (Lagerungsdichtenklasse)")
 	withBulkDensity := flag.Bool("withBD", false, "add a BulkDensity column for measured values, set to defaults (Lagerungsdichte für gemessene Werte)")
+	withoutGroundWaterLevel := flag.Bool("withoutGW", false, "source file contains no groundwater level data")
 
 	flag.Parse()
 
@@ -35,11 +36,12 @@ func main() {
 
 	listOfSoilIds := readSoilIds(*inputFile, session)
 	soilData := make([]hermes.SoilFileData, 0)
+	withGroundwater := !*withoutGroundWaterLevel
 	if strings.HasSuffix(*inputFile, ".csv") {
 
 		// read csv file
 		for _, soilId := range listOfSoilIds {
-			data, err := hermes.LoadSoilCSV(true, "any", &hpath, soilId, session)
+			data, err := hermes.LoadSoilCSV(withGroundwater, "any", &hpath, soilId, session)
 			if err != nil {
 				panic(err)
 			}
@@ -48,7 +50,7 @@ func main() {
 	} else {
 		// read txt file
 		for _, soilId := range listOfSoilIds {
-			data, err := hermes.LoadSoil(true, "any", &hpath, soilId, session)
+			data, err := hermes.LoadSoil(withGroundwater, "any", &hpath, soilId, session)
 			if err != nil {
 				panic(err)
 			}
