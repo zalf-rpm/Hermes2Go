@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"log"
-	"net/rpc"
 	"os"
 	"path"
 	"strconv"
@@ -300,90 +299,90 @@ func (f *Fout) Close() {
 	}
 }
 
-type RPCService struct {
-	address string // "localhost:8081"
-	client  *rpc.Client
-}
+// type RPCService struct {
+// 	address string // "localhost:8081"
+// 	client  *rpc.Client
+// }
 
-func NewRPCService(address string) (RPCService, error) {
+// func NewRPCService(address string) (RPCService, error) {
 
-	client, err := rpc.Dial("tcp", address)
-	if err != nil {
-		return RPCService{}, err
-	}
-	return RPCService{address: address, client: client}, nil
-}
+// 	client, err := rpc.Dial("tcp", address)
+// 	if err != nil {
+// 		return RPCService{}, err
+// 	}
+// 	return RPCService{address: address, client: client}, nil
+// }
 
-type TransferEnvGlobal struct {
-	Global GlobalVarsMain
-	Zeit   int
-	Wdt    float64
-	Step   int
-}
+// type TransferEnvGlobal struct {
+// 	Global GlobalVarsMain
+// 	Zeit   int
+// 	Wdt    float64
+// 	Step   int
+// }
 
-type TransferEnvNitro struct {
-	Nitro NitroSharedVars
-	Zeit  int
-	Wdt   float64
-	Step  int
-}
+// type TransferEnvNitro struct {
+// 	Nitro NitroSharedVars
+// 	Zeit  int
+// 	Wdt   float64
+// 	Step  int
+// }
 
-type TransferEnvWdt struct {
-	Zeit  int
-	WDT   float64
-	N     int
-	WG    [3][21]float64
-	W     [21]float64
-	DZ    float64
-	REGEN float64
-}
+// type TransferEnvWdt struct {
+// 	Zeit  int
+// 	WDT   float64
+// 	N     int
+// 	WG    [3][21]float64
+// 	W     [21]float64
+// 	DZ    float64
+// 	REGEN float64
+// }
 
-func (rs *RPCService) SendWdt(g *GlobalVarsMain, zeit int, wdt float64) error {
-	if rs.client != nil {
-		wdtData := TransferEnvWdt{
-			Zeit:  zeit,
-			WDT:   wdt,
-			N:     g.N,
-			WG:    g.WG,
-			W:     g.W,
-			DZ:    g.DZ.Num,
-			REGEN: g.REGEN[g.TAG.Index],
-		}
-		if err := rs.client.Call("RPCHandler.DumpWdtCalc", wdtData, nil); err != nil {
-			return fmt.Errorf("DumpWdtCalc %+v", err)
-		}
-	}
+// func (rs *RPCService) SendWdt(g *GlobalVarsMain, zeit int, wdt float64) error {
+// 	if rs.client != nil {
+// 		wdtData := TransferEnvWdt{
+// 			Zeit:  zeit,
+// 			WDT:   wdt,
+// 			N:     g.N,
+// 			WG:    g.WG,
+// 			W:     g.W,
+// 			DZ:    g.DZ.Num,
+// 			REGEN: g.REGEN[g.TAG.Index],
+// 		}
+// 		if err := rs.client.Call("RPCHandler.DumpWdtCalc", wdtData, nil); err != nil {
+// 			return fmt.Errorf("DumpWdtCalc %+v", err)
+// 		}
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
-func (rs *RPCService) SendGV(g *GlobalVarsMain, zeit int, wdt float64, step int) error {
-	if rs.client != nil {
-		glob := TransferEnvGlobal{
-			Global: *g,
-			Zeit:   zeit,
-			Wdt:    wdt,
-			Step:   step,
-		}
-		if err := rs.client.Call("RPCHandler.DumpGlobalVar", glob, nil); err != nil {
-			return fmt.Errorf("DumpGlobalVar %+v", err)
-		}
-	}
-	return nil
-}
+// func (rs *RPCService) SendGV(g *GlobalVarsMain, zeit int, wdt float64, step int) error {
+// 	if rs.client != nil {
+// 		glob := TransferEnvGlobal{
+// 			Global: *g,
+// 			Zeit:   zeit,
+// 			Wdt:    wdt,
+// 			Step:   step,
+// 		}
+// 		if err := rs.client.Call("RPCHandler.DumpGlobalVar", glob, nil); err != nil {
+// 			return fmt.Errorf("DumpGlobalVar %+v", err)
+// 		}
+// 	}
+// 	return nil
+// }
 
-func (rs *RPCService) SendNV(n *NitroSharedVars, zeit int, wdt float64, step int) error {
-	if rs.client != nil {
-		nitro := TransferEnvNitro{
-			Nitro: *n,
-			Zeit:  zeit,
-			Wdt:   wdt,
-			Step:  step,
-		}
+// func (rs *RPCService) SendNV(n *NitroSharedVars, zeit int, wdt float64, step int) error {
+// 	if rs.client != nil {
+// 		nitro := TransferEnvNitro{
+// 			Nitro: *n,
+// 			Zeit:  zeit,
+// 			Wdt:   wdt,
+// 			Step:  step,
+// 		}
 
-		if err := rs.client.Call("RPCHandler.DumpNitroVar", nitro, nil); err != nil {
-			return fmt.Errorf("DumpNitroVar %+v", err)
-		}
-	}
-	return nil
-}
+// 		if err := rs.client.Call("RPCHandler.DumpNitroVar", nitro, nil); err != nil {
+// 			return fmt.Errorf("DumpNitroVar %+v", err)
+// 		}
+// 	}
+// 	return nil
+// }

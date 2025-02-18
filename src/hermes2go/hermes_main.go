@@ -137,12 +137,12 @@ func main() {
 		} else if arg == "-v" || arg == "-version" {
 			fmt.Println("Version: ", version)
 			return
-		} else if arg == "-rpc" && i+1 < len(argsWithoutProg) {
-			address := argsWithoutProg[i+1]
-			rpcService, err := hermes.NewRPCService(address)
-			if err == nil {
-				session.HermesRPCService = rpcService
-			}
+			// } else if arg == "-rpc" && i+1 < len(argsWithoutProg) {
+			// 	address := argsWithoutProg[i+1]
+			// 	rpcService, err := hermes.NewRPCService(address)
+			// 	if err == nil {
+			// 		session.HermesRPCService = rpcService
+			// 	}
 		} else {
 			otherArgs = append(otherArgs, arg)
 		}

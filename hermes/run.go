@@ -521,7 +521,7 @@ func (session *HermesSession) Run(workingDir string, args []string, logID string
 			}
 			WDT = 1 / math.Ceil(ZSR)
 
-			g.Session.HermesRPCService.SendWdt(&g, ZEIT, WDT)
+			//g.Session.HermesRPCService.SendWdt(&g, ZEIT, WDT)
 
 			// *************** BERECHNUNG DER BODENTEMPERATUR ***************
 			// *************** CALCULATION OF SOIL TEMPERATURE ***************

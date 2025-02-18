@@ -792,13 +792,13 @@ func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			g.C1[z] = cKonz
 		}
 	}
-	// this part will only be triggerd if a RPC service was connected at start
-	if err := g.Session.HermesRPCService.SendGV(g, zeit, wdt, subd); err != nil {
-		fmt.Println(err)
-	}
-	if err := g.Session.HermesRPCService.SendNV(l, zeit, wdt, subd); err != nil {
-		fmt.Println(err)
-	}
+	// // this part will only be triggerd if a RPC service was connected at start
+	// if err := g.Session.HermesRPCService.SendGV(g, zeit, wdt, subd); err != nil {
+	// 	fmt.Println(err)
+	// }
+	// if err := g.Session.HermesRPCService.SendNV(l, zeit, wdt, subd); err != nil {
+	// 	fmt.Println(err)
+	// }
 
 	if g.Q1[g.OUTN] > 0 {
 		if g.OUTN < g.N {
