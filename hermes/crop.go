@@ -76,6 +76,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		g.SWCM1 = 0
 		g.SWCM2 = 0
 		g.LAIMAX = 0
+		g.GPPsum = 0
 
 		// ! ********************************* reading crop parameter file *************************************************
 		PARANAM := hPath.GetParanam(g.CropTypeToString(g.FRUCHT[g.AKF.Index], false), g.CVARIETY[g.AKF.Index], driConfig.CropParameterFormat == "yml")
@@ -438,7 +439,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 					g.DRYD2 = g.DRYD2 + 1
 				}
 			}
-
+			g.RespDay = 0
 			for i := 0; i < g.NRKOM; i++ {
 				if g.SUM[g.INTWICK.Index]/g.TSUM[g.INTWICK.Index] > 1 {
 					l.GORG[i] = 0
@@ -447,6 +448,9 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 					l.GORG[i] = GTW*0.7*(g.PRO[g.INTWICK.Index-1][i]+(g.PRO[g.INTWICK.Index][i]-g.PRO[g.INTWICK.Index-1][i])*g.SUM[g.INTWICK.Index]/g.TSUM[g.INTWICK.Index])*g.REDUK - (MAINT * l.MANT[i] * 0.7)
 					l.DGORG[i] = g.WORG[i] * (g.DEAD[g.INTWICK.Index-1][i] + (g.DEAD[g.INTWICK.Index][i]-g.DEAD[g.INTWICK.Index-1][i])*(math.Min(1, g.SUM[g.INTWICK.Index]/g.TSUM[g.INTWICK.Index])))
 				}
+				// daily sum of maintenance and growth respiration
+				g.RespDay = g.RespDay + GTW*0.3*(g.PRO[g.INTWICK.Index-1][i]+(g.PRO[g.INTWICK.Index][i]-g.PRO[g.INTWICK.Index-1][i])*g.SUM[g.INTWICK.Index]/g.TSUM[g.INTWICK.Index])*g.REDUK - (MAINT * l.MANT[i] * 0.3) + (MAINT*l.MANT[i])*12/30/10*g.DT.Num
+
 				if i+1 < 4 {
 					if g.WORG[i]+(l.GORG[i]-l.DGORG[i])*g.DT.Num > 0.0000000000001 { // almost 0
 						g.WORG[i] = g.WORG[i] + l.GORG[i]*g.DT.Num - l.DGORG[i]*g.DT.Num
@@ -941,6 +945,14 @@ func radia(g *GlobalVarsMain, l *CropSharedVars) (DLE, DLP, GPHOT, MAINT float64
 	if g.TRREL < vswell {
 		GPHOT = GPHOT * g.TRREL
 	}
+	// calculating daily GPP (gramm C m^2)
+	// convert Glucose to C in dependence of Molecular weight (C6H12O6 -> C = 12g/mol, H = 1g/mol, O = 16g/mol)
+	// molecular mass of glucose is 180.156 g/mol, 30 per C atom -> (C H2 O)6
+	// 10 -> convert to kg C/ha
+	g.GPPdaily = GPHOT * 12 / 30 / 10 // GPHOT * 12C g/mol / total 30 g/mol / to kg/ha
+	// sum of GPP during vegetative period
+	g.GPPsum = g.GPPsum + g.GPPdaily //*g.DT.Num
+
 	// ! ----------- MAINTENANCE IN ABH. VON TEMPERATUR -----------
 	TEFF := math.Pow(2., (.1*g.TEMP[g.TAG.Index] - 2.5))
 	MAINORG := make([]float64, g.NRKOM)

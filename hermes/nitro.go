@@ -420,6 +420,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			output.Code = g.POLYD
 			output.NotStableErr = g.C1NotStableErr
 			output.PARSUM = g.PARSUM
+			output.GPPsum = g.GPPsum
 			finishedCycle = true
 		}
 		g.NFERTSIM = 0
@@ -434,6 +435,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 		ln.DOMENG1 = 0
 		ln.NRESID = 0
 		g.PARSUM = 0
+		g.GPPsum = 0
 
 		if g.DAUERKULT {
 			if g.JN[g.AKF.Index] == 0 || g.JN[g.AKF.Index] == 1 {

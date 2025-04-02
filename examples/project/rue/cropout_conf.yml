@@ -95,6 +95,8 @@ DataColumns:
   VariableName: Nresid
 - Format: '%1.5f'
   VariableName: PARSUM
+- Format: '%1.5f'
+  VariableName: GPPsum
 - Format: '%s'
   VariableName: Code
 - Format: '%s'

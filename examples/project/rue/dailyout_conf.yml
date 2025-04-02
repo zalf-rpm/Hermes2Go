@@ -184,6 +184,10 @@ DataColumns:
   VariableName: EffectiveIRRIG
 - Format: '%05.3f'
   VariableName: PARi
+- Format: '%05.3f'
+  VariableName: GPPdaily
+- Format: '%05.3f'
+  VariableName: RespDay
 - Format: '%s'
   VariableName: C1NotStable
 Headlines:
@@ -258,4 +262,6 @@ Headlines:
   - ColumnName: REGENdaily    
   - ColumnName: EffIRRIG
   - ColumnName: PARi
+  - ColumnName: GPPdaily
+  - ColumnName: RespDay
   - ColumnName: Error

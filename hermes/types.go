@@ -288,6 +288,9 @@ type GlobalVarsMain struct {
 
 	N2Odencum   float64
 	N2OdenDaily float64
+	GPPdaily    float64 // gross primary production daily (the amount of carbon that plants in an ecosystem fix through photosynthesis)
+	GPPsum      float64 // gross primary production sum
+	RespDay     float64 // respiration daily (the amount of carbon that is released back into the atmosphere through respiration)
 
 	AUFNA   [131]float64 //(0:130)
 	SIC     [131]float64 //(0:130)
@@ -476,6 +479,7 @@ type CropOutputVars struct {
 	Code         string
 	NotStableErr string
 	PARSUM       float64
+	GPPsum       float64
 }
 
 // NewGlobalVarsMain create GlobalVarsMain
