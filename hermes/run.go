@@ -347,6 +347,8 @@ func (session *HermesSession) Run(workingDir string, args []string, logID string
 			g.REGENdaily = g.REGEN[g.TAG.Index]
 			g.EffectiveIRRIG = 0
 			g.PARi = 0
+			g.GPPdaily = 0
+			g.RespDay = 0
 
 			g.REGENSUM = g.REGENSUM + g.REGEN[g.TAG.Index]*10*g.DT.Num
 			if g.TEMP[g.TAG.Index] > g.TJBAS[g.AKF.Index] {
