@@ -649,7 +649,7 @@ func mineral(g *GlobalVarsMain, l *NitroSharedVars) {
 			g.UMS = g.UMS + l.DUMS[zIndex]
 			g.NH4UMS = g.NH4UMS + l.DNH4UMS[zIndex]
 			g.N2onitsum = g.N2onitsum + N2oNIT
-			g.N2onitDaily = N2oNIT
+			g.N2onitDaily += N2oNIT
 			g.MINSUM = g.MINSUM + g.DN[zIndex] - l.DUMS[zIndex]
 		} else {
 			if z == 1 {
@@ -681,7 +681,7 @@ func mineral(g *GlobalVarsMain, l *NitroSharedVars) {
 			FN2oNit := (0.4*(g.WG[0][zIndex]/g.PORGES[zIndex]) - 1.04) / (g.WG[0][zIndex]/g.PORGES[zIndex] - 1.04) * 0.0016 //! Faktor N2O aus Nitrifikation
 			N2ONIT := l.DNH4UMS[zIndex] * FN2oNit                                                                           //! N2O emission aus Nitrifikation pro Zeitschritt (kg N/ha)
 			g.N2onitsum = g.N2onitsum + N2ONIT
-			g.N2onitDaily = N2ONIT
+			g.N2onitDaily += N2ONIT
 			g.DN[zIndex] = l.DUMS[zIndex] - N2ONIT
 		}
 	}
