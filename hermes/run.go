@@ -364,6 +364,7 @@ func (session *HermesSession) Run(workingDir string, args []string, logID string
 			g.RespDay = 0
 			g.N2onitDaily = 0
 			g.N2OdenDaily = 0
+			g.NminBeforeDenitr = [3]float64{0, 0, 0} // reset N-min before denitrification
 
 			g.REGENSUM = g.REGENSUM + g.REGEN[g.TAG.Index]*10*g.DT.Num
 			if g.TEMP[g.TAG.Index] > g.TJBAS[g.AKF.Index] {

@@ -286,11 +286,13 @@ type GlobalVarsMain struct {
 	NDRAINTAG               float64
 	CUMDENIT                float64 // cumulative denitrification
 
-	N2Odencum   float64
-	N2OdenDaily float64
-	GPPdaily    float64 // gross primary production daily (the amount of carbon that plants in an ecosystem fix through photosynthesis)
-	GPPsum      float64 // gross primary production sum
-	RespDay     float64 // respiration daily (the amount of carbon that is released back into the atmosphere through respiration)
+	DTOTALN          [4]float64 // N moved from slowly decomposable pool (kg N/ha)
+	N2Odencum        float64
+	N2OdenDaily      float64
+	NminBeforeDenitr [3]float64 // N-min in layer 1,2,3 before denitrification (kg N/ha)
+	GPPdaily         float64    // gross primary production daily (the amount of carbon that plants in an ecosystem fix through photosynthesis)
+	GPPsum           float64    // gross primary production sum
+	RespDay          float64    // respiration daily (the amount of carbon that is released back into the atmosphere through respiration)
 
 	AUFNA   [131]float64 //(0:130)
 	SIC     [131]float64 //(0:130)

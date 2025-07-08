@@ -584,12 +584,13 @@ func mineral(g *GlobalVarsMain, l *NitroSharedVars) {
 	//! NH4UMS                    = Summe des nitrifizierten Nicht-Nitratanteils des mineralischen Düngers (kg N/ha)
 
 	//! ----------------------------------------------------------------------------------------------------------
-	var DTOTALN, DMINFOS, MIRED [4]float64
-
+	//var DTOTALN, DMINFOS, MIRED [4]float64
+	var DMINFOS, MIRED [4]float64
 	//---------------------  Mineralisation  --------------------
 	num := g.IZM / g.DZ.Index
 	for z := 1; z <= num; z++ {
 		zIndex := z - 1
+		g.DTOTALN[zIndex] = 0
 		TEMPBO := (g.TD[z] + g.TD[z-1]) / 2
 		// --------- Berechnung Mineralisationskoeffizienten ---------
 		// ----------- in Abhängigkeit von TEMP UND WASSER -----------
@@ -617,12 +618,12 @@ func mineral(g *GlobalVarsMain, l *NitroSharedVars) {
 				MIRED[zIndex] = 1
 			}
 			// Mineralisation der schwer abbaubaren Fraktion
-			DTOTALN[zIndex] = kt0 * g.NAOS[zIndex] * MIRED[zIndex]
+			g.DTOTALN[zIndex] = kt0 * g.NAOS[zIndex] * MIRED[zIndex]
 
-			if DTOTALN[zIndex] < 0 {
-				DTOTALN[zIndex] = 0
+			if g.DTOTALN[zIndex] < 0 {
+				g.DTOTALN[zIndex] = 0
 			}
-			g.NAOS[zIndex] = g.NAOS[zIndex] - DTOTALN[zIndex]
+			g.NAOS[zIndex] = g.NAOS[zIndex] - g.DTOTALN[zIndex]
 			// Mineralisation der leicht abbaubaren Fraktion
 			DMINFOS[zIndex] = kt1 * g.NFOS[zIndex] * MIRED[zIndex]
 			if DMINFOS[zIndex] < 0 {
@@ -639,12 +640,12 @@ func mineral(g *GlobalVarsMain, l *NitroSharedVars) {
 
 			}
 			FN2oNit := (0.4*(g.WG[0][zIndex]/g.PORGES[zIndex]) - 1.04) / (g.WG[0][zIndex]/g.PORGES[zIndex] - 1.04) * 0.0016 //! Faktor N2O aus Nitrifikation
-			N2oNIT := (l.DNH4UMS[zIndex] + DTOTALN[zIndex] + DMINFOS[zIndex]) * FN2oNit                                     //! N2O emission aus Nitrifikation pro Zeitschritt (kg N/ha)
+			N2oNIT := (l.DNH4UMS[zIndex] + g.DTOTALN[zIndex] + DMINFOS[zIndex]) * FN2oNit                                   //! N2O emission aus Nitrifikation pro Zeitschritt (kg N/ha)
 
 			// Mineralisationssumme => Quellterm ( dn(z) )
-			g.DN[zIndex] = DTOTALN[zIndex] + DMINFOS[zIndex] + l.DUMS[zIndex] - N2oNIT
+			g.DN[zIndex] = g.DTOTALN[zIndex] + DMINFOS[zIndex] + l.DUMS[zIndex] - N2oNIT
 
-			g.MINAOS[zIndex] = g.MINAOS[zIndex] + DTOTALN[zIndex]
+			g.MINAOS[zIndex] = g.MINAOS[zIndex] + g.DTOTALN[zIndex]
 			g.MINFOS[zIndex] = g.MINFOS[zIndex] + DMINFOS[zIndex]
 			g.UMS = g.UMS + l.DUMS[zIndex]
 			g.NH4UMS = g.NH4UMS + l.DNH4UMS[zIndex]
