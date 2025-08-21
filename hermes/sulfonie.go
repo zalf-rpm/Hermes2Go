@@ -238,7 +238,7 @@ func sMove(wdt float64, subd int, g *GlobalVarsMain) {
 		z1 := z + 1
 		// ! --- Berechnung des Diffusionskoeffizienten am unteren Kompartimentrand ---
 		// LET D(Z) = D0S * (AD*EXP((WG(0,Z)+WG(0,Z+1))*5)/((WG(0,Z)+WG(0,Z+1))/2))*DT
-		DiffCoeff[z] = 2.14 * (g.AD * math.Exp((g.WG[0][z]+g.WG[0][z+1])*5) / ((g.WG[0][z] + g.WG[0][z+1]) / 2)) * wdt
+		DiffCoeff[z] = 2.14 * (g.AD[z] * math.Exp((g.WG[0][z]+g.WG[0][z+1])*5) / ((g.WG[0][z] + g.WG[0][z+1]) / 2)) * wdt
 		// ** Loeslichkeitsobergrenzen und Loesungs-/Faellungsreaktion **
 		// SKSAT ist die Saettigungs-Loesungskonzentration in Gramm S/Liter
 		//  SF(z) ist die nicht gelöste Smin-Menge in kg S/ha

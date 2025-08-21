@@ -95,6 +95,8 @@ DataColumns:
   VariableName: Nresid
 - Format: '%1.5f'
   VariableName: PARSUM
+- Format: '%1.5f'
+  VariableName: GPPsum
 - Format: '%s'
   VariableName: Code
 - Format: '%s'
@@ -143,6 +145,7 @@ Headlines:
   - ColumnName: DryD2
   - ColumnName: Nresid
   - ColumnName: PARSUM
+  - ColumnName: GPPsum
   - ColumnName: code
   - ColumnName: Error
   2:

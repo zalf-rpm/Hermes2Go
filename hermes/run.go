@@ -136,7 +136,7 @@ func (session *HermesSession) Run(workingDir string, args []string, logID string
 			OUTDAY = 365
 		}
 		if OUTY >= g.ENDE {
-			g.ENDE = OUTY + 1
+			g.ENDE = OUTY
 		}
 
 		PR = SetPrognoseDate(PROG, &g)
@@ -196,8 +196,10 @@ func (session *HermesSession) Run(workingDir string, args []string, logID string
 		}
 		herPath.SetPreCorrFolder(path.Join(driConfig.WeatherRootFolder, driConfig.WeatherFolder))
 		var bbbShared WeatherDataShared
+		var loadErr error
 		// format multiple years per weather file
-		if driConfig.WeatherFileFormat == 1 {
+		switch driConfig.WeatherFileFormat {
+		case 1:
 			yearEnde, _, _ := KalenderDate(g.ENDE)
 			years := yearEnde - g.ANJAHR + 1
 			bbbShared = NewWeatherDataShared(years, g.CO2KONZ)
@@ -205,16 +207,16 @@ func (session *HermesSession) Run(workingDir string, args []string, logID string
 			if err != nil {
 				return err
 			}
-			LoadYear(&g, &bbbShared, 1900+g.J)
+			loadErr = LoadYear(&g, &bbbShared, 1900+g.J)
 			// met format, one year per weather files
-		} else if driConfig.WeatherFileFormat == 0 {
+		case 0:
 			herPath.vwdatTemplate = path.Join(driConfig.WeatherRootFolder, driConfig.WeatherFolder, driConfig.WeatherFile)
 			herPath.SetVwdatNoExt(g.FCODE)
 			VWDAT := herPath.VWdat(g.J)
 			bbbShared = NewWeatherDataShared(1, g.CO2KONZ)
 			WetterK(VWDAT, 1900+g.J, &g, &bbbShared, &herPath, &driConfig)
-			LoadYear(&g, &bbbShared, 1900+g.J)
-		} else if driConfig.WeatherFileFormat == 2 {
+			loadErr = LoadYear(&g, &bbbShared, 1900+g.J)
+		case 2:
 			yearEnde, _, _ := KalenderDate(g.ENDE)
 			years := yearEnde - g.ANJAHR + 1
 			bbbShared = NewWeatherDataShared(years, g.CO2KONZ)
@@ -222,7 +224,12 @@ func (session *HermesSession) Run(workingDir string, args []string, logID string
 			if err != nil {
 				return err
 			}
-			LoadYear(&g, &bbbShared, 1900+g.J)
+			loadErr = LoadYear(&g, &bbbShared, 1900+g.J)
+		default:
+			return fmt.Errorf("unknown weather file format %d", driConfig.WeatherFileFormat)
+		}
+		if loadErr != nil {
+			return fmt.Errorf("error loading weather data: %w", loadErr)
 		}
 
 		Init(&g)
@@ -328,13 +335,19 @@ func (session *HermesSession) Run(workingDir string, args []string, logID string
 			// ************ GET WEATHER DATA OF THE CURRENT YEAR **********
 			if g.TAG.Num == g.DT.Num {
 				g.TJAHRSUM = 0
-
-				if driConfig.WeatherFileFormat == 1 || driConfig.WeatherFileFormat == 2 {
-					LoadYear(&g, &bbbShared, 1900+g.J)
-				} else if driConfig.WeatherFileFormat == 0 {
+				loadErr = nil
+				currentYear := 1900 + g.J
+				switch driConfig.WeatherFileFormat {
+				case 1, 2:
+					loadErr = LoadYear(&g, &bbbShared, currentYear)
+				case 0:
 					VWDAT := herPath.VWdat(g.J)
-					WetterK(VWDAT, 1900+g.J, &g, &bbbShared, &herPath, &driConfig)
-					LoadYear(&g, &bbbShared, 1900+g.J)
+					WetterK(VWDAT, currentYear, &g, &bbbShared, &herPath, &driConfig)
+					loadErr = LoadYear(&g, &bbbShared, currentYear)
+				}
+				if loadErr != nil {
+					date := g.Kalender(ZEIT)
+					return fmt.Errorf("error loading weather data: %w, date: %s", loadErr, date)
 				}
 			}
 			// set weather input data as daily output
@@ -347,6 +360,11 @@ func (session *HermesSession) Run(workingDir string, args []string, logID string
 			g.REGENdaily = g.REGEN[g.TAG.Index]
 			g.EffectiveIRRIG = 0
 			g.PARi = 0
+			g.GPPdaily = 0
+			g.RespDay = 0
+			g.N2onitDaily = 0
+			g.N2OdenDaily = 0
+			g.NminBeforeDenitr = [3]float64{0, 0, 0} // reset N-min before denitrification
 
 			g.REGENSUM = g.REGENSUM + g.REGEN[g.TAG.Index]*10*g.DT.Num
 			if g.TEMP[g.TAG.Index] > g.TJBAS[g.AKF.Index] {
@@ -355,9 +373,10 @@ func (session *HermesSession) Run(workingDir string, args []string, logID string
 			g.AKTUELL = g.Kalender(ZEIT)
 
 			oldGrW := g.GRW
-			if g.GROUNDWATERFROM == Polygonfile {
+			switch g.GROUNDWATERFROM {
+			case Polygonfile:
 				g.GRW = g.GW - (g.AMPL * math.Sin((g.TAG.Num+float64(g.GWPhase))*math.Pi/180))
-			} else if g.GROUNDWATERFROM == GWTimeSeries {
+			case GWTimeSeries:
 				var err error
 				g.GRW, err = GetGroundWaterLevel(&g, ZEIT)
 				if err != nil {
@@ -538,7 +557,7 @@ func (session *HermesSession) Run(workingDir string, args []string, logID string
 			}
 			WDT = 1 / math.Ceil(ZSR)
 
-			g.Session.HermesRPCService.SendWdt(&g, ZEIT, WDT)
+			//g.Session.HermesRPCService.SendWdt(&g, ZEIT, WDT)
 
 			// *************** BERECHNUNG DER BODENTEMPERATUR ***************
 			// *************** CALCULATION OF SOIL TEMPERATURE ***************
@@ -658,8 +677,7 @@ func (session *HermesSession) Run(workingDir string, args []string, logID string
 				g.PE[i] = 0
 				g.PES[i] = 0
 			}
-
-			if g.BART[0][0:1] == "H" {
+			if g.BART[0][0] == 'H' {
 				Denitmo(&g)
 			} else {
 				Denitr(&g, false)

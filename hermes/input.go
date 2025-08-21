@@ -11,19 +11,31 @@ import (
 type InputSharedVars struct {
 	DGMG    [300]float64 // amount of nitrogen in fertilizer
 	NGEHALT [10]float64
-	FK      [10]float64
-	IRRIGAT bool
-	ANZBREG int
-	FLAEID  string
-	SSAND   [10]float64 // sand in %
-	SLUF    [10]float64 // silt(schluf) in %
-	TON     [10]float64 // clay(ton) in %
+	//Jstr    string
+	//MK [70]string
+	FK [10]float64
+	// KONZ1   float64
+	// KONZ3   float64
+	// KONZ4   float64
+	// KONZ5   float64
+	// KONZ6   float64
+	// KONZ7   float64
+	IRRIGAT          bool
+	ANZBREG          int
+	FLAEID           string
+	SSAND            [10]float64 // sand in %
+	SLUF             [10]float64 // silt(schluf) in %
+	TON              [10]float64 // clay(ton) in %
+	ValidSoilTexture []string
 }
 
 // Input modul for reading soil data, crop rotation, cultivation data (Fertilization, tillage) of fields and ploygon units
 func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *Config, soilID, gwId string) error {
 	//! ------Modul zum Einlesen von Boden-, Fruchtfolge und Bewirtschaftungsdaten (Duengung, Bodenbearbeitung) von Feldern und Polygonen ---------
 	var ERNT, SAT string
+
+	// load soil textures from parcap file
+	l.ValidSoilTexture = LoadValidSoilTextures(hPath.parcap, g.Session, false)
 
 	//!  Einleseprogramm für Schlagdaten
 	// ! ----------------------- Beginn Lesen der Polygondatei ------------------------
@@ -112,6 +124,19 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 				if soilLoadError != nil {
 					return soilLoadError
 				}
+				// check for textures all soil layers, if the texture also exists in the hypar file
+				for horizon := 0; horizon < currentSoil.AZHO; horizon++ {
+					textureExists := false
+					for iTex := 0; iTex < len(l.ValidSoilTexture); iTex++ {
+						if currentSoil.BART[horizon] == l.ValidSoilTexture[iTex] {
+							textureExists = true
+							break
+						}
+					}
+					if !textureExists {
+						return fmt.Errorf("soil texture %s is not listed in HYPAR.TRU", currentSoil.BART[horizon])
+					}
+				}
 
 				g.SoilID = currentSoil.SoilID
 				g.N = currentSoil.N
@@ -166,13 +191,17 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 
 				for L := 1; L <= g.AZHO; L++ {
 					lindex := L - 1
-					Hydro(L, g, l, hPath)
+					AD, err := Hydro(L, g, l, hPath)
+					if err != nil {
+						return err
+					}
 					if g.FELDW[lindex] == 0 {
 						g.FELDW[lindex] = g.FELDW[lindex-1]
 					}
-					// for every 10 cm in this layer
+					// for every 10 cm in this soil horizon
 					for LT := g.UKT[L-1] + 1; LT <= g.UKT[L]; LT++ {
 						LTindex := LT - 1
+						g.AD[LTindex] = AD
 						if g.PTF == 0 {
 							if g.FKA[lindex] > 0 {
 								g.CAPPAR = 1
@@ -188,6 +217,8 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 									}
 								}
 							} else {
+								// Field capacity and wilting point are not set
+								// use predefined values from HYPAR.TRU
 								g.CAPPAR = 0
 								if LT < g.N+1 {
 
@@ -1138,16 +1169,20 @@ func PTF4(CGEHALT, TON, SSAND float64) (fc float64, wmin float64) {
 }
 
 // Hydro reads hydro parameter
-func Hydro(las1 int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFilePath) {
-	lIndex := las1 - 1
-	BDART := g.BART[lIndex]
-	if las1 == g.AZHO {
+func Hydro(horizon int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFilePath) (AD float64, err error) {
+	horizonIndex := horizon - 1
+	BDART := g.BART[horizonIndex]
+	if horizon == g.AZHO {
 		_, scannerParCap, _ := g.Session.Open(&FileDescriptior{FilePath: hPath.parcap, UseFilePool: true})
-
-		for ok := true; ok; ok = g.CAPS[0] == 0 {
+		foundParCapEntry := false
+		for !foundParCapEntry {
 			PARA := LineInut(scannerParCap)
 			PARA2 := LineInut(scannerParCap)
-			if PARA[0:3] == BDART {
+			texture := PARA[0:3]
+			texture = strings.ToUpper(texture)
+			// last soil layer texture is used for all layers to fill out CAPS
+			if texture == BDART {
+				foundParCapEntry = true
 				for i := 1; i <= 10; i++ {
 					indexStart := i*6 - 1
 					endIndex := i*6 + 4
@@ -1162,6 +1197,9 @@ func Hydro(las1 int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFilePath
 				}
 			}
 		}
+		if !foundParCapEntry {
+			return 0, fmt.Errorf("no entry found for texture %s in %s", BDART, hPath.parcap)
+		}
 	}
 	g.IZM = 30
 
@@ -1170,31 +1208,34 @@ func Hydro(las1 int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFilePath
 
 	for {
 		wa := LineInut(scannerHyPar)
-		if wa[0:3] == BDART {
-			if g.LD[lIndex] == 1 || g.LD[lIndex] == 2 {
-				local.FK[lIndex] = ValAsFloat(wa[4:6], hyparName, wa) / 100
-				g.LIM[lIndex] = local.FK[lIndex] - ValAsFloat(wa[13:15], hyparName, wa)/100
-				g.PRGES[lIndex] = ValAsFloat(wa[22:24], hyparName, wa) / 100
-			} else if g.LD[lIndex] == 3 {
-				local.FK[lIndex] = ValAsFloat(wa[7:9], hyparName, wa) / 100
-				g.LIM[lIndex] = local.FK[lIndex] - ValAsFloat(wa[16:18], hyparName, wa)/100
-				g.PRGES[lIndex] = ValAsFloat(wa[25:27], hyparName, wa) / 100
-			} else if g.LD[lIndex] == 4 || g.LD[lIndex] == 5 {
-				local.FK[lIndex] = ValAsFloat(wa[10:12], hyparName, wa) / 100
-				g.LIM[lIndex] = local.FK[lIndex] - ValAsFloat(wa[19:21], hyparName, wa)/100
-				g.PRGES[lIndex] = ValAsFloat(wa[28:30], hyparName, wa) / 100
+		texture := wa[0:3]
+		texture = strings.ToUpper(texture)
+		if texture == BDART {
+			if g.LD[horizonIndex] == 1 || g.LD[horizonIndex] == 2 {
+				local.FK[horizonIndex] = ValAsFloat(wa[4:6], hyparName, wa) / 100
+				g.LIM[horizonIndex] = local.FK[horizonIndex] - ValAsFloat(wa[13:15], hyparName, wa)/100
+				g.PRGES[horizonIndex] = ValAsFloat(wa[22:24], hyparName, wa) / 100
+			} else if g.LD[horizonIndex] == 3 {
+				local.FK[horizonIndex] = ValAsFloat(wa[7:9], hyparName, wa) / 100
+				g.LIM[horizonIndex] = local.FK[horizonIndex] - ValAsFloat(wa[16:18], hyparName, wa)/100
+				g.PRGES[horizonIndex] = ValAsFloat(wa[25:27], hyparName, wa) / 100
+			} else if g.LD[horizonIndex] == 4 || g.LD[horizonIndex] == 5 {
+				local.FK[horizonIndex] = ValAsFloat(wa[10:12], hyparName, wa) / 100
+				g.LIM[horizonIndex] = local.FK[horizonIndex] - ValAsFloat(wa[19:21], hyparName, wa)/100
+				g.PRGES[horizonIndex] = ValAsFloat(wa[28:30], hyparName, wa) / 100
 			}
 
-			//g.WUMAX[lIndex] = ValAsFloat(wa[31:33], hyparName, wa)
-			if las1 == 1 {
-				calcWRed(g.LIM[lIndex]*100, local.FK[lIndex]*100, g)
+			//g.WUMAX[horizonIndex] = ValAsFloat(wa[31:33], hyparName, wa)
+			if horizon == 1 {
+				calcWRed(g.LIM[horizonIndex]*100, local.FK[horizonIndex]*100, g)
 			}
 			break
 		}
 	}
+	AD = .002 // default value
 	var KRR, KRG float64
 	if BDART[0] == 'S' {
-		g.AD = .004
+		AD = .004
 		if g.GRW < 9 {
 			KRR = 2
 		} else if g.GRW >= 20 && g.GRW < 30 {
@@ -1204,34 +1245,34 @@ func Hydro(las1 int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFilePath
 		} else {
 			KRR = 0
 		}
-		if las1 < 2 {
+		if horizon < 2 {
 			g.IZM = 30
 			g.PROP = 0.6
 		}
 		if BDART == "SL2" || BDART[1] == 'U' || BDART == "SG " || BDART == "SM " || BDART == "SF " {
-			if g.CGEHALT[lIndex] > 4.6 {
+			if g.CGEHALT[horizonIndex] > 4.6 {
 				KRR = KRR + 10
 				KRG = 10
-			} else if g.CGEHALT[lIndex] > 2.3 {
+			} else if g.CGEHALT[horizonIndex] > 2.3 {
 				KRR = KRR + 7.5
 				KRG = 6.5
-			} else if g.CGEHALT[lIndex] > 1.16 {
+			} else if g.CGEHALT[horizonIndex] > 1.16 {
 				KRR = KRR + 3.5
 				KRG = 2.5
 			} else {
 				KRG = 0
 			}
 		} else {
-			if g.CGEHALT[lIndex] > 4.6 {
+			if g.CGEHALT[horizonIndex] > 4.6 {
 				KRR = KRR + 11.5
 				KRG = 14
-			} else if g.CGEHALT[lIndex] > 2.3 {
+			} else if g.CGEHALT[horizonIndex] > 2.3 {
 				KRR = KRR + 8
 				KRG = 10
-			} else if g.CGEHALT[lIndex] > 1.16 {
+			} else if g.CGEHALT[horizonIndex] > 1.16 {
 				KRR = KRR + 3.5
 				KRG = 4.5
-			} else if g.CGEHALT[lIndex] > 0.58 {
+			} else if g.CGEHALT[horizonIndex] > 0.58 {
 				KRR = KRR + 1.5
 				KRG = 1.50
 			} else {
@@ -1243,25 +1284,25 @@ func Hydro(las1 int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFilePath
 			g.IZM = 30
 		} else if BDART[1] == 'L' || BDART[1] == 'l' {
 			if BDART[2] == '2' {
-				if las1 == 1 {
+				if horizon == 1 {
 					g.IZM = 30
 				}
 			}
 		} else if BDART[1] == 'F' || BDART[1] == 'f' {
-			if las1 == 1 {
+			if horizon == 1 {
 				g.IZM = 30
 			}
 		} else if BDART[1] == 'G' || BDART[1] == 'g' {
-			if las1 == 1 {
+			if horizon == 1 {
 				g.IZM = 30
 			}
 		} else if BDART[1] == 'M' || BDART[1] == 'm' {
-			if las1 == 1 {
+			if horizon == 1 {
 				g.IZM = 30
 			}
 		}
 	} else if BDART[0] == 'U' {
-		g.AD = .002
+		AD = .002
 		if g.GRW < 8 {
 			KRR = 1
 		} else if g.GRW > 35 {
@@ -1269,130 +1310,132 @@ func Hydro(las1 int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFilePath
 		} else {
 			KRR = 0
 		}
-		if las1 < 2 {
+		if horizon < 2 {
 			g.PROP = 0.3
 		}
-		if g.CGEHALT[lIndex] > 5.2 {
+		if g.CGEHALT[horizonIndex] > 5.2 {
 			KRR = KRR + 12
-		} else if g.CGEHALT[lIndex] > 4.6 {
+		} else if g.CGEHALT[horizonIndex] > 4.6 {
 			KRR = KRR + 7
-		} else if g.CGEHALT[lIndex] > 3.5 {
+		} else if g.CGEHALT[horizonIndex] > 3.5 {
 			KRR = KRR + 5
-		} else if g.CGEHALT[lIndex] > 2.3 {
+		} else if g.CGEHALT[horizonIndex] > 2.3 {
 			KRR = KRR + 1
 		}
 		if BDART[1] == 'S' || BDART[1] == 's' {
-			if las1 == 1 {
+			if horizon == 1 {
 				g.IZM = 30
 			}
 		} else if BDART[1] == 'T' || BDART[1] == 't' {
-			if las1 == 1 {
+			if horizon == 1 {
 				g.IZM = 20
 			}
 		}
 	} else if BDART[0] == 'L' {
-		g.AD = .005
+		AD = .005
 		if g.GRW < 8 {
 			KRR = 1
 		} else {
 			KRR = 0
 		}
 
-		if las1 < 2 {
+		if horizon < 2 {
 			g.PROP = 0.3
 		}
-		if g.CGEHALT[lIndex] > 4.6 {
+		if g.CGEHALT[horizonIndex] > 4.6 {
 			KRR = KRR + 7
-		} else if g.CGEHALT[lIndex] > 3.5 {
+		} else if g.CGEHALT[horizonIndex] > 3.5 {
 			KRR = KRR + 4
-		} else if g.CGEHALT[lIndex] > 2.3 {
+		} else if g.CGEHALT[horizonIndex] > 2.3 {
 			KRR = KRR + 1
 		}
 		if BDART[1] == 'S' || BDART[1] == 's' {
-			if las1 == 1 {
+			if horizon == 1 {
 				g.IZM = 30
 			}
 		} else if BDART[1] == 'T' || BDART[1] == 't' {
 			if BDART[2] == '2' {
-				if las1 == 1 {
+				if horizon == 1 {
 					g.IZM = 30
 				}
 			} else if BDART[2] == '3' {
-				if las1 == 1 {
+				if horizon == 1 {
 					g.IZM = 20
 				}
 			} else if BDART[2] == 'U' {
-				if las1 == 1 {
+				if horizon == 1 {
 					g.IZM = 20
 				}
 			} else if BDART[2] == 'S' {
-				if las1 == 1 {
+				if horizon == 1 {
 					g.IZM = 20
 				}
 			}
 		}
 	} else if BDART == "T  " || BDART == " T " || BDART == "  T" {
-		if las1 == 1 {
+		if horizon == 1 {
 			g.IZM = 20
 		}
-		g.AD = .001
+		AD = .001
 		if g.GRW < 8 {
 			KRR = 1
 		} else {
 			KRR = 0
 		}
-		if las1 < 2 {
+		if horizon < 2 {
 			g.PROP = 0.4
 		}
 	} else if BDART[0] == 'T' {
-		if las1 == 1 {
+		if horizon == 1 {
 			g.IZM = 20
 		}
-		g.AD = .001
+		AD = .001
 		if g.GRW < 8 {
 			KRR = 1
 		} else {
 			KRR = 0
 		}
-		if las1 < 2 {
+		if horizon < 2 {
 			g.PROP = 0.4
 		}
 		if BDART[1] == 'U' || BDART[1] == 'u' {
 			if BDART[2] == '2' {
-				if g.CGEHALT[lIndex] > 4.6 {
+				if g.CGEHALT[horizonIndex] > 4.6 {
 					KRR = KRR + 4
-				} else if g.CGEHALT[lIndex] > 3.5 {
+				} else if g.CGEHALT[horizonIndex] > 3.5 {
 					KRR = KRR + 2
 				}
 			} else if BDART[2] == '3' {
-				if g.CGEHALT[lIndex] > 4.6 {
+				if g.CGEHALT[horizonIndex] > 4.6 {
 					KRR = KRR + 4
-				} else if g.CGEHALT[lIndex] > 3.5 {
+				} else if g.CGEHALT[horizonIndex] > 3.5 {
 					KRR = KRR + 2
 				}
 			} else if BDART[2] == '4' {
-				if g.CGEHALT[lIndex] > 4.6 {
+				if g.CGEHALT[horizonIndex] > 4.6 {
 					KRR = KRR + 7
-				} else if g.CGEHALT[lIndex] > 3.5 {
+				} else if g.CGEHALT[horizonIndex] > 3.5 {
 					KRR = KRR + 4
-				} else if g.CGEHALT[lIndex] > 2.3 {
+				} else if g.CGEHALT[horizonIndex] > 2.3 {
 					KRR = KRR + 1
 				}
 			}
 		}
 	} else if BDART[0] == 'H' {
-		if las1 < 2 {
+		AD = .001 // geschätzt / estimated
+		if horizon < 2 {
 			g.IZM = 10
 			g.PROP = 0.1
 		}
 	}
-	g.FELDW[lIndex] = local.FK[lIndex] + KRR/100
-	g.NORMFK[lIndex] = local.FK[lIndex]
-	g.PRGES[lIndex] = g.PRGES[lIndex] + KRG/100
+	g.FELDW[horizonIndex] = local.FK[horizonIndex] + KRR/100
+	g.NORMFK[horizonIndex] = local.FK[horizonIndex]
+	g.PRGES[horizonIndex] = g.PRGES[horizonIndex] + KRG/100
 
 	if g.IZM/g.DZ.Index > g.N {
 		g.IZM = g.N * g.DZ.Index
 	}
+	return
 }
 
 // residi loads potential mineralization from previous crops

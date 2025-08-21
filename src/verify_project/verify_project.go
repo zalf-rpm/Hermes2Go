@@ -27,13 +27,14 @@ func main() {
 		flag.PrintDefaults()
 		return
 	}
-
+	session := hermes.NewHermesSession()
+	defer session.Close()
 	// read config file
 	configFile := filepath.Join(*projectDir, *project, "config.yml")
 	hconfig := hermes.NewDefaultConfig()
 	// if config files exists, read it into hconfig
 	if _, err := os.Stat(configFile); err == nil {
-		byteData := hermes.HermesFilePool.Get(&hermes.FileDescriptior{FilePath: configFile, ContinueOnError: true, UseFilePool: true})
+		byteData := session.HermesFilePool.Get(&hermes.FileDescriptior{FilePath: configFile, ContinueOnError: true, UseFilePool: true})
 		err := yaml.Unmarshal(byteData, &hconfig)
 		if err != nil {
 			log.Fatalf("error: %v", err)

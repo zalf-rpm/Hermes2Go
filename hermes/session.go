@@ -12,16 +12,16 @@ import (
 )
 
 type HermesSession struct {
-	HermesFilePool   FilePool
-	HermesRPCService RPCService
-	HermesOutWriter  OutWriterGenerator
+	HermesFilePool FilePool
+	// HermesRPCService RPCService
+	HermesOutWriter OutWriterGenerator
 }
 
 func NewHermesSession() *HermesSession {
 	return &HermesSession{
-		HermesFilePool:   FilePool{},
-		HermesRPCService: RPCService{},
-		HermesOutWriter:  DefaultFoutGenerator,
+		HermesFilePool: FilePool{},
+		// HermesRPCService: RPCService{},
+		HermesOutWriter: DefaultFoutGenerator,
 	}
 }
 

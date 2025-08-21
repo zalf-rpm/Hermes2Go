@@ -22,6 +22,9 @@ func Denitr(g *GlobalVarsMain, thetasatFromPorges bool) {
 	}
 	thetarel := thetaOb30 / thetasat
 	nitratOb30 := g.C1[0] + g.C1[1] + g.C1[2]
+	g.NminBeforeDenitr[0] = g.C1[0]
+	g.NminBeforeDenitr[1] = g.C1[1]
+	g.NminBeforeDenitr[2] = g.C1[2]
 	if nitratOb30 > 0 {
 		layerFraction := []float64{
 			g.C1[0] / nitratOb30,

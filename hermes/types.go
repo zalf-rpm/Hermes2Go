@@ -86,7 +86,7 @@ type GlobalVarsMain struct {
 	LIM      [10]float64 // permanent wilting point (Welkepunkt) from file
 	PRGES    [10]float64
 
-	AD                 float64
+	AD                 [20]float64     // Factor depending on soil texture for fomula of inverse tortuosity (see Kersebaum 1989 p.9, p.24 / Olsen & Kemper 1968)
 	GRLO               int             // ground water level low (Grundwasserstand)
 	GRHI               int             // ground water level high (Grundwasserstand)
 	GRW                float64         // ground water level (Grundwasserstand)
@@ -287,8 +287,13 @@ type GlobalVarsMain struct {
 	NDRAINTAG               float64
 	CUMDENIT                float64 // cumulative denitrification
 
-	N2Odencum   float64
-	N2OdenDaily float64
+	DTOTALN          [4]float64 // N moved from slowly decomposable pool (kg N/ha)
+	N2Odencum        float64
+	N2OdenDaily      float64
+	NminBeforeDenitr [3]float64 // N-min in layer 1,2,3 before denitrification (kg N/ha)
+	GPPdaily         float64    // gross primary production daily (the amount of carbon that plants in an ecosystem fix through photosynthesis)
+	GPPsum           float64    // gross primary production sum
+	RespDay          float64    // respiration daily (the amount of carbon that is released back into the atmosphere through respiration)
 
 	AUFNA   [131]float64 //(0:130)
 	SIC     [131]float64 //(0:130)
@@ -545,6 +550,7 @@ type CropOutputVars struct {
 	Code         string
 	NotStableErr string
 	PARSUM       float64
+	GPPsum       float64
 }
 
 // NewGlobalVarsMain create GlobalVarsMain

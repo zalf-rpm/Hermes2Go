@@ -427,6 +427,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			output.Code = g.POLYD
 			output.NotStableErr = g.C1NotStableErr
 			output.PARSUM = g.PARSUM
+			output.GPPsum = g.GPPsum
 			finishedCycle = true
 		}
 		g.NFERTSIM = 0
@@ -441,6 +442,7 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 		ln.DOMENG1 = 0
 		ln.NRESID = 0
 		g.PARSUM = 0
+		g.GPPsum = 0
 		g.SGEHMIN = 0
 		g.SGEHMAX = 0
 		g.SC = 0
@@ -594,12 +596,13 @@ func mineral(g *GlobalVarsMain, l *NitroSharedVars) {
 	//! NH4UMS                    = Summe des nitrifizierten Nicht-Nitratanteils des mineralischen Düngers (kg N/ha)
 
 	//! ----------------------------------------------------------------------------------------------------------
-	var DTOTALN, DMINFOS, MIRED [4]float64
-
+	//var DTOTALN, DMINFOS, MIRED [4]float64
+	var DMINFOS, MIRED [4]float64
 	//---------------------  Mineralisation  --------------------
 	num := g.IZM / g.DZ.Index
 	for z := 1; z <= num; z++ {
 		zIndex := z - 1
+		g.DTOTALN[zIndex] = 0
 		TEMPBO := (g.TD[z] + g.TD[z-1]) / 2
 		// --------- Berechnung Mineralisationskoeffizienten ---------
 		// ----------- in Abhängigkeit von TEMP UND WASSER -----------
@@ -627,12 +630,12 @@ func mineral(g *GlobalVarsMain, l *NitroSharedVars) {
 				MIRED[zIndex] = 1
 			}
 			// Mineralisation der schwer abbaubaren Fraktion
-			DTOTALN[zIndex] = kt0 * g.NAOS[zIndex] * MIRED[zIndex]
+			g.DTOTALN[zIndex] = kt0 * g.NAOS[zIndex] * MIRED[zIndex]
 
-			if DTOTALN[zIndex] < 0 {
-				DTOTALN[zIndex] = 0
+			if g.DTOTALN[zIndex] < 0 {
+				g.DTOTALN[zIndex] = 0
 			}
-			g.NAOS[zIndex] = g.NAOS[zIndex] - DTOTALN[zIndex]
+			g.NAOS[zIndex] = g.NAOS[zIndex] - g.DTOTALN[zIndex]
 			// Mineralisation der leicht abbaubaren Fraktion
 			DMINFOS[zIndex] = kt1 * g.NFOS[zIndex] * MIRED[zIndex]
 			if DMINFOS[zIndex] < 0 {
@@ -649,17 +652,17 @@ func mineral(g *GlobalVarsMain, l *NitroSharedVars) {
 
 			}
 			FN2oNit := (0.4*(g.WG[0][zIndex]/g.PORGES[zIndex]) - 1.04) / (g.WG[0][zIndex]/g.PORGES[zIndex] - 1.04) * 0.0016 //! Faktor N2O aus Nitrifikation
-			N2oNIT := (l.DNH4UMS[zIndex] + DTOTALN[zIndex] + DMINFOS[zIndex]) * FN2oNit                                     //! N2O emission aus Nitrifikation pro Zeitschritt (kg N/ha)
+			N2oNIT := (l.DNH4UMS[zIndex] + g.DTOTALN[zIndex] + DMINFOS[zIndex]) * FN2oNit                                   //! N2O emission aus Nitrifikation pro Zeitschritt (kg N/ha)
 
 			// Mineralisationssumme => Quellterm ( dn(z) )
-			g.DN[zIndex] = DTOTALN[zIndex] + DMINFOS[zIndex] + l.DUMS[zIndex] - N2oNIT
+			g.DN[zIndex] = g.DTOTALN[zIndex] + DMINFOS[zIndex] + l.DUMS[zIndex] - N2oNIT
 
-			g.MINAOS[zIndex] = g.MINAOS[zIndex] + DTOTALN[zIndex]
+			g.MINAOS[zIndex] = g.MINAOS[zIndex] + g.DTOTALN[zIndex]
 			g.MINFOS[zIndex] = g.MINFOS[zIndex] + DMINFOS[zIndex]
 			g.UMS = g.UMS + l.DUMS[zIndex]
 			g.NH4UMS = g.NH4UMS + l.DNH4UMS[zIndex]
 			g.N2onitsum = g.N2onitsum + N2oNIT
-			g.N2onitDaily = N2oNIT
+			g.N2onitDaily += N2oNIT
 			g.MINSUM = g.MINSUM + g.DN[zIndex] - l.DUMS[zIndex]
 		} else {
 			if z == 1 {
@@ -691,7 +694,7 @@ func mineral(g *GlobalVarsMain, l *NitroSharedVars) {
 			FN2oNit := (0.4*(g.WG[0][zIndex]/g.PORGES[zIndex]) - 1.04) / (g.WG[0][zIndex]/g.PORGES[zIndex] - 1.04) * 0.0016 //! Faktor N2O aus Nitrifikation
 			N2ONIT := l.DNH4UMS[zIndex] * FN2oNit                                                                           //! N2O emission aus Nitrifikation pro Zeitschritt (kg N/ha)
 			g.N2onitsum = g.N2onitsum + N2ONIT
-			g.N2onitDaily = N2ONIT
+			g.N2onitDaily += N2ONIT
 			g.DN[zIndex] = l.DUMS[zIndex] - N2ONIT
 		}
 	}
@@ -706,7 +709,7 @@ func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 	// Q1(Z)                     = Fluss durch Untergrenze (cm/d)
 	// QDRAIN                    = Ausfluss in Drainrohr (cm/d)
 	// DRAIDEP                   = Tiefe des Drains (dm)
-	// AD                        = Faktor für Diffusivität?
+	// AD                        = Faktor in Abhängigkeit von der Textur des Bodens (Olsen & Kemper 1968)
 	// DZ                        = Schichtdicke (cm)
 	// WG(0,Z)                   = Wassergehalt am Anfang Zeitschritt in Schicht Z  (cm^3/cm^3)
 	// WNOR(Z)                   = NORM-FK (ohne Wasserstau) in Schicht Z (cm^3/cm^3)
@@ -719,7 +722,7 @@ func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 	var Carray [22]float64
 	for z := 0; z < g.N; z++ {
 		// --- Berechnung des Diffusionskoeffizienten am unteren Kompartimentrand ---
-		l.D[z] = 2.14 * (g.AD * math.Exp((g.WG[0][z]+g.WG[0][z+1])*5) / ((g.WG[0][z] + g.WG[0][z+1]) / 2)) * wdt
+		l.D[z] = 2.14 * (g.AD[z] * math.Exp((g.WG[0][z]+g.WG[0][z+1])*5) / ((g.WG[0][z] + g.WG[0][z+1]) / 2)) * wdt
 		if subd == 1 {
 			if g.PE[z] > g.C1[z]-.5 {
 				g.PE[z] = (g.C1[z] - .5)
@@ -804,13 +807,13 @@ func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 			g.C1[z] = cKonz
 		}
 	}
-	// this part will only be triggerd if a RPC service was connected at start
-	if err := g.Session.HermesRPCService.SendGV(g, zeit, wdt, subd); err != nil {
-		fmt.Println(err)
-	}
-	if err := g.Session.HermesRPCService.SendNV(l, zeit, wdt, subd); err != nil {
-		fmt.Println(err)
-	}
+	// // this part will only be triggerd if a RPC service was connected at start
+	// if err := g.Session.HermesRPCService.SendGV(g, zeit, wdt, subd); err != nil {
+	// 	fmt.Println(err)
+	// }
+	// if err := g.Session.HermesRPCService.SendNV(l, zeit, wdt, subd); err != nil {
+	// 	fmt.Println(err)
+	// }
 
 	if g.Q1[g.OUTN] > 0 {
 		if g.OUTN < g.N {
