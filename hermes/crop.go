@@ -158,7 +158,8 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 
 				SWC := 0.0
 				SWC1 := 0.0
-				if g.INTWICK.Num == 5 {
+				switch g.INTWICK.Num {
+				case 5:
 					for i := 1; i <= 15; i++ {
 						if i < 4 {
 							SWC1 = SWC1 + g.WG[0][i-1]*100
@@ -167,7 +168,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 					}
 					g.SWCA1 = SWC1
 					g.SWCA2 = SWC
-				} else if g.INTWICK.Num == 6 {
+				case 6:
 					for i := 1; i <= 15; i++ {
 						if i < 4 {
 							SWC1 = SWC1 + g.WG[0][i-1]*100
@@ -226,13 +227,14 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		// Assimilationspool
 		g.ASPOO = 0
 		// Beruecksichtigung des Proteinziels im Korn für Duengerbedarfsanalyse
-		if g.FRUCHT[g.AKF.Index] == WW {
+		switch g.FRUCHT[g.AKF.Index] {
+		case WW:
 			l.EZIEL = 95
 			l.PROZIEL = 0.0224
-		} else if g.FRUCHT[g.AKF.Index] == WR {
+		case WR:
 			l.PROZIEL = 0.0175
 			l.EZIEL = 80
-		} else if g.FRUCHT[g.AKF.Index] == WG {
+		case WG:
 			l.PROZIEL = 0.0192
 			l.EZIEL = 80
 		}
@@ -314,7 +316,8 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 		// Funtionen für GEHMAX und GEHMIN in Abhängigkeit der Entwicklung (PHYLLO) oder der oberird. Biomasse (OBMAS)
 		// GEHMAX   = maximal möglicher N-Gehalt (Treiber für N-Aufnahme)(kg N/kg Biomasse)
 		// GEHMIN   = kritischer N-Gehalt der Biomasse (Beginn N-Stress) (kg N/kg Biomasse)
-		if g.NGEFKT == 1 {
+		switch g.NGEFKT {
+		case 1:
 			if g.PHYLLO < 200 {
 				g.GEHMIN = .0415
 				g.GEHMAX = .06
@@ -327,7 +330,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 					g.GEHMAX = 8.1 * math.Exp(-.00147*g.PHYLLO) / 100
 				}
 			}
-		} else if g.NGEFKT == 2 {
+		case 2:
 			if g.PHYLLO < 263 {
 				g.GEHMIN = 0.035
 			} else {
@@ -338,7 +341,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			} else {
 				g.GEHMAX = 0.049 - 0.037883841*math.Pow((1-math.Exp(-(g.PHYLLO-201.50354*math.Log(1-math.Sqrt2/2)-385.8318)/201.50354)), 2)
 			}
-		} else if g.NGEFKT == 3 {
+		case 3:
 			if g.OBMAS < 1000 {
 				g.GEHMAX = 0.06
 				g.GEHMIN = 0.045
@@ -346,7 +349,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 				g.GEHMAX = 0.06 * math.Pow((g.OBMAS/1000), (-0.25))
 				g.GEHMIN = 0.045 * math.Pow((g.OBMAS/1000), (-0.25))
 			}
-		} else if g.NGEFKT == 4 {
+		case 4:
 			if (g.OBMAS + g.WORG[3]) < 1000 {
 				g.GEHMAX = 0.06
 				g.GEHMIN = 0.045
@@ -356,7 +359,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			}
 			// } else if g.NGEFKT == 5 {
 
-		} else if g.NGEFKT == 5 {
+		case 5:
 			// new variables RGA and RGB read from line N-content function
 			org := 0.0
 			if g.SubOrgan > 0 {
@@ -377,7 +380,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 			// 	g.GEHMAX = 0.06 * math.Pow(((g.OBMAS+g.WORG[3])/1000), 0.5294)
 			// 	g.GEHMIN = 0.046694 * math.Pow(((g.OBMAS+g.WORG[3])/1000), 0.5294)
 			// }
-		} else if g.NGEFKT == 6 {
+		case 6:
 			if g.PHYLLO < 400 {
 				g.GEHMIN = .0415
 				g.GEHMAX = .06
@@ -385,7 +388,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 				g.GEHMIN = 5.5 * math.Exp(-.0007*g.PHYLLO) / 100
 				g.GEHMAX = 8.1 * math.Exp(-.0007*g.PHYLLO) / 100
 			}
-		} else if g.NGEFKT == 7 {
+		case 7:
 			if g.OBMAS < 1000 {
 				g.GEHMAX = 0.0615
 				g.GEHMIN = 0.0448
@@ -393,7 +396,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 				g.GEHMAX = 0.0615 * math.Pow((g.OBMAS/1000), (-0.25))
 				g.GEHMIN = 0.0448 * math.Pow((g.OBMAS/1000), (-0.25))
 			}
-		} else if g.NGEFKT == 8 {
+		case 8:
 			if g.PHYLLO < 200*l.tendsum/1260 {
 				g.GEHMIN = .0415
 				g.GEHMAX = .06
@@ -408,7 +411,7 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 					g.GEHMAX = 8.1 * math.Exp(-.00147*dvkor*g.PHYLLO) / 100
 				}
 			}
-		} else if g.NGEFKT == 9 {
+		case 9:
 			if (g.OBMAS + g.WORG[3]) < 1000 {
 				g.GEHMAX = 0.06
 				g.GEHMIN = 0.045
@@ -661,22 +664,14 @@ func PhytoOut(g *GlobalVarsMain, l *CropSharedVars, hPath *HFilePath, zeit int, 
 	}
 	// Limitieren der maximalen N-Aufnahme auf 26-13*10^-14 mol/cm W./sec
 	var maxup float64
-	if g.FRUCHT[g.AKF.Index] == ORH ||
-		g.FRUCHT[g.AKF.Index] == WRA ||
-		g.FRUCHT[g.AKF.Index] == SE ||
-		g.FRUCHT[g.AKF.Index] == LET ||
-		g.FRUCHT[g.AKF.Index] == WCA ||
-		g.FRUCHT[g.AKF.Index] == ONI ||
-		g.FRUCHT[g.AKF.Index] == CEL ||
-		g.FRUCHT[g.AKF.Index] == GAR ||
-		g.FRUCHT[g.AKF.Index] == CAR ||
-		g.FRUCHT[g.AKF.Index] == PMK {
+	switch g.FRUCHT[g.AKF.Index] {
+	case ORH, WRA, SE, LET, WCA, ONI, CEL, GAR, CAR, PMK:
 		maxup = 0.09145 - 0.015725*(g.PHYLLO/1300)
-	} else if g.FRUCHT[g.AKF.Index] == SM {
+	case SM:
 		maxup = 0.074 - 0.01*(g.PHYLLO/l.tendsum)
-	} else if g.FRUCHT[g.AKF.Index] == ZR {
+	case ZR:
 		maxup = 0.05645 - 0.01*(g.PHYLLO/l.tendsum)
-	} else {
+	default:
 		maxup = 0.03145 - 0.015725*(g.PHYLLO/1300)
 	}
 
@@ -784,10 +779,11 @@ func radia(g *GlobalVarsMain, l *CropSharedVars) (DLE, DLP, GPHOT, MAINT float64
 	var amax float64
 	var cocomp float64
 	// ! ++++++++++++++  Auswahl mehrerer Methoden zum CO2 Effect +++++++++++++++
-	if g.CO2METH == 1 {
+	switch g.CO2METH {
+	case 1:
 		cocomp = 17.5 * math.Pow(2, ((g.TEMP[g.TAG.Index]-10)/10))
 		EFF = (g.CO2KONZ - cocomp) / (g.CO2KONZ + 2*cocomp) * EFF0
-	} else if g.CO2METH == 3 {
+	case 3:
 		// ********* Gleichungen von Long 1991 und Mitchel et al. 1995 **************************
 		KTvmax := math.Exp(68800 * ((g.TEMP[g.TAG.Index] + 273) - 298) / (298 * (g.TEMP[g.TAG.Index] + 273) * 8.314))
 		Ktkc := math.Exp(65800 * ((g.TEMP[g.TAG.Index] + 273) - 298) / (298 * (g.TEMP[g.TAG.Index] + 273) * 8.314))
@@ -806,7 +802,7 @@ func radia(g *GlobalVarsMain, l *CropSharedVars) (DLE, DLP, GPHOT, MAINT float64
 			amax = 0
 		}
 		EFF = EFF0
-	} else {
+	default:
 		EFF = EFF0
 	}
 	if l.temptyp == 1 {
@@ -825,9 +821,10 @@ func radia(g *GlobalVarsMain, l *CropSharedVars) (DLE, DLP, GPHOT, MAINT float64
 				amax = 0
 			}
 		}
-		if g.CO2METH == 1 {
+		switch g.CO2METH {
+		case 1:
 			amax = amax * (g.CO2KONZ - cocomp) / (350 - cocomp)
-		} else if g.CO2METH == 2 {
+		case 2:
 			var KCo1 float64
 			var Coco float64
 			if g.RAD[g.TAG.Index] > 0 {

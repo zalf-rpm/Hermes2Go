@@ -291,8 +291,13 @@ func Nitro(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 		//NUSA(NDG) = Zufuhr schnell mineralisierbarer org. Substanz aus Ernterückständen (kg N/ha) (wird entspr. Wurzelverteilung verteilt)
 		//NULA(NDG) = Unterird. Zufuhr langsam mineralisierbarer org. Substanz aus Ernterückständen (kg N/ha) (wird entspr. Wurzelverteilung verteilt)
 		var NDI, NSA, NLA, NUSA, NULA float64
+		var err error
 		if g.AKF.Num != 1 {
-			NDI, NSA, NLA, NUSA, NULA, ln.NRESID = resid(g, ln, hPath)
+			NDI, NSA, NLA, NUSA, NULA, ln.NRESID, err = resid(g, ln, hPath)
+			if err != nil {
+				return finishedCycle, err
+			}
+
 			runErr = g.managementConfig.WriteManagementEvent(NewManagementEvent(Harvest, zeit, map[string]interface{}{
 				"Residue": ln.NRESID,
 			}, g))
@@ -836,7 +841,7 @@ func nmove(wdt float64, subd int, zeit int, g *GlobalVarsMain, l *NitroSharedVar
 }
 
 // resid
-func resid(g *GlobalVarsMain, ln *NitroBBBSharedVars, hPath *HFilePath) (NDI, NSA, NLA, NUSA, NULA, NRESID float64) {
+func resid(g *GlobalVarsMain, ln *NitroBBBSharedVars, hPath *HFilePath) (NDI, NSA, NLA, NUSA, NULA, NRESID float64, err error) {
 	// ------------------------------- Mineralisationspotentiale aus Vorfruchtresiduen ---------------------------------------
 	// Input:
 	// Dauerkult$         = D = Dauerkultur / Permanent crop
@@ -849,6 +854,7 @@ func resid(g *GlobalVarsMain, ln *NitroBBBSharedVars, hPath *HFilePath) (NDI, NS
 	CRONAM := hPath.cropn
 	_, scanner, _ := g.Session.Open(&FileDescriptior{FilePath: CRONAM, UseFilePool: true})
 	var KOSTRO, NERNT, NKOPP, NWURA, NFAST float64
+	foundCrop := false
 	for scanner.Scan() {
 		CROP := scanner.Text()
 		if g.ToCropType(CROP[0:3]) == g.FRUCHT[g.AKF.Index] {
@@ -862,8 +868,12 @@ func resid(g *GlobalVarsMain, ln *NitroBBBSharedVars, hPath *HFilePath) (NDI, NS
 			NWURA = ValAsFloat(CROP[36:40], CRONAM, CROP)
 			//Schnell mineralisierbarer Anteil von N in Ernterückständen (Fraktion)
 			NFAST = ValAsFloat(CROP[41:45], CRONAM, CROP)
+			foundCrop = true
 			break
 		}
+	}
+	if !foundCrop {
+		return 0, 0, 0, 0, 0, 0, fmt.Errorf("resid: crop %s not found in %s", g.CropTypeToString(g.FRUCHT[g.AKF.Index], false), CRONAM)
 	}
 	if ln != nil {
 		ln.NAGB = g.PESUM - (g.PESUM * NWURA)
@@ -871,7 +881,8 @@ func resid(g *GlobalVarsMain, ln *NitroBBBSharedVars, hPath *HFilePath) (NDI, NS
 	var DGM, DGU float64
 	// DGM = N amount from crop residues (kg N/ha)
 	// DGU = N amount from roots (kg N/ha)
-	if g.JN[g.AKF.Index] == 0 {
+	switch g.JN[g.AKF.Index] {
+	case 0:
 		// all residues remain on the field
 		if g.DAUERKULT {
 			DGM = (g.OBMAS - 820) * g.GEHOB
@@ -880,7 +891,7 @@ func resid(g *GlobalVarsMain, ln *NitroBBBSharedVars, hPath *HFilePath) (NDI, NS
 			DGU = g.PESUM * NWURA
 			DGM = (1 - g.JN[g.AKF.Index]) * (g.PESUM - g.PESUM*(1-NWURA)*NERNT/(NERNT+KOSTRO*NKOPP) - g.PESUM*NWURA)
 		}
-	} else if g.JN[g.AKF.Index] == 1 {
+	case 1:
 		// all residues are removed from the field
 		if g.DAUERKULT {
 			if g.FRUCHT[g.AKF.Index] == AA {
@@ -894,11 +905,11 @@ func resid(g *GlobalVarsMain, ln *NitroBBBSharedVars, hPath *HFilePath) (NDI, NS
 			DGM = 0
 			DGU = g.PESUM * NWURA
 		}
-	} else if g.JN[g.AKF.Index] == 2 {
+	case 2:
 		// complete plant remains on the field, no yield is harvested
 		DGU = g.PESUM * NWURA
 		DGM = g.PESUM - DGU
-	} else {
+	default:
 		// JN is a fraction between 0 and 1 of residues that are removed from the field
 		if g.DAUERKULT {
 			DGU = g.PESUM * NWURA * 0.74
@@ -920,7 +931,7 @@ func resid(g *GlobalVarsMain, ln *NitroBBBSharedVars, hPath *HFilePath) (NDI, NS
 	NULA = DGU * (1 - NFAST) // N amount from roots that decompose slow(kg N/ha)
 	NDI = 0.0
 	NRESID = DGM // N residue from above ground crops(kg N/ha)
-	return NDI, NSA, NLA, NUSA, NULA, NRESID
+	return NDI, NSA, NLA, NUSA, NULA, NRESID, nil
 }
 
 // pinit
