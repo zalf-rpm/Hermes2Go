@@ -567,6 +567,7 @@ const (
 	CAR                 // Carrots / Möhren
 	PMK                 // Pumpkins / Kürbis
 	SO                  // sorghum / Hirse
+	SU                  // sudan grass / Sudangras
 	// add new crop types before this line
 	numSysCrops
 )
@@ -606,6 +607,7 @@ var cropTypeLookup = map[string]CropType{
 	"CAR": CAR,
 	"PMK": PMK,
 	"SO":  SO,
+	"SU":  SU,
 }
 
 func (g *GlobalVarsMain) ToCropType(s string) CropType {
