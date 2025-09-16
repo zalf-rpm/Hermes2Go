@@ -64,11 +64,12 @@ func ValAsBool(toParse, filename, line string) bool {
 	if err != nil {
 		log.Fatalf("Error: parsing int! File: %s \n   Line: %s \n", filename, line)
 	}
-	if value == 0 {
+	switch value {
+	case 0:
 		return false
-	} else if value == 1 {
+	case 1:
 		return true
-	} else {
+	default:
 		log.Fatalf("Error: parsing int as bool! File: %s \n   Line: %s \n", filename, line)
 	}
 	return false

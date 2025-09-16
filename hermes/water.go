@@ -132,9 +132,10 @@ func Evatra(l *WaterSharedVars, g *GlobalVarsMain, hPath *HFilePath, zeit int) {
 	if zeit > g.SAAT[g.AKF.Index] && g.INTWICK.Num > 1 &&
 		((g.ERNTE[g.AKF.Index] > 0 && zeit < g.ERNTE[g.AKF.Index]) || (g.ERNTE[g.AKF.Index] == 0 && zeit < g.ERNTE2[g.AKF.Index])) {
 		FK = g.FKF[FKM-1] //!(HAUDE (Heger)-Faktor für Frucht)
-		if g.ETMETH == 1 {
+		switch g.ETMETH {
+		case 1:
 			VERDU[g.TAG.Index] = g.VERD[g.TAG.Index] * FK * .1 //ETp (cm) für Frucht
-		} else if g.ETMETH == 2 {
+		case 2:
 			//! ETP nach Turc-Wendling
 			if g.RAD[g.TAG.Index] > 0 {
 				VERDU[g.TAG.Index] = (g.RAD[g.TAG.Index]*200 + 93*g.KCOA) * (g.TEMP[g.TAG.Index] + 22) / (150 * (g.TEMP[g.TAG.Index] + 123)) * g.FKC * .1
@@ -149,10 +150,10 @@ func Evatra(l *WaterSharedVars, g *GlobalVarsMain, hPath *HFilePath, zeit int) {
 				}
 				VERDU[g.TAG.Index] = (GLOB + 93*g.KCOA) * (g.TEMP[g.TAG.Index] + 22) / (150 * (g.TEMP[g.TAG.Index] - 1 + 123)) * g.FKC * .1
 			}
-		} else if g.ETMETH == 5 {
+		case 5:
 			//! Einlesen Referenzverdustung aus Datei (Spalte Saettdef)
 			VERDU[g.TAG.Index] = g.ETNULL[g.TAG.Index] * g.FKC * .1
-		} else if g.ETMETH == 4 {
+		case 4:
 			//  ! ----------------------- Berechnung der Referenzverdunstung Gras nach Priestley Taylor --------------
 			//  ! -- Notwendige inputs: Temp(Tag) (Tagesmitteltemperatur)
 			//  !                       Tmin(TAG) (Tagesminimumtemperatur)
@@ -202,7 +203,7 @@ func Evatra(l *WaterSharedVars, g *GlobalVarsMain, hPath *HFilePath, zeit int) {
 				g.ET0 = 0
 			}
 			VERDU[g.TAG.Index] = g.ET0 * g.FKC * 0.1
-		} else if g.ETMETH == 3 {
+		case 3:
 			//  ! ----------------------- Berechnung der Referenzverdunstung Gras nach Penman-Monteith --------------
 			//  ! -- Notwendige inputs: Temp(Tag) (Tagesmitteltemperatur)
 			//  !                       Tmin(TAG) (Tagesminimumtemperatur)
@@ -303,11 +304,12 @@ func Evatra(l *WaterSharedVars, g *GlobalVarsMain, hPath *HFilePath, zeit int) {
 		// LET FK = FKU(FKM)
 		FK = g.FKU[FKM-1]
 		// IF ETMETH = 1 then
-		if g.ETMETH == 1 {
+		switch g.ETMETH {
+		case 1:
 			//LET VERDU(TAG) = VERD(TAG)*FK*.1
 			VERDU[g.TAG.Index] = g.VERD[g.TAG.Index] * FK * .1
 			// ELSE IF ETMETH = 2 then
-		} else if g.ETMETH == 2 {
+		case 2:
 			//LET FKC = FKB       !0.65
 			g.FKC = g.FKB
 			//! ETP nach Turc-Wendling
@@ -328,11 +330,11 @@ func Evatra(l *WaterSharedVars, g *GlobalVarsMain, hPath *HFilePath, zeit int) {
 				}
 				VERDU[g.TAG.Index] = (Glob + 93*g.KCOA) * (g.TEMP[g.TAG.Index] + 22) / (150 * (g.TEMP[g.TAG.Index] + 123)) * g.FKC * .1
 			}
-		} else if g.ETMETH == 5 { // external read from weather file
+		case 5: // external read from weather file
 			g.FKC = g.FKB
 			//! ETP nach Penman (unfertig)
 			VERDU[g.TAG.Index] = g.ETNULL[g.TAG.Index] * g.FKC * .1
-		} else if g.ETMETH == 4 {
+		case 4:
 			g.FKC = g.FKB
 			//! ----------------------- Berechnung der Referenzverdunstung Gras nach Priestley Taylor --------------
 			//! -- Notwendige inputs: Temp(Tag) (Tagesmitteltemperatur)
@@ -378,7 +380,7 @@ func Evatra(l *WaterSharedVars, g *GlobalVarsMain, hPath *HFilePath, zeit int) {
 				g.ET0 = 0
 			}
 			VERDU[g.TAG.Index] = g.ET0 * g.FKC * 0.1
-		} else if g.ETMETH == 3 {
+		case 3:
 			// ! ----------------------- Berechnung der Referenzverdunstung Gras nach Penman-Monteith --------------
 			// ! -- Notwendige inputs: Temp(Tag) (Tagesmitteltemperatur)
 			// !                       Tmin(TAG) (Tagesminimumtemperatur)
@@ -697,9 +699,10 @@ func stomat(l *WaterSharedVars, g *GlobalVarsMain) {
 	} else {
 		amax = 0
 	}
-	if g.CO2METH == 1 {
+	switch g.CO2METH {
+	case 1:
 		amax = amax * (g.CO2KONZ - COcomp) / (350 - COcomp)
-	} else if g.CO2METH == 2 {
+	case 2:
 		var KCo1 float64
 		var coco float64
 		if g.RAD[g.TAG.Index] > 0 {

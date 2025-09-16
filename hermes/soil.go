@@ -307,15 +307,16 @@ func LoadSoilCSV(withGroundwater bool, LOGID string, hPath *HFilePath, soilID st
 // BulkDensityClassToDensity set bulk density from class (Lagerungsdichtestufe nach KA5 (1-5))
 func (soildata *SoilFileData) BulkDensityClassToDensity(i int) {
 	// read buld density classes (LD = Lagerungsdichte) set bulk density values
-	if soildata.LD[i] == 1 {
+	switch soildata.LD[i] {
+	case 1:
 		soildata.BULK[i] = 1.1
-	} else if soildata.LD[i] == 2 {
+	case 2:
 		soildata.BULK[i] = 1.3
-	} else if soildata.LD[i] == 3 {
+	case 3:
 		soildata.BULK[i] = 1.5
-	} else if soildata.LD[i] == 4 {
+	case 4:
 		soildata.BULK[i] = 1.7
-	} else if soildata.LD[i] == 5 {
+	case 5:
 		soildata.BULK[i] = 1.85
 	}
 }

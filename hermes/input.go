@@ -65,13 +65,14 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 				if gwId == "" {
 					groundWaterID = sid
 				}
-				if g.GROUNDWATERFROM == Polygonfile {
+				switch g.GROUNDWATERFROM {
+				case Polygonfile:
 					g.GRHI = int(ValAsInt(tokens[3], "none", tokens[3]))
 					g.GRLO = int(ValAsInt(tokens[4], "none", tokens[4]))
 					g.GRW = float64(g.GRLO+g.GRHI) / 2
 					g.GW = float64(g.GRLO+g.GRHI) / 2
 					g.AMPL = float64(g.GRLO-g.GRHI) / 2
-				} else if g.GROUNDWATERFROM == GWTimeSeries {
+				case GWTimeSeries:
 					err := ReadGroundWaterTimeSeries(g, hPath, groundWaterID)
 					if err != nil {
 						return fmt.Errorf("%s %v", g.LOGID, err)
@@ -245,18 +246,19 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 								if l.SSAND[lindex] == 0 {
 									return fmt.Errorf("sand content is 0")
 								}
-								if g.PTF == 1 {
+								switch g.PTF {
+								case 1:
 									// PTF by Toth 2015
 									fk, pwp := PTF1(g.CGEHALT[lindex], l.TON[lindex], l.SLUF[lindex])
 									g.W[LTindex] = fk
 									g.WMIN[LTindex] = pwp
-								} else if g.PTF == 2 {
+								case 2:
 									// PTF by Batjes for pF 2.5
 									g.W[LTindex], g.WMIN[LTindex] = PTF2(g.CGEHALT[lindex], l.TON[lindex], l.SLUF[lindex])
-								} else if g.PTF == 3 {
+								case 3:
 									// PTF by Batjes for pF 1.7
 									g.W[LTindex], g.WMIN[LTindex] = PTF3(g.CGEHALT[lindex], l.TON[lindex], l.SLUF[lindex])
-								} else if g.PTF == 4 {
+								case 4:
 									// PTF by Rawls et al. 2003 for pF 2.5
 									g.W[LTindex], g.WMIN[LTindex] = PTF4(g.CGEHALT[lindex], l.TON[lindex], l.SSAND[lindex])
 								}
@@ -372,21 +374,22 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 					}
 					headlineTokens := strings.Split(cropHeader, ",")
 					for i, t := range headlineTokens {
-						if t == "Field_ID" {
+						switch t {
+						case "Field_ID":
 							hSchlag = i
-						} else if t == "crop" {
+						case "crop":
 							hCrop = i
-						} else if t == "sowing" {
+						case "sowing":
 							hSow = i
-						} else if t == "harvest" {
+						case "harvest":
 							hHarvest = i
-						} else if t == "Rex" {
+						case "Rex":
 							hJN = i
-						} else if t == "yld" {
+						case "yld":
 							hHarvestResidue = i
-						} else if t == "autorg" {
+						case "autorg":
 							hOrgDung = i
-						} else if t == "variety" {
+						case "variety":
 							hVariety = i
 						}
 					}
@@ -595,15 +598,16 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 				// ! ---- Ableitung der Anfangs-Nmin-Verteilung in Abhängigkeit von Vorfrucht -----
 				// Deriving of start-N-min-Distribution in relation to previous crop
 				for m := 1; m <= g.N+1; m++ {
-					if g.FRUCHT[0] == ZR {
+					switch g.FRUCHT[0] {
+					case ZR:
 						g.CN[0][m-1] = 20. * 5 / 10 / (float64(m) + 1)
-					} else if g.FRUCHT[0] == WRA || g.FRUCHT[0] == AB {
+					case WRA, AB:
 						g.CN[0][m-1] = 45. * 5 / 10 / (float64(m) + 1)
-					} else if g.FRUCHT[0] == CCM || g.FRUCHT[0] == M || g.FRUCHT[0] == SM {
+					case CCM, M, SM:
 						g.CN[0][m-1] = 95. * 5 / 10 / (float64(m) + 1)
-					} else if g.FRUCHT[0] == K {
+					case K:
 						g.CN[0][m-1] = 50. * 5 / 10 / (float64(m) + 1)
-					} else {
+					default:
 						g.CN[0][m-1] = 35. * 5 / 10 / (float64(m) + 1)
 					}
 				}
@@ -616,13 +620,14 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 				obs := hPath.obs
 				_, scannerObserv, _ := g.Session.Open(&FileDescriptior{FilePath: obs, FileDescription: "observation file", UseFilePool: true})
 				var Fident string
-				if g.INIWAHL == 1 {
+				switch g.INIWAHL {
+				case 1:
 					Fident = "ALLE"
-				} else if g.INIWAHL == 2 {
+				case 2:
 					Fident = g.PKT
-				} else if g.INIWAHL == 3 {
+				case 3:
 					Fident = l.FLAEID
-				} else if g.INIWAHL == 4 {
+				case 4:
 					Fident = g.SoilID
 				}
 				if driConfig.MeasurementFileFormat == "txt" {
@@ -777,51 +782,57 @@ func ExtractMeasuredDataTxt(scannerObserv *bufio.Scanner, g *GlobalVarsMain, Fid
 					for zi := 1; zi <= g.N; zi++ {
 						ziIndex := zi - 1
 						if zi < 4 {
-							if Jstr == "3" {
+							switch Jstr {
+							case "3":
 								g.WG[g.NMESS+1][ziIndex] = winit[0]
-							} else if Jstr == "2" {
+							case "2":
 								g.WG[g.NMESS+1][ziIndex] = winit[0] * 1.4
-							} else {
+							default:
 								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[0]
 							}
 						} else if zi > 3 && zi < 7 {
-							if Jstr == "3" {
+							switch Jstr {
+							case "3":
 								g.WG[g.NMESS+1][ziIndex] = winit[1]
-							} else if Jstr == "2" {
+							case "2":
 								g.WG[g.NMESS+1][ziIndex] = winit[1] * 1.5
-							} else {
+							default:
 								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[1]
 							}
 						} else if zi > 6 && zi < 10 {
-							if Jstr == "3" {
+							switch Jstr {
+							case "3":
 								g.WG[g.NMESS+1][ziIndex] = winit[2]
-							} else if Jstr == "2" {
+							case "2":
 								g.WG[g.NMESS+1][ziIndex] = winit[2] * 1.6
-							} else {
+							default:
 								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[2]
 							}
 						} else if zi > 9 && zi < 13 {
-							if Jstr == "3" {
+							switch Jstr {
+							case "3":
 								g.WG[g.NMESS+1][ziIndex] = winit[3]
-							} else if Jstr == "2" {
+							case "2":
 								g.WG[g.NMESS+1][ziIndex] = winit[3] * 1.6
-							} else {
+							default:
 								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[3]
 							}
 						} else if zi > 12 && zi < 16 {
-							if Jstr == "3" {
+							switch Jstr {
+							case "3":
 								g.WG[g.NMESS+1][ziIndex] = winit[4]
-							} else if Jstr == "2" {
+							case "2":
 								g.WG[g.NMESS+1][ziIndex] = winit[4] * 1.6
-							} else {
+							default:
 								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[4]
 							}
 						} else if zi > 15 {
-							if Jstr == "3" {
+							switch Jstr {
+							case "3":
 								g.WG[g.NMESS+1][ziIndex] = winit[5]
-							} else if Jstr == "2" {
+							case "2":
 								g.WG[g.NMESS+1][ziIndex] = winit[5] * 1.6
-							} else {
+							default:
 								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[5]
 							}
 
@@ -829,11 +840,12 @@ func ExtractMeasuredDataTxt(scannerObserv *bufio.Scanner, g *GlobalVarsMain, Fid
 					}
 					g.WG[g.NMESS+1][g.N] = g.WG[g.NMESS+1][g.N-1]
 					if g.NMESS == 1 {
-						if Jstr == "3" {
+						switch Jstr {
+						case "3":
 							g.WNZ[0] = (winit[0] + winit[1] + winit[2]) * 300
-						} else if Jstr == "2" {
+						case "2":
 							g.WNZ[0] = (winit[0]*1.4 + winit[1]*1.5 + winit[2]*1.6) * 300
-						} else {
+						default:
 							g.WNZ[0] = (g.WG[2][0] + g.WG[2][1] + g.WG[2][2] + g.WG[2][3] + g.WG[2][4] + g.WG[2][5] + g.WG[2][6] + g.WG[2][7] + g.WG[2][8]) * 100
 						}
 					}
@@ -1010,51 +1022,57 @@ func ExtractMeasuredDataCSV(scannerObserv *bufio.Scanner, g *GlobalVarsMain, Fid
 					for zi := 1; zi <= g.N; zi++ {
 						ziIndex := zi - 1
 						if zi < 4 {
-							if Jstr == "3" {
+							switch Jstr {
+							case "3":
 								g.WG[g.NMESS+1][ziIndex] = winit[0]
-							} else if Jstr == "2" {
+							case "2":
 								g.WG[g.NMESS+1][ziIndex] = winit[0] * 1.4
-							} else {
+							default:
 								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[0]
 							}
 						} else if zi > 3 && zi < 7 {
-							if Jstr == "3" {
+							switch Jstr {
+							case "3":
 								g.WG[g.NMESS+1][ziIndex] = winit[1]
-							} else if Jstr == "2" {
+							case "2":
 								g.WG[g.NMESS+1][ziIndex] = winit[1] * 1.5
-							} else {
+							default:
 								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[1]
 							}
 						} else if zi > 6 && zi < 10 {
-							if Jstr == "3" {
+							switch Jstr {
+							case "3":
 								g.WG[g.NMESS+1][ziIndex] = winit[2]
-							} else if Jstr == "2" {
+							case "2":
 								g.WG[g.NMESS+1][ziIndex] = winit[2] * 1.6
-							} else {
+							default:
 								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[2]
 							}
 						} else if zi > 9 && zi < 13 {
-							if Jstr == "3" {
+							switch Jstr {
+							case "3":
 								g.WG[g.NMESS+1][ziIndex] = winit[3]
-							} else if Jstr == "2" {
+							case "2":
 								g.WG[g.NMESS+1][ziIndex] = winit[3] * 1.6
-							} else {
+							default:
 								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[3]
 							}
 						} else if zi > 12 && zi < 16 {
-							if Jstr == "3" {
+							switch Jstr {
+							case "3":
 								g.WG[g.NMESS+1][ziIndex] = winit[4]
-							} else if Jstr == "2" {
+							case "2":
 								g.WG[g.NMESS+1][ziIndex] = winit[4] * 1.6
-							} else {
+							default:
 								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[4]
 							}
 						} else if zi > 15 {
-							if Jstr == "3" {
+							switch Jstr {
+							case "3":
 								g.WG[g.NMESS+1][ziIndex] = winit[5]
-							} else if Jstr == "2" {
+							case "2":
 								g.WG[g.NMESS+1][ziIndex] = winit[5] * 1.6
-							} else {
+							default:
 								g.WG[g.NMESS+1][ziIndex] = g.WMIN[ziIndex] + (g.W[ziIndex]-g.WMIN[ziIndex])*winit[5]
 							}
 
@@ -1062,11 +1080,12 @@ func ExtractMeasuredDataCSV(scannerObserv *bufio.Scanner, g *GlobalVarsMain, Fid
 					}
 					g.WG[g.NMESS+1][g.N] = g.WG[g.NMESS+1][g.N-1]
 					if g.NMESS == 1 {
-						if Jstr == "3" {
+						switch Jstr {
+						case "3":
 							g.WNZ[0] = (winit[0] + winit[1] + winit[2]) * 300
-						} else if Jstr == "2" {
+						case "2":
 							g.WNZ[0] = (winit[0]*1.4 + winit[1]*1.5 + winit[2]*1.6) * 300
-						} else {
+						default:
 							g.WNZ[0] = (g.WG[2][0] + g.WG[2][1] + g.WG[2][2] + g.WG[2][3] + g.WG[2][4] + g.WG[2][5] + g.WG[2][6] + g.WG[2][7] + g.WG[2][8]) * 100
 						}
 					}
@@ -1186,15 +1205,16 @@ func Hydro(horizon int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFileP
 		texture := wa[0:3]
 		texture = strings.ToUpper(texture)
 		if texture == BDART {
-			if g.LD[horizonIndex] == 1 || g.LD[horizonIndex] == 2 {
+			switch g.LD[horizonIndex] {
+			case 1, 2:
 				local.FK[horizonIndex] = ValAsFloat(wa[4:6], hyparName, wa) / 100
 				g.LIM[horizonIndex] = local.FK[horizonIndex] - ValAsFloat(wa[13:15], hyparName, wa)/100
 				g.PRGES[horizonIndex] = ValAsFloat(wa[22:24], hyparName, wa) / 100
-			} else if g.LD[horizonIndex] == 3 {
+			case 3:
 				local.FK[horizonIndex] = ValAsFloat(wa[7:9], hyparName, wa) / 100
 				g.LIM[horizonIndex] = local.FK[horizonIndex] - ValAsFloat(wa[16:18], hyparName, wa)/100
 				g.PRGES[horizonIndex] = ValAsFloat(wa[25:27], hyparName, wa) / 100
-			} else if g.LD[horizonIndex] == 4 || g.LD[horizonIndex] == 5 {
+			case 4, 5:
 				local.FK[horizonIndex] = ValAsFloat(wa[10:12], hyparName, wa) / 100
 				g.LIM[horizonIndex] = local.FK[horizonIndex] - ValAsFloat(wa[19:21], hyparName, wa)/100
 				g.PRGES[horizonIndex] = ValAsFloat(wa[28:30], hyparName, wa) / 100
@@ -1255,23 +1275,24 @@ func Hydro(horizon int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFileP
 			}
 		}
 
-		if BDART[1] == 'U' || BDART[1] == 'u' {
+		switch BDART[1] {
+		case 'U', 'u':
 			g.IZM = 30
-		} else if BDART[1] == 'L' || BDART[1] == 'l' {
+		case 'L', 'l':
 			if BDART[2] == '2' {
 				if horizon == 1 {
 					g.IZM = 30
 				}
 			}
-		} else if BDART[1] == 'F' || BDART[1] == 'f' {
+		case 'F', 'f':
 			if horizon == 1 {
 				g.IZM = 30
 			}
-		} else if BDART[1] == 'G' || BDART[1] == 'g' {
+		case 'G', 'g':
 			if horizon == 1 {
 				g.IZM = 30
 			}
-		} else if BDART[1] == 'M' || BDART[1] == 'm' {
+		case 'M', 'm':
 			if horizon == 1 {
 				g.IZM = 30
 			}
@@ -1297,11 +1318,12 @@ func Hydro(horizon int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFileP
 		} else if g.CGEHALT[horizonIndex] > 2.3 {
 			KRR = KRR + 1
 		}
-		if BDART[1] == 'S' || BDART[1] == 's' {
+		switch BDART[1] {
+		case 'S', 's':
 			if horizon == 1 {
 				g.IZM = 30
 			}
-		} else if BDART[1] == 'T' || BDART[1] == 't' {
+		case 'T', 't':
 			if horizon == 1 {
 				g.IZM = 20
 			}
@@ -1324,24 +1346,26 @@ func Hydro(horizon int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFileP
 		} else if g.CGEHALT[horizonIndex] > 2.3 {
 			KRR = KRR + 1
 		}
-		if BDART[1] == 'S' || BDART[1] == 's' {
+		switch BDART[1] {
+		case 'S', 's':
 			if horizon == 1 {
 				g.IZM = 30
 			}
-		} else if BDART[1] == 'T' || BDART[1] == 't' {
-			if BDART[2] == '2' {
+		case 'T', 't':
+			switch BDART[2] {
+			case '2':
 				if horizon == 1 {
 					g.IZM = 30
 				}
-			} else if BDART[2] == '3' {
+			case '3':
 				if horizon == 1 {
 					g.IZM = 20
 				}
-			} else if BDART[2] == 'U' {
+			case 'U':
 				if horizon == 1 {
 					g.IZM = 20
 				}
-			} else if BDART[2] == 'S' {
+			case 'S':
 				if horizon == 1 {
 					g.IZM = 20
 				}
@@ -1374,19 +1398,20 @@ func Hydro(horizon int, g *GlobalVarsMain, local *InputSharedVars, hPath *HFileP
 			g.PROP = 0.4
 		}
 		if BDART[1] == 'U' || BDART[1] == 'u' {
-			if BDART[2] == '2' {
+			switch BDART[2] {
+			case '2':
 				if g.CGEHALT[horizonIndex] > 4.6 {
 					KRR = KRR + 4
 				} else if g.CGEHALT[horizonIndex] > 3.5 {
 					KRR = KRR + 2
 				}
-			} else if BDART[2] == '3' {
+			case '3':
 				if g.CGEHALT[horizonIndex] > 4.6 {
 					KRR = KRR + 4
 				} else if g.CGEHALT[horizonIndex] > 3.5 {
 					KRR = KRR + 2
 				}
-			} else if BDART[2] == '4' {
+			case '4':
 				if g.CGEHALT[horizonIndex] > 4.6 {
 					KRR = KRR + 7
 				} else if g.CGEHALT[horizonIndex] > 3.5 {
@@ -1435,15 +1460,16 @@ func residi(g *GlobalVarsMain, hPath *HFilePath) {
 
 	AUFGES := (g.ERTR[0]*NERNT + g.ERTR[0]*KOSTRO*NKOPP) / (1 - NWURA)
 	var DGM float64
-	if g.JN[0] == 0 {
+	switch g.JN[0] {
+	case 0:
 		if g.EINT[0] == 0 {
 			DGM = 0
 		} else {
 			DGM = AUFGES - (g.ERTR[0] * NERNT)
 		}
-	} else if g.JN[0] == 1 {
+	case 1:
 		DGM = AUFGES * NWURA
-	} else {
+	default:
 		DGM = AUFGES*NWURA + (1-g.JN[0])*(AUFGES-g.ERTR[0]*NERNT-AUFGES*NWURA)
 	}
 	if DGM < 0 {

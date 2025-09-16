@@ -186,7 +186,8 @@ func PrognoseTime(ZEIT int, g *GlobalVarsMain, herPath *HFilePath, driConfig *Co
 // FinalDungPrognose last step for fertilization recommendation
 func FinalDungPrognose(g *GlobalVarsMain) (NAPP int) {
 	//  --------------- Calculation of fertilization recommendation ---------------
-	if g.ENDE == g.P1 {
+	switch g.ENDE {
+	case g.P1:
 		if g.DEFDAT > 0 {
 			if g.DOUBLE == 0 || g.DOUBLE < g.PROGNOS {
 				NAPP = g.DEFDAT
@@ -196,7 +197,7 @@ func FinalDungPrognose(g *GlobalVarsMain) (NAPP int) {
 		} else {
 			NAPP = g.DOUBLE
 		}
-	} else if g.ENDE == g.P2 {
+	case g.P2:
 		if g.DEFDAT > 0 {
 			if g.P1 > g.PROGNOS {
 				NAPP = min(g.DEFDAT, g.P1-5)
@@ -206,7 +207,7 @@ func FinalDungPrognose(g *GlobalVarsMain) (NAPP int) {
 		} else {
 			NAPP = g.P1 - 5
 		}
-	} else if g.ENDE == g.ASIP {
+	case g.ASIP:
 		if g.DEFDAT > 0 {
 			if g.P2 > g.PROGNOS {
 				NAPP = min(g.DEFDAT, g.P2-4)
@@ -216,7 +217,7 @@ func FinalDungPrognose(g *GlobalVarsMain) (NAPP int) {
 		} else {
 			NAPP = g.P2
 		}
-	} else if g.ENDE == g.REIF {
+	case g.REIF:
 		if g.DEFDAT > 0 {
 			if g.ASIP == 0 || g.ASIP < g.PROGNOS {
 				NAPP = g.DEFDAT
@@ -226,7 +227,7 @@ func FinalDungPrognose(g *GlobalVarsMain) (NAPP int) {
 		} else {
 			NAPP = g.ASIP
 		}
-	} else {
+	default:
 		NAPP = g.DEFDAT
 	}
 	if NAPP < g.PROGNOS {

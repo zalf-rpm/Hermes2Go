@@ -2171,9 +2171,10 @@ func (c *OutputConfig) WriteLine(file OutWriter) error {
 		}
 	}
 	var err error
-	if c.formatType == csvOut {
+	switch c.formatType {
+	case csvOut:
 		err = outLine.writeCSVString(file, c.seperatorRune)
-	} else if c.formatType == hermesOut {
+	case hermesOut:
 		err = outLine.writeHermesString(file, c)
 	}
 
@@ -2302,7 +2303,8 @@ func (l *OutputLine) writeHermesString(file OutWriter, c *OutputConfig) error {
 		column := c.DataColumns[i]
 		columnWith := column.Width
 		lenLine := utf8.RuneCountInString(line)
-		if column.DataAlignment == rightAlignment {
+		switch column.DataAlignment {
+		case rightAlignment:
 			writefillChar := columnWith - lenLine
 			for writefillChar > 0 {
 				_, err = file.WriteRune(c.fillRune)
@@ -2315,7 +2317,7 @@ func (l *OutputLine) writeHermesString(file OutWriter, c *OutputConfig) error {
 			if err != nil {
 				return err
 			}
-		} else if column.DataAlignment == leftAlignment {
+		case leftAlignment:
 			_, err = file.Write(line)
 			if err != nil {
 				return err
@@ -2328,7 +2330,7 @@ func (l *OutputLine) writeHermesString(file OutWriter, c *OutputConfig) error {
 				}
 				writefillChar--
 			}
-		} else if column.DataAlignment == centerAlignment || column.DataAlignment == noneAlignment {
+		case centerAlignment, noneAlignment:
 			startWritefillChar := (columnWith - lenLine) / 2
 			endWritefillChar := startWritefillChar + ((columnWith - lenLine) % 2)
 			for startWritefillChar > 0 {

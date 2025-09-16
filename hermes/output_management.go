@@ -181,10 +181,11 @@ type ManagementEvent struct {
 
 func NewManagementEvent(eventType ManagementEventType, zeit int, additionalFields map[string]interface{}, g *GlobalVarsMain) *ManagementEvent {
 
-	if eventType == Tillage {
+	switch eventType {
+	case Tillage:
 		additionalFields["Depth"] = int(g.EINT[g.NTIL.Index])
 		additionalFields["Type"] = g.TILART[g.NTIL.Index]
-	} else if eventType == Irrigation {
+	case Irrigation:
 		additionalFields["Amount"] = int(math.Round(g.EffectiveIRRIG))
 		if val, ok := additionalFields["NO3"]; ok {
 			if val.(float64) == 0 {
@@ -193,9 +194,9 @@ func NewManagementEvent(eventType ManagementEventType, zeit int, additionalField
 			}
 		}
 
-	} else if eventType == Sowing {
+	case Sowing:
 		additionalFields["Crop"] = g.CropTypeToString(g.FRUCHT[g.AKF.Index], false)
-	} else if eventType == Harvest {
+	case Harvest:
 		additionalFields["Crop"] = g.CropTypeToString(g.FRUCHT[g.AKF.Index], true)
 	}
 

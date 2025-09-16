@@ -8,9 +8,10 @@ import (
 func Init(g *GlobalVarsMain) {
 
 	g.TAG.SetByIndex(g.ITAG - 2)
-	if g.GROUNDWATERFROM == Polygonfile {
+	switch g.GROUNDWATERFROM {
+	case Polygonfile:
 		g.GRW = g.GW - (g.AMPL * math.Sin((g.TAG.Num+float64(g.GWPhase))*math.Pi/180))
-	} else if g.GROUNDWATERFROM == GWTimeSeries {
+	case GWTimeSeries:
 		g.GRW, _ = GetGroundWaterLevel(g, g.BEGINN-2)
 	}
 	g.TSOIL[0][0] = (g.TMIN[g.ITAG-1] + g.TMAX[g.ITAG-1]) / 2
@@ -35,9 +36,10 @@ func Init(g *GlobalVarsMain) {
 			FKPROZ = .6
 		}
 	}
-	if g.FEU == 1 {
+	switch g.FEU {
+	case 1:
 		FKPROZ = FKPROZ - 0.3
-	} else if g.FEU == 3 {
+	case 3:
 		FKPROZ = FKPROZ + .3
 	}
 	for z := 0; z < g.N; z++ {
