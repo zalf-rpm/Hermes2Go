@@ -27,4 +27,8 @@ RG4 03.70 0.43 0.00 1.00 1.00 0.00 m3 / ha Cattle slurry
 RG5 03.30 0.43 0.00 1.00 1.00 0.00 m3 / ha Cattle slurry                                                 
 FM  01.00 0.65 0.80 0.20 1.00 0.00 m3 / ha Cattle slurry                                                 
 AS  01.00 1.00 0.00 0.00 0.00 0.00 kg N/ha Ammonium sulphate                                                
-DAP 01.00 1.00 0.00 0.00 0.00 0.00 kg N/ha Diammonphosphate                                               
+DAP 01.00 1.00 0.00 0.00 0.00 0.00 kg N/ha Diammonphosphate   
+UAS 01.00 1.00 0.00 0.00 0.50 0.10 kg      Ammonium sulfate urea       
+UI  01.00 1.00 0.00 0.00 0.50 0.05 kg / ha Ammonium sulfate urea urease inhibitor        
+NI  01.00 1.00 0.00 0.10 0.50 0.03 kg      Ammonium sulfate urea urease nitrification inhibitor
+CSD 02.73 0.43 0.00 1.00 1.00 0.40 kg / m3 Cattle slurry N2O Dedelow                                               
