@@ -51,12 +51,14 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 	_, scanner, _ := g.Session.Open(&FileDescriptior{FilePath: hPath.polnam, FileDescription: "polygonfile", UseFilePool: true})
 	LineInut(scanner)
 
+	foundPlot := false
 	for scanner.Scan() {
 		tokens := strings.Fields(scanner.Text())
 		if len(tokens) > 1 {
 			punr := int(ValAsInt(tokens[0], "none", tokens[0])) // Plot-ID / Polygon-ID
 			l.FLAEID = tokens[0]
 			if punr == g.SLNR {
+				foundPlot = true
 				sid := soilID
 				if soilID == "" {
 					sid = tokens[1] // second entry SID in poly file
@@ -709,6 +711,9 @@ func Input(l *InputSharedVars, g *GlobalVarsMain, hPath *HFilePath, driConfig *C
 				break
 			}
 		}
+	}
+	if foundPlot == false {
+		return fmt.Errorf("project(%s): plot number/PlotID(Schlag Nr.) %s not found in %s", hPath.locid, g.SNAM, hPath.polnam)
 	}
 	if g.PotMineralisationMethod == 1 {
 		// potentielle Mineralisierung mit bulk density
