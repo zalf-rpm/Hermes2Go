@@ -1,5 +1,5 @@
 #Download base image alpine 3.20
-FROM golang:1.25.5-alpine3.23 AS build-env
+FROM golang:1.26.3-alpine3.23 AS build-env
 
 RUN apk update && apk add --no-cache binutils git curl unzip tar
 

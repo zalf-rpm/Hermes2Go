@@ -1,6 +1,6 @@
 module github.com/zalf-rpm/Hermes2Go/src/renderservice
 
-go 1.19
+go 1.26.3
 
 require (
 	github.com/go-echarts/go-echarts/v2 v2.2.4

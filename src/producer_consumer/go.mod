@@ -1,6 +1,6 @@
 module github.com/zalf-rpm/Hermes2Go/src/producer_consumer
 
-go 1.19
+go 1.26.3
 
 require (
 	capnproto.org/go/capnp/v3 v3.0.1-alpha.2

@@ -1,3 +1,3 @@
 module github.com/zalf-rpm/Hermes2Go/src/calcHermesBatch
 
-go 1.19
+go 1.26.3
