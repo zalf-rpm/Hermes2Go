@@ -1538,6 +1538,10 @@ func dueng(i int, g *GlobalVarsMain, l *InputSharedVars, hPath *HFilePath) {
 	for scanner.Scan() {
 		du := scanner.Text()
 		token := strings.Fields(du)
+		// skip empty lines or those that do not have enough tokens
+		if len(token) < 7 {
+			continue
+		}
 		if token[0] == g.DGART[i] {
 			l.NORG[i] = ValAsFloat(token[1], dungfile, du)                                     //Ntot
 			VOL := ValAsFloat(token[6], dungfile, du)                                          // Loss
