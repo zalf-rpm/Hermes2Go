@@ -86,6 +86,9 @@ func Test_root(t *testing.T) {
 				wantCulRootPercPerLayer: wantCulRootPercPerLayer,
 			})
 		}
+		if err := scanner.Err(); err != nil {
+			t.Errorf("root() failed to scan test file %s: %v", testfile, err)
+		}
 	}
 
 	for _, tt := range tests {
